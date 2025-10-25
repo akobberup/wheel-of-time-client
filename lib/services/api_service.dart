@@ -122,4 +122,72 @@ class ApiService {
       return false;
     }
   }
+
+  /// Requests a password reset email for the specified email address.
+  /// The backend will send an email with a reset link if the account exists.
+  /// Throws ApiException if the request fails or network error occurs.
+  Future<void> forgotPassword(String email) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('$baseUrl/api/auth/forgot-password'),
+        headers: _getHeaders(),
+        body: jsonEncode({'email': email}),
+      );
+
+      if (response.statusCode != 200) {
+        final errorData = jsonDecode(response.body) as Map<String, dynamic>;
+        throw ApiException(
+          errorData['message'] ?? 'Failed to send password reset email',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Validates a password reset token without actually resetting the password.
+  /// Useful for checking if a reset link is still valid before showing the reset form.
+  /// Returns true if the token is valid, throws ApiException if invalid or expired.
+  Future<bool> validateResetToken(String token) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/auth/validate-reset-token?token=$token'),
+        headers: _getHeaders(),
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Resets the user's password using a valid reset token.
+  /// The token is typically received via email after requesting a password reset.
+  /// Throws ApiException if the token is invalid/expired or if the reset fails.
+  Future<void> resetPassword(String token, String newPassword) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('$baseUrl/api/auth/reset-password'),
+        headers: _getHeaders(),
+        body: jsonEncode({
+          'token': token,
+          'newPassword': newPassword,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        final errorData = jsonDecode(response.body) as Map<String, dynamic>;
+        throw ApiException(
+          errorData['message'] ?? 'Failed to reset password',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
 }

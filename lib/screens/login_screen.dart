@@ -170,7 +170,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 8),
+
+                  // Forgot password link (only show in login mode)
+                  if (_isLoginMode)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pushNamed('/forgot-password');
+                        },
+                        child: const Text('Forgot password?'),
+                      ),
+                    ),
+
+                  const SizedBox(height: 16),
 
                   // Error message
                   if (authState.error != null) ...[

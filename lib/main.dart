@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/auth_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/forgot_password_screen.dart';
+import 'screens/reset_password_screen.dart';
 
 void main() {
   runApp(
@@ -39,6 +41,22 @@ class WheelOfTimeApp extends ConsumerWidget {
         ),
       ),
       home: const AuthWrapper(),
+      routes: {
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
+      },
+      onGenerateRoute: (settings) {
+        // Handle reset password route with token parameter
+        if (settings.name?.startsWith('/reset-password') ?? false) {
+          final uri = Uri.parse(settings.name!);
+          final token = uri.queryParameters['token'];
+          if (token != null) {
+            return MaterialPageRoute(
+              builder: (context) => ResetPasswordScreen(token: token),
+            );
+          }
+        }
+        return null;
+      },
     );
   }
 }
