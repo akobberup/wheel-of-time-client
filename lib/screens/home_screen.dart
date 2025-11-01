@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
+import '../l10n/app_strings.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -10,10 +11,11 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final user = authState.user;
+    final strings = AppStrings.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Wheel of Time'),
+        title: Text(strings.appTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -41,7 +43,7 @@ class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'Welcome!',
+                strings.welcome,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -50,19 +52,19 @@ class HomeScreen extends ConsumerWidget {
               if (user != null) ...[
                 _InfoCard(
                   icon: Icons.person,
-                  label: 'Name',
+                  label: strings.name,
                   value: user.name,
                 ),
                 const SizedBox(height: 12),
                 _InfoCard(
                   icon: Icons.email,
-                  label: 'Email',
+                  label: strings.email,
                   value: user.email,
                 ),
                 const SizedBox(height: 12),
                 _InfoCard(
                   icon: Icons.badge,
-                  label: 'User ID',
+                  label: strings.userId,
                   value: user.userId.toString(),
                 ),
               ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
+import '../l10n/app_strings.dart';
 import 'home_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -58,6 +59,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final strings = AppStrings.of(context);
 
     return Scaffold(
       body: Center(
@@ -79,7 +81,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Wheel of Time',
+                    strings.appTitle,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
@@ -87,7 +89,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _isLoginMode ? 'Welcome back' : 'Create your account',
+                    _isLoginMode ? strings.welcomeBack : strings.createAccount,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Colors.grey[600],
@@ -99,15 +101,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   if (!_isLoginMode) ...[
                     TextFormField(
                       controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.person),
+                      decoration: InputDecoration(
+                        labelText: strings.name,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.person),
                       ),
                       textInputAction: TextInputAction.next,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter your name';
+                          return strings.pleaseEnterName;
                         }
                         return null;
                       },
@@ -118,19 +120,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   // Email field
                   TextFormField(
                     controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.email),
+                    decoration: InputDecoration(
+                      labelText: strings.email,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.email),
                     ),
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Please enter your email';
+                        return strings.pleaseEnterEmail;
                       }
                       if (!value.contains('@')) {
-                        return 'Please enter a valid email';
+                        return strings.pleaseEnterValidEmail;
                       }
                       return null;
                     },
@@ -141,7 +143,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
-                      labelText: 'Password',
+                      labelText: strings.password,
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.lock),
                       suffixIcon: IconButton(
@@ -162,10 +164,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     onFieldSubmitted: (_) => _submit(),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
+                        return strings.pleaseEnterPassword;
                       }
                       if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
+                        return strings.passwordMinLength;
                       }
                       return null;
                     },
@@ -180,7 +182,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         onPressed: () {
                           Navigator.of(context).pushNamed('/forgot-password');
                         },
-                        child: const Text('Forgot password?'),
+                        child: Text(strings.forgotPassword),
                       ),
                     ),
 
@@ -219,7 +221,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : Text(
-                            _isLoginMode ? 'Sign In' : 'Sign Up',
+                            _isLoginMode ? strings.signIn : strings.signUp,
                             style: const TextStyle(fontSize: 16),
                           ),
                   ),
@@ -237,8 +239,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           },
                     child: Text(
                       _isLoginMode
-                          ? "Don't have an account? Sign up"
-                          : 'Already have an account? Sign in',
+                          ? strings.dontHaveAccount
+                          : strings.alreadyHaveAccount,
                     ),
                   ),
                 ],

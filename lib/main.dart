@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'providers/auth_provider.dart';
+import 'providers/locale_provider.dart';
+import 'l10n/app_strings.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/forgot_password_screen.dart';
@@ -19,9 +22,21 @@ class WheelOfTimeApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
+
     return MaterialApp(
       title: 'Wheel of Time',
       debugShowCheckedModeBanner: false,
+      locale: locale,
+      supportedLocales: const [
+        Locale('en', ''), // English
+        Locale('da', ''), // Danish
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,
