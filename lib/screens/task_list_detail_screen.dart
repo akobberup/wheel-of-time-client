@@ -5,11 +5,17 @@ import '../models/task_instance.dart';
 import '../widgets/create_task_dialog.dart';
 import '../widgets/complete_task_dialog.dart';
 import '../widgets/edit_task_dialog.dart';
+import 'task_list_members_screen.dart';
 
 class TaskListDetailScreen extends ConsumerWidget {
   final int taskListId;
+  final String? taskListName;
 
-  const TaskListDetailScreen({super.key, required this.taskListId});
+  const TaskListDetailScreen({
+    super.key,
+    required this.taskListId,
+    this.taskListName,
+  });
 
   /// Shows a confirmation dialog for deleting a task.
   /// Returns true if user confirms deletion, false otherwise.
@@ -52,7 +58,14 @@ class TaskListDetailScreen extends ConsumerWidget {
             icon: const Icon(Icons.people),
             tooltip: 'Members',
             onPressed: () {
-              // Navigate to members screen
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => TaskListMembersScreen(
+                    taskListId: taskListId,
+                    taskListName: taskListName ?? 'Task List',
+                  ),
+                ),
+              );
             },
           ),
           IconButton(

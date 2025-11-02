@@ -192,7 +192,10 @@ class TaskListsScreen extends ConsumerWidget {
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => TaskListDetailScreen(taskListId: taskList.id),
+                          builder: (_) => TaskListDetailScreen(
+                            taskListId: taskList.id,
+                            taskListName: taskList.name,
+                          ),
                         ),
                       );
                     },

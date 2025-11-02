@@ -34,6 +34,7 @@ Map<String, dynamic> _$$InvitationResponseImplToJson(
 
 const _$InvitationStateEnumMap = {
   InvitationState.PENDING: 'PENDING',
+  InvitationState.SENT: 'SENT',
   InvitationState.ACCEPTED: 'ACCEPTED',
   InvitationState.DECLINED: 'DECLINED',
   InvitationState.CANCELLED: 'CANCELLED',

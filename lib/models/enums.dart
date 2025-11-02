@@ -21,6 +21,7 @@ enum AdminLevel {
 /// Invitation status
 enum InvitationState {
   PENDING,
+  SENT,
   ACCEPTED,
   DECLINED,
   CANCELLED;
