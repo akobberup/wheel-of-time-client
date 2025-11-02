@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/invitation_provider.dart';
 import '../models/invitation.dart';
+import '../l10n/app_strings.dart';
 
 /// Dialog for sending an invitation to share a task list.
 /// Allows the user to enter an email address to invite another user.
@@ -31,15 +32,15 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog> {
   }
 
   /// Validates the email format.
-  String? _validateEmail(String? value) {
+  String? _validateEmail(String? value, AppStrings strings) {
     if (value == null || value.trim().isEmpty) {
-      return 'Please enter an email address';
+      return strings.pleaseEnterEmailAddress;
     }
 
     // Basic email validation
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value.trim())) {
-      return 'Please enter a valid email address';
+      return strings.pleaseEnterValidEmail;
     }
 
     return null;
@@ -60,18 +61,19 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog> {
 
     if (mounted) {
       setState(() => _isLoading = false);
+      final strings = AppStrings.of(context);
       if (result != null) {
         Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Invitation sent to ${_emailController.text.trim()}'),
+            content: Text(strings.invitationSentTo(_emailController.text.trim())),
             backgroundColor: Colors.green,
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to send invitation'),
+          SnackBar(
+            content: Text(strings.failedToSendInvitation),
             backgroundColor: Colors.red,
           ),
         );
@@ -81,8 +83,9 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     return AlertDialog(
-      title: const Text('Send Invitation'),
+      title: Text(strings.sendInvitation),
       content: Form(
         key: _formKey,
         child: Column(
@@ -90,7 +93,7 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Invite someone to "${widget.taskListName}"',
+              strings.inviteSomeoneTo(widget.taskListName),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -98,15 +101,15 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email Address',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.email),
-                helperText: 'Enter the email of the person to invite',
+              decoration: InputDecoration(
+                labelText: strings.emailAddress,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.email),
+                helperText: strings.enterEmailToInvite,
               ),
               keyboardType: TextInputType.emailAddress,
               autofocus: true,
-              validator: _validateEmail,
+              validator: (value) => _validateEmail(value, strings),
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _submit(),
             ),
@@ -116,7 +119,7 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog> {
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.of(context).pop(false),
-          child: const Text('Cancel'),
+          child: Text(strings.cancel),
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _submit,
@@ -126,7 +129,7 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Send Invite'),
+              : Text(strings.sendInvite),
         ),
       ],
     );

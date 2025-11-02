@@ -298,4 +298,188 @@ class StringsEn extends AppStrings {
 
   @override
   String get lists => 'Lists';
+
+  @override
+  String get complete => 'Complete';
+
+  @override
+  String get more => 'More';
+
+  @override
+  String get active => 'Active';
+
+  @override
+  String get inactive => 'Inactive';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get invite => 'Invite';
+
+  @override
+  String get pending => 'Pending';
+
+  // Confirmation messages
+  @override
+  String get confirmDeleteMessage => 'This action cannot be undone.';
+
+  @override
+  String confirmDeleteTask(String name) =>
+      'Are you sure you want to delete "$name"? This action cannot be undone.';
+
+  @override
+  String confirmDeleteTaskList(String name) =>
+      'Are you sure you want to delete "$name"? This action cannot be undone.';
+
+  @override
+  String confirmRemoveMember(String name) =>
+      'Are you sure you want to remove "$name" from this task list?';
+
+  @override
+  String confirmCancelInvitation(String email) =>
+      'Are you sure you want to cancel the invitation to "$email"?';
+
+  // Success messages
+  @override
+  String get taskDeletedSuccess => 'Task deleted successfully';
+
+  @override
+  String get taskListDeletedSuccess => 'Task list deleted successfully';
+
+  @override
+  String get memberRemovedSuccess => 'Member removed successfully';
+
+  @override
+  String get invitationCancelledSuccess => 'Invitation cancelled successfully';
+
+  @override
+  String get permissionUpdatedSuccess => 'Permission level updated successfully';
+
+  @override
+  String invitationSentTo(String email) => 'Invitation sent to $email';
+
+  // Error messages
+  @override
+  String get failedToDeleteTask => 'Failed to delete task';
+
+  @override
+  String get failedToDeleteTaskList => 'Failed to delete task list';
+
+  @override
+  String get failedToUpdateTask => 'Failed to update task';
+
+  @override
+  String get failedToCreateTask => 'Failed to create task';
+
+  @override
+  String get failedToRemoveMember => 'Failed to remove member';
+
+  @override
+  String get failedToCancelInvitation => 'Failed to cancel invitation';
+
+  @override
+  String get failedToUpdatePermission => 'Failed to update permission level';
+
+  @override
+  String get failedToSendInvitation => 'Failed to send invitation';
+
+  @override
+  String get pleaseEnterTaskName => 'Please enter a task name';
+
+  @override
+  String get pleaseEnterNumber => 'Please enter a number';
+
+  @override
+  String get pleaseEnterValidNumber => 'Please enter a valid number (1 or more)';
+
+  @override
+  String get pleaseEnterEmailAddress => 'Please enter an email address';
+
+  @override
+  String errorLoadingMembers(String error) => 'Error loading members: $error';
+
+  @override
+  String errorLoadingInvitations(String error) =>
+      'Error loading invitations: $error';
+
+  // Task list members
+  @override
+  String membersIn(String taskListName) => 'Members in $taskListName';
+
+  @override
+  String get cancelInvitation => 'Cancel Invitation';
+
+  @override
+  String get cancelInvite => 'Cancel Invite';
+
+  @override
+  String get changePermissionLevel => 'Change Permission Level';
+
+  @override
+  String changePermissionFor(String userName) =>
+      'Change permission level for $userName:';
+
+  @override
+  String get canEdit => 'Can Edit';
+
+  @override
+  String get canEditDescription => 'Can modify tasks and settings';
+
+  @override
+  String get canView => 'Can View';
+
+  @override
+  String get canViewDescription => 'Can only view and complete tasks';
+
+  @override
+  String get noMembers => 'No members yet';
+
+  @override
+  String invitedBy(String userName) => 'Invited by $userName';
+
+  // Task details
+  @override
+  String tasksIn(String taskListName) => 'Tasks in $taskListName';
+
+  @override
+  String get alarmTimeOptional => 'Alarm Time (optional)';
+
+  @override
+  String get noAlarmSet => 'No alarm set';
+
+  @override
+  String get completionWindowOptional => 'Completion Window (hours, optional)';
+
+  @override
+  String get completionWindowHelper => 'How many hours after alarm to complete';
+
+  @override
+  String get inactiveTasksHidden => 'Inactive tasks won\'t show up for completion';
+
+  @override
+  String dayStreak(int count) => '$count day streak';
+
+  // Send invitation
+  @override
+  String inviteSomeoneTo(String taskListName) => 'Invite someone to "$taskListName"';
+
+  @override
+  String get emailAddress => 'Email Address';
+
+  @override
+  String get enterEmailToInvite => 'Enter the email of the person to invite';
+
+  @override
+  String get sendInvite => 'Send Invite';
+
+  // Task fields
+  @override
+  String get taskListName => 'Task List Name';
+
+  @override
+  String get alarmTime => 'Alarm Time';
+
+  @override
+  String get completionWindow => 'Completion Window';
 }

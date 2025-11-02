@@ -5,6 +5,7 @@ import '../providers/invitation_provider.dart';
 import '../models/task_list_user.dart';
 import '../models/enums.dart';
 import '../widgets/send_invitation_dialog.dart';
+import '../l10n/app_strings.dart';
 
 /// Screen for managing members of a task list.
 /// Shows current members, pending invitations, and allows adding/removing members.
@@ -20,17 +21,16 @@ class TaskListMembersScreen extends ConsumerWidget {
 
   /// Shows a confirmation dialog for removing a member.
   Future<bool> _showRemoveMemberConfirmation(BuildContext context, String userName) async {
+    final strings = AppStrings.of(context);
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Remove Member'),
-            content: Text(
-              'Are you sure you want to remove "$userName" from this task list?',
-            ),
+            title: Text(strings.removeMember),
+            content: Text(strings.confirmRemoveMember(userName)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
+                child: Text(strings.cancel),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(true),
@@ -38,7 +38,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Remove'),
+                child: Text(strings.remove),
               ),
             ],
           ),
@@ -48,17 +48,16 @@ class TaskListMembersScreen extends ConsumerWidget {
 
   /// Shows a confirmation dialog for canceling an invitation.
   Future<bool> _showCancelInvitationConfirmation(BuildContext context, String email) async {
+    final strings = AppStrings.of(context);
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Cancel Invitation'),
-            content: Text(
-              'Are you sure you want to cancel the invitation to "$email"?',
-            ),
+            title: Text(strings.cancelInvitation),
+            content: Text(strings.confirmCancelInvitation(email)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
+                child: Text(strings.cancel),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(true),
@@ -66,7 +65,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Cancel Invite'),
+                child: Text(strings.cancelInvite),
               ),
             ],
           ),
@@ -80,19 +79,20 @@ class TaskListMembersScreen extends ConsumerWidget {
     WidgetRef ref,
     TaskListUserResponse user,
   ) async {
+    final strings = AppStrings.of(context);
     final newLevel = await showDialog<AdminLevel>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Change Permission Level'),
+        title: Text(strings.changePermissionLevel),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Change permission level for ${user.userName}:'),
+            Text(strings.changePermissionFor(user.userName)),
             const SizedBox(height: 16),
             ListTile(
-              title: const Text('Can Edit'),
-              subtitle: const Text('Can modify tasks and settings'),
+              title: Text(strings.canEdit),
+              subtitle: Text(strings.canEditDescription),
               leading: Radio<AdminLevel>(
                 value: AdminLevel.CAN_EDIT,
                 groupValue: user.userAdminLevel,
@@ -101,8 +101,8 @@ class TaskListMembersScreen extends ConsumerWidget {
               onTap: () => Navigator.of(context).pop(AdminLevel.CAN_EDIT),
             ),
             ListTile(
-              title: const Text('Can View'),
-              subtitle: const Text('Can only view and complete tasks'),
+              title: Text(strings.canView),
+              subtitle: Text(strings.canViewDescription),
               leading: Radio<AdminLevel>(
                 value: AdminLevel.CAN_VIEW,
                 groupValue: user.userAdminLevel,
@@ -115,7 +115,7 @@ class TaskListMembersScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(strings.cancel),
           ),
         ],
       ),
@@ -127,12 +127,13 @@ class TaskListMembersScreen extends ConsumerWidget {
           .updateUserAdminLevel(user.userId, newLevel);
 
       if (context.mounted) {
+        final strings = AppStrings.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               success
-                  ? 'Permission level updated successfully'
-                  : 'Failed to update permission level',
+                  ? strings.permissionUpdatedSuccess
+                  : strings.failedToUpdatePermission,
             ),
             backgroundColor: success ? Colors.green : Colors.red,
           ),
@@ -143,12 +144,13 @@ class TaskListMembersScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppStrings.of(context);
     final membersAsync = ref.watch(taskListUserNotifierProvider(taskListId));
     final invitationsAsync = ref.watch(taskListInvitationsProvider(taskListId));
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Members'),
+        title: Text(strings.membersIn(taskListName)),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -162,7 +164,7 @@ class TaskListMembersScreen extends ConsumerWidget {
           children: [
             // Current Members Section
             Text(
-              'Members',
+              strings.members,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -175,7 +177,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Text(
-                        'No members yet',
+                        strings.noMembers,
                         style: TextStyle(color: Colors.grey[600]),
                       ),
                     ),
@@ -214,8 +216,8 @@ class TaskListMembersScreen extends ConsumerWidget {
                               ),
                               child: Text(
                                 member.userAdminLevel == AdminLevel.CAN_EDIT
-                                    ? 'Can Edit'
-                                    : 'Can View',
+                                    ? strings.canEdit
+                                    : strings.canView,
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: member.userAdminLevel == AdminLevel.CAN_EDIT
@@ -231,7 +233,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                           children: [
                             IconButton(
                               icon: const Icon(Icons.edit),
-                              tooltip: 'Change Permission',
+                              tooltip: strings.changePermission,
                               onPressed: () => _showChangeAdminLevelDialog(
                                 context,
                                 ref,
@@ -240,7 +242,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                             ),
                             IconButton(
                               icon: const Icon(Icons.person_remove),
-                              tooltip: 'Remove Member',
+                              tooltip: strings.removeMember,
                               color: Colors.red,
                               onPressed: () async {
                                 final confirmed = await _showRemoveMemberConfirmation(
@@ -256,8 +258,8 @@ class TaskListMembersScreen extends ConsumerWidget {
                                       SnackBar(
                                         content: Text(
                                           success
-                                              ? 'Member removed successfully'
-                                              : 'Failed to remove member',
+                                              ? strings.memberRemovedSuccess
+                                              : strings.failedToRemoveMember,
                                         ),
                                         backgroundColor: success ? Colors.green : Colors.red,
                                       ),
@@ -277,14 +279,14 @@ class TaskListMembersScreen extends ConsumerWidget {
               error: (error, stack) => Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Text('Error loading members: $error'),
+                  child: Text(strings.errorLoadingMembers(error.toString())),
                 ),
               ),
             ),
             const SizedBox(height: 24),
             // Pending Invitations Section
             Text(
-              'Pending Invitations',
+              strings.pendingInvitations,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -301,7 +303,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Text(
-                        'No pending invitations',
+                        strings.noPendingInvitations,
                         style: TextStyle(color: Colors.grey[600]),
                       ),
                     ),
@@ -321,7 +323,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Invited by ${invitation.initiatedByUserName}',
+                              strings.invitedBy(invitation.initiatedByUserName),
                               style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                             ),
                             const SizedBox(height: 4),
@@ -335,7 +337,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                'Pending',
+                                strings.pending,
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: Colors.orange.shade900,
@@ -346,7 +348,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                         ),
                         trailing: IconButton(
                           icon: const Icon(Icons.cancel),
-                          tooltip: 'Cancel Invitation',
+                          tooltip: strings.cancelInvitation,
                           color: Colors.orange,
                           onPressed: () async {
                             final confirmed = await _showCancelInvitationConfirmation(
@@ -362,8 +364,8 @@ class TaskListMembersScreen extends ConsumerWidget {
                                   SnackBar(
                                     content: Text(
                                       success
-                                          ? 'Invitation cancelled successfully'
-                                          : 'Failed to cancel invitation',
+                                          ? strings.invitationCancelledSuccess
+                                          : strings.failedToCancelInvitation,
                                     ),
                                     backgroundColor: success ? Colors.green : Colors.red,
                                   ),
@@ -385,7 +387,7 @@ class TaskListMembersScreen extends ConsumerWidget {
               error: (error, stack) => Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Text('Error loading invitations: $error'),
+                  child: Text(strings.errorLoadingInvitations(error.toString())),
                 ),
               ),
             ),
@@ -406,7 +408,7 @@ class TaskListMembersScreen extends ConsumerWidget {
           }
         },
         icon: const Icon(Icons.person_add),
-        label: const Text('Invite'),
+        label: Text(strings.invite),
       ),
     );
   }

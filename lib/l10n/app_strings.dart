@@ -124,6 +124,77 @@ abstract class AppStrings {
   String get commentOptional;
   String get logout;
   String get lists;
+  String get complete;
+  String get more;
+  String get active;
+  String get inactive;
+  String get remove;
+  String get invite;
+  String get pending;
+
+  // Confirmation messages
+  String get confirmDeleteMessage;
+  String confirmDeleteTask(String name);
+  String confirmDeleteTaskList(String name);
+  String confirmRemoveMember(String name);
+  String confirmCancelInvitation(String email);
+
+  // Success messages
+  String get taskDeletedSuccess;
+  String get taskListDeletedSuccess;
+  String get memberRemovedSuccess;
+  String get invitationCancelledSuccess;
+  String get permissionUpdatedSuccess;
+  String invitationSentTo(String email);
+
+  // Error messages
+  String get failedToDeleteTask;
+  String get failedToDeleteTaskList;
+  String get failedToUpdateTask;
+  String get failedToCreateTask;
+  String get failedToRemoveMember;
+  String get failedToCancelInvitation;
+  String get failedToUpdatePermission;
+  String get failedToSendInvitation;
+  String get pleaseEnterTaskName;
+  String get pleaseEnterNumber;
+  String get pleaseEnterValidNumber;
+  String get pleaseEnterEmailAddress;
+  String errorLoadingMembers(String error);
+  String errorLoadingInvitations(String error);
+
+  // Task list members
+  String membersIn(String taskListName);
+  String get cancelInvitation;
+  String get cancelInvite;
+  String get changePermissionLevel;
+  String changePermissionFor(String userName);
+  String get canEdit;
+  String get canEditDescription;
+  String get canView;
+  String get canViewDescription;
+  String get noMembers;
+  String invitedBy(String userName);
+
+  // Task details
+  String tasksIn(String taskListName);
+  String get alarmTimeOptional;
+  String get noAlarmSet;
+  String get completionWindowOptional;
+  String get completionWindowHelper;
+  String get inactiveTasksHidden;
+  String dayStreak(int count);
+
+  // Send invitation
+  String inviteSomeoneTo(String taskListName);
+  String get emailAddress;
+  String get enterEmailToInvite;
+  String get sendInvite;
+
+  // Task fields
+  String get taskListName;
+  String get alarmTime;
+  String get completionWindow;
 
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);

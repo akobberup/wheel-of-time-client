@@ -299,4 +299,188 @@ class StringsDa extends AppStrings {
 
   @override
   String get lists => 'Lister';
+
+  @override
+  String get complete => 'Fuldfør';
+
+  @override
+  String get more => 'Mere';
+
+  @override
+  String get active => 'Aktiv';
+
+  @override
+  String get inactive => 'Inaktiv';
+
+  @override
+  String get remove => 'Fjern';
+
+  @override
+  String get invite => 'Inviter';
+
+  @override
+  String get pending => 'Afventer';
+
+  // Confirmation messages
+  @override
+  String get confirmDeleteMessage => 'Denne handling kan ikke fortrydes.';
+
+  @override
+  String confirmDeleteTask(String name) =>
+      'Er du sikker på, at du vil slette "$name"? Denne handling kan ikke fortrydes.';
+
+  @override
+  String confirmDeleteTaskList(String name) =>
+      'Er du sikker på, at du vil slette "$name"? Denne handling kan ikke fortrydes.';
+
+  @override
+  String confirmRemoveMember(String name) =>
+      'Er du sikker på, at du vil fjerne "$name" fra denne opgaveliste?';
+
+  @override
+  String confirmCancelInvitation(String email) =>
+      'Er du sikker på, at du vil annullere invitationen til "$email"?';
+
+  // Success messages
+  @override
+  String get taskDeletedSuccess => 'Opgave slettet';
+
+  @override
+  String get taskListDeletedSuccess => 'Opgaveliste slettet';
+
+  @override
+  String get memberRemovedSuccess => 'Medlem fjernet';
+
+  @override
+  String get invitationCancelledSuccess => 'Invitation annulleret';
+
+  @override
+  String get permissionUpdatedSuccess => 'Tilladelse opdateret';
+
+  @override
+  String invitationSentTo(String email) => 'Invitation sendt til $email';
+
+  // Error messages
+  @override
+  String get failedToDeleteTask => 'Kunne ikke slette opgave';
+
+  @override
+  String get failedToDeleteTaskList => 'Kunne ikke slette opgaveliste';
+
+  @override
+  String get failedToUpdateTask => 'Kunne ikke opdatere opgave';
+
+  @override
+  String get failedToCreateTask => 'Kunne ikke oprette opgave';
+
+  @override
+  String get failedToRemoveMember => 'Kunne ikke fjerne medlem';
+
+  @override
+  String get failedToCancelInvitation => 'Kunne ikke annullere invitation';
+
+  @override
+  String get failedToUpdatePermission => 'Kunne ikke opdatere tilladelse';
+
+  @override
+  String get failedToSendInvitation => 'Kunne ikke sende invitation';
+
+  @override
+  String get pleaseEnterTaskName => 'Indtast venligst et opgavenavn';
+
+  @override
+  String get pleaseEnterNumber => 'Indtast venligst et tal';
+
+  @override
+  String get pleaseEnterValidNumber => 'Indtast venligst et gyldigt tal (1 eller mere)';
+
+  @override
+  String get pleaseEnterEmailAddress => 'Indtast venligst en e-mailadresse';
+
+  @override
+  String errorLoadingMembers(String error) => 'Fejl ved indlæsning af medlemmer: $error';
+
+  @override
+  String errorLoadingInvitations(String error) =>
+      'Fejl ved indlæsning af invitationer: $error';
+
+  // Task list members
+  @override
+  String membersIn(String taskListName) => 'Medlemmer i $taskListName';
+
+  @override
+  String get cancelInvitation => 'Annuller invitation';
+
+  @override
+  String get cancelInvite => 'Annuller invitation';
+
+  @override
+  String get changePermissionLevel => 'Skift tilladelsesniveau';
+
+  @override
+  String changePermissionFor(String userName) =>
+      'Skift tilladelsesniveau for $userName:';
+
+  @override
+  String get canEdit => 'Kan redigere';
+
+  @override
+  String get canEditDescription => 'Kan ændre opgaver og indstillinger';
+
+  @override
+  String get canView => 'Kan se';
+
+  @override
+  String get canViewDescription => 'Kan kun se og fuldføre opgaver';
+
+  @override
+  String get noMembers => 'Ingen medlemmer endnu';
+
+  @override
+  String invitedBy(String userName) => 'Inviteret af $userName';
+
+  // Task details
+  @override
+  String tasksIn(String taskListName) => 'Opgaver i $taskListName';
+
+  @override
+  String get alarmTimeOptional => 'Alarmtidspunkt (valgfri)';
+
+  @override
+  String get noAlarmSet => 'Ingen alarm indstillet';
+
+  @override
+  String get completionWindowOptional => 'Fuldførelsesvindue (timer, valgfri)';
+
+  @override
+  String get completionWindowHelper => 'Hvor mange timer efter alarm til fuldførelse';
+
+  @override
+  String get inactiveTasksHidden => 'Inaktive opgaver vises ikke til fuldførelse';
+
+  @override
+  String dayStreak(int count) => '$count dages stribe';
+
+  // Send invitation
+  @override
+  String inviteSomeoneTo(String taskListName) => 'Inviter nogen til "$taskListName"';
+
+  @override
+  String get emailAddress => 'E-mailadresse';
+
+  @override
+  String get enterEmailToInvite => 'Indtast e-mailen på personen, du vil invitere';
+
+  @override
+  String get sendInvite => 'Send invitation';
+
+  // Task fields
+  @override
+  String get taskListName => 'Opgavelistenavn';
+
+  @override
+  String get alarmTime => 'Alarmtidspunkt';
+
+  @override
+  String get completionWindow => 'Fuldførelsesvindue';
 }

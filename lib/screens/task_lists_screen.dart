@@ -15,17 +15,16 @@ class TaskListsScreen extends ConsumerWidget {
   /// Shows a confirmation dialog for deleting a task list.
   /// Returns true if user confirms deletion, false otherwise.
   Future<bool> _showDeleteConfirmation(BuildContext context, String taskListName) async {
+    final strings = AppStrings.of(context);
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Delete Task List'),
-            content: Text(
-              'Are you sure you want to delete "$taskListName"? This action cannot be undone.',
-            ),
+            title: Text(strings.deleteTaskList),
+            content: Text(strings.confirmDeleteTaskList(taskListName)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
+                child: Text(strings.cancel),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(true),
@@ -33,7 +32,7 @@ class TaskListsScreen extends ConsumerWidget {
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Delete'),
+                child: Text(strings.delete),
               ),
             ],
           ),
@@ -148,7 +147,7 @@ class TaskListsScreen extends ConsumerWidget {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.edit),
-                          tooltip: 'Edit',
+                          tooltip: strings.edit,
                           onPressed: () async {
                             final result = await showDialog<bool>(
                               context: context,
@@ -161,7 +160,7 @@ class TaskListsScreen extends ConsumerWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete),
-                          tooltip: 'Delete',
+                          tooltip: strings.delete,
                           color: Colors.red,
                           onPressed: () async {
                             final confirmed = await _showDeleteConfirmation(
@@ -173,12 +172,13 @@ class TaskListsScreen extends ConsumerWidget {
                                   .read(taskListProvider.notifier)
                                   .deleteTaskList(taskList.id);
                               if (context.mounted) {
+                                final strings = AppStrings.of(context);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
                                       success
-                                          ? 'Task list deleted successfully'
-                                          : 'Failed to delete task list',
+                                          ? strings.taskListDeletedSuccess
+                                          : strings.failedToDeleteTaskList,
                                     ),
                                   ),
                                 );

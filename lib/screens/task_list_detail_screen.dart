@@ -6,6 +6,7 @@ import '../widgets/create_task_dialog.dart';
 import '../widgets/complete_task_dialog.dart';
 import '../widgets/edit_task_dialog.dart';
 import 'task_list_members_screen.dart';
+import '../l10n/app_strings.dart';
 
 class TaskListDetailScreen extends ConsumerWidget {
   final int taskListId;
@@ -20,17 +21,16 @@ class TaskListDetailScreen extends ConsumerWidget {
   /// Shows a confirmation dialog for deleting a task.
   /// Returns true if user confirms deletion, false otherwise.
   Future<bool> _showDeleteConfirmation(BuildContext context, String taskName) async {
+    final strings = AppStrings.of(context);
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Delete Task'),
-            content: Text(
-              'Are you sure you want to delete "$taskName"? This action cannot be undone.',
-            ),
+            title: Text(strings.deleteTask),
+            content: Text(strings.confirmDeleteTask(taskName)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
+                child: Text(strings.cancel),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(true),
@@ -38,7 +38,7 @@ class TaskListDetailScreen extends ConsumerWidget {
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Delete'),
+                child: Text(strings.delete),
               ),
             ],
           ),
@@ -48,21 +48,22 @@ class TaskListDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppStrings.of(context);
     final tasksAsync = ref.watch(tasksProvider(taskListId));
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tasks'),
+        title: Text(taskListName != null ? strings.tasksIn(taskListName!) : strings.tasks),
         actions: [
           IconButton(
             icon: const Icon(Icons.people),
-            tooltip: 'Members',
+            tooltip: strings.members,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => TaskListMembersScreen(
                     taskListId: taskListId,
-                    taskListName: taskListName ?? 'Task List',
+                    taskListName: taskListName ?? strings.taskLists,
                   ),
                 ),
               );
@@ -70,7 +71,7 @@ class TaskListDetailScreen extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.more_vert),
-            tooltip: 'More',
+            tooltip: strings.more,
             onPressed: () {
               // Show options menu
             },
@@ -91,14 +92,14 @@ class TaskListDetailScreen extends ConsumerWidget {
                     Icon(Icons.task_alt, size: 80, color: Colors.grey[400]),
                     const SizedBox(height: 16),
                     Text(
-                      'No tasks yet',
+                      strings.noTasks,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             color: Colors.grey[600],
                           ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Add your first task to this list',
+                      strings.addFirstTask,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Colors.grey[500],
                           ),
@@ -147,7 +148,7 @@ class TaskListDetailScreen extends ConsumerWidget {
                             children: [
                               const Icon(Icons.local_fire_department, size: 16, color: Colors.orange),
                               const SizedBox(width: 4),
-                              Text('${task.currentStreak!.streakCount} day streak'),
+                              Text(strings.dayStreak(task.currentStreak!.streakCount)),
                             ],
                           ),
                         ],
@@ -159,7 +160,7 @@ class TaskListDetailScreen extends ConsumerWidget {
                         if (task.isActive)
                           IconButton(
                             icon: const Icon(Icons.check_circle, color: Colors.green),
-                            tooltip: 'Complete',
+                            tooltip: strings.complete,
                             onPressed: () async {
                               final result = await showDialog<TaskInstanceResponse>(
                                 context: context,
@@ -174,7 +175,7 @@ class TaskListDetailScreen extends ConsumerWidget {
                           const Icon(Icons.pause_circle_outline, color: Colors.grey),
                         IconButton(
                           icon: const Icon(Icons.edit),
-                          tooltip: 'Edit',
+                          tooltip: strings.edit,
                           onPressed: () async {
                             final result = await showDialog<bool>(
                               context: context,
@@ -187,7 +188,7 @@ class TaskListDetailScreen extends ConsumerWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete),
-                          tooltip: 'Delete',
+                          tooltip: strings.delete,
                           color: Colors.red,
                           onPressed: () async {
                             final confirmed = await _showDeleteConfirmation(
@@ -199,12 +200,13 @@ class TaskListDetailScreen extends ConsumerWidget {
                                   .read(tasksProvider(taskListId).notifier)
                                   .deleteTask(task.id);
                               if (context.mounted) {
+                                final strings = AppStrings.of(context);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
                                       success
-                                          ? 'Task deleted successfully'
-                                          : 'Failed to delete task',
+                                          ? strings.taskDeletedSuccess
+                                          : strings.failedToDeleteTask,
                                     ),
                                   ),
                                 );
