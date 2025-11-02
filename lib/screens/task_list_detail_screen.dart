@@ -1,20 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/task_provider.dart';
-import '../providers/task_instance_provider.dart';
 import '../models/task_instance.dart';
-import '../l10n/app_strings.dart';
 import '../widgets/create_task_dialog.dart';
 import '../widgets/complete_task_dialog.dart';
+import '../widgets/edit_task_dialog.dart';
 
 class TaskListDetailScreen extends ConsumerWidget {
   final int taskListId;
 
   const TaskListDetailScreen({super.key, required this.taskListId});
 
+  /// Shows a confirmation dialog for deleting a task.
+  /// Returns true if user confirms deletion, false otherwise.
+  Future<bool> _showDeleteConfirmation(BuildContext context, String taskName) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Delete Task'),
+            content: Text(
+              'Are you sure you want to delete "$taskName"? This action cannot be undone.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final strings = AppStrings.of(context);
     final tasksAsync = ref.watch(tasksProvider(taskListId));
 
     return Scaffold(
@@ -113,9 +140,13 @@ class TaskListDetailScreen extends ConsumerWidget {
                         ],
                       ],
                     ),
-                    trailing: task.isActive
-                        ? IconButton(
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (task.isActive)
+                          IconButton(
                             icon: const Icon(Icons.check_circle, color: Colors.green),
+                            tooltip: 'Complete',
                             onPressed: () async {
                               final result = await showDialog<TaskInstanceResponse>(
                                 context: context,
@@ -126,7 +157,50 @@ class TaskListDetailScreen extends ConsumerWidget {
                               }
                             },
                           )
-                        : const Icon(Icons.pause_circle_outline, color: Colors.grey),
+                        else
+                          const Icon(Icons.pause_circle_outline, color: Colors.grey),
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          tooltip: 'Edit',
+                          onPressed: () async {
+                            final result = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => EditTaskDialog(task: task),
+                            );
+                            if (result == true) {
+                              ref.read(tasksProvider(taskListId).notifier).loadTasks();
+                            }
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          tooltip: 'Delete',
+                          color: Colors.red,
+                          onPressed: () async {
+                            final confirmed = await _showDeleteConfirmation(
+                              context,
+                              task.name,
+                            );
+                            if (confirmed) {
+                              final success = await ref
+                                  .read(tasksProvider(taskListId).notifier)
+                                  .deleteTask(task.id);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      success
+                                          ? 'Task deleted successfully'
+                                          : 'Failed to delete task',
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

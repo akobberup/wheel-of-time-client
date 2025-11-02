@@ -5,25 +5,46 @@ import '../models/task.dart';
 import '../models/enums.dart';
 import '../models/local_time.dart';
 
-class CreateTaskDialog extends ConsumerStatefulWidget {
-  final int taskListId;
+/// Dialog for editing an existing task.
+/// Allows users to update task name, description, repeat settings, alarm time,
+/// completion window, and active status.
+class EditTaskDialog extends ConsumerStatefulWidget {
+  final TaskResponse task;
 
-  const CreateTaskDialog({super.key, required this.taskListId});
+  const EditTaskDialog({
+    super.key,
+    required this.task,
+  });
 
   @override
-  ConsumerState<CreateTaskDialog> createState() => _CreateTaskDialogState();
+  ConsumerState<EditTaskDialog> createState() => _EditTaskDialogState();
 }
 
-class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
+class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  RepeatUnit _repeatUnit = RepeatUnit.DAYS;
-  int _repeatDelta = 1;
-  DateTime _firstRunDate = DateTime.now();
+  late final TextEditingController _nameController;
+  late final TextEditingController _descriptionController;
+  late RepeatUnit _repeatUnit;
+  late int _repeatDelta;
+  late bool _isActive;
   LocalTime? _alarmTime;
   int? _completionWindowHours;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize controllers with existing task data
+    _nameController = TextEditingController(text: widget.task.name);
+    _descriptionController = TextEditingController(
+      text: widget.task.description ?? '',
+    );
+    _repeatUnit = widget.task.repeatUnit;
+    _repeatDelta = widget.task.repeatDelta;
+    _isActive = widget.task.isActive;
+    _alarmTime = widget.task.alarmAtTimeOfDay;
+    _completionWindowHours = widget.task.completionWindowHours;
+  }
 
   @override
   void dispose() {
@@ -32,25 +53,28 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
     super.dispose();
   }
 
+  /// Validates and submits the form to update the task.
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
-    final request = CreateTaskRequest(
+    final request = UpdateTaskRequest(
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim().isEmpty
           ? null
           : _descriptionController.text.trim(),
-      taskListId: widget.taskListId,
       repeatUnit: _repeatUnit,
       repeatDelta: _repeatDelta,
-      firstRunDate: _firstRunDate,
+      isActive: _isActive,
       alarmAtTimeOfDay: _alarmTime,
       completionWindowHours: _completionWindowHours,
     );
 
-    final result = await ref.read(tasksProvider(widget.taskListId).notifier).createTask(request);
+    final result = await ref.read(tasksProvider(widget.task.taskListId).notifier).updateTask(
+          widget.task.id,
+          request,
+        );
 
     if (mounted) {
       setState(() => _isLoading = false);
@@ -58,7 +82,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
         Navigator.of(context).pop(true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to create task')),
+          const SnackBar(content: Text('Failed to update task')),
         );
       }
     }
@@ -67,7 +91,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Create Task'),
+      title: const Text('Edit Task'),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -142,23 +166,6 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
               ),
               const SizedBox(height: 16),
               ListTile(
-                title: const Text('First Run Date'),
-                subtitle: Text('${_firstRunDate.year}-${_firstRunDate.month.toString().padLeft(2, '0')}-${_firstRunDate.day.toString().padLeft(2, '0')}'),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () async {
-                  final date = await showDatePicker(
-                    context: context,
-                    initialDate: _firstRunDate,
-                    firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                    lastDate: DateTime.now().add(const Duration(days: 365)),
-                  );
-                  if (date != null) {
-                    setState(() => _firstRunDate = date);
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
-              ListTile(
                 title: const Text('Alarm Time (optional)'),
                 subtitle: Text(_alarmTime != null ? _alarmTime!.toDisplayString() : 'No alarm set'),
                 trailing: Row(
@@ -214,6 +221,15 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
                   }
                 },
               ),
+              const SizedBox(height: 16),
+              SwitchListTile(
+                title: const Text('Active'),
+                subtitle: const Text('Inactive tasks won\'t show up for completion'),
+                value: _isActive,
+                onChanged: (value) {
+                  setState(() => _isActive = value);
+                },
+              ),
             ],
           ),
         ),
@@ -231,7 +247,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Create'),
+              : const Text('Save'),
         ),
       ],
     );
