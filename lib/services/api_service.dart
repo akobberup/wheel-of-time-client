@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/auth_response.dart';
@@ -56,13 +57,67 @@ class ApiService {
     return headers;
   }
 
+  /// Wrapper for HTTP GET with logging
+  Future<http.Response> _loggedGet(String url, {Map<String, String>? headers}) async {
+    developer.log('>>> GET $url', name: 'ApiService');
+
+    final response = await _client.get(Uri.parse(url), headers: headers);
+
+    developer.log('<<< GET $url - Status: ${response.statusCode}', name: 'ApiService');
+    developer.log('Response body: ${response.body}', name: 'ApiService');
+
+    return response;
+  }
+
+  /// Wrapper for HTTP POST with logging
+  Future<http.Response> _loggedPost(String url, {Map<String, String>? headers, Object? body}) async {
+    developer.log('>>> POST $url', name: 'ApiService');
+    if (body != null) {
+      developer.log('Request body: $body', name: 'ApiService');
+    }
+
+    final response = await _client.post(Uri.parse(url), headers: headers, body: body);
+
+    developer.log('<<< POST $url - Status: ${response.statusCode}', name: 'ApiService');
+    developer.log('Response body: ${response.body}', name: 'ApiService');
+
+    return response;
+  }
+
+  /// Wrapper for HTTP PUT with logging
+  Future<http.Response> _loggedPut(String url, {Map<String, String>? headers, Object? body}) async {
+    developer.log('>>> PUT $url', name: 'ApiService');
+    if (body != null) {
+      developer.log('Request body: $body', name: 'ApiService');
+    }
+
+    final response = await _client.put(Uri.parse(url), headers: headers, body: body);
+
+    developer.log('<<< PUT $url - Status: ${response.statusCode}', name: 'ApiService');
+    developer.log('Response body: ${response.body}', name: 'ApiService');
+
+    return response;
+  }
+
+  /// Wrapper for HTTP DELETE with logging
+  Future<http.Response> _loggedDelete(String url, {Map<String, String>? headers}) async {
+    developer.log('>>> DELETE $url', name: 'ApiService');
+
+    final response = await _client.delete(Uri.parse(url), headers: headers);
+
+    developer.log('<<< DELETE $url - Status: ${response.statusCode}', name: 'ApiService');
+    developer.log('Response body: ${response.body}', name: 'ApiService');
+
+    return response;
+  }
+
   /// Registers a new user account with the backend API.
   /// Returns AuthResponse with user details and authentication token on success.
   /// Throws ApiException if registration fails or network error occurs.
   Future<AuthResponse> register(RegisterRequest request) async {
     try {
-      final response = await _client.post(
-        Uri.parse('$baseUrl/api/auth/register'),
+      final response = await _loggedPost(
+        '$baseUrl/api/auth/register',
         headers: _getHeaders(),
         body: jsonEncode(request.toJson()),
       );
@@ -89,8 +144,8 @@ class ApiService {
   /// Throws ApiException if login fails or network error occurs.
   Future<AuthResponse> login(LoginRequest request) async {
     try {
-      final response = await _client.post(
-        Uri.parse('$baseUrl/api/auth/login'),
+      final response = await _loggedPost(
+        '$baseUrl/api/auth/login',
         headers: _getHeaders(),
         body: jsonEncode(request.toJson()),
       );
@@ -120,8 +175,8 @@ class ApiService {
     if (_token == null) return false;
 
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/actuator/health'),
+      final response = await _loggedGet(
+        '$baseUrl/actuator/health',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -137,8 +192,8 @@ class ApiService {
   /// Throws ApiException if the request fails or network error occurs.
   Future<void> forgotPassword(String email) async {
     try {
-      final response = await _client.post(
-        Uri.parse('$baseUrl/api/auth/forgot-password'),
+      final response = await _loggedPost(
+        '$baseUrl/api/auth/forgot-password',
         headers: _getHeaders(),
         body: jsonEncode({'email': email}),
       );
@@ -161,8 +216,8 @@ class ApiService {
   /// Returns true if the token is valid, throws ApiException if invalid or expired.
   Future<bool> validateResetToken(String token) async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/auth/validate-reset-token?token=$token'),
+      final response = await _loggedGet(
+        '$baseUrl/api/auth/validate-reset-token?token=$token',
         headers: _getHeaders(),
       );
 
@@ -178,8 +233,8 @@ class ApiService {
   /// Throws ApiException if the token is invalid/expired or if the reset fails.
   Future<void> resetPassword(String token, String newPassword) async {
     try {
-      final response = await _client.post(
-        Uri.parse('$baseUrl/api/auth/reset-password'),
+      final response = await _loggedPost(
+        '$baseUrl/api/auth/reset-password',
         headers: _getHeaders(),
         body: jsonEncode({
           'token': token,
@@ -200,6 +255,34 @@ class ApiService {
     }
   }
 
+  /// Refreshes the access token using a refresh token.
+  /// Returns new AuthResponse with fresh access token and refresh token.
+  /// The old refresh token is automatically revoked by the server.
+  /// Throws ApiException if the refresh token is invalid, expired, or revoked.
+  Future<AuthResponse> refreshAccessToken(String refreshToken) async {
+    try {
+      final response = await _loggedPost(
+        '$baseUrl/api/auth/refresh',
+        headers: _getHeaders(),
+        body: jsonEncode({'refreshToken': refreshToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        return AuthResponse.fromJson(data);
+      } else {
+        final errorData = jsonDecode(response.body) as Map<String, dynamic>;
+        throw ApiException(
+          errorData['message'] ?? 'Failed to refresh token',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
   // ============================================================================
   // TASK LISTS
   // ============================================================================
@@ -207,8 +290,8 @@ class ApiService {
   /// Get all accessible task lists (owned + shared)
   Future<List<TaskListResponse>> getAllTaskLists() async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/task-lists'),
+      final response = await _loggedGet(
+        '$baseUrl/api/task-lists',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -227,8 +310,8 @@ class ApiService {
   /// Get owned task lists
   Future<List<TaskListResponse>> getOwnedTaskLists() async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/task-lists/owned'),
+      final response = await _loggedGet(
+        '$baseUrl/api/task-lists/owned',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -247,8 +330,8 @@ class ApiService {
   /// Get shared task lists
   Future<List<TaskListResponse>> getSharedTaskLists() async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/task-lists/shared'),
+      final response = await _loggedGet(
+        '$baseUrl/api/task-lists/shared',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -267,8 +350,8 @@ class ApiService {
   /// Get specific task list by ID
   Future<TaskListResponse> getTaskList(int id) async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/task-lists/$id'),
+      final response = await _loggedGet(
+        '$baseUrl/api/task-lists/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -286,8 +369,8 @@ class ApiService {
   /// Create new task list
   Future<TaskListResponse> createTaskList(CreateTaskListRequest request) async {
     try {
-      final response = await _client.post(
-        Uri.parse('$baseUrl/api/task-lists'),
+      final response = await _loggedPost(
+        '$baseUrl/api/task-lists',
         headers: _getHeaders(includeAuth: true),
         body: jsonEncode(request.toJson()),
       );
@@ -310,8 +393,8 @@ class ApiService {
   /// Update task list
   Future<TaskListResponse> updateTaskList(int id, UpdateTaskListRequest request) async {
     try {
-      final response = await _client.put(
-        Uri.parse('$baseUrl/api/task-lists/$id'),
+      final response = await _loggedPut(
+        '$baseUrl/api/task-lists/$id',
         headers: _getHeaders(includeAuth: true),
         body: jsonEncode(request.toJson()),
       );
@@ -334,8 +417,8 @@ class ApiService {
   /// Delete task list
   Future<void> deleteTaskList(int id) async {
     try {
-      final response = await _client.delete(
-        Uri.parse('$baseUrl/api/task-lists/$id'),
+      final response = await _loggedDelete(
+        '$baseUrl/api/task-lists/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -359,8 +442,8 @@ class ApiService {
   /// Get tasks by task list
   Future<List<TaskResponse>> getTasksByTaskList(int taskListId, {bool activeOnly = false}) async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/tasks/task-list/$taskListId?activeOnly=$activeOnly'),
+      final response = await _loggedGet(
+        '$baseUrl/api/tasks/task-list/$taskListId?activeOnly=$activeOnly',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -379,8 +462,8 @@ class ApiService {
   /// Get specific task
   Future<TaskResponse> getTask(int id) async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/tasks/$id'),
+      final response = await _loggedGet(
+        '$baseUrl/api/tasks/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -398,8 +481,8 @@ class ApiService {
   /// Create task
   Future<TaskResponse> createTask(CreateTaskRequest request) async {
     try {
-      final response = await _client.post(
-        Uri.parse('$baseUrl/api/tasks'),
+      final response = await _loggedPost(
+        '$baseUrl/api/tasks',
         headers: _getHeaders(includeAuth: true),
         body: jsonEncode(request.toJson()),
       );
@@ -422,8 +505,8 @@ class ApiService {
   /// Update task
   Future<TaskResponse> updateTask(int id, UpdateTaskRequest request) async {
     try {
-      final response = await _client.put(
-        Uri.parse('$baseUrl/api/tasks/$id'),
+      final response = await _loggedPut(
+        '$baseUrl/api/tasks/$id',
         headers: _getHeaders(includeAuth: true),
         body: jsonEncode(request.toJson()),
       );
@@ -446,8 +529,8 @@ class ApiService {
   /// Delete task
   Future<void> deleteTask(int id) async {
     try {
-      final response = await _client.delete(
-        Uri.parse('$baseUrl/api/tasks/$id'),
+      final response = await _loggedDelete(
+        '$baseUrl/api/tasks/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -471,8 +554,8 @@ class ApiService {
   /// Get task instances by task
   Future<List<TaskInstanceResponse>> getTaskInstancesByTask(int taskId) async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/task-instances/task/$taskId'),
+      final response = await _loggedGet(
+        '$baseUrl/api/task-instances/task/$taskId',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -491,8 +574,8 @@ class ApiService {
   /// Get task instances by task list
   Future<List<TaskInstanceResponse>> getTaskInstancesByTaskList(int taskListId) async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/task-instances/task-list/$taskListId'),
+      final response = await _loggedGet(
+        '$baseUrl/api/task-instances/task-list/$taskListId',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -511,8 +594,8 @@ class ApiService {
   /// Get specific task instance
   Future<TaskInstanceResponse> getTaskInstance(int id) async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/task-instances/$id'),
+      final response = await _loggedGet(
+        '$baseUrl/api/task-instances/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -530,8 +613,8 @@ class ApiService {
   /// Create task instance (complete a task)
   Future<TaskInstanceResponse> createTaskInstance(CreateTaskInstanceRequest request) async {
     try {
-      final response = await _client.post(
-        Uri.parse('$baseUrl/api/task-instances'),
+      final response = await _loggedPost(
+        '$baseUrl/api/task-instances',
         headers: _getHeaders(includeAuth: true),
         body: jsonEncode(request.toJson()),
       );
@@ -558,8 +641,8 @@ class ApiService {
   /// Get current streak for task
   Future<StreakResponse?> getCurrentStreak(int taskId) async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/task-instances/task/$taskId/streak/current'),
+      final response = await _loggedGet(
+        '$baseUrl/api/task-instances/task/$taskId/streak/current',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -579,8 +662,8 @@ class ApiService {
   /// Get longest streak for task
   Future<StreakResponse?> getLongestStreak(int taskId) async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/task-instances/task/$taskId/streak/longest'),
+      final response = await _loggedGet(
+        '$baseUrl/api/task-instances/task/$taskId/streak/longest',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -600,8 +683,8 @@ class ApiService {
   /// Get all streaks for task
   Future<List<StreakResponse>> getAllStreaks(int taskId) async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/task-instances/task/$taskId/streaks'),
+      final response = await _loggedGet(
+        '$baseUrl/api/task-instances/task/$taskId/streaks',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -624,8 +707,8 @@ class ApiService {
   /// Get my pending invitations
   Future<List<InvitationResponse>> getMyPendingInvitations() async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/invitations/my-invitations/pending'),
+      final response = await _loggedGet(
+        '$baseUrl/api/invitations/my-invitations/pending',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -644,8 +727,8 @@ class ApiService {
   /// Get all my invitations
   Future<List<InvitationResponse>> getMyInvitations() async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/invitations/my-invitations'),
+      final response = await _loggedGet(
+        '$baseUrl/api/invitations/my-invitations',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -664,8 +747,8 @@ class ApiService {
   /// Get invitations for task list
   Future<List<InvitationResponse>> getInvitationsByTaskList(int taskListId) async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/invitations/task-list/$taskListId'),
+      final response = await _loggedGet(
+        '$baseUrl/api/invitations/task-list/$taskListId',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -684,8 +767,8 @@ class ApiService {
   /// Get specific invitation
   Future<InvitationResponse> getInvitation(int id) async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/invitations/$id'),
+      final response = await _loggedGet(
+        '$baseUrl/api/invitations/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -703,8 +786,8 @@ class ApiService {
   /// Create invitation
   Future<InvitationResponse> createInvitation(CreateInvitationRequest request) async {
     try {
-      final response = await _client.post(
-        Uri.parse('$baseUrl/api/invitations'),
+      final response = await _loggedPost(
+        '$baseUrl/api/invitations',
         headers: _getHeaders(includeAuth: true),
         body: jsonEncode(request.toJson()),
       );
@@ -727,8 +810,8 @@ class ApiService {
   /// Accept invitation
   Future<InvitationResponse> acceptInvitation(int id) async {
     try {
-      final response = await _client.post(
-        Uri.parse('$baseUrl/api/invitations/$id/accept'),
+      final response = await _loggedPost(
+        '$baseUrl/api/invitations/$id/accept',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -750,8 +833,8 @@ class ApiService {
   /// Decline invitation
   Future<InvitationResponse> declineInvitation(int id) async {
     try {
-      final response = await _client.post(
-        Uri.parse('$baseUrl/api/invitations/$id/decline'),
+      final response = await _loggedPost(
+        '$baseUrl/api/invitations/$id/decline',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -773,8 +856,8 @@ class ApiService {
   /// Cancel invitation
   Future<void> cancelInvitation(int id) async {
     try {
-      final response = await _client.delete(
-        Uri.parse('$baseUrl/api/invitations/$id'),
+      final response = await _loggedDelete(
+        '$baseUrl/api/invitations/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -798,8 +881,8 @@ class ApiService {
   /// Get users for task list
   Future<List<TaskListUserResponse>> getUsersByTaskList(int taskListId) async {
     try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/api/task-list-users/task-list/$taskListId'),
+      final response = await _loggedGet(
+        '$baseUrl/api/task-list-users/task-list/$taskListId',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -822,8 +905,8 @@ class ApiService {
     AdminLevel newAdminLevel,
   ) async {
     try {
-      final response = await _client.put(
-        Uri.parse('$baseUrl/api/task-list-users?taskListId=$taskListId&userId=$userId&newAdminLevel=${newAdminLevel.toJson()}'),
+      final response = await _loggedPut(
+        '$baseUrl/api/task-list-users?taskListId=$taskListId&userId=$userId&newAdminLevel=${newAdminLevel.toJson()}',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -845,8 +928,8 @@ class ApiService {
   /// Remove user from task list
   Future<void> removeUserFromTaskList(int taskListId, int userId) async {
     try {
-      final response = await _client.delete(
-        Uri.parse('$baseUrl/api/task-list-users?taskListId=$taskListId&userId=$userId'),
+      final response = await _loggedDelete(
+        '$baseUrl/api/task-list-users?taskListId=$taskListId&userId=$userId',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -901,8 +984,8 @@ class ApiService {
   /// Delete image
   Future<void> deleteImage(int id) async {
     try {
-      final response = await _client.delete(
-        Uri.parse('$baseUrl/api/images/$id'),
+      final response = await _loggedDelete(
+        '$baseUrl/api/images/$id',
         headers: _getHeaders(includeAuth: true),
       );
 

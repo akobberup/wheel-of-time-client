@@ -55,6 +55,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Checks if there's existing authentication data in storage and validates it.
   /// Called automatically on initialization to restore user sessions across app restarts.
   /// If valid auth data is found, restores the authenticated state.
+  /// If access token is expired but refresh token is valid, automatically refreshes.
   /// Otherwise, sets state to unauthenticated.
   Future<void> _checkAuthStatus() async {
     // update ui - loading
@@ -62,8 +63,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     final authData = await _storageService.getAuthData();
     final token = authData['token'];
+    final refreshToken = authData['refreshToken'];
 
-    if (token != null) {
+    if (token != null && refreshToken != null) {
       // Set the token in API service before validating
       _apiService.setToken(token);
       final isValid = await _apiService.validateToken();
@@ -77,12 +79,39 @@ class AuthNotifier extends StateNotifier<AuthState> {
             isLoading: false,
             user: AuthResponse(
               token: token,
+              refreshToken: refreshToken,
               userId: userId,
               name: authData['name'] ?? '',
               email: authData['email'] ?? '',
             ),
           );
           return;
+        }
+      } else {
+        // Access token expired, try to refresh
+        try {
+          final response = await _apiService.refreshAccessToken(refreshToken);
+
+          // Save new tokens
+          await _storageService.saveAuthData(
+            token: response.token,
+            refreshToken: response.refreshToken,
+            userId: response.userId,
+            name: response.name,
+            email: response.email,
+          );
+
+          _apiService.setToken(response.token);
+
+          state = state.copyWith(
+            isAuthenticated: true,
+            isLoading: false,
+            user: response,
+          );
+          return;
+        } catch (e) {
+          // Refresh failed, clear auth data and continue to unauthenticated state
+          await _storageService.clearAuthData();
         }
       }
     }
@@ -105,6 +134,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Save authentication data to persistent storage for session restoration
       await _storageService.saveAuthData(
         token: response.token,
+        refreshToken: response.refreshToken,
         userId: response.userId,
         name: response.name,
         email: response.email,
@@ -145,6 +175,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Automatically log in after successful registration
       await _storageService.saveAuthData(
         token: response.token,
+        refreshToken: response.refreshToken,
         userId: response.userId,
         name: response.name,
         email: response.email,
@@ -163,6 +194,47 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
         error: e.toString(),
       );
+    }
+  }
+
+  /// Refreshes the access token using the stored refresh token.
+  /// This should be called when receiving a 401 Unauthorized response.
+  /// On success, updates tokens in storage and API service.
+  /// On failure, logs the user out.
+  /// Returns true if refresh was successful, false otherwise.
+  Future<bool> refreshToken() async {
+    try {
+      final refreshToken = await _storageService.getRefreshToken();
+
+      if (refreshToken == null) {
+        // No refresh token available, logout
+        await logout();
+        return false;
+      }
+
+      final response = await _apiService.refreshAccessToken(refreshToken);
+
+      // Save new tokens
+      await _storageService.saveAuthData(
+        token: response.token,
+        refreshToken: response.refreshToken,
+        userId: response.userId,
+        name: response.name,
+        email: response.email,
+      );
+
+      _apiService.setToken(response.token);
+
+      state = state.copyWith(
+        isAuthenticated: true,
+        user: response,
+      );
+
+      return true;
+    } catch (e) {
+      // Refresh failed, logout
+      await logout();
+      return false;
     }
   }
 
