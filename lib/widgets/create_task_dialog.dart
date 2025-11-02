@@ -18,7 +18,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  RepeatUnit _repeatUnit = RepeatUnit.DAILY;
+  RepeatUnit _repeatUnit = RepeatUnit.DAYS;
   int _repeatDelta = 1;
   DateTime _firstRunDate = DateTime.now();
   bool _isLoading = false;

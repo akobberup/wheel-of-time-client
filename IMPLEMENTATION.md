@@ -262,7 +262,7 @@ final request = CreateTaskRequest(
   name: 'Water plants',
   description: 'Water all indoor plants',
   taskListId: 1,
-  repeatUnit: RepeatUnit.DAILY,
+  repeatUnit: RepeatUnit.DAYS,
   repeatDelta: 2,  // Every 2 days
   firstRunDate: DateTime.now(),
 );

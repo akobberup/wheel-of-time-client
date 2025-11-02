@@ -1,9 +1,9 @@
-/// Recurrence pattern unit for tasks
+/// Recurrence pattern unit for tasks (matches Java ChronoUnit)
 enum RepeatUnit {
-  DAILY,
-  WEEKLY,
-  MONTHLY,
-  YEARLY;
+  DAYS,
+  WEEKS,
+  MONTHS,
+  YEARS;
 
   String toJson() => name;
   static RepeatUnit fromJson(String value) => RepeatUnit.values.byName(value);

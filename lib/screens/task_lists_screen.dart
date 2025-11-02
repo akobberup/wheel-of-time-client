@@ -7,9 +7,39 @@ import '../l10n/app_strings.dart';
 import 'task_list_detail_screen.dart';
 import 'login_screen.dart';
 import '../widgets/create_task_list_dialog.dart';
+import '../widgets/edit_task_list_dialog.dart';
 
 class TaskListsScreen extends ConsumerWidget {
   const TaskListsScreen({super.key});
+
+  /// Shows a confirmation dialog for deleting a task list.
+  /// Returns true if user confirms deletion, false otherwise.
+  Future<bool> _showDeleteConfirmation(BuildContext context, String taskListName) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Delete Task List'),
+            content: Text(
+              'Are you sure you want to delete "$taskListName"? This action cannot be undone.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -113,7 +143,52 @@ class TaskListsScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    trailing: const Icon(Icons.chevron_right),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          tooltip: 'Edit',
+                          onPressed: () async {
+                            final result = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => EditTaskListDialog(taskList: taskList),
+                            );
+                            if (result == true) {
+                              ref.read(taskListProvider.notifier).loadAllTaskLists();
+                            }
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          tooltip: 'Delete',
+                          color: Colors.red,
+                          onPressed: () async {
+                            final confirmed = await _showDeleteConfirmation(
+                              context,
+                              taskList.name,
+                            );
+                            if (confirmed) {
+                              final success = await ref
+                                  .read(taskListProvider.notifier)
+                                  .deleteTaskList(taskList.id);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      success
+                                          ? 'Task list deleted successfully'
+                                          : 'Failed to delete task list',
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                        ),
+                        const Icon(Icons.chevron_right),
+                      ],
+                    ),
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(

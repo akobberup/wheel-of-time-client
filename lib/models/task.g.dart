@@ -55,10 +55,10 @@ Map<String, dynamic> _$$TaskResponseImplToJson(_$TaskResponseImpl instance) =>
     };
 
 const _$RepeatUnitEnumMap = {
-  RepeatUnit.DAILY: 'DAILY',
-  RepeatUnit.WEEKLY: 'WEEKLY',
-  RepeatUnit.MONTHLY: 'MONTHLY',
-  RepeatUnit.YEARLY: 'YEARLY',
+  RepeatUnit.DAYS: 'DAYS',
+  RepeatUnit.WEEKS: 'WEEKS',
+  RepeatUnit.MONTHS: 'MONTHS',
+  RepeatUnit.YEARS: 'YEARS',
 };
 
 _$CreateTaskRequestImpl _$$CreateTaskRequestImplFromJson(
