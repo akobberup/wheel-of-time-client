@@ -1,7 +1,16 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/auth_response.dart';
 import '../models/login_request.dart';
+import '../models/task_list.dart';
+import '../models/task.dart';
+import '../models/task_instance.dart';
+import '../models/invitation.dart';
+import '../models/task_list_user.dart';
+import '../models/streak.dart';
+import '../models/image.dart';
+import '../models/enums.dart';
 
 /// Custom exception class for API-related errors.
 /// Includes the error message and optional HTTP status code for better error handling.
@@ -189,5 +198,734 @@ class ApiService {
       if (e is ApiException) rethrow;
       throw ApiException('Network error: $e');
     }
+  }
+
+  // ============================================================================
+  // TASK LISTS
+  // ============================================================================
+
+  /// Get all accessible task lists (owned + shared)
+  Future<List<TaskListResponse>> getAllTaskLists() async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/task-lists'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => TaskListResponse.fromJson(json)).toList();
+      } else {
+        throw ApiException('Failed to load task lists', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Get owned task lists
+  Future<List<TaskListResponse>> getOwnedTaskLists() async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/task-lists/owned'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => TaskListResponse.fromJson(json)).toList();
+      } else {
+        throw ApiException('Failed to load owned task lists', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Get shared task lists
+  Future<List<TaskListResponse>> getSharedTaskLists() async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/task-lists/shared'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => TaskListResponse.fromJson(json)).toList();
+      } else {
+        throw ApiException('Failed to load shared task lists', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Get specific task list by ID
+  Future<TaskListResponse> getTaskList(int id) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/task-lists/$id'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        return TaskListResponse.fromJson(jsonDecode(response.body));
+      } else {
+        throw ApiException('Failed to load task list', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Create new task list
+  Future<TaskListResponse> createTaskList(CreateTaskListRequest request) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('$baseUrl/api/task-lists'),
+        headers: _getHeaders(includeAuth: true),
+        body: jsonEncode(request.toJson()),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return TaskListResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to create task list',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Update task list
+  Future<TaskListResponse> updateTaskList(int id, UpdateTaskListRequest request) async {
+    try {
+      final response = await _client.put(
+        Uri.parse('$baseUrl/api/task-lists/$id'),
+        headers: _getHeaders(includeAuth: true),
+        body: jsonEncode(request.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        return TaskListResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to update task list',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Delete task list
+  Future<void> deleteTaskList(int id) async {
+    try {
+      final response = await _client.delete(
+        Uri.parse('$baseUrl/api/task-lists/$id'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode != 204 && response.statusCode != 200) {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to delete task list',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  // ============================================================================
+  // TASKS
+  // ============================================================================
+
+  /// Get tasks by task list
+  Future<List<TaskResponse>> getTasksByTaskList(int taskListId, {bool activeOnly = false}) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/tasks/task-list/$taskListId?activeOnly=$activeOnly'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => TaskResponse.fromJson(json)).toList();
+      } else {
+        throw ApiException('Failed to load tasks', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Get specific task
+  Future<TaskResponse> getTask(int id) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/tasks/$id'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        return TaskResponse.fromJson(jsonDecode(response.body));
+      } else {
+        throw ApiException('Failed to load task', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Create task
+  Future<TaskResponse> createTask(CreateTaskRequest request) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('$baseUrl/api/tasks'),
+        headers: _getHeaders(includeAuth: true),
+        body: jsonEncode(request.toJson()),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return TaskResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to create task',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Update task
+  Future<TaskResponse> updateTask(int id, UpdateTaskRequest request) async {
+    try {
+      final response = await _client.put(
+        Uri.parse('$baseUrl/api/tasks/$id'),
+        headers: _getHeaders(includeAuth: true),
+        body: jsonEncode(request.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        return TaskResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to update task',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Delete task
+  Future<void> deleteTask(int id) async {
+    try {
+      final response = await _client.delete(
+        Uri.parse('$baseUrl/api/tasks/$id'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to delete task',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  // ============================================================================
+  // TASK INSTANCES
+  // ============================================================================
+
+  /// Get task instances by task
+  Future<List<TaskInstanceResponse>> getTaskInstancesByTask(int taskId) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/task-instances/task/$taskId'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => TaskInstanceResponse.fromJson(json)).toList();
+      } else {
+        throw ApiException('Failed to load task instances', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Get task instances by task list
+  Future<List<TaskInstanceResponse>> getTaskInstancesByTaskList(int taskListId) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/task-instances/task-list/$taskListId'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => TaskInstanceResponse.fromJson(json)).toList();
+      } else {
+        throw ApiException('Failed to load task instances', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Get specific task instance
+  Future<TaskInstanceResponse> getTaskInstance(int id) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/task-instances/$id'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        return TaskInstanceResponse.fromJson(jsonDecode(response.body));
+      } else {
+        throw ApiException('Failed to load task instance', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Create task instance (complete a task)
+  Future<TaskInstanceResponse> createTaskInstance(CreateTaskInstanceRequest request) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('$baseUrl/api/task-instances'),
+        headers: _getHeaders(includeAuth: true),
+        body: jsonEncode(request.toJson()),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return TaskInstanceResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to create task instance',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  // ============================================================================
+  // STREAKS
+  // ============================================================================
+
+  /// Get current streak for task
+  Future<StreakResponse?> getCurrentStreak(int taskId) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/task-instances/task/$taskId/streak/current'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final body = response.body;
+        if (body.isEmpty) return null;
+        return StreakResponse.fromJson(jsonDecode(body));
+      } else {
+        throw ApiException('Failed to load current streak', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Get longest streak for task
+  Future<StreakResponse?> getLongestStreak(int taskId) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/task-instances/task/$taskId/streak/longest'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final body = response.body;
+        if (body.isEmpty) return null;
+        return StreakResponse.fromJson(jsonDecode(body));
+      } else {
+        throw ApiException('Failed to load longest streak', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Get all streaks for task
+  Future<List<StreakResponse>> getAllStreaks(int taskId) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/task-instances/task/$taskId/streaks'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => StreakResponse.fromJson(json)).toList();
+      } else {
+        throw ApiException('Failed to load streaks', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  // ============================================================================
+  // INVITATIONS
+  // ============================================================================
+
+  /// Get my pending invitations
+  Future<List<InvitationResponse>> getMyPendingInvitations() async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/invitations/my-invitations/pending'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => InvitationResponse.fromJson(json)).toList();
+      } else {
+        throw ApiException('Failed to load pending invitations', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Get all my invitations
+  Future<List<InvitationResponse>> getMyInvitations() async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/invitations/my-invitations'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => InvitationResponse.fromJson(json)).toList();
+      } else {
+        throw ApiException('Failed to load invitations', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Get invitations for task list
+  Future<List<InvitationResponse>> getInvitationsByTaskList(int taskListId) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/invitations/task-list/$taskListId'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => InvitationResponse.fromJson(json)).toList();
+      } else {
+        throw ApiException('Failed to load task list invitations', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Get specific invitation
+  Future<InvitationResponse> getInvitation(int id) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/invitations/$id'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        return InvitationResponse.fromJson(jsonDecode(response.body));
+      } else {
+        throw ApiException('Failed to load invitation', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Create invitation
+  Future<InvitationResponse> createInvitation(CreateInvitationRequest request) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('$baseUrl/api/invitations'),
+        headers: _getHeaders(includeAuth: true),
+        body: jsonEncode(request.toJson()),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return InvitationResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to create invitation',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Accept invitation
+  Future<InvitationResponse> acceptInvitation(int id) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('$baseUrl/api/invitations/$id/accept'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        return InvitationResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to accept invitation',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Decline invitation
+  Future<InvitationResponse> declineInvitation(int id) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('$baseUrl/api/invitations/$id/decline'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        return InvitationResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to decline invitation',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Cancel invitation
+  Future<void> cancelInvitation(int id) async {
+    try {
+      final response = await _client.delete(
+        Uri.parse('$baseUrl/api/invitations/$id'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to cancel invitation',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  // ============================================================================
+  // TASK LIST USERS
+  // ============================================================================
+
+  /// Get users for task list
+  Future<List<TaskListUserResponse>> getUsersByTaskList(int taskListId) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/task-list-users/task-list/$taskListId'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => TaskListUserResponse.fromJson(json)).toList();
+      } else {
+        throw ApiException('Failed to load task list users', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Update user admin level
+  Future<TaskListUserResponse> updateUserAdminLevel(
+    int taskListId,
+    int userId,
+    AdminLevel newAdminLevel,
+  ) async {
+    try {
+      final response = await _client.put(
+        Uri.parse('$baseUrl/api/task-list-users?taskListId=$taskListId&userId=$userId&newAdminLevel=${newAdminLevel.toJson()}'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        return TaskListUserResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to update user admin level',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Remove user from task list
+  Future<void> removeUserFromTaskList(int taskListId, int userId) async {
+    try {
+      final response = await _client.delete(
+        Uri.parse('$baseUrl/api/task-list-users?taskListId=$taskListId&userId=$userId'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to remove user',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  // ============================================================================
+  // IMAGES
+  // ============================================================================
+
+  /// Upload image
+  Future<ImageUploadResponse> uploadImage(File imageFile, ImageSource imageSource) async {
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/api/images?imageSource=${imageSource.toJson()}'),
+      );
+
+      request.headers.addAll(_getHeaders(includeAuth: true));
+      request.headers.remove('Content-Type'); // Let http set the correct multipart content type
+
+      request.files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ImageUploadResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to upload image',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Delete image
+  Future<void> deleteImage(int id) async {
+    try {
+      final response = await _client.delete(
+        Uri.parse('$baseUrl/api/images/$id'),
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          errorData['message'] ?? 'Failed to delete image',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Get image URL
+  String getImageUrl(String imagePath) {
+    return '$baseUrl$imagePath';
+  }
+
+  /// Get thumbnail URL
+  String getThumbnailUrl(String thumbnailPath) {
+    return '$baseUrl$thumbnailPath';
   }
 }

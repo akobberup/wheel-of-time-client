@@ -32,7 +32,7 @@ class StringsDa extends AppStrings {
   String get pleaseEnterPassword => 'Indtast venligst din adgangskode';
 
   @override
-  String get passwordMinLength => 'Adgangskoden skal være mindst 6 tegn';
+  String get passwordMinLength => 'Adgangskoden skal være mindst 8 tegn';
 
   @override
   String get signIn => 'Log ind';
@@ -124,4 +124,179 @@ class StringsDa extends AppStrings {
 
   @override
   String get failedToResetPassword => 'Kunne ikke nulstille adgangskode';
+
+  // Task Lists
+  @override
+  String get taskLists => 'Opgavelister';
+
+  @override
+  String get createTaskList => 'Opret opgaveliste';
+
+  @override
+  String get editTaskList => 'Rediger opgaveliste';
+
+  @override
+  String get deleteTaskList => 'Slet opgaveliste';
+
+  @override
+  String get noTaskLists => 'Ingen opgavelister endnu';
+
+  @override
+  String get createFirstTaskList => 'Opret din første opgaveliste for at komme i gang';
+
+  @override
+  String get taskListCreated => 'Opgaveliste oprettet';
+
+  @override
+  String get taskListUpdated => 'Opgaveliste opdateret';
+
+  @override
+  String get taskListDeleted => 'Opgaveliste slettet';
+
+  // Tasks
+  @override
+  String get tasks => 'Opgaver';
+
+  @override
+  String get createTask => 'Opret opgave';
+
+  @override
+  String get editTask => 'Rediger opgave';
+
+  @override
+  String get deleteTask => 'Slet opgave';
+
+  @override
+  String get noTasks => 'Ingen opgaver endnu';
+
+  @override
+  String get addFirstTask => 'Tilføj din første opgave til denne liste';
+
+  @override
+  String get taskCreated => 'Opgave oprettet';
+
+  @override
+  String get taskUpdated => 'Opgave opdateret';
+
+  @override
+  String get taskDeleted => 'Opgave slettet';
+
+  @override
+  String get completeTask => 'Fuldfør opgave';
+
+  @override
+  String get taskCompleted => 'Opgave fuldført';
+
+  // Task Details
+  @override
+  String get taskName => 'Opgavenavn';
+
+  @override
+  String get description => 'Beskrivelse';
+
+  @override
+  String get descriptionOptional => 'Beskrivelse (valgfri)';
+
+  @override
+  String get repeat => 'Gentag';
+
+  @override
+  String get everyNumber => 'Hver (antal)';
+
+  @override
+  String get firstRunDate => 'Første kørselsdato';
+
+  @override
+  String get completionTime => 'Fuldførelsestidspunkt';
+
+  // Repeat Units
+  @override
+  String get daily => 'Dagligt';
+
+  @override
+  String get weekly => 'Ugentligt';
+
+  @override
+  String get monthly => 'Månedligt';
+
+  @override
+  String get yearly => 'Årligt';
+
+  // Invitations
+  @override
+  String get invitations => 'Invitationer';
+
+  @override
+  String get pendingInvitations => 'Afventende invitationer';
+
+  @override
+  String get noPendingInvitations => 'Ingen afventende invitationer';
+
+  @override
+  String get invitationFrom => 'Fra';
+
+  @override
+  String get acceptInvitation => 'Accepter';
+
+  @override
+  String get declineInvitation => 'Afvis';
+
+  @override
+  String get invitationAccepted => 'Invitation accepteret';
+
+  @override
+  String get invitationDeclined => 'Invitation afvist';
+
+  @override
+  String get sendInvitation => 'Send invitation';
+
+  // Members
+  @override
+  String get members => 'Medlemmer';
+
+  @override
+  String get addMember => 'Tilføj medlem';
+
+  @override
+  String get removeMember => 'Fjern medlem';
+
+  @override
+  String get changePermission => 'Skift tilladelse';
+
+  // Common
+  @override
+  String get cancel => 'Annuller';
+
+  @override
+  String get save => 'Gem';
+
+  @override
+  String get delete => 'Slet';
+
+  @override
+  String get edit => 'Rediger';
+
+  @override
+  String get create => 'Opret';
+
+  @override
+  String get retry => 'Prøv igen';
+
+  @override
+  String get error => 'Fejl';
+
+  @override
+  String get loading => 'Indlæser';
+
+  @override
+  String get comment => 'Kommentar';
+
+  @override
+  String get commentOptional => 'Kommentar (valgfri)';
+
+  @override
+  String get logout => 'Log ud';
+
+  @override
+  String get lists => 'Lister';
 }

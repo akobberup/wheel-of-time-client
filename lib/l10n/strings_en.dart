@@ -32,7 +32,7 @@ class StringsEn extends AppStrings {
   String get pleaseEnterPassword => 'Please enter your password';
 
   @override
-  String get passwordMinLength => 'Password must be at least 6 characters';
+  String get passwordMinLength => 'Password must be at least 8 characters';
 
   @override
   String get signIn => 'Sign In';
@@ -123,4 +123,179 @@ class StringsEn extends AppStrings {
 
   @override
   String get failedToResetPassword => 'Failed to reset password';
+
+  // Task Lists
+  @override
+  String get taskLists => 'Task Lists';
+
+  @override
+  String get createTaskList => 'Create Task List';
+
+  @override
+  String get editTaskList => 'Edit Task List';
+
+  @override
+  String get deleteTaskList => 'Delete Task List';
+
+  @override
+  String get noTaskLists => 'No task lists yet';
+
+  @override
+  String get createFirstTaskList => 'Create your first task list to get started';
+
+  @override
+  String get taskListCreated => 'Task list created';
+
+  @override
+  String get taskListUpdated => 'Task list updated';
+
+  @override
+  String get taskListDeleted => 'Task list deleted';
+
+  // Tasks
+  @override
+  String get tasks => 'Tasks';
+
+  @override
+  String get createTask => 'Create Task';
+
+  @override
+  String get editTask => 'Edit Task';
+
+  @override
+  String get deleteTask => 'Delete Task';
+
+  @override
+  String get noTasks => 'No tasks yet';
+
+  @override
+  String get addFirstTask => 'Add your first task to this list';
+
+  @override
+  String get taskCreated => 'Task created';
+
+  @override
+  String get taskUpdated => 'Task updated';
+
+  @override
+  String get taskDeleted => 'Task deleted';
+
+  @override
+  String get completeTask => 'Complete Task';
+
+  @override
+  String get taskCompleted => 'Task completed';
+
+  // Task Details
+  @override
+  String get taskName => 'Task Name';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get descriptionOptional => 'Description (optional)';
+
+  @override
+  String get repeat => 'Repeat';
+
+  @override
+  String get everyNumber => 'Every (number)';
+
+  @override
+  String get firstRunDate => 'First Run Date';
+
+  @override
+  String get completionTime => 'Completion Time';
+
+  // Repeat Units
+  @override
+  String get daily => 'Daily';
+
+  @override
+  String get weekly => 'Weekly';
+
+  @override
+  String get monthly => 'Monthly';
+
+  @override
+  String get yearly => 'Yearly';
+
+  // Invitations
+  @override
+  String get invitations => 'Invitations';
+
+  @override
+  String get pendingInvitations => 'Pending Invitations';
+
+  @override
+  String get noPendingInvitations => 'No pending invitations';
+
+  @override
+  String get invitationFrom => 'From';
+
+  @override
+  String get acceptInvitation => 'Accept';
+
+  @override
+  String get declineInvitation => 'Decline';
+
+  @override
+  String get invitationAccepted => 'Invitation accepted';
+
+  @override
+  String get invitationDeclined => 'Invitation declined';
+
+  @override
+  String get sendInvitation => 'Send Invitation';
+
+  // Members
+  @override
+  String get members => 'Members';
+
+  @override
+  String get addMember => 'Add Member';
+
+  @override
+  String get removeMember => 'Remove Member';
+
+  @override
+  String get changePermission => 'Change Permission';
+
+  // Common
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get loading => 'Loading';
+
+  @override
+  String get comment => 'Comment';
+
+  @override
+  String get commentOptional => 'Comment (optional)';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get lists => 'Lists';
 }

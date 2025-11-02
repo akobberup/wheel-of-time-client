@@ -128,7 +128,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
               if (value == null || value.isEmpty) {
                 return strings.pleaseEnterNewPassword;
               }
-              if (value.length < 6) {
+              if (value.length < 8) {
                 return strings.passwordMinLength;
               }
               return null;

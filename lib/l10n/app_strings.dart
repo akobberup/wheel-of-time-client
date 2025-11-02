@@ -55,6 +55,76 @@ abstract class AppStrings {
   String get failedToSendResetEmail;
   String get failedToResetPassword;
 
+  // Task Lists
+  String get taskLists;
+  String get createTaskList;
+  String get editTaskList;
+  String get deleteTaskList;
+  String get noTaskLists;
+  String get createFirstTaskList;
+  String get taskListCreated;
+  String get taskListUpdated;
+  String get taskListDeleted;
+
+  // Tasks
+  String get tasks;
+  String get createTask;
+  String get editTask;
+  String get deleteTask;
+  String get noTasks;
+  String get addFirstTask;
+  String get taskCreated;
+  String get taskUpdated;
+  String get taskDeleted;
+  String get completeTask;
+  String get taskCompleted;
+
+  // Task Details
+  String get taskName;
+  String get description;
+  String get descriptionOptional;
+  String get repeat;
+  String get everyNumber;
+  String get firstRunDate;
+  String get completionTime;
+
+  // Repeat Units
+  String get daily;
+  String get weekly;
+  String get monthly;
+  String get yearly;
+
+  // Invitations
+  String get invitations;
+  String get pendingInvitations;
+  String get noPendingInvitations;
+  String get invitationFrom;
+  String get acceptInvitation;
+  String get declineInvitation;
+  String get invitationAccepted;
+  String get invitationDeclined;
+  String get sendInvitation;
+
+  // Members
+  String get members;
+  String get addMember;
+  String get removeMember;
+  String get changePermission;
+
+  // Common
+  String get cancel;
+  String get save;
+  String get delete;
+  String get edit;
+  String get create;
+  String get retry;
+  String get error;
+  String get loading;
+  String get comment;
+  String get commentOptional;
+  String get logout;
+  String get lists;
+
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);
 
