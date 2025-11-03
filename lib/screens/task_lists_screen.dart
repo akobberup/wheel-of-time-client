@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/task_list_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/notification_provider.dart';
 import '../l10n/app_strings.dart';
 import 'task_list_detail_screen.dart';
 import 'login_screen.dart';
+import 'notifications_screen.dart';
 import '../widgets/create_task_list_dialog.dart';
 import '../widgets/edit_task_list_dialog.dart';
 
@@ -44,11 +46,25 @@ class TaskListsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
     final taskListsAsync = ref.watch(taskListProvider);
+    final notificationCount = ref.watch(notificationCountProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(strings.appTitle),
         actions: [
+          IconButton(
+            icon: Badge(
+              isLabelVisible: notificationCount > 0,
+              label: Text('$notificationCount'),
+              child: const Icon(Icons.notifications),
+            ),
+            tooltip: strings.notifications,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',

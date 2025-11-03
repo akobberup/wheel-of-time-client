@@ -98,7 +98,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<RepeatUnit>(
-                value: _repeatUnit,
+                initialValue: _repeatUnit,
                 decoration: const InputDecoration(
                   labelText: 'Repeat',
                   border: OutlineInputBorder(),

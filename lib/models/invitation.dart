@@ -31,6 +31,7 @@ class CreateInvitationRequest with _$CreateInvitationRequest {
   factory CreateInvitationRequest.fromJson(Map<String, dynamic> json) =>
       _$CreateInvitationRequestFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => {
         'taskListId': taskListId,
         'emailAddress': emailAddress,

@@ -122,7 +122,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<RepeatUnit>(
-                value: _repeatUnit,
+                initialValue: _repeatUnit,
                 decoration: const InputDecoration(
                   labelText: 'Repeat',
                   border: OutlineInputBorder(),

@@ -483,4 +483,41 @@ class StringsDa extends AppStrings {
 
   @override
   String get completionWindow => 'Fuldførelsesvindue';
+
+  // Notifications
+  @override
+  String get notifications => 'Notifikationer';
+
+  @override
+  String get noNotifications => 'Ingen notifikationer';
+
+  @override
+  String get allCaughtUp => 'Du er opdateret!';
+
+  @override
+  String get notificationDismissed => 'Notifikation afvist';
+
+  @override
+  String get newInvitation => 'Ny invitation';
+
+  @override
+  String get invitationWasAccepted => 'Invitation accepteret';
+
+  @override
+  String get invitationWasDeclined => 'Invitation afvist';
+
+  @override
+  String get taskDue => 'Opgave klar';
+
+  @override
+  String get inList => 'i';
+
+  @override
+  String get refresh => 'Genindlæs';
+
+  @override
+  String get failedToAcceptInvitation => 'Kunne ikke acceptere invitation';
+
+  @override
+  String get failedToDeclineInvitation => 'Kunne ikke afvise invitation';
 }

@@ -32,6 +32,7 @@ class CreateTaskListRequest with _$CreateTaskListRequest {
   factory CreateTaskListRequest.fromJson(Map<String, dynamic> json) =>
       _$CreateTaskListRequestFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => {
         'name': name,
         if (description != null) 'description': description,
@@ -50,6 +51,7 @@ class UpdateTaskListRequest with _$UpdateTaskListRequest {
   factory UpdateTaskListRequest.fromJson(Map<String, dynamic> json) =>
       _$UpdateTaskListRequestFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => {
         if (name != null) 'name': name,
         if (description != null) 'description': description,

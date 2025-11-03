@@ -49,6 +49,7 @@ class CreateTaskRequest with _$CreateTaskRequest {
   factory CreateTaskRequest.fromJson(Map<String, dynamic> json) =>
       _$CreateTaskRequestFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => {
         'name': name,
         if (description != null) 'description': description,
@@ -82,6 +83,7 @@ class UpdateTaskRequest with _$UpdateTaskRequest {
   factory UpdateTaskRequest.fromJson(Map<String, dynamic> json) =>
       _$UpdateTaskRequestFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => {
         if (name != null) 'name': name,
         if (description != null) 'description': description,

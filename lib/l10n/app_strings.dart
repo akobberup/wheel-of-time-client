@@ -196,6 +196,20 @@ abstract class AppStrings {
   String get alarmTime;
   String get completionWindow;
 
+  // Notifications
+  String get notifications;
+  String get noNotifications;
+  String get allCaughtUp;
+  String get notificationDismissed;
+  String get newInvitation;
+  String get invitationWasAccepted;
+  String get invitationWasDeclined;
+  String get taskDue;
+  String get inList;
+  String get refresh;
+  String get failedToAcceptInvitation;
+  String get failedToDeclineInvitation;
+
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);
 

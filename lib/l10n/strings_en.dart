@@ -482,4 +482,41 @@ class StringsEn extends AppStrings {
 
   @override
   String get completionWindow => 'Completion Window';
+
+  // Notifications
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get noNotifications => 'No notifications';
+
+  @override
+  String get allCaughtUp => 'You\'re all caught up!';
+
+  @override
+  String get notificationDismissed => 'Notification dismissed';
+
+  @override
+  String get newInvitation => 'New Invitation';
+
+  @override
+  String get invitationWasAccepted => 'Invitation Accepted';
+
+  @override
+  String get invitationWasDeclined => 'Invitation Declined';
+
+  @override
+  String get taskDue => 'Task Due';
+
+  @override
+  String get inList => 'in';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get failedToAcceptInvitation => 'Failed to accept invitation';
+
+  @override
+  String get failedToDeclineInvitation => 'Failed to decline invitation';
 }

@@ -1,0 +1,345 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/notification_provider.dart';
+import '../providers/invitation_provider.dart';
+import '../providers/task_list_provider.dart';
+import '../models/notification.dart';
+import '../l10n/app_strings.dart';
+import 'task_list_detail_screen.dart';
+
+/// Screen displaying all notifications in one centralized location
+class NotificationsScreen extends ConsumerWidget {
+  const NotificationsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppStrings.of(context);
+    final notificationsAsync = ref.watch(notificationProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(strings.notifications),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: strings.refresh,
+            onPressed: () {
+              ref.read(notificationProvider.notifier).loadNotifications();
+            },
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(notificationProvider.notifier).loadNotifications();
+        },
+        child: notificationsAsync.when(
+          data: (notifications) {
+            if (notifications.isEmpty) {
+              return _buildEmptyState(context, strings);
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: notifications.length,
+              itemBuilder: (context, index) {
+                final notification = notifications[index];
+                return _buildNotificationCard(context, ref, notification, strings);
+              },
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 60, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(strings.error),
+                const SizedBox(height: 8),
+                Text('$error'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    ref.read(notificationProvider.notifier).loadNotifications();
+                  },
+                  child: Text(strings.retry),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context, AppStrings strings) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.notifications_none, size: 80, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            strings.noNotifications,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Colors.grey[600],
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            strings.allCaughtUp,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[500],
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotificationCard(
+    BuildContext context,
+    WidgetRef ref,
+    AppNotification notification,
+    AppStrings strings,
+  ) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Dismissible(
+        key: Key(notification.id),
+        direction: DismissDirection.endToStart,
+        background: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 20),
+          color: Colors.red,
+          child: const Icon(Icons.delete, color: Colors.white),
+        ),
+        onDismissed: (direction) {
+          ref.read(notificationProvider.notifier).dismissNotification(notification.id);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(strings.notificationDismissed)),
+          );
+        },
+        child: ListTile(
+          leading: _getNotificationIcon(notification),
+          title: Text(_getNotificationTitle(notification, strings)),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 4),
+              Text(_getNotificationSubtitle(notification, strings)),
+              const SizedBox(height: 4),
+              Text(
+                _formatTimestamp(notification.timestamp),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+            ],
+          ),
+          trailing: _buildNotificationActions(context, ref, notification, strings),
+          onTap: () => _handleNotificationTap(context, ref, notification),
+        ),
+      ),
+    );
+  }
+
+  Widget _getNotificationIcon(AppNotification notification) {
+    switch (notification.type) {
+      case NotificationType.INVITATION_RECEIVED:
+        return const CircleAvatar(
+          backgroundColor: Colors.blue,
+          child: Icon(Icons.mail, color: Colors.white),
+        );
+      case NotificationType.INVITATION_ACCEPTED:
+        return const CircleAvatar(
+          backgroundColor: Colors.green,
+          child: Icon(Icons.check_circle, color: Colors.white),
+        );
+      case NotificationType.INVITATION_DECLINED:
+        return const CircleAvatar(
+          backgroundColor: Colors.orange,
+          child: Icon(Icons.cancel, color: Colors.white),
+        );
+      case NotificationType.TASK_DUE:
+        return const CircleAvatar(
+          backgroundColor: Colors.purple,
+          child: Icon(Icons.task_alt, color: Colors.white),
+        );
+    }
+  }
+
+  String _getNotificationTitle(AppNotification notification, AppStrings strings) {
+    switch (notification.type) {
+      case NotificationType.INVITATION_RECEIVED:
+        return strings.newInvitation;
+      case NotificationType.INVITATION_ACCEPTED:
+        return strings.invitationWasAccepted;
+      case NotificationType.INVITATION_DECLINED:
+        return strings.invitationWasDeclined;
+      case NotificationType.TASK_DUE:
+        return strings.taskDue;
+    }
+  }
+
+  String _getNotificationSubtitle(AppNotification notification, AppStrings strings) {
+    switch (notification.type) {
+      case NotificationType.INVITATION_RECEIVED:
+        final taskListName = notification.invitation?.taskListName ?? '';
+        final fromUser = notification.invitation?.initiatedByUserName ?? '';
+        return '${strings.invitationFrom}: $fromUser - "$taskListName"';
+
+      case NotificationType.INVITATION_ACCEPTED:
+        final taskListName = notification.invitation?.taskListName ?? '';
+        final email = notification.invitation?.emailAddress ?? '';
+        return '$email - "$taskListName"';
+
+      case NotificationType.INVITATION_DECLINED:
+        final taskListName = notification.invitation?.taskListName ?? '';
+        final email = notification.invitation?.emailAddress ?? '';
+        return '$email - "$taskListName"';
+
+      case NotificationType.TASK_DUE:
+        final taskName = notification.task?.name ?? '';
+        final taskListName = notification.task?.taskListName ?? '';
+        return '"$taskName" ${strings.inList} "$taskListName"';
+    }
+  }
+
+  String _formatTimestamp(DateTime timestamp) {
+    final now = DateTime.now();
+    final difference = now.difference(timestamp);
+
+    if (difference.inMinutes < 1) {
+      return 'Just now';
+    } else if (difference.inHours < 1) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inDays < 1) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays}d ago';
+    } else {
+      return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
+    }
+  }
+
+  Widget? _buildNotificationActions(
+    BuildContext context,
+    WidgetRef ref,
+    AppNotification notification,
+    AppStrings strings,
+  ) {
+    switch (notification.type) {
+      case NotificationType.INVITATION_RECEIVED:
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.check_circle, color: Colors.green),
+              tooltip: strings.acceptInvitation,
+              onPressed: () => _handleAcceptInvitation(context, ref, notification, strings),
+            ),
+            IconButton(
+              icon: const Icon(Icons.cancel, color: Colors.red),
+              tooltip: strings.declineInvitation,
+              onPressed: () => _handleDeclineInvitation(context, ref, notification, strings),
+            ),
+          ],
+        );
+      case NotificationType.TASK_DUE:
+        return const Icon(Icons.chevron_right);
+      default:
+        return null;
+    }
+  }
+
+  void _handleNotificationTap(BuildContext context, WidgetRef ref, AppNotification notification) {
+    switch (notification.type) {
+      case NotificationType.TASK_DUE:
+        if (notification.task != null) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => TaskListDetailScreen(
+                taskListId: notification.task!.taskListId,
+                taskListName: notification.task!.taskListName,
+              ),
+            ),
+          );
+        }
+        break;
+      default:
+        // For other notification types, tapping doesn't navigate
+        break;
+    }
+  }
+
+  Future<void> _handleAcceptInvitation(
+    BuildContext context,
+    WidgetRef ref,
+    AppNotification notification,
+    AppStrings strings,
+  ) async {
+    if (notification.invitation == null) return;
+
+    final success = await ref
+        .read(invitationProvider.notifier)
+        .acceptInvitation(notification.invitation!.id);
+
+    if (context.mounted) {
+      if (success) {
+        // Dismiss the notification
+        await ref.read(notificationProvider.notifier).dismissNotification(notification.id);
+
+        // Refresh task lists to show the newly joined list
+        await ref.read(taskListProvider.notifier).loadAllTaskLists();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.invitationAccepted),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.failedToAcceptInvitation),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleDeclineInvitation(
+    BuildContext context,
+    WidgetRef ref,
+    AppNotification notification,
+    AppStrings strings,
+  ) async {
+    if (notification.invitation == null) return;
+
+    final success = await ref
+        .read(invitationProvider.notifier)
+        .declineInvitation(notification.invitation!.id);
+
+    if (context.mounted) {
+      if (success) {
+        // Dismiss the notification
+        await ref.read(notificationProvider.notifier).dismissNotification(notification.id);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.invitationDeclined),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.failedToDeclineInvitation),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+}

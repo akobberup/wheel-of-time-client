@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
-import 'l10n/app_strings.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/forgot_password_screen.dart';

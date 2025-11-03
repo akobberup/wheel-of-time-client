@@ -33,6 +33,7 @@ class CreateTaskInstanceRequest with _$CreateTaskInstanceRequest {
   factory CreateTaskInstanceRequest.fromJson(Map<String, dynamic> json) =>
       _$CreateTaskInstanceRequestFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => {
         'taskId': taskId,
         if (completedDateTime != null)
