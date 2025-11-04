@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/task_provider.dart';
-import '../models/task_instance.dart';
 import '../widgets/create_task_dialog.dart';
-import '../widgets/complete_task_dialog.dart';
 import '../widgets/edit_task_dialog.dart';
 import 'task_list_members_screen.dart';
 import '../l10n/app_strings.dart';
@@ -157,22 +155,6 @@ class TaskListDetailScreen extends ConsumerWidget {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (task.isActive)
-                          IconButton(
-                            icon: const Icon(Icons.check_circle, color: Colors.green),
-                            tooltip: strings.complete,
-                            onPressed: () async {
-                              final result = await showDialog<TaskInstanceResponse>(
-                                context: context,
-                                builder: (context) => CompleteTaskDialog(taskId: task.id),
-                              );
-                              if (result != null) {
-                                ref.read(tasksProvider(taskListId).notifier).loadTasks();
-                              }
-                            },
-                          )
-                        else
-                          const Icon(Icons.pause_circle_outline, color: Colors.grey),
                         IconButton(
                           icon: const Icon(Icons.edit),
                           tooltip: strings.edit,

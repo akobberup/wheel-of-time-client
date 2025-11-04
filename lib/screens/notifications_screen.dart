@@ -5,7 +5,7 @@ import '../providers/invitation_provider.dart';
 import '../providers/task_list_provider.dart';
 import '../models/notification.dart';
 import '../l10n/app_strings.dart';
-import 'task_list_detail_screen.dart';
+import 'main_navigation_screen.dart';
 
 /// Screen displaying all notifications in one centralized location
 class NotificationsScreen extends ConsumerWidget {
@@ -255,16 +255,9 @@ class NotificationsScreen extends ConsumerWidget {
   void _handleNotificationTap(BuildContext context, WidgetRef ref, AppNotification notification) {
     switch (notification.type) {
       case NotificationType.TASK_DUE:
-        if (notification.task != null) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => TaskListDetailScreen(
-                taskListId: notification.task!.taskListId,
-                taskListName: notification.task!.taskListName,
-              ),
-            ),
-          );
-        }
+        // Navigate to the Upcoming Tasks tab (index 1) where users can complete tasks
+        ref.read(selectedIndexProvider.notifier).state = 1;
+        Navigator.of(context).pop(); // Return to main navigation screen
         break;
       default:
         // For other notification types, tapping doesn't navigate
