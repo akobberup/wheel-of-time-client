@@ -520,4 +520,41 @@ class StringsDa extends AppStrings {
 
   @override
   String get failedToDeclineInvitation => 'Kunne ikke afvise invitation';
+
+  // Upcoming Tasks
+  @override
+  String get upcomingTasks => 'Kommende';
+
+  @override
+  String get noUpcomingTasks => 'Ingen kommende opgaver';
+
+  @override
+  String get allCaughtUpWithTasks => 'Du er opdateret! Ingen opgaver de næste 2 uger.';
+
+  @override
+  String get dueToday => 'Forfalder i dag';
+
+  @override
+  String get dueTomorrow => 'Forfalder i morgen';
+
+  @override
+  String dueInDays(int days) => 'Forfalder om $days dage';
+
+  @override
+  String get overdue => 'Forsinket';
+
+  @override
+  String dueDaysAgo(int days) => 'Forfaldt for $days dage siden';
+
+  @override
+  String get taskCompletedSuccess => 'Opgave fuldført';
+
+  @override
+  String get streakContinued => 'Serie fortsat!';
+
+  @override
+  String streakExtended(int count) => 'Serie udvidet til $count dage!';
+
+  @override
+  String get failedToCompleteTask => 'Kunne ikke fuldføre opgave';
 }

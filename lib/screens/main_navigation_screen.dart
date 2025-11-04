@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'task_lists_screen.dart';
 import 'invitations_screen.dart';
+import 'upcoming_tasks_screen.dart';
 import '../providers/invitation_provider.dart';
+import '../l10n/app_strings.dart';
 
-final selectedIndexProvider = StateProvider<int>((ref) => 0);
+final selectedIndexProvider = StateProvider<int>((ref) => 1); // Default to Upcoming tasks tab
 
 class MainNavigationScreen extends ConsumerWidget {
   const MainNavigationScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppStrings.of(context);
     final selectedIndex = ref.watch(selectedIndexProvider);
     final pendingInvitationsAsync = ref.watch(invitationProvider);
 
@@ -21,6 +24,7 @@ class MainNavigationScreen extends ConsumerWidget {
 
     final screens = [
       const TaskListsScreen(),
+      const UpcomingTasksScreen(),
       const InvitationsScreen(),
     ];
 
@@ -32,9 +36,13 @@ class MainNavigationScreen extends ConsumerWidget {
           ref.read(selectedIndexProvider.notifier).state = index;
         },
         destinations: [
-          const NavigationDestination(
-            icon: Icon(Icons.list),
-            label: 'Lists',
+          NavigationDestination(
+            icon: const Icon(Icons.list),
+            label: strings.lists,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.upcoming),
+            label: strings.upcomingTasks,
           ),
           NavigationDestination(
             icon: Badge(
@@ -42,7 +50,7 @@ class MainNavigationScreen extends ConsumerWidget {
               label: Text('$pendingCount'),
               child: const Icon(Icons.mail),
             ),
-            label: 'Invitations',
+            label: strings.invitations,
           ),
         ],
       ),

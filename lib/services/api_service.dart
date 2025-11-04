@@ -6,6 +6,7 @@ import '../models/auth_response.dart';
 import '../models/login_request.dart';
 import '../models/task_list.dart';
 import '../models/task.dart';
+import '../models/task_occurrence.dart';
 import '../models/task_instance.dart';
 import '../models/invitation.dart';
 import '../models/task_list_user.dart';
@@ -540,6 +541,50 @@ class ApiService {
           errorData['message'] ?? 'Failed to delete task',
           response.statusCode,
         );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Get tasks due within specified number of days
+  Future<List<TaskResponse>> getTasksDueWithinDays({int days = 14}) async {
+    try {
+      final response = await _loggedGet(
+        '$baseUrl/api/tasks/due-within-days?days=$days',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => TaskResponse.fromJson(json)).toList();
+      } else {
+        throw ApiException('Failed to load upcoming tasks', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Get paginated upcoming task occurrences
+  /// Returns the next [limit] occurrences starting from [offset]
+  Future<List<UpcomingTaskOccurrenceResponse>> getUpcomingTaskOccurrences({
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await _loggedGet(
+        '$baseUrl/api/tasks/upcoming-occurrences?limit=$limit&offset=$offset',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => UpcomingTaskOccurrenceResponse.fromJson(json)).toList();
+      } else {
+        throw ApiException('Failed to load upcoming task occurrences', response.statusCode);
       }
     } catch (e) {
       if (e is ApiException) rethrow;

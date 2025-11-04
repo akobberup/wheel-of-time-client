@@ -519,4 +519,41 @@ class StringsEn extends AppStrings {
 
   @override
   String get failedToDeclineInvitation => 'Failed to decline invitation';
+
+  // Upcoming Tasks
+  @override
+  String get upcomingTasks => 'Upcoming';
+
+  @override
+  String get noUpcomingTasks => 'No upcoming tasks';
+
+  @override
+  String get allCaughtUpWithTasks => 'You\'re all caught up! No tasks due in the next 2 weeks.';
+
+  @override
+  String get dueToday => 'Due today';
+
+  @override
+  String get dueTomorrow => 'Due tomorrow';
+
+  @override
+  String dueInDays(int days) => 'Due in $days days';
+
+  @override
+  String get overdue => 'Overdue';
+
+  @override
+  String dueDaysAgo(int days) => 'Due $days days ago';
+
+  @override
+  String get taskCompletedSuccess => 'Task completed successfully';
+
+  @override
+  String get streakContinued => 'Streak continued!';
+
+  @override
+  String streakExtended(int count) => 'Streak extended to $count days!';
+
+  @override
+  String get failedToCompleteTask => 'Failed to complete task';
 }

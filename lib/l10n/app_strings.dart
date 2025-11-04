@@ -210,6 +210,20 @@ abstract class AppStrings {
   String get failedToAcceptInvitation;
   String get failedToDeclineInvitation;
 
+  // Upcoming Tasks
+  String get upcomingTasks;
+  String get noUpcomingTasks;
+  String get allCaughtUpWithTasks;
+  String get dueToday;
+  String get dueTomorrow;
+  String dueInDays(int days);
+  String get overdue;
+  String dueDaysAgo(int days);
+  String get taskCompletedSuccess;
+  String get streakContinued;
+  String streakExtended(int count);
+  String get failedToCompleteTask;
+
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);
 
