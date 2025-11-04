@@ -224,6 +224,24 @@ abstract class AppStrings {
   String streakExtended(int count);
   String get failedToCompleteTask;
 
+  // Task History
+  String get taskHistory;
+  String taskHistoryFor(String taskName);
+  String get noCompletionsYet;
+  String get noCompletionsYetDescription;
+  String get completedBy;
+  String completedOn(String date);
+  String completedAt(String time);
+  String get onTime;
+  String get late;
+  String get contributedToStreak;
+  String get didNotContributeToStreak;
+  String get withComment;
+  String totalCompletions(int count);
+  String get loadingHistory;
+  String get errorLoadingHistory;
+  String errorLoadingHistoryDetails(String error);
+
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);
 

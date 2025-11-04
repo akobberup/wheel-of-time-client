@@ -4,6 +4,7 @@ import '../providers/task_provider.dart';
 import '../widgets/create_task_dialog.dart';
 import '../widgets/edit_task_dialog.dart';
 import 'task_list_members_screen.dart';
+import 'task_history_screen.dart';
 import '../l10n/app_strings.dart';
 
 class TaskListDetailScreen extends ConsumerWidget {
@@ -114,89 +115,102 @@ class TaskListDetailScreen extends ConsumerWidget {
                 final task = tasks[index];
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: task.taskImagePath != null
-                        ? Image.network(
-                            'http://localhost:8080${task.taskImagePath}',
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          )
-                        : const Icon(Icons.check_circle_outline, size: 40),
-                    title: Text(task.name),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (task.description != null) ...[
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => TaskHistoryScreen(
+                            taskId: task.id,
+                            taskName: task.name,
+                          ),
+                        ),
+                      );
+                    },
+                    child: ListTile(
+                      leading: task.taskImagePath != null
+                          ? Image.network(
+                              'http://localhost:8080${task.taskImagePath}',
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            )
+                          : const Icon(Icons.check_circle_outline, size: 40),
+                      title: Text(task.name),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (task.description != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              task.description!,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                           const SizedBox(height: 4),
                           Text(
-                            task.description!,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                            '${task.repeatUnit.name} (every ${task.repeatDelta})',
+                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
                           ),
+                          if (task.currentStreak != null) ...[
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                const Icon(Icons.local_fire_department, size: 16, color: Colors.orange),
+                                const SizedBox(width: 4),
+                                Text(strings.dayStreak(task.currentStreak!.streakCount)),
+                              ],
+                            ),
+                          ],
                         ],
-                        const SizedBox(height: 4),
-                        Text(
-                          '${task.repeatUnit.name} (every ${task.repeatDelta})',
-                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                        ),
-                        if (task.currentStreak != null) ...[
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              const Icon(Icons.local_fire_department, size: 16, color: Colors.orange),
-                              const SizedBox(width: 4),
-                              Text(strings.dayStreak(task.currentStreak!.streakCount)),
-                            ],
-                          ),
-                        ],
-                      ],
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          tooltip: strings.edit,
-                          onPressed: () async {
-                            final result = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => EditTaskDialog(task: task),
-                            );
-                            if (result == true) {
-                              ref.read(tasksProvider(taskListId).notifier).loadTasks();
-                            }
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          tooltip: strings.delete,
-                          color: Colors.red,
-                          onPressed: () async {
-                            final confirmed = await _showDeleteConfirmation(
-                              context,
-                              task.name,
-                            );
-                            if (confirmed) {
-                              final success = await ref
-                                  .read(tasksProvider(taskListId).notifier)
-                                  .deleteTask(task.id);
-                              if (context.mounted) {
-                                final strings = AppStrings.of(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      success
-                                          ? strings.taskDeletedSuccess
-                                          : strings.failedToDeleteTask,
-                                    ),
-                                  ),
-                                );
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            tooltip: strings.edit,
+                            onPressed: () async {
+                              final result = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => EditTaskDialog(task: task),
+                              );
+                              if (result == true) {
+                                ref.read(tasksProvider(taskListId).notifier).loadTasks();
                               }
-                            }
-                          },
-                        ),
-                      ],
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            tooltip: strings.delete,
+                            color: Colors.red,
+                            onPressed: () async {
+                              final confirmed = await _showDeleteConfirmation(
+                                context,
+                                task.name,
+                              );
+                              if (confirmed) {
+                                final success = await ref
+                                    .read(tasksProvider(taskListId).notifier)
+                                    .deleteTask(task.id);
+                                if (context.mounted) {
+                                  final strings = AppStrings.of(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        success
+                                            ? strings.taskDeletedSuccess
+                                            : strings.failedToDeleteTask,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );

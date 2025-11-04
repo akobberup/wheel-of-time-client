@@ -556,4 +556,56 @@ class StringsEn extends AppStrings {
 
   @override
   String get failedToCompleteTask => 'Failed to complete task';
+
+  // Task History
+  @override
+  String get taskHistory => 'Task History';
+
+  @override
+  String taskHistoryFor(String taskName) => 'History for "$taskName"';
+
+  @override
+  String get noCompletionsYet => 'No completions yet';
+
+  @override
+  String get noCompletionsYetDescription =>
+      'This task hasn\'t been completed yet. Complete it to start tracking your progress!';
+
+  @override
+  String get completedBy => 'Completed by';
+
+  @override
+  String completedOn(String date) => 'Completed on $date';
+
+  @override
+  String completedAt(String time) => 'at $time';
+
+  @override
+  String get onTime => 'On time';
+
+  @override
+  String get late => 'Late';
+
+  @override
+  String get contributedToStreak => 'Contributed to streak';
+
+  @override
+  String get didNotContributeToStreak => 'Did not contribute to streak';
+
+  @override
+  String get withComment => 'With comment';
+
+  @override
+  String totalCompletions(int count) =>
+      '$count ${count == 1 ? 'completion' : 'completions'}';
+
+  @override
+  String get loadingHistory => 'Loading history...';
+
+  @override
+  String get errorLoadingHistory => 'Error loading history';
+
+  @override
+  String errorLoadingHistoryDetails(String error) =>
+      'Failed to load task history: $error';
 }

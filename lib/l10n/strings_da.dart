@@ -557,4 +557,56 @@ class StringsDa extends AppStrings {
 
   @override
   String get failedToCompleteTask => 'Kunne ikke fuldføre opgave';
+
+  // Task History
+  @override
+  String get taskHistory => 'Opgavehistorik';
+
+  @override
+  String taskHistoryFor(String taskName) => 'Historik for "$taskName"';
+
+  @override
+  String get noCompletionsYet => 'Ingen fuldførelser endnu';
+
+  @override
+  String get noCompletionsYetDescription =>
+      'Denne opgave er ikke blevet fuldført endnu. Fuldfør den for at begynde at spore din fremgang!';
+
+  @override
+  String get completedBy => 'Fuldført af';
+
+  @override
+  String completedOn(String date) => 'Fuldført den $date';
+
+  @override
+  String completedAt(String time) => 'kl. $time';
+
+  @override
+  String get onTime => 'Til tiden';
+
+  @override
+  String get late => 'Forsinket';
+
+  @override
+  String get contributedToStreak => 'Bidrog til serie';
+
+  @override
+  String get didNotContributeToStreak => 'Bidrog ikke til serie';
+
+  @override
+  String get withComment => 'Med kommentar';
+
+  @override
+  String totalCompletions(int count) =>
+      '$count ${count == 1 ? 'fuldførelse' : 'fuldførelser'}';
+
+  @override
+  String get loadingHistory => 'Indlæser historik...';
+
+  @override
+  String get errorLoadingHistory => 'Fejl ved indlæsning af historik';
+
+  @override
+  String errorLoadingHistoryDetails(String error) =>
+      'Kunne ikke indlæse opgavehistorik: $error';
 }

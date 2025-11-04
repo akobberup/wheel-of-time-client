@@ -37,6 +37,9 @@ dependencies:
   # Local Notifications
   flutter_local_notifications: ^17.2.3
 
+  # Date and Time Formatting
+  intl: ^0.20.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
