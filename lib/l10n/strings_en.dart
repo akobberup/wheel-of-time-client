@@ -348,6 +348,18 @@ class StringsEn extends AppStrings {
       'Are you sure you want to delete "$name"? This action cannot be undone.';
 
   @override
+  String get confirmDeleteTaskListEmpty =>
+      'This list is empty and can be safely deleted.';
+
+  @override
+  String confirmDeleteTaskWithStreak(String name, int days, int completions) =>
+      'Delete "$name"? This will permanently delete your $days-day streak and $completions completion ${completions == 1 ? 'record' : 'records'}.';
+
+  @override
+  String confirmDeleteTaskNoStreak(String name, int completions) =>
+      'Delete "$name"? This will permanently delete $completions completion ${completions == 1 ? 'record' : 'records'}.';
+
+  @override
   String confirmRemoveMember(String name) =>
       'Are you sure you want to remove "$name" from this task list?';
 
@@ -507,6 +519,12 @@ class StringsEn extends AppStrings {
 
   @override
   String get allCaughtUp => 'You\'re all caught up!';
+
+  @override
+  String get dismissNotification => 'Dismiss Notification';
+
+  @override
+  String get dismiss => 'Dismiss';
 
   @override
   String get notificationDismissed => 'Notification dismissed';

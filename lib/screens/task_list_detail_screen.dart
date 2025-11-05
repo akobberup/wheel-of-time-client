@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/task_provider.dart';
+import '../providers/task_history_provider.dart';
 import '../widgets/create_task_dialog.dart';
 import '../widgets/edit_task_dialog.dart';
+import '../widgets/common/contextual_delete_dialog.dart';
 import '../config/api_config.dart';
 import 'task_list_members_screen.dart';
 import 'task_history_screen.dart';
@@ -41,32 +43,71 @@ class TaskListDetailScreen extends ConsumerWidget {
     return 'Every $delta $unitName';
   }
 
-  /// Shows a confirmation dialog for deleting a task.
+  /// Shows a contextual confirmation dialog for deleting a task.
+  /// Fetches task instances and streak data to provide specific warnings.
   /// Returns true if user confirms deletion, false otherwise.
-  Future<bool> _showDeleteConfirmation(BuildContext context, String taskName) async {
+  Future<bool> _showDeleteConfirmation(
+    BuildContext context,
+    WidgetRef ref,
+    int taskId,
+    String taskName,
+  ) async {
     final strings = AppStrings.of(context);
-    return await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text(strings.deleteTask),
-            content: Text(strings.confirmDeleteTask(taskName)),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(strings.cancel),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                ),
-                child: Text(strings.delete),
-              ),
-            ],
-          ),
-        ) ??
-        false;
+
+    return await showContextualDeleteDialog(
+      context: context,
+      title: strings.deleteTask,
+      itemName: taskName,
+      fetchContext: () async {
+        try {
+          // Fetch task instances to get completion count
+          final taskHistoryNotifier = ref.read(taskHistoryProvider(taskId).notifier);
+          await taskHistoryNotifier.refresh();
+          final instances = ref.read(taskHistoryProvider(taskId)).value ?? [];
+
+          // Get task details for streak information
+          final tasks = ref.read(tasksProvider(taskListId)).value ?? [];
+          final task = tasks.firstWhere((t) => t.id == taskId);
+
+          final hasStreak = task.currentStreak != null && task.currentStreak!.streakCount > 0;
+          final streakCount = task.currentStreak?.streakCount ?? 0;
+          final completionCount = instances.length;
+
+          if (completionCount == 0) {
+            return const DeletionContext.safe();
+          }
+
+          return DeletionContext(
+            primaryCount: completionCount,
+            hasActiveStreak: hasStreak,
+            streakCount: streakCount,
+            isSafe: false,
+          );
+        } catch (e) {
+          // If we can't fetch the data, return a non-safe default context
+          return const DeletionContext(primaryCount: 0, isSafe: false);
+        }
+      },
+      buildMessage: (context) {
+        if (context.isSafe) {
+          return 'This task has no completion records and can be safely deleted.';
+        }
+
+        if (context.hasActiveStreak && context.streakCount != null) {
+          return 'This will permanently delete:\n\n'
+              '• Your ${context.streakCount}-day streak\n'
+              '• ${context.primaryCount} completion ${context.primaryCount == 1 ? 'record' : 'records'}';
+        }
+
+        if (context.primaryCount > 0) {
+          return 'This will permanently delete ${context.primaryCount} completion ${context.primaryCount == 1 ? 'record' : 'records'}.';
+        }
+
+        return 'This task will be permanently deleted.';
+      },
+      deleteButtonLabel: strings.delete,
+      cancelButtonLabel: strings.cancel,
+    );
   }
 
   @override
@@ -106,7 +147,6 @@ class TaskListDetailScreen extends ConsumerWidget {
           data: (tasks) {
             if (tasks.isEmpty) {
               return EmptyState(
-                icon: Icons.task_alt,
                 title: strings.noTasks,
                 subtitle: strings.addFirstTask,
                 action: ElevatedButton.icon(
@@ -236,6 +276,8 @@ class TaskListDetailScreen extends ConsumerWidget {
                           } else if (value == 'delete') {
                             final confirmed = await _showDeleteConfirmation(
                               context,
+                              ref,
+                              task.id,
                               task.name,
                             );
                             if (confirmed) {

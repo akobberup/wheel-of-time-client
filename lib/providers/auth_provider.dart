@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/auth_response.dart';
 import '../models/login_request.dart';
@@ -58,6 +59,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// If access token is expired but refresh token is valid, automatically refreshes.
   /// Otherwise, sets state to unauthenticated.
   Future<void> _checkAuthStatus() async {
+    developer.log('🔍 Checking auth status...', name: 'AuthProvider');
     // update ui - loading
     state = state.copyWith(isLoading: true);
 
@@ -65,15 +67,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final token = authData['token'];
     final refreshToken = authData['refreshToken'];
 
+    developer.log('📦 Retrieved from storage - token: ${token != null ? "EXISTS (${token.length} chars)" : "NULL"}, refreshToken: ${refreshToken != null ? "EXISTS (${refreshToken.substring(0, 8)}...)" : "NULL"}', name: 'AuthProvider');
+
     if (token != null && refreshToken != null) {
       // Set the token in API service before validating
       _apiService.setToken(token);
+      developer.log('🔐 Validating token...', name: 'AuthProvider');
       final isValid = await _apiService.validateToken();
+      developer.log('✅ Token validation result: $isValid', name: 'AuthProvider');
 
       if (isValid) {
         final userId = int.tryParse(authData['userId'] ?? '');
         if (userId != null) {
           // Token is valid, restore authenticated state
+          developer.log('✨ Auth restored successfully for user $userId', name: 'AuthProvider');
           state = state.copyWith(
             isAuthenticated: true,
             isLoading: false,
@@ -89,6 +96,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         }
       } else {
         // Access token expired, try to refresh
+        developer.log('🔄 Token invalid, attempting refresh...', name: 'AuthProvider');
         try {
           final response = await _apiService.refreshAccessToken(refreshToken);
 
@@ -103,6 +111,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
           _apiService.setToken(response.token);
 
+          developer.log('✅ Token refreshed successfully', name: 'AuthProvider');
           state = state.copyWith(
             isAuthenticated: true,
             isLoading: false,
@@ -111,12 +120,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
           return;
         } catch (e) {
           // Refresh failed, clear auth data and continue to unauthenticated state
+          developer.log('❌ Token refresh failed: $e', name: 'AuthProvider');
           await _storageService.clearAuthData();
         }
       }
+    } else {
+      developer.log('⚠️ No tokens found in storage', name: 'AuthProvider');
     }
 
     // No valid token found, set to unauthenticated
+    developer.log('🚫 Setting state to unauthenticated', name: 'AuthProvider');
     state = state.copyWith(isAuthenticated: false, isLoading: false);
   }
 
@@ -124,6 +137,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// On success, saves auth data to storage and updates state to authenticated.
   /// On failure, updates state with error message.
   Future<void> login(String email, String password) async {
+    developer.log('🔑 Login attempt for: $email', name: 'AuthProvider');
     // update ui
     state = state.copyWith(isLoading: true, error: null);
 
@@ -131,6 +145,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final request = LoginRequest(email: email, password: password);
       final response = await _apiService.login(request);
 
+      developer.log('✅ Login successful, saving auth data...', name: 'AuthProvider');
+      developer.log('📝 Saving refreshToken: ${response.refreshToken.substring(0, 8)}...', name: 'AuthProvider');
       // Save authentication data to persistent storage for session restoration
       await _storageService.saveAuthData(
         token: response.token,
@@ -140,6 +156,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         email: response.email,
       );
 
+      developer.log('💾 Auth data saved to storage', name: 'AuthProvider');
       // Set token in API service for subsequent authenticated requests
       _apiService.setToken(response.token);
 
@@ -148,8 +165,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
         user: response,
       );
+      developer.log('✨ Login complete, user authenticated', name: 'AuthProvider');
     } catch (e) {
       // Set error state with the exception message
+      developer.log('❌ Login failed: $e', name: 'AuthProvider');
       state = state.copyWith(
         isAuthenticated: false,
         isLoading: false,

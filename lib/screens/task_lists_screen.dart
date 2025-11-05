@@ -14,37 +14,83 @@ import '../widgets/edit_task_list_dialog.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/error_state_widget.dart';
 import '../widgets/common/metric_chip.dart';
+import '../widgets/common/contextual_delete_dialog.dart';
 import '../constants/spacing.dart';
 
 class TaskListsScreen extends ConsumerWidget {
   const TaskListsScreen({super.key});
 
-  /// Shows a confirmation dialog for deleting a task list.
+  /// Shows a contextual confirmation dialog for deleting a task list.
+  /// Fetches actual task and instance counts to provide specific warnings.
   /// Returns true if user confirms deletion, false otherwise.
-  Future<bool> _showDeleteConfirmation(BuildContext context, String taskListName) async {
+  Future<bool> _showDeleteConfirmation(
+    BuildContext context,
+    WidgetRef ref,
+    int taskListId,
+    String taskListName,
+  ) async {
     final strings = AppStrings.of(context);
-    return await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text(strings.deleteTaskList),
-            content: Text(strings.confirmDeleteTaskList(taskListName)),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(strings.cancel),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                ),
-                child: Text(strings.delete),
-              ),
-            ],
-          ),
-        ) ??
-        false;
+    final apiService = ref.read(apiServiceProvider);
+
+    return await showContextualDeleteDialog(
+      context: context,
+      title: strings.deleteTaskList,
+      itemName: taskListName,
+      fetchContext: () async {
+        try {
+          // Fetch tasks and their instances to get accurate counts
+          final tasks = await apiService.getTasksByTaskList(taskListId);
+
+          if (tasks.isEmpty) {
+            return const DeletionContext.safe();
+          }
+
+          // Count total completions across all tasks
+          int totalInstances = 0;
+          int activeStreaksCount = 0;
+
+          for (final task in tasks) {
+            totalInstances += task.totalCompletions;
+            if (task.currentStreak != null && task.currentStreak!.streakCount > 0) {
+              activeStreaksCount++;
+            }
+          }
+
+          return DeletionContext(
+            primaryCount: tasks.length,
+            secondaryCount: totalInstances,
+            tertiaryCount: activeStreaksCount,
+            hasActiveStreak: activeStreaksCount > 0,
+            isSafe: false,
+          );
+        } catch (e) {
+          // If we can't fetch the data, return a non-safe default context
+          return const DeletionContext(primaryCount: 0, isSafe: false);
+        }
+      },
+      buildMessage: (context) {
+        if (context.isSafe) {
+          return strings.confirmDeleteTaskListEmpty;
+        }
+
+        final parts = <String>[];
+
+        parts.add('This will permanently delete:');
+        parts.add('\n\n• ${context.primaryCount} ${context.primaryCount == 1 ? 'task' : 'tasks'}');
+
+        if (context.secondaryCount != null && context.secondaryCount! > 0) {
+          parts.add('\n• ${context.secondaryCount} completion ${context.secondaryCount == 1 ? 'record' : 'records'}');
+        }
+
+        if (context.tertiaryCount != null && context.tertiaryCount! > 0) {
+          parts.add('\n• ${context.tertiaryCount} active ${context.tertiaryCount == 1 ? 'streak' : 'streaks'}');
+        }
+
+        return parts.join('');
+      },
+      deleteButtonLabel: strings.delete,
+      cancelButtonLabel: strings.cancel,
+    );
   }
 
   @override
@@ -100,7 +146,6 @@ class TaskListsScreen extends ConsumerWidget {
           data: (taskLists) {
             if (taskLists.isEmpty) {
               return EmptyState(
-                icon: Icons.folder_open,
                 title: strings.noTaskListsYet,
                 subtitle: strings.createFirstTaskList,
                 action: ElevatedButton.icon(
@@ -206,6 +251,8 @@ class TaskListsScreen extends ConsumerWidget {
                         } else if (value == 'delete') {
                           final confirmed = await _showDeleteConfirmation(
                             context,
+                            ref,
+                            taskList.id,
                             taskList.name,
                           );
                           if (confirmed) {

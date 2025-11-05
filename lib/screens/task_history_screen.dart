@@ -112,7 +112,6 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
 
             if (filteredInstances.isEmpty) {
               return EmptyState(
-                icon: Icons.history,
                 title: strings.noCompletionsYet,
                 subtitle: strings.noCompletionsYetDescription,
               );

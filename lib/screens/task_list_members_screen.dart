@@ -372,7 +372,7 @@ class TaskListMembersScreen extends ConsumerWidget {
               ),
         ),
         const SizedBox(height: 8),
-        invitationsAsync.when(
+        invitationsAsync.when<Widget>(
               data: (invitations) {
                 final pending = invitations
                     .where((inv) => inv.currentState == InvitationState.SENT)
@@ -393,7 +393,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                 }
 
                 return Column(
-                  children: pending.map((invitation) {
+                  children: pending.map<Widget>((invitation) {
                     return Card(
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(

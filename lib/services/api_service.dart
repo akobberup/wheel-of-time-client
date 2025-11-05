@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:jwt_decode/jwt_decode.dart';
 import '../models/auth_response.dart';
 import '../models/login_request.dart';
 import '../models/task_list.dart';
@@ -170,22 +171,39 @@ class ApiService {
     }
   }
 
-  /// Validates the current authentication token by making an authenticated request.
-  /// Returns true if the token is valid and accepted by the server, false otherwise.
-  /// This implementation uses a health check endpoint rather than a dedicated token validation endpoint.
-  /// If the server accepts the authenticated request to the health endpoint, it assumes the token is valid.
+  /// Validates the current authentication token by checking its expiration time.
+  /// Returns true if the token exists and is not expired, false otherwise.
+  /// This implementation decodes the JWT and checks the 'exp' claim without making a network request.
+  /// Tokens are considered valid if they have at least 60 seconds remaining before expiration.
   Future<bool> validateToken() async {
     if (_token == null) return false;
 
     try {
-      final response = await _loggedGet(
-        '$baseUrl/actuator/health',
-        headers: _getHeaders(includeAuth: true),
-      );
+      // Decode the JWT token to check expiration
+      final expiryDate = Jwt.getExpiryDate(_token!);
+      final now = DateTime.now();
 
-      return response.statusCode == 200;
+      developer.log('Token expiry: $expiryDate, Current time: $now', name: 'ApiService');
+
+      final isExpired = Jwt.isExpired(_token!);
+
+      if (isExpired) {
+        developer.log('Token is expired (exp < now)', name: 'ApiService');
+        return false;
+      }
+
+      // Check if token expires within the next 60 seconds (grace period)
+      final remainingTime = expiryDate?.difference(now);
+      if (remainingTime != null && remainingTime.inSeconds < 60) {
+        developer.log('Token expires in ${remainingTime.inSeconds}s, treating as expired', name: 'ApiService');
+        return false;
+      }
+
+      developer.log('Token is valid (expires in ${remainingTime?.inMinutes ?? "unknown"} minutes)', name: 'ApiService');
+      return true;
     } catch (e) {
-      // Any network error or exception is treated as an invalid token.
+      // Any error decoding the token is treated as invalid
+      developer.log('Error validating token: $e', name: 'ApiService');
       return false;
     }
   }

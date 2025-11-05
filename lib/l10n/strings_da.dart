@@ -349,6 +349,18 @@ class StringsDa extends AppStrings {
       'Er du sikker på, at du vil slette "$name"? Denne handling kan ikke fortrydes.';
 
   @override
+  String get confirmDeleteTaskListEmpty =>
+      'Denne liste er tom og kan slettes sikkert.';
+
+  @override
+  String confirmDeleteTaskWithStreak(String name, int days, int completions) =>
+      'Slet "$name"? Dette vil permanent slette din $days-dages streak og $completions afslutnings${completions == 1 ? 'post' : 'poster'}.';
+
+  @override
+  String confirmDeleteTaskNoStreak(String name, int completions) =>
+      'Slet "$name"? Dette vil permanent slette $completions afslutnings${completions == 1 ? 'post' : 'poster'}.';
+
+  @override
   String confirmRemoveMember(String name) =>
       'Er du sikker på, at du vil fjerne "$name" fra denne opgaveliste?';
 
@@ -508,6 +520,12 @@ class StringsDa extends AppStrings {
 
   @override
   String get allCaughtUp => 'Du er opdateret!';
+
+  @override
+  String get dismissNotification => 'Afvis notifikation';
+
+  @override
+  String get dismiss => 'Afvis';
 
   @override
   String get notificationDismissed => 'Notifikation afvist';

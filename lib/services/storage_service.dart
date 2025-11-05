@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,8 +39,12 @@ class StorageService {
     required String name,
     required String email,
   }) async {
+    developer.log('💾 STORAGE SAVE - Platform: ${kIsWeb ? "WEB" : "MOBILE"}', name: 'StorageService');
+    developer.log('💾 Saving refreshToken: ${refreshToken.substring(0, 8)}...', name: 'StorageService');
+
     if (kIsWeb) {
       await _ensurePrefs();
+      developer.log('💾 SharedPreferences instance: ${_prefs.hashCode}', name: 'StorageService');
       // Execute all writes in parallel for better performance
       await Future.wait([
         _prefs!.setString(_tokenKey, token),
@@ -48,6 +53,9 @@ class StorageService {
         _prefs!.setString(_userNameKey, name),
         _prefs!.setString(_userEmailKey, email),
       ]);
+      // Verify write
+      final saved = _prefs!.getString(_refreshTokenKey);
+      developer.log('💾 Verified save - refreshToken now: ${saved?.substring(0, 8)}...', name: 'StorageService');
     } else {
       // Mobile: use secure encrypted storage
       await Future.wait([
@@ -86,11 +94,22 @@ class StorageService {
   /// Returns a map containing token, refreshToken, userId, name, and email.
   /// Any missing values will be null in the returned map.
   Future<Map<String, String?>> getAuthData() async {
+    developer.log('📖 STORAGE READ - Platform: ${kIsWeb ? "WEB" : "MOBILE"}', name: 'StorageService');
+
     if (kIsWeb) {
       await _ensurePrefs();
+      developer.log('📖 SharedPreferences instance: ${_prefs.hashCode}', name: 'StorageService');
+
+      final refreshToken = _prefs!.getString(_refreshTokenKey);
+      developer.log('📖 Read refreshToken: ${refreshToken != null ? "${refreshToken.substring(0, 8)}..." : "NULL"}', name: 'StorageService');
+
+      // List all keys in SharedPreferences for debugging
+      final keys = _prefs!.getKeys();
+      developer.log('📖 All SharedPreferences keys: $keys', name: 'StorageService');
+
       return {
         'token': _prefs!.getString(_tokenKey),
-        'refreshToken': _prefs!.getString(_refreshTokenKey),
+        'refreshToken': refreshToken,
         'userId': _prefs!.getString(_userIdKey),
         'name': _prefs!.getString(_userNameKey),
         'email': _prefs!.getString(_userEmailKey),

@@ -141,6 +141,9 @@ abstract class AppStrings {
   String get confirmDeleteMessage;
   String confirmDeleteTask(String name);
   String confirmDeleteTaskList(String name);
+  String get confirmDeleteTaskListEmpty;
+  String confirmDeleteTaskWithStreak(String name, int days, int completions);
+  String confirmDeleteTaskNoStreak(String name, int completions);
   String confirmRemoveMember(String name);
   String confirmCancelInvitation(String email);
 
@@ -205,6 +208,8 @@ abstract class AppStrings {
   String get notifications;
   String get noNotifications;
   String get allCaughtUp;
+  String get dismissNotification;
+  String get dismiss;
   String get notificationDismissed;
   String get newInvitation;
   String get invitationWasAccepted;

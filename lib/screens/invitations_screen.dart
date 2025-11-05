@@ -26,7 +26,6 @@ class InvitationsScreen extends HookConsumerWidget {
           data: (invitations) {
             if (invitations.isEmpty) {
               return EmptyState(
-                icon: Icons.mail_outline,
                 title: strings.noPendingInvitations,
                 subtitle: strings.invitationsWillAppearHere,
               );

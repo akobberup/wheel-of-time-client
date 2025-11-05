@@ -10,8 +10,7 @@ import '../widgets/complete_task_dialog.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/skeleton_loader.dart';
-import '../constants/spacing.dart';
-import '../constants/sizes.dart';
+import '../widgets/common/task_completion_animation.dart';
 
 /// Screen displaying upcoming task occurrences with infinite scroll pagination
 class UpcomingTasksScreen extends ConsumerStatefulWidget {
@@ -102,8 +101,6 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
 
   /// Quick complete with current timestamp (for swipe action)
   Future<void> _quickComplete(UpcomingTaskOccurrenceResponse occurrence) async {
-    HapticFeedback.mediumImpact();
-
     final request = CreateTaskInstanceRequest(
       taskId: occurrence.taskId,
       completedDateTime: DateTime.now(),
@@ -115,66 +112,20 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
         .createTaskInstance(request);
 
     if (result != null && mounted) {
-      final strings = AppStrings.of(context);
-      ref.read(upcomingTasksProvider.notifier).refresh();
+      // Calculate new streak count (current + 1 if contributed to streak)
+      final newStreakCount = result.contributedToStreak
+          ? (occurrence.currentStreak?.streakCount ?? 0) + 1
+          : null;
 
-      String message = strings.taskCompletedSuccess;
-      if (result.contributedToStreak) {
-        message = strings.streakContinued;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-        ),
+      // Show success animation
+      await TaskCompletionAnimation.show(
+        context: context,
+        streakCount: newStreakCount,
       );
-    }
-  }
 
-  /// Shows celebration animation for streak contributions
-  Future<void> _showCelebration(BuildContext context, TaskInstanceResponse result) async {
-    final strings = AppStrings.of(context);
-    return showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0.0, end: 1.0),
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.elasticOut,
-        builder: (context, value, child) {
-          return Transform.scale(
-            scale: value,
-            child: AlertDialog(
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.celebration,
-                    size: IconSizes.emptyState,
-                    color: Colors.orange,
-                  ),
-                  const SizedBox(height: Spacing.lg),
-                  Text(
-                    strings.streakContinued,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: Spacing.sm),
-                  Text(strings.keepItGoing),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Awesome!'),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
+      // Refresh the list after animation completes
+      ref.read(upcomingTasksProvider.notifier).refresh();
+    }
   }
 
   /// Handles task completion and shows appropriate success message
@@ -192,34 +143,19 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     );
 
     if (result != null && context.mounted) {
-      final strings = AppStrings.of(context);
+      // Calculate new streak count (current + 1 if contributed to streak)
+      final newStreakCount = result.contributedToStreak
+          ? (occurrence.currentStreak?.streakCount ?? 0) + 1
+          : null;
 
-      // Show celebration for streaks
-      if (result.contributedToStreak) {
-        await _showCelebration(context, result);
-      }
-
-      // Refresh the list
-      ref.read(upcomingTasksProvider.notifier).refresh();
-
-      // Show success message
-      String message = strings.taskCompletedSuccess;
-      if (result.contributedToStreak) {
-        message = strings.streakContinued;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-          action: SnackBarAction(
-            label: 'OK',
-            textColor: Colors.white,
-            onPressed: () {},
-          ),
-        ),
+      // Show success animation
+      await TaskCompletionAnimation.show(
+        context: context,
+        streakCount: newStreakCount,
       );
+
+      // Refresh the list after animation completes
+      ref.read(upcomingTasksProvider.notifier).refresh();
     }
   }
 
@@ -275,7 +211,6 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     // Empty state
     if (state.occurrences.isEmpty) {
       return EmptyState(
-        icon: Icons.check_circle_outline,
         title: strings.noUpcomingTasks,
         subtitle: strings.allCaughtUpWithTasks,
       );

@@ -294,6 +294,31 @@ class _NotificationCard extends HookConsumerWidget {
           color: Colors.red,
           child: const Icon(Icons.delete, color: Colors.white),
         ),
+        confirmDismiss: (direction) async {
+          // For notification dismissal, we use a simple inline confirmation
+          // rather than the full contextual dialog since it's a lightweight action
+          return await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text(strings.dismissNotification),
+              content: Text('Are you sure you want to dismiss this notification?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(strings.cancel),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(strings.dismiss),
+                ),
+              ],
+            ),
+          );
+        },
         onDismissed: (direction) {
           ref.read(notificationProvider.notifier).dismissNotification(notification.id);
           ScaffoldMessenger.of(context).showSnackBar(
