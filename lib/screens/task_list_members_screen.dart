@@ -8,6 +8,7 @@ import '../models/enums.dart';
 import '../widgets/send_invitation_dialog.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/skeleton_loader.dart';
+import 'dart:math';
 
 /// Screen for managing members of a task list.
 /// Shows current members, pending invitations, and allows adding/removing members.
@@ -20,6 +21,16 @@ class TaskListMembersScreen extends ConsumerWidget {
     required this.taskListId,
     required this.taskListName,
   });
+
+  /// Gets initials from a full name.
+  /// Returns first letter of first and last name if available, otherwise up to 2 chars.
+  String _getInitials(String fullName) {
+    final parts = fullName.trim().split(' ');
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[parts.length - 1][0]}'.toUpperCase();
+    }
+    return fullName.substring(0, min(2, fullName.length)).toUpperCase();
+  }
 
   /// Shows a confirmation dialog for removing a member.
   Future<bool> _showRemoveMemberConfirmation(BuildContext context, String userName) async {
@@ -194,9 +205,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
                         leading: CircleAvatar(
-                          child: Text(
-                            member.userName.substring(0, 1).toUpperCase(),
-                          ),
+                          child: Text(_getInitials(member.userName)),
                         ),
                         title: Text(
                           member.userName,
