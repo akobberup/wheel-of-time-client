@@ -13,6 +13,7 @@ import '../widgets/create_task_list_dialog.dart';
 import '../widgets/edit_task_list_dialog.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/error_state_widget.dart';
+import '../widgets/common/metric_chip.dart';
 import '../constants/spacing.dart';
 
 class TaskListsScreen extends ConsumerWidget {
@@ -136,23 +137,20 @@ class TaskListsScreen extends ConsumerWidget {
                           ),
                         ],
                         const SizedBox(height: 4),
-                        Row(
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
                           children: [
-                            Icon(
-                              Icons.task,
-                              size: 16,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            MetricChip(
+                              icon: Icons.task,
+                              label: '${taskList.activeTaskCount}/${taskList.taskCount}',
+                              color: Theme.of(context).colorScheme.primary,
                             ),
-                            const SizedBox(width: 4),
-                            Text('${taskList.activeTaskCount}/${taskList.taskCount}'),
-                            const SizedBox(width: 16),
-                            Icon(
-                              Icons.people,
-                              size: 16,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            MetricChip(
+                              icon: Icons.people,
+                              label: '${taskList.memberCount}',
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
-                            const SizedBox(width: 4),
-                            Text('${taskList.memberCount}'),
                           ],
                         ),
                       ],

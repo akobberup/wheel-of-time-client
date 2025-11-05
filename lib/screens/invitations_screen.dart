@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../providers/invitation_provider.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/empty_state.dart';
+import '../widgets/common/status_badge.dart';
 
 class InvitationsScreen extends HookConsumerWidget {
   const InvitationsScreen({super.key});
@@ -100,28 +101,13 @@ class _InvitationCard extends HookConsumerWidget {
           children: [
             const SizedBox(height: 4),
             Text('${strings.invitationFrom}: ${invitation.initiatedByUserName}'),
-            const SizedBox(height: 2),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  _getStateIcon(invitation.currentState),
-                  size: 12,
-                  color: invitation.currentState.name == 'SENT'
-                      ? Colors.orange
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  _getStateLabel(invitation.currentState, strings),
-                  style: TextStyle(
-                    color: invitation.currentState.name == 'SENT'
-                        ? Colors.orange
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
+            const SizedBox(height: 4),
+            StatusBadge(
+              icon: _getStateIcon(invitation.currentState),
+              label: _getStateLabel(invitation.currentState, strings),
+              color: invitation.currentState.name == 'SENT'
+                  ? Colors.orange
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ],
         ),

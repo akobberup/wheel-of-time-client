@@ -8,6 +8,7 @@ import '../models/enums.dart';
 import '../widgets/send_invitation_dialog.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/skeleton_loader.dart';
+import '../widgets/common/status_badge.dart';
 import 'dart:math';
 
 /// Screen for managing members of a task list.
@@ -366,22 +367,9 @@ class TaskListMembersScreen extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.orange.shade100,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                strings.pending,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.orange.shade900,
-                                ),
-                              ),
+                            StatusBadge(
+                              label: strings.pending,
+                              color: Colors.orange,
                             ),
                           ],
                         ),
