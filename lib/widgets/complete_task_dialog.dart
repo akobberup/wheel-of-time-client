@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../providers/task_instance_provider.dart';
 import '../models/task_instance.dart';
 
@@ -58,8 +59,7 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog> {
           ListTile(
             title: const Text('Completion Time'),
             subtitle: Text(
-              '${_completedDateTime.year}-${_completedDateTime.month.toString().padLeft(2, '0')}-${_completedDateTime.day.toString().padLeft(2, '0')} '
-              '${_completedDateTime.hour.toString().padLeft(2, '0')}:${_completedDateTime.minute.toString().padLeft(2, '0')}',
+              '${DateFormat.yMMMd().format(_completedDateTime)} at ${DateFormat.jm().format(_completedDateTime)}',
             ),
             trailing: const Icon(Icons.access_time),
             onTap: () async {
