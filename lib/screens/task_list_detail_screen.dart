@@ -82,19 +82,23 @@ class TaskListDetailScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.task_alt, size: 80, color: Colors.grey[400]),
+                    Icon(
+                      Icons.task_alt,
+                      size: 80,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       strings.noTasks,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: Colors.grey[600],
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       strings.addFirstTask,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[500],
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                           ),
                     ),
                   ],
@@ -145,7 +149,10 @@ class TaskListDetailScreen extends ConsumerWidget {
                           const SizedBox(height: 4),
                           Text(
                             '${task.repeatUnit.name} (every ${task.repeatDelta})',
-                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              fontSize: 12,
+                            ),
                           ),
                           if (task.currentStreak != null) ...[
                             const SizedBox(height: 4),

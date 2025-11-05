@@ -94,20 +94,20 @@ class TaskListsScreen extends ConsumerWidget {
                     Icon(
                       Icons.folder_open,
                       size: 80,
-                      color: Colors.grey[400],
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       strings.noTaskListsYet,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: Colors.grey[600],
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       strings.createFirstTaskList,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[500],
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                           ),
                     ),
                   ],
@@ -148,11 +148,19 @@ class TaskListsScreen extends ConsumerWidget {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            Icon(Icons.task, size: 16, color: Colors.grey[600]),
+                            Icon(
+                              Icons.task,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                             const SizedBox(width: 4),
                             Text('${taskList.activeTaskCount}/${taskList.taskCount}'),
                             const SizedBox(width: 16),
-                            Icon(Icons.people, size: 16, color: Colors.grey[600]),
+                            Icon(
+                              Icons.people,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                             const SizedBox(width: 4),
                             Text('${taskList.memberCount}'),
                           ],

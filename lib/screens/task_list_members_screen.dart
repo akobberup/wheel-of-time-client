@@ -178,7 +178,9 @@ class TaskListMembersScreen extends ConsumerWidget {
                       padding: const EdgeInsets.all(16),
                       child: Text(
                         strings.noMembers,
-                        style: TextStyle(color: Colors.grey[600]),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   );
@@ -200,7 +202,10 @@ class TaskListMembersScreen extends ConsumerWidget {
                           children: [
                             Text(
                               member.userEmail,
-                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             Container(
@@ -314,7 +319,9 @@ class TaskListMembersScreen extends ConsumerWidget {
                       padding: const EdgeInsets.all(16),
                       child: Text(
                         strings.noPendingInvitations,
-                        style: TextStyle(color: Colors.grey[600]),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   );
@@ -334,7 +341,10 @@ class TaskListMembersScreen extends ConsumerWidget {
                           children: [
                             Text(
                               strings.invitedBy(invitation.initiatedByUserName),
-                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             Container(
