@@ -108,6 +108,9 @@ class NotificationsScreen extends HookConsumerWidget {
 
 
   void _handleNotificationTap(BuildContext context, WidgetRef ref, AppNotification notification) {
+    // Mark notification as read when tapped
+    ref.read(notificationProvider.notifier).markAsRead(notification.id);
+
     switch (notification.type) {
       case NotificationType.TASK_DUE:
         // Navigate to the Upcoming Tasks tab (index 1) where users can complete tasks
@@ -219,6 +222,8 @@ class _NotificationCard extends HookConsumerWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      // Add light blue background for unread notifications
+      color: notification.isRead ? null : Colors.blue.shade50,
       child: Dismissible(
         key: Key(notification.id),
         direction: DismissDirection.endToStart,
@@ -235,7 +240,11 @@ class _NotificationCard extends HookConsumerWidget {
           );
         },
         child: ListTile(
-          leading: _getNotificationIcon(notification),
+          leading: notification.isRead
+              ? _getNotificationIcon(notification)
+              : Badge(
+                  child: _getNotificationIcon(notification),
+                ),
           title: Text(_getNotificationTitle(notification, strings)),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
