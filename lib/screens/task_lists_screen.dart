@@ -12,6 +12,7 @@ import 'notifications_screen.dart';
 import '../widgets/create_task_list_dialog.dart';
 import '../widgets/edit_task_list_dialog.dart';
 import '../widgets/common/empty_state.dart';
+import '../widgets/common/error_state_widget.dart';
 
 class TaskListsScreen extends ConsumerWidget {
   const TaskListsScreen({super.key});
@@ -232,22 +233,10 @@ class TaskListsScreen extends ConsumerWidget {
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 60, color: Colors.red),
-                const SizedBox(height: 16),
-                Text('Error: $error'),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    ref.read(taskListProvider.notifier).loadAllTaskLists();
-                  },
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
+          error: (error, stack) => ErrorStateWidget(
+            message: '${strings.error}: $error',
+            onRetry: () => ref.read(taskListProvider.notifier).loadAllTaskLists(),
+            retryLabel: strings.retry,
           ),
         ),
       ),
