@@ -120,15 +120,6 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(strings.upcomingTasks),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: strings.refresh,
-            onPressed: () {
-              ref.read(upcomingTasksProvider.notifier).refresh();
-            },
-          ),
-        ],
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.read(upcomingTasksProvider.notifier).refresh(),
