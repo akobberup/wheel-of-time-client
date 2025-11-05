@@ -257,6 +257,11 @@ abstract class AppStrings {
   String get loadingHistory;
   String get errorLoadingHistory;
   String errorLoadingHistoryDetails(String error);
+  String get filter;
+  String get allTime;
+  String get thisWeek;
+  String get thisMonth;
+  String get last3Months;
 
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);

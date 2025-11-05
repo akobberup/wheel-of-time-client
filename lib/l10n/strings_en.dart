@@ -651,4 +651,19 @@ class StringsEn extends AppStrings {
   @override
   String errorLoadingHistoryDetails(String error) =>
       'Failed to load task history: $error';
+
+  @override
+  String get filter => 'Filter';
+
+  @override
+  String get allTime => 'All Time';
+
+  @override
+  String get thisWeek => 'This Week';
+
+  @override
+  String get thisMonth => 'This Month';
+
+  @override
+  String get last3Months => 'Last 3 Months';
 }

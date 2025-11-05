@@ -8,10 +8,13 @@ import '../l10n/app_strings.dart';
 import '../config/api_config.dart';
 import '../widgets/common/empty_state.dart';
 
+/// Date filter options for task history
+enum DateFilter { all, thisWeek, thisMonth, last3Months }
+
 /// Screen displaying the completion history for a specific task.
 /// Shows all task instances sorted by completion date (most recent first).
-/// Includes pull-to-refresh and empty state handling.
-class TaskHistoryScreen extends ConsumerWidget {
+/// Includes pull-to-refresh, date filtering, and empty state handling.
+class TaskHistoryScreen extends ConsumerStatefulWidget {
   final int taskId;
   final String taskName;
 
@@ -22,21 +25,92 @@ class TaskHistoryScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TaskHistoryScreen> createState() => _TaskHistoryScreenState();
+}
+
+class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
+  DateFilter _selectedFilter = DateFilter.all;
+
+  @override
+  Widget build(BuildContext context) {
     final strings = AppStrings.of(context);
-    final historyAsync = ref.watch(taskHistoryProvider(taskId));
+    final historyAsync = ref.watch(taskHistoryProvider(widget.taskId));
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(strings.taskHistoryFor(taskName)),
+        title: Text(strings.taskHistoryFor(widget.taskName)),
+        actions: [
+          PopupMenuButton<DateFilter>(
+            icon: const Icon(Icons.filter_list),
+            tooltip: strings.filter,
+            onSelected: (filter) {
+              setState(() {
+                _selectedFilter = filter;
+              });
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: DateFilter.all,
+                child: Row(
+                  children: [
+                    if (_selectedFilter == DateFilter.all)
+                      const Icon(Icons.check, size: 20),
+                    if (_selectedFilter == DateFilter.all)
+                      const SizedBox(width: 8),
+                    Text(strings.allTime),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: DateFilter.thisWeek,
+                child: Row(
+                  children: [
+                    if (_selectedFilter == DateFilter.thisWeek)
+                      const Icon(Icons.check, size: 20),
+                    if (_selectedFilter == DateFilter.thisWeek)
+                      const SizedBox(width: 8),
+                    Text(strings.thisWeek),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: DateFilter.thisMonth,
+                child: Row(
+                  children: [
+                    if (_selectedFilter == DateFilter.thisMonth)
+                      const Icon(Icons.check, size: 20),
+                    if (_selectedFilter == DateFilter.thisMonth)
+                      const SizedBox(width: 8),
+                    Text(strings.thisMonth),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: DateFilter.last3Months,
+                child: Row(
+                  children: [
+                    if (_selectedFilter == DateFilter.last3Months)
+                      const Icon(Icons.check, size: 20),
+                    if (_selectedFilter == DateFilter.last3Months)
+                      const SizedBox(width: 8),
+                    Text(strings.last3Months),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(taskHistoryProvider(taskId).notifier).refresh();
+          await ref.read(taskHistoryProvider(widget.taskId).notifier).refresh();
         },
         child: historyAsync.when(
           data: (instances) {
-            if (instances.isEmpty) {
+            // Apply date filter
+            final filteredInstances = _applyFilter(instances);
+
+            if (filteredInstances.isEmpty) {
               return EmptyState(
                 icon: Icons.history,
                 title: strings.noCompletionsYet,
@@ -45,7 +119,7 @@ class TaskHistoryScreen extends ConsumerWidget {
             }
 
             // Sort instances by completion date (most recent first)
-            final sortedInstances = List<TaskInstanceResponse>.from(instances)
+            final sortedInstances = List<TaskInstanceResponse>.from(filteredInstances)
               ..sort((a, b) => b.completedDateTime.compareTo(a.completedDateTime));
 
             return Column(
@@ -67,7 +141,7 @@ class TaskHistoryScreen extends ConsumerWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        strings.totalCompletions(instances.length),
+                        strings.totalCompletions(sortedInstances.length),
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onPrimaryContainer,
                               fontWeight: FontWeight.bold,
@@ -107,6 +181,35 @@ class TaskHistoryScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// Applies the selected date filter to the list of task instances.
+  /// Returns filtered list based on completion date.
+  List<TaskInstanceResponse> _applyFilter(List<TaskInstanceResponse> instances) {
+    if (_selectedFilter == DateFilter.all) {
+      return instances;
+    }
+
+    final now = DateTime.now();
+    DateTime cutoffDate;
+
+    switch (_selectedFilter) {
+      case DateFilter.thisWeek:
+        cutoffDate = now.subtract(const Duration(days: 7));
+        break;
+      case DateFilter.thisMonth:
+        cutoffDate = DateTime(now.year, now.month - 1, now.day);
+        break;
+      case DateFilter.last3Months:
+        cutoffDate = DateTime(now.year, now.month - 3, now.day);
+        break;
+      case DateFilter.all:
+        return instances;
+    }
+
+    return instances
+        .where((instance) => instance.completedDateTime.isAfter(cutoffDate))
+        .toList();
   }
 
   /// Builds a card displaying a single task completion instance.
@@ -295,39 +398,6 @@ class TaskHistoryScreen extends ConsumerWidget {
     );
   }
 
-  /// Builds the empty state when no completions exist yet.
-  /// Encourages the user to complete the task for the first time.
-  Widget _buildEmptyState(BuildContext context, AppStrings strings) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const SizedBox(height: 60),
-        Icon(
-          Icons.history,
-          size: 100,
-          color: Colors.grey[400],
-        ),
-        const SizedBox(height: 24),
-        Text(
-          strings.noCompletionsYet,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Colors.grey[700],
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          strings.noCompletionsYetDescription,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.grey[600],
-              ),
-        ),
-      ],
-    );
-  }
-
   /// Builds the error state when history fails to load.
   /// Displays error message and provides option to retry.
   Widget _buildErrorState(BuildContext context, WidgetRef ref, AppStrings strings, Object error) {
@@ -361,7 +431,7 @@ class TaskHistoryScreen extends ConsumerWidget {
         Center(
           child: ElevatedButton.icon(
             onPressed: () {
-              ref.invalidate(taskHistoryProvider(taskId));
+              ref.invalidate(taskHistoryProvider(widget.taskId));
             },
             icon: const Icon(Icons.refresh),
             label: Text(strings.retry),

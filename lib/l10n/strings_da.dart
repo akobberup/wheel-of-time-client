@@ -652,4 +652,19 @@ class StringsDa extends AppStrings {
   @override
   String errorLoadingHistoryDetails(String error) =>
       'Kunne ikke indlæse opgavehistorik: $error';
+
+  @override
+  String get filter => 'Filtrer';
+
+  @override
+  String get allTime => 'Alle tidspunkter';
+
+  @override
+  String get thisWeek => 'Denne uge';
+
+  @override
+  String get thisMonth => 'Denne måned';
+
+  @override
+  String get last3Months => 'Sidste 3 måneder';
 }
