@@ -103,6 +103,19 @@ class TaskListsScreen extends ConsumerWidget {
                 icon: Icons.folder_open,
                 title: strings.noTaskListsYet,
                 subtitle: strings.createFirstTaskList,
+                action: ElevatedButton.icon(
+                  icon: const Icon(Icons.add),
+                  label: Text(strings.createTaskList),
+                  onPressed: () async {
+                    final result = await showDialog(
+                      context: context,
+                      builder: (context) => const CreateTaskListDialog(),
+                    );
+                    if (result == true && context.mounted) {
+                      ref.read(taskListProvider.notifier).loadAllTaskLists();
+                    }
+                  },
+                ),
               );
             }
 
