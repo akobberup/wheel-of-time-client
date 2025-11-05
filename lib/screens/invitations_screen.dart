@@ -70,6 +70,20 @@ class _InvitationCard extends HookConsumerWidget {
     }
   }
 
+  IconData _getStateIcon(dynamic state) {
+    final stateName = state.name.toString();
+    switch (stateName) {
+      case 'SENT':
+        return Icons.schedule;
+      case 'ACCEPTED':
+        return Icons.check_circle;
+      case 'DECLINED':
+        return Icons.cancel;
+      default:
+        return Icons.info;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
@@ -87,14 +101,27 @@ class _InvitationCard extends HookConsumerWidget {
             const SizedBox(height: 4),
             Text('${strings.invitationFrom}: ${invitation.initiatedByUserName}'),
             const SizedBox(height: 2),
-            Text(
-              _getStateLabel(invitation.currentState, strings),
-              style: TextStyle(
-                color: invitation.currentState.name == 'SENT'
-                    ? Colors.orange
-                    : Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 12,
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _getStateIcon(invitation.currentState),
+                  size: 12,
+                  color: invitation.currentState.name == 'SENT'
+                      ? Colors.orange
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  _getStateLabel(invitation.currentState, strings),
+                  style: TextStyle(
+                    color: invitation.currentState.name == 'SENT'
+                        ? Colors.orange
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
