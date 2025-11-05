@@ -6,8 +6,13 @@ import '../models/task_instance.dart';
 
 class CompleteTaskDialog extends ConsumerStatefulWidget {
   final int taskId;
+  final String taskName;
 
-  const CompleteTaskDialog({super.key, required this.taskId});
+  const CompleteTaskDialog({
+    super.key,
+    required this.taskId,
+    required this.taskName,
+  });
 
   @override
   ConsumerState<CompleteTaskDialog> createState() => _CompleteTaskDialogState();
@@ -52,7 +57,7 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Complete Task'),
+      title: Text('Complete: ${widget.taskName}'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

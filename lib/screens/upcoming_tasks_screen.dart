@@ -83,7 +83,10 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
   ) async {
     final result = await showDialog<TaskInstanceResponse>(
       context: context,
-      builder: (context) => CompleteTaskDialog(taskId: occurrence.taskId),
+      builder: (context) => CompleteTaskDialog(
+        taskId: occurrence.taskId,
+        taskName: occurrence.taskName,
+      ),
     );
 
     if (result != null && context.mounted) {
