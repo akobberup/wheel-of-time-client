@@ -549,6 +549,15 @@ class StringsDa extends AppStrings {
   @override
   String daysAgo(int days) => '${days}d siden';
 
+  @override
+  String get today => 'I dag';
+
+  @override
+  String get yesterday => 'I går';
+
+  @override
+  String get older => 'Ældre';
+
   // Upcoming Tasks
   @override
   String get upcomingTasks => 'Kommende';

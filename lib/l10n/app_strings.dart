@@ -220,6 +220,9 @@ abstract class AppStrings {
   String minutesAgo(int minutes);
   String hoursAgo(int hours);
   String daysAgo(int days);
+  String get today;
+  String get yesterday;
+  String get older;
 
   // Upcoming Tasks
   String get upcomingTasks;

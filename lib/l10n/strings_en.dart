@@ -548,6 +548,15 @@ class StringsEn extends AppStrings {
   @override
   String daysAgo(int days) => '${days}d ago';
 
+  @override
+  String get today => 'Today';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String get older => 'Older';
+
   // Upcoming Tasks
   @override
   String get upcomingTasks => 'Upcoming';

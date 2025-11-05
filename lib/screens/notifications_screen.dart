@@ -12,6 +12,75 @@ import 'main_navigation_screen.dart';
 class NotificationsScreen extends HookConsumerWidget {
   const NotificationsScreen({super.key});
 
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8, top: 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGroupedNotifications(BuildContext context, WidgetRef ref, List<AppNotification> notifications, AppStrings strings) {
+    final today = <AppNotification>[];
+    final yesterday = <AppNotification>[];
+    final older = <AppNotification>[];
+
+    final now = DateTime.now();
+    final todayDate = DateTime(now.year, now.month, now.day);
+
+    for (final notification in notifications) {
+      final notifDate = DateTime(
+        notification.timestamp.year,
+        notification.timestamp.month,
+        notification.timestamp.day,
+      );
+      final diff = todayDate.difference(notifDate).inDays;
+
+      if (diff == 0) {
+        today.add(notification);
+      } else if (diff == 1) {
+        yesterday.add(notification);
+      } else {
+        older.add(notification);
+      }
+    }
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        if (today.isNotEmpty) ...[
+          _buildSectionHeader(context, strings.today),
+          ...today.map((n) => _NotificationCard(
+            notification: n,
+            onTap: () => _handleNotificationTap(context, ref, n),
+          )),
+          const SizedBox(height: 16),
+        ],
+        if (yesterday.isNotEmpty) ...[
+          _buildSectionHeader(context, strings.yesterday),
+          ...yesterday.map((n) => _NotificationCard(
+            notification: n,
+            onTap: () => _handleNotificationTap(context, ref, n),
+          )),
+          const SizedBox(height: 16),
+        ],
+        if (older.isNotEmpty) ...[
+          _buildSectionHeader(context, strings.older),
+          ...older.map((n) => _NotificationCard(
+            notification: n,
+            onTap: () => _handleNotificationTap(context, ref, n),
+          )),
+        ],
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
@@ -40,17 +109,7 @@ class NotificationsScreen extends HookConsumerWidget {
               return _buildEmptyState(context, strings);
             }
 
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: notifications.length,
-              itemBuilder: (context, index) {
-                final notification = notifications[index];
-                return _NotificationCard(
-                  notification: notification,
-                  onTap: () => _handleNotificationTap(context, ref, notification),
-                );
-              },
-            );
+            return _buildGroupedNotifications(context, ref, notifications, strings);
           },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) => Center(
