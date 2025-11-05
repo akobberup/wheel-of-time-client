@@ -97,7 +97,7 @@ class TaskHistoryScreen extends ConsumerWidget {
               ],
             ),
           ),
-          error: (error, stack) => _buildErrorState(context, strings, error),
+          error: (error, stack) => _buildErrorState(context, ref, strings, error),
         ),
       ),
     );
@@ -314,7 +314,7 @@ class TaskHistoryScreen extends ConsumerWidget {
 
   /// Builds the error state when history fails to load.
   /// Displays error message and provides option to retry.
-  Widget _buildErrorState(BuildContext context, AppStrings strings, Object error) {
+  Widget _buildErrorState(BuildContext context, WidgetRef ref, AppStrings strings, Object error) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -345,7 +345,7 @@ class TaskHistoryScreen extends ConsumerWidget {
         Center(
           child: ElevatedButton.icon(
             onPressed: () {
-              // Trigger a rebuild by invalidating the provider
+              ref.invalidate(taskHistoryProvider(taskId));
             },
             icon: const Icon(Icons.refresh),
             label: Text(strings.retry),
