@@ -161,6 +161,33 @@ class _InvitationCard extends HookConsumerWidget {
                           onPressed: (isLoadingAccept.value || isLoadingDecline.value)
                               ? null
                               : () async {
+                                  // Show confirmation dialog before declining
+                                  final confirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text(strings.declineInvitation),
+                                      content: Text(
+                                        'Are you sure you want to decline the invitation to "${invitation.taskListName}"?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.of(context).pop(false),
+                                          child: Text(strings.cancel),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () => Navigator.of(context).pop(true),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red,
+                                            foregroundColor: Colors.white,
+                                          ),
+                                          child: Text(strings.declineInvitation),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+
+                                  if (confirmed != true) return;
+
                                   isLoadingDecline.value = true;
                                   try {
                                     final success = await ref
