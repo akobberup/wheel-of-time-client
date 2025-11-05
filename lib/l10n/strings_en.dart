@@ -600,6 +600,9 @@ class StringsEn extends AppStrings {
   @override
   String get keepItGoing => 'Keep it going!';
 
+  @override
+  String streakAtRisk(int count) => '⚠️ $count-day streak at risk!';
+
   // Task History
   @override
   String get taskHistory => 'Task History';

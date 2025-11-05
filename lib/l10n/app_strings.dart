@@ -239,6 +239,7 @@ abstract class AppStrings {
   String get failedToCompleteTask;
   String get completeEarlierTasksFirst;
   String get keepItGoing;
+  String streakAtRisk(int count);
 
   // Task History
   String get taskHistory;

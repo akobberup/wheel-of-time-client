@@ -471,6 +471,44 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                       ],
                     ),
                   ],
+                  // Streak warning if at risk (within 6 hours of due time)
+                  if (isClickable &&
+                      occurrence.currentStreak != null &&
+                      occurrence.currentStreak!.isActive &&
+                      _isStreakAtRisk(occurrence.dueDate)) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.errorContainer,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.error,
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.warning_amber,
+                            size: 20,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              strings.streakAtRisk(occurrence.currentStreak!.streakCount),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   // Streak info if available (only show for next occurrence)
                   if (isClickable && occurrence.currentStreak != null && occurrence.currentStreak!.isActive) ...[
                     const SizedBox(height: 8),
@@ -553,5 +591,13 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
         );
       },
     );
+  }
+
+  /// Checks if a streak is at risk based on the due date
+  /// Returns true if the task is due within 6 hours
+  bool _isStreakAtRisk(DateTime dueDate) {
+    final now = DateTime.now();
+    final hoursUntilDue = dueDate.difference(now).inHours;
+    return hoursUntilDue > 0 && hoursUntilDue <= 6;
   }
 }

@@ -601,6 +601,9 @@ class StringsDa extends AppStrings {
   @override
   String get keepItGoing => 'Bliv ved!';
 
+  @override
+  String streakAtRisk(int count) => '⚠️ $count-dages stribe i fare!';
+
   // Task History
   @override
   String get taskHistory => 'Opgavehistorik';
