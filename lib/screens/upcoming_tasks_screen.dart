@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/upcoming_tasks_provider.dart';
+import '../providers/task_instance_provider.dart';
 import '../models/task_occurrence.dart';
 import '../models/task_instance.dart';
 import '../models/enums.dart';
@@ -94,6 +95,39 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
       return Colors.blue;
     } else {
       return Colors.grey;
+    }
+  }
+
+  /// Quick complete with current timestamp (for swipe action)
+  Future<void> _quickComplete(UpcomingTaskOccurrenceResponse occurrence) async {
+    HapticFeedback.mediumImpact();
+
+    final request = CreateTaskInstanceRequest(
+      taskId: occurrence.taskId,
+      completedDateTime: DateTime.now(),
+      optionalComment: null,
+    );
+
+    final result = await ref
+        .read(taskInstancesProvider(occurrence.taskId).notifier)
+        .createTaskInstance(request);
+
+    if (result != null && mounted) {
+      final strings = AppStrings.of(context);
+      ref.read(upcomingTasksProvider.notifier).refresh();
+
+      String message = strings.taskCompletedSuccess;
+      if (result.contributedToStreak) {
+        message = strings.streakContinued;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -220,7 +254,30 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
         final isOverdue = occurrence.dueDate.isBefore(DateTime.now());
         final isClickable = occurrence.isNextOccurrence;
 
-        return Stack(
+        return Dismissible(
+          key: Key(occurrence.occurrenceId),
+          direction: isClickable ? DismissDirection.endToStart : DismissDirection.none,
+          confirmDismiss: (direction) async {
+            if (!isClickable) return false;
+
+            await _quickComplete(occurrence);
+            return false; // Don't actually dismiss, just trigger action
+          },
+          background: Container(
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.only(right: 20),
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Colors.green,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.check,
+              color: Colors.white,
+              size: 32,
+            ),
+          ),
+          child: Stack(
           children: [
             Opacity(
               opacity: isClickable ? 1.0 : 0.6,
@@ -441,6 +498,7 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                 ),
               ),
           ],
+        ),
         );
       },
     );
