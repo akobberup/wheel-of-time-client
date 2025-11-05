@@ -589,6 +589,9 @@ class StringsDa extends AppStrings {
   @override
   String get completeEarlierTasksFirst => 'Fuldfør tidligere opgaver først'; // TODO: Verify Danish translation
 
+  @override
+  String get keepItGoing => 'Bliv ved!';
+
   // Task History
   @override
   String get taskHistory => 'Opgavehistorik';

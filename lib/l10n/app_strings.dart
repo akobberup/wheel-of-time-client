@@ -235,6 +235,7 @@ abstract class AppStrings {
   String streakExtended(int count);
   String get failedToCompleteTask;
   String get completeEarlierTasksFirst;
+  String get keepItGoing;
 
   // Task History
   String get taskHistory;

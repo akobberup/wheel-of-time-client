@@ -588,6 +588,9 @@ class StringsEn extends AppStrings {
   @override
   String get completeEarlierTasksFirst => 'Complete earlier tasks first';
 
+  @override
+  String get keepItGoing => 'Keep it going!';
+
   // Task History
   @override
   String get taskHistory => 'Task History';
