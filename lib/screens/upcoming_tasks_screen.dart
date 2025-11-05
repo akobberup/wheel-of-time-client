@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/upcoming_tasks_provider.dart';
 import '../models/task_occurrence.dart';
@@ -101,6 +102,7 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     BuildContext context,
     UpcomingTaskOccurrenceResponse occurrence,
   ) async {
+    HapticFeedback.mediumImpact();
     final result = await showDialog<TaskInstanceResponse>(
       context: context,
       builder: (context) => CompleteTaskDialog(

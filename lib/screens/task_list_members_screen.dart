@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/task_list_user_provider.dart';
 import '../providers/invitation_provider.dart';
@@ -273,6 +274,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                                 member.userName,
                               );
                               if (confirmed) {
+                                HapticFeedback.heavyImpact();
                                 final success = await ref
                                     .read(taskListUserNotifierProvider(taskListId).notifier)
                                     .removeUser(member.userId);
@@ -387,6 +389,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                                 invitation.emailAddress,
                               );
                               if (confirmed) {
+                                HapticFeedback.heavyImpact();
                                 final success = await ref
                                     .read(invitationProvider.notifier)
                                     .cancelInvitation(invitation.id);
