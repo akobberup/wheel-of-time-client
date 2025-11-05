@@ -127,6 +127,7 @@ abstract class AppStrings {
   String get comment;
   String get commentOptional;
   String get logout;
+  String get moreOptions;
   String get lists;
   String get complete;
   String get more;

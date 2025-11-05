@@ -53,30 +53,38 @@ class TaskListsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(strings.appTitle),
         actions: [
-          IconButton(
-            icon: Badge(
-              isLabelVisible: notificationCount > 0,
-              label: Text('$notificationCount'),
-              child: const Icon(Icons.notifications),
-            ),
-            tooltip: strings.notifications,
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const NotificationsScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: strings.logout,
-            onPressed: () async {
-              await ref.read(authProvider.notifier).logout();
-              if (context.mounted) {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+          Semantics(
+            label: strings.notifications,
+            button: true,
+            child: IconButton(
+              icon: Badge(
+                isLabelVisible: notificationCount > 0,
+                label: Text('$notificationCount'),
+                child: const Icon(Icons.notifications),
+              ),
+              tooltip: strings.notifications,
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const NotificationsScreen()),
                 );
-              }
-            },
+              },
+            ),
+          ),
+          Semantics(
+            label: strings.logout,
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: strings.logout,
+              onPressed: () async {
+                await ref.read(authProvider.notifier).logout();
+                if (context.mounted) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                }
+              },
+            ),
           ),
         ],
       ),
@@ -167,30 +175,33 @@ class TaskListsScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    trailing: PopupMenuButton<String>(
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'edit',
-                          child: Row(
-                            children: [
-                              const Icon(Icons.edit, size: 20),
-                              const SizedBox(width: 12),
-                              Text(strings.edit),
-                            ],
+                    trailing: Semantics(
+                      label: '${strings.moreOptions} ${taskList.name}',
+                      button: true,
+                      child: PopupMenuButton<String>(
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: 'edit',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.edit, size: 20),
+                                const SizedBox(width: 12),
+                                Text(strings.edit),
+                              ],
+                            ),
                           ),
-                        ),
-                        PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              const Icon(Icons.delete, size: 20, color: Colors.red),
-                              const SizedBox(width: 12),
-                              Text(strings.delete, style: const TextStyle(color: Colors.red)),
-                            ],
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.delete, size: 20, color: Colors.red),
+                                const SizedBox(width: 12),
+                                Text(strings.delete, style: const TextStyle(color: Colors.red)),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                      onSelected: (value) async {
+                        ],
+                        onSelected: (value) async {
                         if (value == 'edit') {
                           final result = await showDialog<bool>(
                             context: context,
@@ -222,7 +233,8 @@ class TaskListsScreen extends ConsumerWidget {
                             }
                           }
                         }
-                      },
+                        },
+                      ),
                     ),
                     onTap: () {
                       Navigator.of(context).push(

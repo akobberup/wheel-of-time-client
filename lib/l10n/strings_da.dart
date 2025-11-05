@@ -310,6 +310,9 @@ class StringsDa extends AppStrings {
   String get logout => 'Log ud';
 
   @override
+  String get moreOptions => 'Flere muligheder';
+
+  @override
   String get lists => 'Lister';
 
   @override

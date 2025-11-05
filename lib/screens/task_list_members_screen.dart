@@ -366,37 +366,41 @@ class TaskListMembersScreen extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.cancel),
-                          tooltip: strings.cancelInvitation,
-                          color: Colors.red,
-                          onPressed: () async {
-                            final confirmed = await _showCancelInvitationConfirmation(
-                              context,
-                              invitation.emailAddress,
-                            );
-                            if (confirmed) {
-                              final success = await ref
-                                  .read(invitationProvider.notifier)
-                                  .cancelInvitation(invitation.id);
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      success
-                                          ? strings.invitationCancelledSuccess
-                                          : strings.failedToCancelInvitation,
+                        trailing: Semantics(
+                          label: '${strings.cancelInvitation} ${invitation.emailAddress}',
+                          button: true,
+                          child: IconButton(
+                            icon: const Icon(Icons.cancel),
+                            tooltip: strings.cancelInvitation,
+                            color: Colors.red,
+                            onPressed: () async {
+                              final confirmed = await _showCancelInvitationConfirmation(
+                                context,
+                                invitation.emailAddress,
+                              );
+                              if (confirmed) {
+                                final success = await ref
+                                    .read(invitationProvider.notifier)
+                                    .cancelInvitation(invitation.id);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        success
+                                            ? strings.invitationCancelledSuccess
+                                            : strings.failedToCancelInvitation,
+                                      ),
+                                      backgroundColor: success ? Colors.green : Colors.red,
                                     ),
-                                    backgroundColor: success ? Colors.green : Colors.red,
-                                  ),
-                                );
-                                // Refresh the invitations list
-                                if (success) {
-                                  ref.refresh(taskListInvitationsProvider(taskListId));
+                                  );
+                                  // Refresh the invitations list
+                                  if (success) {
+                                    ref.refresh(taskListInvitationsProvider(taskListId));
+                                  }
                                 }
                               }
-                            }
-                          },
+                            },
+                          ),
                         ),
                       ),
                     );

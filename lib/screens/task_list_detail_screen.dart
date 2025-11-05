@@ -56,19 +56,23 @@ class TaskListDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(taskListName != null ? strings.tasksIn(taskListName!) : strings.tasks),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.people),
-            tooltip: strings.members,
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => TaskListMembersScreen(
-                    taskListId: taskListId,
-                    taskListName: taskListName ?? strings.taskLists,
+          Semantics(
+            label: strings.members,
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.people),
+              tooltip: strings.members,
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => TaskListMembersScreen(
+                      taskListId: taskListId,
+                      taskListName: taskListName ?? strings.taskLists,
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ],
       ),

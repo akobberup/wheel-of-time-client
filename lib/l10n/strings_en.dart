@@ -309,6 +309,9 @@ class StringsEn extends AppStrings {
   String get logout => 'Logout';
 
   @override
+  String get moreOptions => 'More Options';
+
+  @override
   String get lists => 'Lists';
 
   @override
