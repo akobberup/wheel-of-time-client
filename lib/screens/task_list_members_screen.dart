@@ -228,47 +228,57 @@ class TaskListMembersScreen extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              tooltip: strings.changePermission,
-                              onPressed: () => _showChangeAdminLevelDialog(
-                                context,
-                                ref,
-                                member,
+                        trailing: PopupMenuButton<String>(
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: 'change_permission',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.edit, size: 20),
+                                  const SizedBox(width: 12),
+                                  Text(strings.changePermission),
+                                ],
                               ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.person_remove),
-                              tooltip: strings.removeMember,
-                              color: Colors.red,
-                              onPressed: () async {
-                                final confirmed = await _showRemoveMemberConfirmation(
-                                  context,
-                                  member.userName,
-                                );
-                                if (confirmed) {
-                                  final success = await ref
-                                      .read(taskListUserNotifierProvider(taskListId).notifier)
-                                      .removeUser(member.userId);
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          success
-                                              ? strings.memberRemovedSuccess
-                                              : strings.failedToRemoveMember,
-                                        ),
-                                        backgroundColor: success ? Colors.green : Colors.red,
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
+                            PopupMenuItem(
+                              value: 'remove',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.person_remove, size: 20, color: Colors.red),
+                                  const SizedBox(width: 12),
+                                  Text(strings.removeMember, style: const TextStyle(color: Colors.red)),
+                                ],
+                              ),
                             ),
                           ],
+                          onSelected: (value) async {
+                            if (value == 'change_permission') {
+                              _showChangeAdminLevelDialog(context, ref, member);
+                            } else if (value == 'remove') {
+                              final confirmed = await _showRemoveMemberConfirmation(
+                                context,
+                                member.userName,
+                              );
+                              if (confirmed) {
+                                final success = await ref
+                                    .read(taskListUserNotifierProvider(taskListId).notifier)
+                                    .removeUser(member.userId);
+                                if (context.mounted) {
+                                  final strings = AppStrings.of(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        success
+                                            ? strings.memberRemovedSuccess
+                                            : strings.failedToRemoveMember,
+                                      ),
+                                      backgroundColor: success ? Colors.green : Colors.red,
+                                    ),
+                                  );
+                                }
+                              }
+                            }
+                          },
                         ),
                       ),
                     );

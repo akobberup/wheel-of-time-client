@@ -159,52 +159,62 @@ class TaskListsScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          tooltip: strings.edit,
-                          onPressed: () async {
-                            final result = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => EditTaskListDialog(taskList: taskList),
-                            );
-                            if (result == true) {
-                              ref.read(taskListProvider.notifier).loadAllTaskLists();
-                            }
-                          },
+                    trailing: PopupMenuButton<String>(
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.edit, size: 20),
+                              const SizedBox(width: 12),
+                              Text(strings.edit),
+                            ],
+                          ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          tooltip: strings.delete,
-                          color: Colors.red,
-                          onPressed: () async {
-                            final confirmed = await _showDeleteConfirmation(
-                              context,
-                              taskList.name,
-                            );
-                            if (confirmed) {
-                              final success = await ref
-                                  .read(taskListProvider.notifier)
-                                  .deleteTaskList(taskList.id);
-                              if (context.mounted) {
-                                final strings = AppStrings.of(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      success
-                                          ? strings.taskListDeletedSuccess
-                                          : strings.failedToDeleteTaskList,
-                                    ),
-                                  ),
-                                );
-                              }
-                            }
-                          },
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.delete, size: 20, color: Colors.red),
+                              const SizedBox(width: 12),
+                              Text(strings.delete, style: const TextStyle(color: Colors.red)),
+                            ],
+                          ),
                         ),
-                        const Icon(Icons.chevron_right),
                       ],
+                      onSelected: (value) async {
+                        if (value == 'edit') {
+                          final result = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => EditTaskListDialog(taskList: taskList),
+                          );
+                          if (result == true) {
+                            ref.read(taskListProvider.notifier).loadAllTaskLists();
+                          }
+                        } else if (value == 'delete') {
+                          final confirmed = await _showDeleteConfirmation(
+                            context,
+                            taskList.name,
+                          );
+                          if (confirmed) {
+                            final success = await ref
+                                .read(taskListProvider.notifier)
+                                .deleteTaskList(taskList.id);
+                            if (context.mounted) {
+                              final strings = AppStrings.of(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    success
+                                        ? strings.taskListDeletedSuccess
+                                        : strings.failedToDeleteTaskList,
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+                        }
+                      },
                     ),
                     onTap: () {
                       Navigator.of(context).push(
