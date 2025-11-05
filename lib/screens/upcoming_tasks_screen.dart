@@ -227,10 +227,15 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
               child: Card(
             margin: const EdgeInsets.only(bottom: 12),
             elevation: 2,
+            color: isOverdue
+                ? Theme.of(context).colorScheme.errorContainer.withOpacity(0.05)
+                : null,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
               side: BorderSide(
-                color: isOverdue ? Colors.red.withValues(alpha: 0.3) : Colors.transparent,
+                color: isOverdue
+                    ? Theme.of(context).colorScheme.error.withOpacity(0.6)
+                    : Colors.transparent,
                 width: 2,
               ),
             ),
