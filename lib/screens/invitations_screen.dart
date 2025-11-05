@@ -76,6 +76,20 @@ class _InvitationCard extends HookConsumerWidget {
 
   const _InvitationCard({required this.invitation});
 
+  String _getStateLabel(dynamic state, AppStrings strings) {
+    final stateName = state.name.toString();
+    switch (stateName) {
+      case 'SENT':
+        return strings.pending;
+      case 'ACCEPTED':
+        return strings.accepted;
+      case 'DECLINED':
+        return strings.declined;
+      default:
+        return stateName;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
@@ -94,11 +108,11 @@ class _InvitationCard extends HookConsumerWidget {
             Text('${strings.invitationFrom}: ${invitation.initiatedByUserName}'),
             const SizedBox(height: 2),
             Text(
-              invitation.currentState.name == 'PENDING' ? strings.pending : invitation.currentState.name,
+              _getStateLabel(invitation.currentState, strings),
               style: TextStyle(
-                color: invitation.currentState.name == 'PENDING'
+                color: invitation.currentState.name == 'SENT'
                     ? Colors.orange
-                    : Colors.grey,
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 12,
               ),
             ),

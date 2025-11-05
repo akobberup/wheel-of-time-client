@@ -102,6 +102,8 @@ abstract class AppStrings {
   String get invitationFrom;
   String get acceptInvitation;
   String get declineInvitation;
+  String get accepted;
+  String get declined;
   String get invitationAccepted;
   String get invitationDeclined;
   String get sendInvitation;
