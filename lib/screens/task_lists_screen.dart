@@ -11,6 +11,7 @@ import 'login_screen.dart';
 import 'notifications_screen.dart';
 import '../widgets/create_task_list_dialog.dart';
 import '../widgets/edit_task_list_dialog.dart';
+import '../widgets/common/empty_state.dart';
 
 class TaskListsScreen extends ConsumerWidget {
   const TaskListsScreen({super.key});
@@ -95,31 +96,10 @@ class TaskListsScreen extends ConsumerWidget {
         child: taskListsAsync.when(
           data: (taskLists) {
             if (taskLists.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.folder_open,
-                      size: 80,
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      strings.noTaskListsYet,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      strings.createFirstTaskList,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                          ),
-                    ),
-                  ],
-                ),
+              return EmptyState(
+                icon: Icons.folder_open,
+                title: strings.noTaskListsYet,
+                subtitle: strings.createFirstTaskList,
               );
             }
 

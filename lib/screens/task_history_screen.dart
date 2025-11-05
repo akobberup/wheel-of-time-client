@@ -6,6 +6,7 @@ import '../models/task_instance.dart';
 import '../providers/task_history_provider.dart';
 import '../l10n/app_strings.dart';
 import '../config/api_config.dart';
+import '../widgets/common/empty_state.dart';
 
 /// Screen displaying the completion history for a specific task.
 /// Shows all task instances sorted by completion date (most recent first).
@@ -36,7 +37,11 @@ class TaskHistoryScreen extends ConsumerWidget {
         child: historyAsync.when(
           data: (instances) {
             if (instances.isEmpty) {
-              return _buildEmptyState(context, strings);
+              return EmptyState(
+                icon: Icons.history,
+                title: strings.noCompletionsYet,
+                subtitle: strings.noCompletionsYetDescription,
+              );
             }
 
             // Sort instances by completion date (most recent first)

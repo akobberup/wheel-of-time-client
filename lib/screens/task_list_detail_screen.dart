@@ -8,6 +8,7 @@ import '../config/api_config.dart';
 import 'task_list_members_screen.dart';
 import 'task_history_screen.dart';
 import '../l10n/app_strings.dart';
+import '../widgets/common/empty_state.dart';
 
 class TaskListDetailScreen extends ConsumerWidget {
   final int taskListId;
@@ -83,31 +84,10 @@ class TaskListDetailScreen extends ConsumerWidget {
         child: tasksAsync.when(
           data: (tasks) {
             if (tasks.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.task_alt,
-                      size: 80,
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      strings.noTasks,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      strings.addFirstTask,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                          ),
-                    ),
-                  ],
-                ),
+              return EmptyState(
+                icon: Icons.task_alt,
+                title: strings.noTasks,
+                subtitle: strings.addFirstTask,
               );
             }
 

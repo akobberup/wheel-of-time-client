@@ -5,6 +5,7 @@ import '../models/task_occurrence.dart';
 import '../models/task_instance.dart';
 import '../widgets/complete_task_dialog.dart';
 import '../l10n/app_strings.dart';
+import '../widgets/common/empty_state.dart';
 
 /// Screen displaying upcoming task occurrences with infinite scroll pagination
 class UpcomingTasksScreen extends ConsumerStatefulWidget {
@@ -163,35 +164,10 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
 
     // Empty state
     if (state.occurrences.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.check_circle_outline,
-              size: 80,
-              color: Colors.green[300],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              strings.noUpcomingTasks,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                strings.allCaughtUpWithTasks,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[500],
-                    ),
-              ),
-            ),
-          ],
-        ),
+      return EmptyState(
+        icon: Icons.check_circle_outline,
+        title: strings.noUpcomingTasks,
+        subtitle: strings.allCaughtUpWithTasks,
       );
     }
 

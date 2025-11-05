@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../providers/invitation_provider.dart';
 import '../l10n/app_strings.dart';
+import '../widgets/common/empty_state.dart';
 
 class InvitationsScreen extends HookConsumerWidget {
   const InvitationsScreen({super.key});
@@ -23,31 +24,10 @@ class InvitationsScreen extends HookConsumerWidget {
         child: invitationsAsync.when(
           data: (invitations) {
             if (invitations.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.mail_outline,
-                      size: 80,
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      strings.noPendingInvitations,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      strings.invitationsWillAppearHere,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                          ),
-                    ),
-                  ],
-                ),
+              return EmptyState(
+                icon: Icons.mail_outline,
+                title: strings.noPendingInvitations,
+                subtitle: strings.invitationsWillAppearHere,
               );
             }
 
