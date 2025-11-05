@@ -62,7 +62,7 @@ class TaskListMembersScreen extends ConsumerWidget {
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
+                  backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 ),
                 child: Text(strings.cancelInvite),
@@ -369,7 +369,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                         trailing: IconButton(
                           icon: const Icon(Icons.cancel),
                           tooltip: strings.cancelInvitation,
-                          color: Colors.orange,
+                          color: Colors.red,
                           onPressed: () async {
                             final confirmed = await _showCancelInvitationConfirmation(
                               context,
