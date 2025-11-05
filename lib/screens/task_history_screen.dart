@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/task_instance.dart';
 import '../providers/task_history_provider.dart';
 import '../l10n/app_strings.dart';
@@ -225,19 +226,29 @@ class TaskHistoryScreen extends ConsumerWidget {
               const SizedBox(height: 12),
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  ApiConfig.getImageUrl(instance.optionalImagePath!),
+                child: CachedNetworkImage(
+                  imageUrl: ApiConfig.getImageUrl(instance.optionalImagePath!),
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: double.infinity,
-                      height: 200,
-                      color: Colors.grey[300],
-                      child: Icon(Icons.broken_image, size: 48, color: Colors.grey[600]),
-                    );
-                  },
+                  placeholder: (context, url) => Container(
+                    width: double.infinity,
+                    height: 200,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    width: double.infinity,
+                    height: 200,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    child: Icon(
+                      Icons.broken_image,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 ),
               ),
             ],

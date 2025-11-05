@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/task_provider.dart';
 import '../widgets/create_task_dialog.dart';
 import '../widgets/edit_task_dialog.dart';
@@ -127,11 +128,27 @@ class TaskListDetailScreen extends ConsumerWidget {
                     },
                     child: ListTile(
                       leading: task.taskImagePath != null
-                          ? Image.network(
-                              ApiConfig.getImageUrl(task.taskImagePath!),
+                          ? CachedNetworkImage(
+                              imageUrl: ApiConfig.getImageUrl(task.taskImagePath!),
                               width: 50,
                               height: 50,
                               fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                width: 50,
+                                height: 50,
+                                color: Theme.of(context).colorScheme.surfaceVariant,
+                                child: const Center(
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  ),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => const Icon(
+                                Icons.broken_image,
+                                size: 40,
+                              ),
                             )
                           : const Icon(Icons.check_circle_outline, size: 40),
                       title: Text(task.name),
