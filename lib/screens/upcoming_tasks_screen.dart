@@ -131,6 +131,50 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     }
   }
 
+  /// Shows celebration animation for streak contributions
+  Future<void> _showCelebration(BuildContext context, TaskInstanceResponse result) async {
+    final strings = AppStrings.of(context);
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0.0, end: 1.0),
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.elasticOut,
+        builder: (context, value, child) {
+          return Transform.scale(
+            scale: value,
+            child: AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.celebration,
+                    size: 80,
+                    color: Colors.orange,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    strings.streakContinued,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(strings.keepItGoing),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Awesome!'),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   /// Handles task completion and shows appropriate success message
   Future<void> _handleTaskCompletion(
     BuildContext context,
@@ -148,10 +192,15 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     if (result != null && context.mounted) {
       final strings = AppStrings.of(context);
 
+      // Show celebration for streaks
+      if (result.contributedToStreak) {
+        await _showCelebration(context, result);
+      }
+
       // Refresh the list
       ref.read(upcomingTasksProvider.notifier).refresh();
 
-      // Show success message with streak info if applicable
+      // Show success message
       String message = strings.taskCompletedSuccess;
       if (result.contributedToStreak) {
         message = strings.streakContinued;
