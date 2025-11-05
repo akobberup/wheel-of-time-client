@@ -10,6 +10,8 @@ import '../widgets/complete_task_dialog.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/skeleton_loader.dart';
+import '../constants/spacing.dart';
+import '../constants/sizes.dart';
 
 /// Screen displaying upcoming task occurrences with infinite scroll pagination
 class UpcomingTasksScreen extends ConsumerStatefulWidget {
@@ -150,15 +152,15 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                 children: [
                   const Icon(
                     Icons.celebration,
-                    size: 80,
+                    size: IconSizes.emptyState,
                     color: Colors.orange,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: Spacing.lg),
                   Text(
                     strings.streakContinued,
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: Spacing.sm),
                   Text(strings.keepItGoing),
                 ],
               ),

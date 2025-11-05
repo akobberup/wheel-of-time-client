@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../constants/spacing.dart';
+import '../../constants/sizes.dart';
 
 /// A standardized empty state widget used across the app
 /// Displays an icon, title, optional subtitle, and optional action button
@@ -27,16 +29,16 @@ class EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(Spacing.xxl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              size: 80,
+              size: IconSizes.emptyState,
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Spacing.lg),
             Text(
               title,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -45,7 +47,7 @@ class EmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             if (subtitle != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: Spacing.sm),
               Text(
                 subtitle!,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -55,7 +57,7 @@ class EmptyState extends StatelessWidget {
               ),
             ],
             if (action != null) ...[
-              const SizedBox(height: 24),
+              const SizedBox(height: Spacing.xl),
               action!,
             ],
           ],

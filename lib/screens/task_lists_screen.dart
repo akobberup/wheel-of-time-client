@@ -13,6 +13,7 @@ import '../widgets/create_task_list_dialog.dart';
 import '../widgets/edit_task_list_dialog.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/error_state_widget.dart';
+import '../constants/spacing.dart';
 
 class TaskListsScreen extends ConsumerWidget {
   const TaskListsScreen({super.key});
@@ -105,12 +106,12 @@ class TaskListsScreen extends ConsumerWidget {
             }
 
             return ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(Spacing.lg),
               itemCount: taskLists.length,
               itemBuilder: (context, index) {
                 final taskList = taskLists[index];
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
+                  margin: const EdgeInsets.only(bottom: Spacing.md),
                   child: ListTile(
                     leading: taskList.taskListImagePath != null
                         ? CachedNetworkImage(
