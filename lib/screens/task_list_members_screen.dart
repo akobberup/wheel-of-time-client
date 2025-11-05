@@ -196,14 +196,21 @@ class TaskListMembersScreen extends ConsumerWidget {
                             member.userName.substring(0, 1).toUpperCase(),
                           ),
                         ),
-                        title: Text(member.userName),
+                        title: Text(
+                          member.userName,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            const SizedBox(height: 2),
                             Text(
                               member.userEmail,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 13,
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ),
