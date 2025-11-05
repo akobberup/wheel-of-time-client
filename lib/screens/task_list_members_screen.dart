@@ -163,28 +163,62 @@ class TaskListMembersScreen extends ConsumerWidget {
     final invitationsAsync = ref.watch(taskListInvitationsProvider(taskListId));
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.membersIn(taskListName)),
-      ),
+      appBar: _buildAppBar(strings),
       body: RefreshIndicator(
-        onRefresh: () async {
-          await Future.wait([
-            ref.read(taskListUserNotifierProvider(taskListId).notifier).loadUsers(),
-            ref.refresh(taskListInvitationsProvider(taskListId).future),
-          ]);
-        },
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // Current Members Section
-            Text(
-              strings.members,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            membersAsync.when(
+        onRefresh: () => _refreshData(ref),
+        child: _buildBody(context, ref, membersAsync, invitationsAsync, strings),
+      ),
+      floatingActionButton: _buildFAB(context, strings),
+    );
+  }
+
+  AppBar _buildAppBar(AppStrings strings) {
+    return AppBar(
+      title: Text(strings.membersIn(taskListName)),
+    );
+  }
+
+  Future<void> _refreshData(WidgetRef ref) async {
+    await Future.wait([
+      ref.read(taskListUserNotifierProvider(taskListId).notifier).loadUsers(),
+      ref.refresh(taskListInvitationsProvider(taskListId).future),
+    ]);
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue membersAsync,
+    AsyncValue invitationsAsync,
+    AppStrings strings,
+  ) {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _buildMembersSection(context, ref, membersAsync, strings),
+        const SizedBox(height: 24),
+        _buildInvitationsSection(context, ref, invitationsAsync, strings),
+      ],
+    );
+  }
+
+  Widget _buildMembersSection(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue membersAsync,
+    AppStrings strings,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          strings.members,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 8),
+        membersAsync.when(
               data: (members) {
                 if (members.isEmpty) {
                   return Card(
@@ -318,16 +352,27 @@ class TaskListMembersScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-            // Pending Invitations Section
-            Text(
-              strings.pendingInvitations,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            invitationsAsync.when(
+      ],
+    );
+  }
+
+  Widget _buildInvitationsSection(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue invitationsAsync,
+    AppStrings strings,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          strings.pendingInvitations,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 8),
+        invitationsAsync.when(
               data: (invitations) {
                 final pending = invitations
                     .where((inv) => inv.currentState == InvitationState.SENT)
@@ -423,25 +468,27 @@ class TaskListMembersScreen extends ConsumerWidget {
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final result = await showDialog(
-            context: context,
-            builder: (context) => SendInvitationDialog(
-              taskListId: taskListId,
-              taskListName: taskListName,
-            ),
-          );
-          if (result == true) {
-            ref.refresh(taskListInvitationsProvider(taskListId));
-          }
-        },
-        icon: const Icon(Icons.person_add),
-        label: Text(strings.invite),
-      ),
+      ],
+    );
+  }
+
+  Widget _buildFAB(BuildContext context, AppStrings strings) {
+    return FloatingActionButton.extended(
+      onPressed: () async {
+        final result = await showDialog(
+          context: context,
+          builder: (context) => SendInvitationDialog(
+            taskListId: taskListId,
+            taskListName: taskListName,
+          ),
+        );
+        if (result == true && context.mounted) {
+          final ref = ProviderScope.containerOf(context);
+          ref.refresh(taskListInvitationsProvider(taskListId));
+        }
+      },
+      icon: const Icon(Icons.person_add),
+      label: Text(strings.invite),
     );
   }
 }
