@@ -69,13 +69,6 @@ class TaskListDetailScreen extends ConsumerWidget {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            tooltip: strings.more,
-            onPressed: () {
-              // Show options menu
-            },
-          ),
         ],
       ),
       body: RefreshIndicator(
