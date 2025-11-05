@@ -9,6 +9,7 @@ import 'task_list_members_screen.dart';
 import 'task_history_screen.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/empty_state.dart';
+import '../models/enums.dart';
 
 class TaskListDetailScreen extends ConsumerWidget {
   final int taskListId;
@@ -19,6 +20,25 @@ class TaskListDetailScreen extends ConsumerWidget {
     required this.taskListId,
     this.taskListName,
   });
+
+  /// Formats the repeat pattern into a natural, readable string.
+  /// Examples: "Daily", "Weekly", "Every 3 months"
+  String _formatRepeat(RepeatUnit unit, int delta) {
+    if (delta == 1) {
+      switch (unit) {
+        case RepeatUnit.DAYS:
+          return 'Daily';
+        case RepeatUnit.WEEKS:
+          return 'Weekly';
+        case RepeatUnit.MONTHS:
+          return 'Monthly';
+        case RepeatUnit.YEARS:
+          return 'Yearly';
+      }
+    }
+    final unitName = unit.name.toLowerCase();
+    return 'Every $delta $unitName';
+  }
 
   /// Shows a confirmation dialog for deleting a task.
   /// Returns true if user confirms deletion, false otherwise.
@@ -149,7 +169,7 @@ class TaskListDetailScreen extends ConsumerWidget {
                           ],
                           const SizedBox(height: 4),
                           Text(
-                            '${task.repeatUnit.name} (every ${task.repeatDelta})',
+                            _formatRepeat(task.repeatUnit, task.repeatDelta),
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontSize: 12,
