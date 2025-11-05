@@ -219,9 +219,11 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
         final isOverdue = occurrence.dueDate.isBefore(DateTime.now());
         final isClickable = occurrence.isNextOccurrence;
 
-        return Opacity(
-          opacity: isClickable ? 1.0 : 0.5,
-          child: Card(
+        return Stack(
+          children: [
+            Opacity(
+              opacity: isClickable ? 1.0 : 0.6,
+              child: Card(
             margin: const EdgeInsets.only(bottom: 12),
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -365,8 +367,26 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
               ),
             ),
           ),
-        ),
-      );
+              ),
+            ),
+            if (!isClickable)
+              Positioned.fill(
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Chip(
+                      label: Text(strings.completeEarlierTasksFirst),
+                      avatar: const Icon(Icons.lock_outline, size: 16),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
       },
     );
   }
