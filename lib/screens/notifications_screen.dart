@@ -6,6 +6,7 @@ import '../providers/invitation_provider.dart';
 import '../providers/task_list_provider.dart';
 import '../models/notification.dart';
 import '../l10n/app_strings.dart';
+import '../widgets/common/skeleton_loader.dart';
 import 'main_navigation_screen.dart';
 
 /// Screen displaying all notifications in one centralized location
@@ -111,7 +112,7 @@ class NotificationsScreen extends HookConsumerWidget {
 
             return _buildGroupedNotifications(context, ref, notifications, strings);
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const SkeletonListLoader(),
           error: (error, stack) => Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

@@ -7,6 +7,7 @@ import '../models/enums.dart';
 import '../widgets/complete_task_dialog.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/empty_state.dart';
+import '../widgets/common/skeleton_loader.dart';
 
 /// Screen displaying upcoming task occurrences with infinite scroll pagination
 class UpcomingTasksScreen extends ConsumerStatefulWidget {
@@ -156,7 +157,7 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
 
     // Initial loading
     if (state.isLoading && state.occurrences.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const SkeletonListLoader();
     }
 
     // Error state

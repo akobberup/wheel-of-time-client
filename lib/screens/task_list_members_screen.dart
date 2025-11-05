@@ -6,6 +6,7 @@ import '../models/task_list_user.dart';
 import '../models/enums.dart';
 import '../widgets/send_invitation_dialog.dart';
 import '../l10n/app_strings.dart';
+import '../widgets/common/skeleton_loader.dart';
 
 /// Screen for managing members of a task list.
 /// Shows current members, pending invitations, and allows adding/removing members.
@@ -297,7 +298,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                   }).toList(),
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const SkeletonListLoader(itemCount: 3),
               error: (error, stack) => Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -414,7 +415,7 @@ class TaskListMembersScreen extends ConsumerWidget {
                   }).toList(),
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const SkeletonListLoader(itemCount: 3),
               error: (error, stack) => Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),

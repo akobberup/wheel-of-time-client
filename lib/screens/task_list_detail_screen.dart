@@ -9,6 +9,7 @@ import 'task_list_members_screen.dart';
 import 'task_history_screen.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/empty_state.dart';
+import '../widgets/common/skeleton_loader.dart';
 import '../models/enums.dart';
 
 class TaskListDetailScreen extends ConsumerWidget {
@@ -250,7 +251,7 @@ class TaskListDetailScreen extends ConsumerWidget {
               },
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const SkeletonListLoader(),
           error: (error, stack) => Center(
             child: Text('Error: $error'),
           ),
