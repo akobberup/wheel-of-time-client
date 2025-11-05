@@ -142,6 +142,9 @@ class StringsDa extends AppStrings {
   String get noTaskLists => 'Ingen opgavelister endnu';
 
   @override
+  String get noTaskListsYet => 'Ingen opgavelister endnu';
+
+  @override
   String get createFirstTaskList => 'Opret din første opgaveliste for at komme i gang';
 
   @override
@@ -249,6 +252,9 @@ class StringsDa extends AppStrings {
 
   @override
   String get sendInvitation => 'Send invitation';
+
+  @override
+  String get invitationsWillAppearHere => 'Invitationer vil vises her'; // TODO: Verify Danish translation
 
   // Members
   @override
@@ -521,6 +527,19 @@ class StringsDa extends AppStrings {
   @override
   String get failedToDeclineInvitation => 'Kunne ikke afvise invitation';
 
+  // Time formatting
+  @override
+  String get justNow => 'Lige nu';
+
+  @override
+  String minutesAgo(int minutes) => '${minutes}m siden';
+
+  @override
+  String hoursAgo(int hours) => '${hours}t siden';
+
+  @override
+  String daysAgo(int days) => '${days}d siden';
+
   // Upcoming Tasks
   @override
   String get upcomingTasks => 'Kommende';
@@ -557,6 +576,9 @@ class StringsDa extends AppStrings {
 
   @override
   String get failedToCompleteTask => 'Kunne ikke fuldføre opgave';
+
+  @override
+  String get completeEarlierTasksFirst => 'Fuldfør tidligere opgaver først'; // TODO: Verify Danish translation
 
   // Task History
   @override

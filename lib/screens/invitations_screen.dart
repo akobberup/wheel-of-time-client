@@ -13,7 +13,7 @@ class InvitationsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Invitations'),
+        title: Text(strings.invitations),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -29,9 +29,16 @@ class InvitationsScreen extends ConsumerWidget {
                     Icon(Icons.mail_outline, size: 80, color: Colors.grey[400]),
                     const SizedBox(height: 16),
                     Text(
-                      'No pending invitations',
+                      strings.noPendingInvitations,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             color: Colors.grey[600],
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      strings.invitationsWillAppearHere,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey[500],
                           ),
                     ),
                   ],
@@ -53,10 +60,10 @@ class InvitationsScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 4),
-                        Text('From: ${invitation.initiatedByUserName}'),
+                        Text('${strings.invitationFrom}: ${invitation.initiatedByUserName}'),
                         const SizedBox(height: 2),
                         Text(
-                          invitation.currentState.name,
+                          invitation.currentState.name == 'PENDING' ? strings.pending : invitation.currentState.name,
                           style: TextStyle(
                             color: invitation.currentState.name == 'PENDING'
                                 ? Colors.orange
@@ -77,8 +84,9 @@ class InvitationsScreen extends ConsumerWidget {
                                       .read(invitationProvider.notifier)
                                       .acceptInvitation(invitation.id);
                                   if (success && context.mounted) {
+                                    final strings = AppStrings.of(context);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Invitation accepted')),
+                                      SnackBar(content: Text(strings.invitationAccepted)),
                                     );
                                   }
                                 },
@@ -90,8 +98,9 @@ class InvitationsScreen extends ConsumerWidget {
                                       .read(invitationProvider.notifier)
                                       .declineInvitation(invitation.id);
                                   if (success && context.mounted) {
+                                    final strings = AppStrings.of(context);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Invitation declined')),
+                                      SnackBar(content: Text(strings.invitationDeclined)),
                                     );
                                   }
                                 },
@@ -106,7 +115,7 @@ class InvitationsScreen extends ConsumerWidget {
           },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) => Center(
-            child: Text('Error: $error'),
+            child: Text(strings.errorLoadingInvitations(error.toString())),
           ),
         ),
       ),

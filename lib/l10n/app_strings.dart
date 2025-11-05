@@ -61,6 +61,7 @@ abstract class AppStrings {
   String get editTaskList;
   String get deleteTaskList;
   String get noTaskLists;
+  String get noTaskListsYet;
   String get createFirstTaskList;
   String get taskListCreated;
   String get taskListUpdated;
@@ -104,6 +105,7 @@ abstract class AppStrings {
   String get invitationAccepted;
   String get invitationDeclined;
   String get sendInvitation;
+  String get invitationsWillAppearHere;
 
   // Members
   String get members;
@@ -210,6 +212,12 @@ abstract class AppStrings {
   String get failedToAcceptInvitation;
   String get failedToDeclineInvitation;
 
+  // Time formatting
+  String get justNow;
+  String minutesAgo(int minutes);
+  String hoursAgo(int hours);
+  String daysAgo(int days);
+
   // Upcoming Tasks
   String get upcomingTasks;
   String get noUpcomingTasks;
@@ -223,6 +231,7 @@ abstract class AppStrings {
   String get streakContinued;
   String streakExtended(int count);
   String get failedToCompleteTask;
+  String get completeEarlierTasksFirst;
 
   // Task History
   String get taskHistory;

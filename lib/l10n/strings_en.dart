@@ -141,6 +141,9 @@ class StringsEn extends AppStrings {
   String get noTaskLists => 'No task lists yet';
 
   @override
+  String get noTaskListsYet => 'No task lists yet';
+
+  @override
   String get createFirstTaskList => 'Create your first task list to get started';
 
   @override
@@ -248,6 +251,9 @@ class StringsEn extends AppStrings {
 
   @override
   String get sendInvitation => 'Send Invitation';
+
+  @override
+  String get invitationsWillAppearHere => 'Invitations will appear here';
 
   // Members
   @override
@@ -520,6 +526,19 @@ class StringsEn extends AppStrings {
   @override
   String get failedToDeclineInvitation => 'Failed to decline invitation';
 
+  // Time formatting
+  @override
+  String get justNow => 'Just now';
+
+  @override
+  String minutesAgo(int minutes) => '${minutes}m ago';
+
+  @override
+  String hoursAgo(int hours) => '${hours}h ago';
+
+  @override
+  String daysAgo(int days) => '${days}d ago';
+
   // Upcoming Tasks
   @override
   String get upcomingTasks => 'Upcoming';
@@ -556,6 +575,9 @@ class StringsEn extends AppStrings {
 
   @override
   String get failedToCompleteTask => 'Failed to complete task';
+
+  @override
+  String get completeEarlierTasksFirst => 'Complete earlier tasks first';
 
   // Task History
   @override

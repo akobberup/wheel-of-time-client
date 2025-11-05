@@ -68,7 +68,7 @@ class TaskListsScreen extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
+            tooltip: strings.logout,
             onPressed: () async {
               await ref.read(authProvider.notifier).logout();
               if (context.mounted) {
@@ -98,14 +98,14 @@ class TaskListsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'No task lists yet',
+                      strings.noTaskListsYet,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             color: Colors.grey[600],
                           ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Create your first task list to get started',
+                      strings.createFirstTaskList,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Colors.grey[500],
                           ),
