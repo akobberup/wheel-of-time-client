@@ -187,18 +187,18 @@ String _getNotificationSubtitle(AppNotification notification, AppStrings strings
   }
 }
 
-String _formatTimestamp(DateTime timestamp) {
+String _formatTimestamp(DateTime timestamp, AppStrings strings) {
   final now = DateTime.now();
   final difference = now.difference(timestamp);
 
   if (difference.inMinutes < 1) {
-    return 'Just now';
+    return strings.justNow;
   } else if (difference.inHours < 1) {
-    return '${difference.inMinutes}m ago';
+    return strings.minutesAgo(difference.inMinutes);
   } else if (difference.inDays < 1) {
-    return '${difference.inHours}h ago';
+    return strings.hoursAgo(difference.inHours);
   } else if (difference.inDays < 7) {
-    return '${difference.inDays}d ago';
+    return strings.daysAgo(difference.inDays);
   } else {
     return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
   }
@@ -253,7 +253,7 @@ class _NotificationCard extends HookConsumerWidget {
               Text(_getNotificationSubtitle(notification, strings)),
               const SizedBox(height: 4),
               Text(
-                _formatTimestamp(notification.timestamp),
+                _formatTimestamp(notification.timestamp, strings),
                 style: TextStyle(
                   fontSize: 12,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
