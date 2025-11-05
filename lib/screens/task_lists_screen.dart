@@ -5,6 +5,7 @@ import '../providers/task_list_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
 import '../l10n/app_strings.dart';
+import '../config/api_config.dart';
 import 'task_list_detail_screen.dart';
 import 'login_screen.dart';
 import 'notifications_screen.dart';
@@ -124,7 +125,7 @@ class TaskListsScreen extends ConsumerWidget {
                   child: ListTile(
                     leading: taskList.taskListImagePath != null
                         ? CachedNetworkImage(
-                            imageUrl: 'http://localhost:8080${taskList.taskListImagePath}',
+                            imageUrl: ApiConfig.getImageUrl(taskList.taskListImagePath!),
                             width: 50,
                             height: 50,
                             fit: BoxFit.cover,

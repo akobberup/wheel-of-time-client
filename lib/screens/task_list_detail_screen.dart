@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/task_provider.dart';
 import '../widgets/create_task_dialog.dart';
 import '../widgets/edit_task_dialog.dart';
+import '../config/api_config.dart';
 import 'task_list_members_screen.dart';
 import 'task_history_screen.dart';
 import '../l10n/app_strings.dart';
@@ -130,7 +131,7 @@ class TaskListDetailScreen extends ConsumerWidget {
                     child: ListTile(
                       leading: task.taskImagePath != null
                           ? Image.network(
-                              'http://localhost:8080${task.taskImagePath}',
+                              ApiConfig.getImageUrl(task.taskImagePath!),
                               width: 50,
                               height: 50,
                               fit: BoxFit.cover,

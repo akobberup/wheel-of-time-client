@@ -13,6 +13,7 @@ import '../models/task_list_user.dart';
 import '../models/streak.dart';
 import '../models/image.dart';
 import '../models/enums.dart';
+import '../config/api_config.dart';
 
 /// Custom exception class for API-related errors.
 /// Includes the error message and optional HTTP status code for better error handling.
@@ -29,7 +30,8 @@ class ApiException implements Exception {
 /// Service class responsible for all API communication with the backend server.
 /// Handles authentication, token management, and HTTP requests.
 class ApiService {
-  static const String baseUrl = 'http://localhost:8080';
+  // Use ApiConfig for environment-aware base URL
+  static String get baseUrl => ApiConfig.baseUrl;
 
   final http.Client _client;
   String? _token;

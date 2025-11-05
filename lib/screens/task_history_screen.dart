@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/task_instance.dart';
 import '../providers/task_history_provider.dart';
 import '../l10n/app_strings.dart';
+import '../config/api_config.dart';
 
 /// Screen displaying the completion history for a specific task.
 /// Shows all task instances sorted by completion date (most recent first).
@@ -225,7 +226,7 @@ class TaskHistoryScreen extends ConsumerWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
-                  'http://localhost:8080${instance.optionalImagePath}',
+                  ApiConfig.getImageUrl(instance.optionalImagePath!),
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,
