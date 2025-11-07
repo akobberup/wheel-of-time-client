@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/task_provider.dart';
 import '../providers/task_history_provider.dart';
+import '../providers/suggestion_cache_provider.dart';
 import '../widgets/create_task_dialog.dart';
 import '../widgets/edit_task_dialog.dart';
 import '../widgets/common/contextual_delete_dialog.dart';
@@ -14,7 +15,7 @@ import '../widgets/common/empty_state.dart';
 import '../widgets/common/skeleton_loader.dart';
 import '../models/enums.dart';
 
-class TaskListDetailScreen extends ConsumerWidget {
+class TaskListDetailScreen extends ConsumerStatefulWidget {
   final int taskListId;
   final String? taskListName;
 
@@ -23,6 +24,21 @@ class TaskListDetailScreen extends ConsumerWidget {
     required this.taskListId,
     this.taskListName,
   });
+
+  @override
+  ConsumerState<TaskListDetailScreen> createState() => _TaskListDetailScreenState();
+}
+
+class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fetch suggestions in the background when screen loads
+    // This is non-blocking and will silently enhance UX
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(suggestionCacheProvider.notifier).preFetchSuggestions(widget.taskListId);
+    });
+  }
 
   /// Formats the repeat pattern into a natural, readable string.
   /// Examples: "Daily", "Weekly", "Every 3 months"
@@ -48,7 +64,6 @@ class TaskListDetailScreen extends ConsumerWidget {
   /// Returns true if user confirms deletion, false otherwise.
   Future<bool> _showDeleteConfirmation(
     BuildContext context,
-    WidgetRef ref,
     int taskId,
     String taskName,
   ) async {
@@ -66,7 +81,7 @@ class TaskListDetailScreen extends ConsumerWidget {
           final instances = ref.read(taskHistoryProvider(taskId)).value ?? [];
 
           // Get task details for streak information
-          final tasks = ref.read(tasksProvider(taskListId)).value ?? [];
+          final tasks = ref.read(tasksProvider(widget.taskListId)).value ?? [];
           final task = tasks.firstWhere((t) => t.id == taskId);
 
           final hasStreak = task.currentStreak != null && task.currentStreak!.streakCount > 0;
@@ -111,13 +126,13 @@ class TaskListDetailScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final strings = AppStrings.of(context);
-    final tasksAsync = ref.watch(tasksProvider(taskListId));
+    final tasksAsync = ref.watch(tasksProvider(widget.taskListId));
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(taskListName != null ? strings.tasksIn(taskListName!) : strings.tasks),
+        title: Text(widget.taskListName != null ? strings.tasksIn(widget.taskListName!) : strings.tasks),
         actions: [
           Semantics(
             label: strings.members,
@@ -129,8 +144,8 @@ class TaskListDetailScreen extends ConsumerWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => TaskListMembersScreen(
-                      taskListId: taskListId,
-                      taskListName: taskListName ?? strings.taskLists,
+                      taskListId: widget.taskListId,
+                      taskListName: widget.taskListName ?? strings.taskLists,
                     ),
                   ),
                 );
@@ -141,7 +156,7 @@ class TaskListDetailScreen extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(tasksProvider(taskListId).notifier).loadTasks();
+          await ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
         },
         child: tasksAsync.when(
           data: (tasks) {
@@ -155,10 +170,10 @@ class TaskListDetailScreen extends ConsumerWidget {
                   onPressed: () async {
                     final result = await showDialog(
                       context: context,
-                      builder: (context) => CreateTaskDialog(taskListId: taskListId),
+                      builder: (context) => CreateTaskDialog(taskListId: widget.taskListId),
                     );
                     if (result == true && context.mounted) {
-                      ref.read(tasksProvider(taskListId).notifier).loadTasks();
+                      ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
                     }
                   },
                 ),
@@ -233,7 +248,11 @@ class TaskListDetailScreen extends ConsumerWidget {
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                const Icon(Icons.local_fire_department, size: 16, color: Colors.orange),
+                                Icon(
+                                  Icons.local_fire_department,
+                                  size: 16,
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(strings.dayStreak(task.currentStreak!.streakCount)),
                               ],
@@ -271,18 +290,17 @@ class TaskListDetailScreen extends ConsumerWidget {
                               builder: (context) => EditTaskDialog(task: task),
                             );
                             if (result == true) {
-                              ref.read(tasksProvider(taskListId).notifier).loadTasks();
+                              ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
                             }
                           } else if (value == 'delete') {
                             final confirmed = await _showDeleteConfirmation(
                               context,
-                              ref,
                               task.id,
                               task.name,
                             );
                             if (confirmed) {
                               final success = await ref
-                                  .read(tasksProvider(taskListId).notifier)
+                                  .read(tasksProvider(widget.taskListId).notifier)
                                   .deleteTask(task.id);
                               if (context.mounted) {
                                 final strings = AppStrings.of(context);
@@ -316,10 +334,10 @@ class TaskListDetailScreen extends ConsumerWidget {
         onPressed: () async {
           final result = await showDialog(
             context: context,
-            builder: (context) => CreateTaskDialog(taskListId: taskListId),
+            builder: (context) => CreateTaskDialog(taskListId: widget.taskListId),
           );
           if (result == true) {
-            ref.read(tasksProvider(taskListId).notifier).loadTasks();
+            ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
           }
         },
         child: const Icon(Icons.add),
