@@ -82,20 +82,21 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
   }
 
   /// Returns the color for the due date badge based on urgency
-  Color _getDueDateColor(DateTime dueDate) {
+  Color _getDueDateColor(BuildContext context, DateTime dueDate) {
+    final colorScheme = Theme.of(context).colorScheme;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final taskDate = DateTime(dueDate.year, dueDate.month, dueDate.day);
     final difference = taskDate.difference(today).inDays;
 
     if (difference < 0) {
-      return Colors.red;
+      return colorScheme.error;
     } else if (difference == 0) {
-      return Colors.orange;
+      return colorScheme.tertiary;
     } else if (difference == 1) {
-      return Colors.blue;
+      return colorScheme.primary;
     } else {
-      return Colors.grey;
+      return colorScheme.onSurfaceVariant;
     }
   }
 
@@ -165,9 +166,6 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     final state = ref.watch(upcomingTasksProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.upcomingTasks),
-      ),
       body: RefreshIndicator(
         onRefresh: () => ref.read(upcomingTasksProvider.notifier).refresh(),
         child: _buildBody(context, state),
@@ -235,7 +233,7 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
         }
 
         final occurrence = state.occurrences[index];
-        final dueDateColor = _getDueDateColor(occurrence.dueDate);
+        final dueDateColor = _getDueDateColor(context, occurrence.dueDate);
         final dueDateText = _formatDueDate(context, occurrence.dueDate);
         final isOverdue = occurrence.dueDate.isBefore(DateTime.now());
         final isClickable = occurrence.isNextOccurrence;
@@ -333,13 +331,13 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                       Icon(
                         Icons.list,
                         size: 16,
-                        color: Colors.grey[600],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         occurrence.taskListName,
                         style: TextStyle(
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                       ),
@@ -378,7 +376,7 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                     Text(
                       occurrence.description!,
                       style: TextStyle(
-                        color: Colors.grey[700],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 14,
                       ),
                       maxLines: 2,
@@ -393,13 +391,13 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                         Icon(
                           Icons.alarm,
                           size: 16,
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           occurrence.alarmAtTimeOfDay!.toString(),
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 14,
                           ),
                         ),
@@ -446,57 +444,24 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                   ],
                   // Streak info if available (only show for next occurrence)
                   if (isClickable && occurrence.currentStreak != null && occurrence.currentStreak!.isActive) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.orange.shade400,
-                            Colors.deepOrange.shade600,
-                          ],
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.local_fire_department,
+                          size: 14,
+                          color: Theme.of(context).colorScheme.tertiary,
                         ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.orange.withOpacity(0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${occurrence.currentStreak!.streakCount}x ${strings.dayStreak(occurrence.currentStreak!.streakCount)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
                           ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.local_fire_department,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '${occurrence.currentStreak!.streakCount} Days',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                strings.keepItGoing,
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ],
                 ],

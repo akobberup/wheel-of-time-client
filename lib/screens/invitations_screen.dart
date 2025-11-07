@@ -15,9 +15,6 @@ class InvitationsScreen extends HookConsumerWidget {
     final invitationsAsync = ref.watch(invitationProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.invitations),
-      ),
       body: RefreshIndicator(
         onRefresh: () async {
           await ref.read(invitationProvider.notifier).loadPendingInvitations();
