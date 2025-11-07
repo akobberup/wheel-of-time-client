@@ -687,4 +687,32 @@ class StringsEn extends AppStrings {
 
   @override
   String get last3Months => 'Last 3 Months';
+
+  // AI Suggestions
+  @override
+  String get aiSuggestions => 'AI Suggestions';
+
+  @override
+  String get suggestions => 'Suggestions';
+
+  @override
+  String get poweredByAi => 'Powered by AI';
+
+  @override
+  String get failedToFetchSuggestions => 'Failed to fetch suggestions';
+
+  @override
+  String get loadingSuggestions => 'Loading suggestions...';
+
+  @override
+  String get searchWithAI => 'Search with AI';
+
+  @override
+  String get noSuggestions => 'No suggestions available';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get clear => 'Clear';
 }

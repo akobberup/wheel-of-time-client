@@ -269,6 +269,17 @@ abstract class AppStrings {
   String get thisMonth;
   String get last3Months;
 
+  // AI Suggestions
+  String get aiSuggestions;
+  String get suggestions;
+  String get poweredByAi;
+  String get failedToFetchSuggestions;
+  String get loadingSuggestions;
+  String get searchWithAI;
+  String get noSuggestions;
+  String get back;
+  String get clear;
+
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);
 

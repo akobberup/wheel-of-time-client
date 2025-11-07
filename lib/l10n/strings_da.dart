@@ -688,4 +688,32 @@ class StringsDa extends AppStrings {
 
   @override
   String get last3Months => 'Sidste 3 måneder';
+
+  // AI Suggestions
+  @override
+  String get aiSuggestions => 'AI-forslag';
+
+  @override
+  String get suggestions => 'Forslag';
+
+  @override
+  String get poweredByAi => 'Drevet af AI';
+
+  @override
+  String get failedToFetchSuggestions => 'Kunne ikke hente forslag';
+
+  @override
+  String get loadingSuggestions => 'Indlæser forslag...';
+
+  @override
+  String get searchWithAI => 'Søg med AI';
+
+  @override
+  String get noSuggestions => 'Ingen forslag tilgængelige';
+
+  @override
+  String get back => 'Tilbage';
+
+  @override
+  String get clear => 'Ryd';
 }
