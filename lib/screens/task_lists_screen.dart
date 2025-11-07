@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/task_list_provider.dart';
+import '../providers/auth_provider.dart';
 import '../l10n/app_strings.dart';
 import '../config/api_config.dart';
 import 'task_list_detail_screen.dart';

@@ -63,8 +63,9 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog> {
       if (result != null) {
         Navigator.of(context).pop(true);
       } else {
+        final strings = AppStrings.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to create task list')),
+          SnackBar(content: Text(strings.failedToCreateTaskList)),
         );
       }
     }
@@ -77,7 +78,7 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog> {
     final colorScheme = theme.colorScheme;
 
     return AlertDialog(
-      title: const Text('Create Task List'),
+      title: Text(strings.createTaskList),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -89,7 +90,7 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog> {
                 controller: _nameController,
                 decoration: InputDecoration(
                   labelText: strings.name,
-                  hintText: 'Enter task list name',
+                  hintText: strings.enterTaskListName,
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.list_alt),
                   suffixIcon: IconButton(
@@ -98,7 +99,7 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog> {
                       Icons.auto_awesome,
                       color: colorScheme.primary,
                     ),
-                    tooltip: 'AI Suggestions',
+                    tooltip: strings.aiSuggestions,
                   ),
                 ),
                 textCapitalization: TextCapitalization.sentences,
@@ -112,9 +113,9 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description (optional)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: strings.descriptionOptional,
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 3,
               ),
@@ -125,7 +126,7 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog> {
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.of(context).pop(false),
-          child: const Text('Cancel'),
+          child: Text(strings.cancel),
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _submit,
@@ -135,7 +136,7 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Create'),
+              : Text(strings.create),
         ),
       ],
     );

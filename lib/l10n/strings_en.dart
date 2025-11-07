@@ -688,6 +688,55 @@ class StringsEn extends AppStrings {
   @override
   String get last3Months => 'Last 3 Months';
 
+  // Form fields and dialogs
+  @override
+  String get enterTaskName => 'Enter task name';
+
+  @override
+  String get addTaskDetails => 'Add task details';
+
+  @override
+  String get alarmTime => 'Alarm Time';
+
+  @override
+  String get noAlarm => 'No alarm set';
+
+  @override
+  String get clearAlarm => 'Clear alarm';
+
+  @override
+  String get completionWindowHours => 'Completion Window (hours)';
+
+  @override
+  String get completionWindowHint => 'e.g., 24';
+
+  @override
+  String get hoursAfterAlarm => 'Hours after alarm to complete';
+
+  @override
+  String get pleaseEnterValidNumber => 'Please enter a valid number (1 or more)';
+
+  @override
+  String get active => 'Active';
+
+  @override
+  String get inactiveTasksWontShow => 'Inactive tasks won\'t show up for completion';
+
+  @override
+  String get enterTaskListName => 'Enter task list name';
+
+  @override
+  String get failedToCreateTask => 'Failed to create task';
+
+  @override
+  String get failedToUpdateTask => 'Failed to update task';
+
+  @override
+  String get failedToCreateTaskList => 'Failed to create task list';
+
+  @override
+  String get pleaseEnterTaskName => 'Please enter a task name';
+
   // AI Suggestions
   @override
   String get aiSuggestions => 'AI Suggestions';

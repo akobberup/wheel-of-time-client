@@ -4,6 +4,7 @@ import '../providers/task_provider.dart';
 import '../models/task.dart';
 import '../models/enums.dart';
 import '../models/local_time.dart';
+import '../l10n/app_strings.dart';
 import 'common/recurrence_field.dart';
 
 /// Dialog for editing an existing task.
@@ -98,8 +99,9 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
       if (result != null) {
         Navigator.of(context).pop(true);
       } else {
+        final strings = AppStrings.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update task')),
+          SnackBar(content: Text(strings.failedToUpdateTask)),
         );
       }
     }
@@ -107,11 +109,12 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     return AlertDialog(
-      title: const Text('Edit Task'),
+      title: Text(strings.editTask),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -123,16 +126,16 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
               // Task name field
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Task Name',
-                  hintText: 'Enter task name',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.task_alt),
+                decoration: InputDecoration(
+                  labelText: strings.taskName,
+                  hintText: strings.enterTaskName,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.task_alt),
                 ),
                 textCapitalization: TextCapitalization.sentences,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a task name';
+                    return strings.pleaseEnterTaskName;
                   }
                   return null;
                 },
@@ -154,8 +157,8 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
 
               // Active status toggle - important for task management
               SwitchListTile(
-                title: const Text('Active'),
-                subtitle: const Text('Inactive tasks won\'t show up for completion'),
+                title: Text(strings.active),
+                subtitle: Text(strings.inactiveTasksWontShow),
                 value: _isActive,
                 onChanged: (value) {
                   setState(() => _isActive = value);
@@ -230,11 +233,11 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                     // Description field
                     TextFormField(
                       controller: _descriptionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
-                        hintText: 'Add task details',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.notes),
+                      decoration: InputDecoration(
+                        labelText: strings.description,
+                        hintText: strings.addTaskDetails,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.notes),
                       ),
                       maxLines: 2,
                       textCapitalization: TextCapitalization.sentences,
@@ -243,8 +246,8 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
 
                     // Alarm time picker
                     ListTile(
-                      title: const Text('Alarm Time'),
-                      subtitle: Text(_alarmTime != null ? _alarmTime!.toDisplayString() : 'No alarm set'),
+                      title: Text(strings.alarmTime),
+                      subtitle: Text(_alarmTime != null ? _alarmTime!.toDisplayString() : strings.noAlarm),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -252,7 +255,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                             IconButton(
                               icon: const Icon(Icons.clear),
                               onPressed: () => setState(() => _alarmTime = null),
-                              tooltip: 'Clear alarm',
+                              tooltip: strings.clearAlarm,
                             ),
                           const Icon(Icons.alarm),
                         ],
@@ -275,19 +278,19 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                     // Completion window field
                     TextFormField(
                       initialValue: _completionWindowHours?.toString() ?? '',
-                      decoration: const InputDecoration(
-                        labelText: 'Completion Window (hours)',
-                        hintText: 'e.g., 24',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.hourglass_empty),
-                        helperText: 'Hours after alarm to complete',
+                      decoration: InputDecoration(
+                        labelText: strings.completionWindowHours,
+                        hintText: strings.completionWindowHint,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.hourglass_empty),
+                        helperText: strings.hoursAfterAlarm,
                       ),
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value != null && value.isNotEmpty) {
                           final n = int.tryParse(value);
                           if (n == null || n < 1) {
-                            return 'Please enter a valid number (1 or more)';
+                            return strings.pleaseEnterValidNumber;
                           }
                         }
                         return null;
@@ -319,7 +322,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.of(context).pop(false),
-          child: const Text('Cancel'),
+          child: Text(strings.cancel),
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _submit,
@@ -329,7 +332,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Save'),
+              : Text(strings.save),
         ),
       ],
     );

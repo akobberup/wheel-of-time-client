@@ -269,6 +269,24 @@ abstract class AppStrings {
   String get thisMonth;
   String get last3Months;
 
+  // Form fields and dialogs
+  String get enterTaskName;
+  String get addTaskDetails;
+  String get alarmTime;
+  String get noAlarm;
+  String get clearAlarm;
+  String get completionWindowHours;
+  String get completionWindowHint;
+  String get hoursAfterAlarm;
+  String get pleaseEnterValidNumber;
+  String get active;
+  String get inactiveTasksWontShow;
+  String get enterTaskListName;
+  String get failedToCreateTask;
+  String get failedToUpdateTask;
+  String get failedToCreateTaskList;
+  String get pleaseEnterTaskName;
+
   // AI Suggestions
   String get aiSuggestions;
   String get suggestions;

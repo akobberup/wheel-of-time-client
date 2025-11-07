@@ -689,6 +689,55 @@ class StringsDa extends AppStrings {
   @override
   String get last3Months => 'Sidste 3 måneder';
 
+  // Form fields and dialogs
+  @override
+  String get enterTaskName => 'Indtast opgavenavn';
+
+  @override
+  String get addTaskDetails => 'Tilføj opgavedetaljer';
+
+  @override
+  String get alarmTime => 'Alarmtid';
+
+  @override
+  String get noAlarm => 'Ingen alarm indstillet';
+
+  @override
+  String get clearAlarm => 'Ryd alarm';
+
+  @override
+  String get completionWindowHours => 'Fuldførelsesvindue (timer)';
+
+  @override
+  String get completionWindowHint => 'f.eks. 24';
+
+  @override
+  String get hoursAfterAlarm => 'Timer efter alarm til fuldførelse';
+
+  @override
+  String get pleaseEnterValidNumber => 'Indtast venligst et gyldigt tal (1 eller mere)';
+
+  @override
+  String get active => 'Aktiv';
+
+  @override
+  String get inactiveTasksWontShow => 'Inaktive opgaver vises ikke til fuldførelse';
+
+  @override
+  String get enterTaskListName => 'Indtast opgavelistenavn';
+
+  @override
+  String get failedToCreateTask => 'Kunne ikke oprette opgave';
+
+  @override
+  String get failedToUpdateTask => 'Kunne ikke opdatere opgave';
+
+  @override
+  String get failedToCreateTaskList => 'Kunne ikke oprette opgaveliste';
+
+  @override
+  String get pleaseEnterTaskName => 'Indtast venligst et opgavenavn';
+
   // AI Suggestions
   @override
   String get aiSuggestions => 'AI-forslag';

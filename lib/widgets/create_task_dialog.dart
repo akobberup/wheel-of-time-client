@@ -6,6 +6,7 @@ import '../services/ai_suggestion_service.dart';
 import '../models/task.dart';
 import '../models/enums.dart';
 import '../models/local_time.dart';
+import '../l10n/app_strings.dart';
 import 'ai_suggestions_bottom_sheet.dart';
 import 'common/recurrence_field.dart';
 
@@ -116,8 +117,9 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
       if (result != null) {
         Navigator.of(context).pop(true);
       } else {
+        final strings = AppStrings.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to create task')),
+          SnackBar(content: Text(strings.failedToCreateTask)),
         );
       }
     }
@@ -125,11 +127,12 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     return AlertDialog(
-      title: const Text('Create Task'),
+      title: Text(strings.createTask),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -142,8 +145,8 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: 'Task Name',
-                  hintText: 'Enter task name',
+                  labelText: strings.taskName,
+                  hintText: strings.enterTaskName,
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.task_alt),
                   suffixIcon: IconButton(
@@ -152,13 +155,13 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
                       Icons.auto_awesome,
                       color: colorScheme.primary,
                     ),
-                    tooltip: 'AI Suggestions',
+                    tooltip: strings.aiSuggestions,
                   ),
                 ),
                 textCapitalization: TextCapitalization.sentences,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a task name';
+                    return strings.pleaseEnterTaskName;
                   }
                   return null;
                 },
@@ -180,7 +183,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
 
               // First run date picker
               ListTile(
-                title: const Text('First Run Date'),
+                title: Text(strings.firstRunDate),
                 subtitle: Text('${_firstRunDate.year}-${_firstRunDate.month.toString().padLeft(2, '0')}-${_firstRunDate.day.toString().padLeft(2, '0')}'),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
@@ -264,11 +267,11 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
                     // Description field
                     TextFormField(
                       controller: _descriptionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
-                        hintText: 'Add task details',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.notes),
+                      decoration: InputDecoration(
+                        labelText: strings.description,
+                        hintText: strings.addTaskDetails,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.notes),
                       ),
                       maxLines: 2,
                       textCapitalization: TextCapitalization.sentences,
@@ -277,8 +280,8 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
 
                     // Alarm time picker
                     ListTile(
-                      title: const Text('Alarm Time'),
-                      subtitle: Text(_alarmTime != null ? _alarmTime!.toDisplayString() : 'No alarm set'),
+                      title: Text(strings.alarmTime),
+                      subtitle: Text(_alarmTime != null ? _alarmTime!.toDisplayString() : strings.noAlarm),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -286,7 +289,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
                             IconButton(
                               icon: const Icon(Icons.clear),
                               onPressed: () => setState(() => _alarmTime = null),
-                              tooltip: 'Clear alarm',
+                              tooltip: strings.clearAlarm,
                             ),
                           const Icon(Icons.alarm),
                         ],
@@ -309,19 +312,19 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
                     // Completion window field
                     TextFormField(
                       initialValue: _completionWindowHours?.toString() ?? '',
-                      decoration: const InputDecoration(
-                        labelText: 'Completion Window (hours)',
-                        hintText: 'e.g., 24',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.hourglass_empty),
-                        helperText: 'Hours after alarm to complete',
+                      decoration: InputDecoration(
+                        labelText: strings.completionWindowHours,
+                        hintText: strings.completionWindowHint,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.hourglass_empty),
+                        helperText: strings.hoursAfterAlarm,
                       ),
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value != null && value.isNotEmpty) {
                           final n = int.tryParse(value);
                           if (n == null || n < 1) {
-                            return 'Please enter a valid number (1 or more)';
+                            return strings.pleaseEnterValidNumber;
                           }
                         }
                         return null;
@@ -353,7 +356,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.of(context).pop(false),
-          child: const Text('Cancel'),
+          child: Text(strings.cancel),
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _submit,
@@ -363,7 +366,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Create'),
+              : Text(strings.create),
         ),
       ],
     );
