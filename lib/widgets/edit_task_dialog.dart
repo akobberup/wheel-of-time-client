@@ -4,6 +4,7 @@ import '../providers/task_provider.dart';
 import '../models/task.dart';
 import '../models/enums.dart';
 import '../models/local_time.dart';
+import 'common/recurrence_field.dart';
 
 /// Dialog for editing an existing task.
 /// Allows users to update task name, description, repeat settings, alarm time,
@@ -31,6 +32,9 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
   int? _completionWindowHours;
   bool _isLoading = false;
 
+  // Progressive disclosure: controls whether optional fields are visible
+  bool _showOptionalFields = false;
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +48,19 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
     _isActive = widget.task.isActive;
     _alarmTime = widget.task.alarmAtTimeOfDay;
     _completionWindowHours = widget.task.completionWindowHours;
+
+    // Auto-expand optional fields if they already have data
+    _showOptionalFields = _descriptionController.text.isNotEmpty ||
+        _alarmTime != null ||
+        _completionWindowHours != null;
+  }
+
+  /// Checks if any optional fields have been filled by the user.
+  /// Used to show a visual indicator on the expansion toggle.
+  bool get _hasOptionalFieldsData {
+    return _descriptionController.text.trim().isNotEmpty ||
+        _alarmTime != null ||
+        _completionWindowHours != null;
   }
 
   @override
@@ -90,6 +107,9 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return AlertDialog(
       title: const Text('Edit Task'),
       content: SingleChildScrollView(
@@ -98,12 +118,18 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // === PRIMARY FIELDS (Always Visible) ===
+
+              // Task name field
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
                   labelText: 'Task Name',
+                  hintText: 'Enter task name',
                   border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.task_alt),
                 ),
+                textCapitalization: TextCapitalization.sentences,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please enter a task name';
@@ -112,116 +138,21 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description (optional)',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<RepeatUnit>(
-                initialValue: _repeatUnit,
-                decoration: const InputDecoration(
-                  labelText: 'Repeat',
-                  border: OutlineInputBorder(),
-                ),
-                items: RepeatUnit.values.map((unit) {
-                  return DropdownMenuItem(
-                    value: unit,
-                    child: Text(unit.name),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _repeatUnit = value);
-                  }
+
+              // Combined recurrence field with numerical delta and unit selector
+              RecurrenceField(
+                initialDelta: _repeatDelta,
+                initialUnit: _repeatUnit,
+                onDeltaChanged: (delta) {
+                  setState(() => _repeatDelta = delta);
+                },
+                onUnitChanged: (unit) {
+                  setState(() => _repeatUnit = unit);
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                initialValue: _repeatDelta.toString(),
-                decoration: const InputDecoration(
-                  labelText: 'Every (number)',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a number';
-                  }
-                  final n = int.tryParse(value);
-                  if (n == null || n < 1) {
-                    return 'Please enter a valid number (1 or more)';
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  final n = int.tryParse(value);
-                  if (n != null && n > 0) {
-                    _repeatDelta = n;
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
-              ListTile(
-                title: const Text('Alarm Time (optional)'),
-                subtitle: Text(_alarmTime != null ? _alarmTime!.toDisplayString() : 'No alarm set'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (_alarmTime != null)
-                      IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () => setState(() => _alarmTime = null),
-                      ),
-                    const Icon(Icons.alarm),
-                  ],
-                ),
-                onTap: () async {
-                  final time = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay(
-                      hour: _alarmTime?.hour ?? 9,
-                      minute: _alarmTime?.minute ?? 0,
-                    ),
-                  );
-                  if (time != null) {
-                    setState(() => _alarmTime = LocalTime.fromTimeOfDay(time.hour, time.minute));
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                initialValue: _completionWindowHours?.toString() ?? '',
-                decoration: const InputDecoration(
-                  labelText: 'Completion Window (hours, optional)',
-                  border: OutlineInputBorder(),
-                  helperText: 'How many hours after alarm to complete',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value != null && value.isNotEmpty) {
-                    final n = int.tryParse(value);
-                    if (n == null || n < 1) {
-                      return 'Please enter a valid number (1 or more)';
-                    }
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  if (value.isEmpty) {
-                    _completionWindowHours = null;
-                  } else {
-                    final n = int.tryParse(value);
-                    if (n != null && n > 0) {
-                      _completionWindowHours = n;
-                    }
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
+
+              // Active status toggle - important for task management
               SwitchListTile(
                 title: const Text('Active'),
                 subtitle: const Text('Inactive tasks won\'t show up for completion'),
@@ -229,6 +160,157 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                 onChanged: (value) {
                   setState(() => _isActive = value);
                 },
+              ),
+              const SizedBox(height: 8),
+
+              // === PROGRESSIVE DISCLOSURE SECTION ===
+
+              // Divider to separate primary from optional fields
+              const Divider(),
+
+              // Expansion toggle button with Material 3 styling
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    _showOptionalFields = !_showOptionalFields;
+                  });
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  child: Row(
+                    children: [
+                      Icon(
+                        _showOptionalFields ? Icons.expand_less : Icons.expand_more,
+                        color: colorScheme.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        _showOptionalFields ? 'Hide optional details' : 'Show optional details',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      // Visual indicator if optional fields have data
+                      if (_hasOptionalFieldsData && !_showOptionalFields) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ],
+                      const Spacer(),
+                      // Subtle hint about what's inside
+                      if (!_showOptionalFields)
+                        Text(
+                          'Description, Alarm, Window',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // === OPTIONAL FIELDS (Hidden by Default) ===
+
+              // AnimatedCrossFade provides smooth expansion/collapse animation
+              AnimatedCrossFade(
+                firstChild: const SizedBox.shrink(),
+                secondChild: Column(
+                  children: [
+                    const SizedBox(height: 8),
+
+                    // Description field
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                        hintText: 'Add task details',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.notes),
+                      ),
+                      maxLines: 2,
+                      textCapitalization: TextCapitalization.sentences,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Alarm time picker
+                    ListTile(
+                      title: const Text('Alarm Time'),
+                      subtitle: Text(_alarmTime != null ? _alarmTime!.toDisplayString() : 'No alarm set'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_alarmTime != null)
+                            IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () => setState(() => _alarmTime = null),
+                              tooltip: 'Clear alarm',
+                            ),
+                          const Icon(Icons.alarm),
+                        ],
+                      ),
+                      onTap: () async {
+                        final time = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay(
+                            hour: _alarmTime?.hour ?? 9,
+                            minute: _alarmTime?.minute ?? 0,
+                          ),
+                        );
+                        if (time != null) {
+                          setState(() => _alarmTime = LocalTime.fromTimeOfDay(time.hour, time.minute));
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Completion window field
+                    TextFormField(
+                      initialValue: _completionWindowHours?.toString() ?? '',
+                      decoration: const InputDecoration(
+                        labelText: 'Completion Window (hours)',
+                        hintText: 'e.g., 24',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.hourglass_empty),
+                        helperText: 'Hours after alarm to complete',
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value != null && value.isNotEmpty) {
+                          final n = int.tryParse(value);
+                          if (n == null || n < 1) {
+                            return 'Please enter a valid number (1 or more)';
+                          }
+                        }
+                        return null;
+                      },
+                      onChanged: (value) {
+                        if (value.isEmpty) {
+                          _completionWindowHours = null;
+                        } else {
+                          final n = int.tryParse(value);
+                          if (n != null && n > 0) {
+                            _completionWindowHours = n;
+                          }
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+                crossFadeState: _showOptionalFields
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                duration: const Duration(milliseconds: 300),
+                sizeCurve: Curves.easeInOut,
               ),
             ],
           ),
