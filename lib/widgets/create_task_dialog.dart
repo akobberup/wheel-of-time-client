@@ -5,10 +5,11 @@ import '../providers/suggestion_cache_provider.dart';
 import '../services/ai_suggestion_service.dart';
 import '../models/task.dart';
 import '../models/enums.dart';
+import '../models/schedule.dart';
 import '../models/local_time.dart';
 import '../l10n/app_strings.dart';
 import 'ai_suggestions_bottom_sheet.dart';
-import 'common/recurrence_field.dart';
+import 'common/recurrence_editor.dart';
 
 class CreateTaskDialog extends ConsumerStatefulWidget {
   final int taskListId;
@@ -23,8 +24,11 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  RepeatUnit _repeatUnit = RepeatUnit.WEEKS;
-  int _repeatDelta = 1;
+  TaskSchedule _schedule = const TaskSchedule.interval(
+    repeatUnit: RepeatUnit.WEEKS,
+    repeatDelta: 1,
+    description: 'Weekly',
+  );
   DateTime _firstRunDate = DateTime.now();
   LocalTime? _alarmTime;
   int? _completionWindowHours;
@@ -55,17 +59,42 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
       // Fill the name
       _nameController.text = suggestion.name;
 
-      // Parse and set repeat unit
+      // Parse repeat unit and create schedule
       try {
-        _repeatUnit = RepeatUnit.fromJson(suggestion.repeatUnit);
+        final repeatUnit = RepeatUnit.fromJson(suggestion.repeatUnit);
+        _schedule = TaskSchedule.interval(
+          repeatUnit: repeatUnit,
+          repeatDelta: suggestion.repeatDelta,
+          description: _buildIntervalDescription(repeatUnit, suggestion.repeatDelta),
+        );
       } catch (e) {
         // If parsing fails, keep default
-        _repeatUnit = RepeatUnit.WEEKS;
+        _schedule = const TaskSchedule.interval(
+          repeatUnit: RepeatUnit.WEEKS,
+          repeatDelta: 1,
+          description: 'Weekly',
+        );
       }
-
-      // Set repeat delta
-      _repeatDelta = suggestion.repeatDelta;
     });
+  }
+
+  /// Builds a simple description for interval schedules
+  String _buildIntervalDescription(RepeatUnit unit, int delta) {
+    if (delta == 1) {
+      switch (unit) {
+        case RepeatUnit.DAYS:
+          return 'Daily';
+        case RepeatUnit.WEEKS:
+          return 'Weekly';
+        case RepeatUnit.MONTHS:
+          return 'Monthly';
+        case RepeatUnit.YEARS:
+          return 'Yearly';
+      }
+    }
+
+    final unitName = unit.toString().split('.').last.toLowerCase();
+    return 'Every $delta $unitName';
   }
 
   /// Shows the AI suggestions bottom sheet
@@ -103,8 +132,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
           ? null
           : _descriptionController.text.trim(),
       taskListId: widget.taskListId,
-      repeatUnit: _repeatUnit,
-      repeatDelta: _repeatDelta,
+      schedule: _schedule,
       firstRunDate: _firstRunDate,
       alarmAtTimeOfDay: _alarmTime,
       completionWindowHours: _completionWindowHours,
@@ -133,12 +161,14 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
 
     return AlertDialog(
       title: Text(strings.createTask),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+      content: SizedBox(
+        width: 500, // Fixed width to prevent shrinking when content expands
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
               // === PRIMARY FIELDS (Always Visible) ===
 
               // Task name field with AI button as suffix icon
@@ -168,15 +198,11 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
               ),
               const SizedBox(height: 16),
 
-              // Combined recurrence field with numerical delta and unit selector
-              RecurrenceField(
-                initialDelta: _repeatDelta,
-                initialUnit: _repeatUnit,
-                onDeltaChanged: (delta) {
-                  setState(() => _repeatDelta = delta);
-                },
-                onUnitChanged: (unit) {
-                  setState(() => _repeatUnit = unit);
+              // Comprehensive recurrence editor with interval and weekly pattern support
+              RecurrenceEditor(
+                initialSchedule: _schedule,
+                onScheduleChanged: (schedule) {
+                  setState(() => _schedule = schedule);
                 },
               ),
               const SizedBox(height: 16),
@@ -223,7 +249,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        _showOptionalFields ? 'Hide optional details' : 'Show optional details',
+                        _showOptionalFields ? strings.hideOptionalDetails : strings.showOptionalDetails,
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: colorScheme.primary,
                           fontWeight: FontWeight.w500,
@@ -241,15 +267,6 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
                           ),
                         ),
                       ],
-                      const Spacer(),
-                      // Subtle hint about what's inside
-                      if (!_showOptionalFields)
-                        Text(
-                          'Description, Alarm, Window',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
                     ],
                   ),
                 ),
@@ -352,7 +369,8 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
             ],
           ),
         ),
-      ),
+      ), // Closes SingleChildScrollView
+      ), // Closes SizedBox (content parameter)
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.of(context).pop(false),

@@ -25,8 +25,8 @@ mixin _$TaskResponse {
   String? get description => throw _privateConstructorUsedError;
   int get taskListId => throw _privateConstructorUsedError;
   String get taskListName => throw _privateConstructorUsedError;
-  RepeatUnit get repeatUnit => throw _privateConstructorUsedError;
-  int get repeatDelta => throw _privateConstructorUsedError;
+  @TaskScheduleConverter()
+  TaskSchedule get schedule => throw _privateConstructorUsedError;
   LocalTime? get alarmAtTimeOfDay => throw _privateConstructorUsedError;
   int? get completionWindowHours => throw _privateConstructorUsedError;
   DateTime get firstRunDate => throw _privateConstructorUsedError;
@@ -59,8 +59,7 @@ abstract class $TaskResponseCopyWith<$Res> {
       String? description,
       int taskListId,
       String taskListName,
-      RepeatUnit repeatUnit,
-      int repeatDelta,
+      @TaskScheduleConverter() TaskSchedule schedule,
       LocalTime? alarmAtTimeOfDay,
       int? completionWindowHours,
       DateTime firstRunDate,
@@ -71,6 +70,7 @@ abstract class $TaskResponseCopyWith<$Res> {
       int totalCompletions,
       StreakResponse? currentStreak});
 
+  $TaskScheduleCopyWith<$Res> get schedule;
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
   $StreakResponseCopyWith<$Res>? get currentStreak;
 }
@@ -95,8 +95,7 @@ class _$TaskResponseCopyWithImpl<$Res, $Val extends TaskResponse>
     Object? description = freezed,
     Object? taskListId = null,
     Object? taskListName = null,
-    Object? repeatUnit = null,
-    Object? repeatDelta = null,
+    Object? schedule = null,
     Object? alarmAtTimeOfDay = freezed,
     Object? completionWindowHours = freezed,
     Object? firstRunDate = null,
@@ -128,14 +127,10 @@ class _$TaskResponseCopyWithImpl<$Res, $Val extends TaskResponse>
           ? _value.taskListName
           : taskListName // ignore: cast_nullable_to_non_nullable
               as String,
-      repeatUnit: null == repeatUnit
-          ? _value.repeatUnit
-          : repeatUnit // ignore: cast_nullable_to_non_nullable
-              as RepeatUnit,
-      repeatDelta: null == repeatDelta
-          ? _value.repeatDelta
-          : repeatDelta // ignore: cast_nullable_to_non_nullable
-              as int,
+      schedule: null == schedule
+          ? _value.schedule
+          : schedule // ignore: cast_nullable_to_non_nullable
+              as TaskSchedule,
       alarmAtTimeOfDay: freezed == alarmAtTimeOfDay
           ? _value.alarmAtTimeOfDay
           : alarmAtTimeOfDay // ignore: cast_nullable_to_non_nullable
@@ -173,6 +168,16 @@ class _$TaskResponseCopyWithImpl<$Res, $Val extends TaskResponse>
           : currentStreak // ignore: cast_nullable_to_non_nullable
               as StreakResponse?,
     ) as $Val);
+  }
+
+  /// Create a copy of TaskResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $TaskScheduleCopyWith<$Res> get schedule {
+    return $TaskScheduleCopyWith<$Res>(_value.schedule, (value) {
+      return _then(_value.copyWith(schedule: value) as $Val);
+    });
   }
 
   /// Create a copy of TaskResponse
@@ -218,8 +223,7 @@ abstract class _$$TaskResponseImplCopyWith<$Res>
       String? description,
       int taskListId,
       String taskListName,
-      RepeatUnit repeatUnit,
-      int repeatDelta,
+      @TaskScheduleConverter() TaskSchedule schedule,
       LocalTime? alarmAtTimeOfDay,
       int? completionWindowHours,
       DateTime firstRunDate,
@@ -230,6 +234,8 @@ abstract class _$$TaskResponseImplCopyWith<$Res>
       int totalCompletions,
       StreakResponse? currentStreak});
 
+  @override
+  $TaskScheduleCopyWith<$Res> get schedule;
   @override
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
   @override
@@ -254,8 +260,7 @@ class __$$TaskResponseImplCopyWithImpl<$Res>
     Object? description = freezed,
     Object? taskListId = null,
     Object? taskListName = null,
-    Object? repeatUnit = null,
-    Object? repeatDelta = null,
+    Object? schedule = null,
     Object? alarmAtTimeOfDay = freezed,
     Object? completionWindowHours = freezed,
     Object? firstRunDate = null,
@@ -287,14 +292,10 @@ class __$$TaskResponseImplCopyWithImpl<$Res>
           ? _value.taskListName
           : taskListName // ignore: cast_nullable_to_non_nullable
               as String,
-      repeatUnit: null == repeatUnit
-          ? _value.repeatUnit
-          : repeatUnit // ignore: cast_nullable_to_non_nullable
-              as RepeatUnit,
-      repeatDelta: null == repeatDelta
-          ? _value.repeatDelta
-          : repeatDelta // ignore: cast_nullable_to_non_nullable
-              as int,
+      schedule: null == schedule
+          ? _value.schedule
+          : schedule // ignore: cast_nullable_to_non_nullable
+              as TaskSchedule,
       alarmAtTimeOfDay: freezed == alarmAtTimeOfDay
           ? _value.alarmAtTimeOfDay
           : alarmAtTimeOfDay // ignore: cast_nullable_to_non_nullable
@@ -344,8 +345,7 @@ class _$TaskResponseImpl implements _TaskResponse {
       this.description,
       required this.taskListId,
       required this.taskListName,
-      required this.repeatUnit,
-      required this.repeatDelta,
+      @TaskScheduleConverter() required this.schedule,
       this.alarmAtTimeOfDay,
       this.completionWindowHours,
       required this.firstRunDate,
@@ -370,9 +370,8 @@ class _$TaskResponseImpl implements _TaskResponse {
   @override
   final String taskListName;
   @override
-  final RepeatUnit repeatUnit;
-  @override
-  final int repeatDelta;
+  @TaskScheduleConverter()
+  final TaskSchedule schedule;
   @override
   final LocalTime? alarmAtTimeOfDay;
   @override
@@ -397,7 +396,7 @@ class _$TaskResponseImpl implements _TaskResponse {
 
   @override
   String toString() {
-    return 'TaskResponse(id: $id, name: $name, description: $description, taskListId: $taskListId, taskListName: $taskListName, repeatUnit: $repeatUnit, repeatDelta: $repeatDelta, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, firstRunDate: $firstRunDate, nextDueDate: $nextDueDate, sortOrder: $sortOrder, isActive: $isActive, taskImagePath: $taskImagePath, totalCompletions: $totalCompletions, currentStreak: $currentStreak)';
+    return 'TaskResponse(id: $id, name: $name, description: $description, taskListId: $taskListId, taskListName: $taskListName, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, firstRunDate: $firstRunDate, nextDueDate: $nextDueDate, sortOrder: $sortOrder, isActive: $isActive, taskImagePath: $taskImagePath, totalCompletions: $totalCompletions, currentStreak: $currentStreak)';
   }
 
   @override
@@ -413,10 +412,8 @@ class _$TaskResponseImpl implements _TaskResponse {
                 other.taskListId == taskListId) &&
             (identical(other.taskListName, taskListName) ||
                 other.taskListName == taskListName) &&
-            (identical(other.repeatUnit, repeatUnit) ||
-                other.repeatUnit == repeatUnit) &&
-            (identical(other.repeatDelta, repeatDelta) ||
-                other.repeatDelta == repeatDelta) &&
+            (identical(other.schedule, schedule) ||
+                other.schedule == schedule) &&
             (identical(other.alarmAtTimeOfDay, alarmAtTimeOfDay) ||
                 other.alarmAtTimeOfDay == alarmAtTimeOfDay) &&
             (identical(other.completionWindowHours, completionWindowHours) ||
@@ -446,8 +443,7 @@ class _$TaskResponseImpl implements _TaskResponse {
       description,
       taskListId,
       taskListName,
-      repeatUnit,
-      repeatDelta,
+      schedule,
       alarmAtTimeOfDay,
       completionWindowHours,
       firstRunDate,
@@ -481,8 +477,7 @@ abstract class _TaskResponse implements TaskResponse {
       final String? description,
       required final int taskListId,
       required final String taskListName,
-      required final RepeatUnit repeatUnit,
-      required final int repeatDelta,
+      @TaskScheduleConverter() required final TaskSchedule schedule,
       final LocalTime? alarmAtTimeOfDay,
       final int? completionWindowHours,
       required final DateTime firstRunDate,
@@ -507,9 +502,8 @@ abstract class _TaskResponse implements TaskResponse {
   @override
   String get taskListName;
   @override
-  RepeatUnit get repeatUnit;
-  @override
-  int get repeatDelta;
+  @TaskScheduleConverter()
+  TaskSchedule get schedule;
   @override
   LocalTime? get alarmAtTimeOfDay;
   @override
@@ -546,8 +540,8 @@ mixin _$CreateTaskRequest {
   String get name => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   int get taskListId => throw _privateConstructorUsedError;
-  RepeatUnit get repeatUnit => throw _privateConstructorUsedError;
-  int get repeatDelta => throw _privateConstructorUsedError;
+  @TaskScheduleConverter()
+  TaskSchedule get schedule => throw _privateConstructorUsedError;
   LocalTime? get alarmAtTimeOfDay => throw _privateConstructorUsedError;
   int? get completionWindowHours => throw _privateConstructorUsedError;
   DateTime get firstRunDate => throw _privateConstructorUsedError;
@@ -574,14 +568,14 @@ abstract class $CreateTaskRequestCopyWith<$Res> {
       {String name,
       String? description,
       int taskListId,
-      RepeatUnit repeatUnit,
-      int repeatDelta,
+      @TaskScheduleConverter() TaskSchedule schedule,
       LocalTime? alarmAtTimeOfDay,
       int? completionWindowHours,
       DateTime firstRunDate,
       int? sortOrder,
       int? taskImageId});
 
+  $TaskScheduleCopyWith<$Res> get schedule;
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
 }
 
@@ -603,8 +597,7 @@ class _$CreateTaskRequestCopyWithImpl<$Res, $Val extends CreateTaskRequest>
     Object? name = null,
     Object? description = freezed,
     Object? taskListId = null,
-    Object? repeatUnit = null,
-    Object? repeatDelta = null,
+    Object? schedule = null,
     Object? alarmAtTimeOfDay = freezed,
     Object? completionWindowHours = freezed,
     Object? firstRunDate = null,
@@ -624,14 +617,10 @@ class _$CreateTaskRequestCopyWithImpl<$Res, $Val extends CreateTaskRequest>
           ? _value.taskListId
           : taskListId // ignore: cast_nullable_to_non_nullable
               as int,
-      repeatUnit: null == repeatUnit
-          ? _value.repeatUnit
-          : repeatUnit // ignore: cast_nullable_to_non_nullable
-              as RepeatUnit,
-      repeatDelta: null == repeatDelta
-          ? _value.repeatDelta
-          : repeatDelta // ignore: cast_nullable_to_non_nullable
-              as int,
+      schedule: null == schedule
+          ? _value.schedule
+          : schedule // ignore: cast_nullable_to_non_nullable
+              as TaskSchedule,
       alarmAtTimeOfDay: freezed == alarmAtTimeOfDay
           ? _value.alarmAtTimeOfDay
           : alarmAtTimeOfDay // ignore: cast_nullable_to_non_nullable
@@ -653,6 +642,16 @@ class _$CreateTaskRequestCopyWithImpl<$Res, $Val extends CreateTaskRequest>
           : taskImageId // ignore: cast_nullable_to_non_nullable
               as int?,
     ) as $Val);
+  }
+
+  /// Create a copy of CreateTaskRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $TaskScheduleCopyWith<$Res> get schedule {
+    return $TaskScheduleCopyWith<$Res>(_value.schedule, (value) {
+      return _then(_value.copyWith(schedule: value) as $Val);
+    });
   }
 
   /// Create a copy of CreateTaskRequest
@@ -682,14 +681,15 @@ abstract class _$$CreateTaskRequestImplCopyWith<$Res>
       {String name,
       String? description,
       int taskListId,
-      RepeatUnit repeatUnit,
-      int repeatDelta,
+      @TaskScheduleConverter() TaskSchedule schedule,
       LocalTime? alarmAtTimeOfDay,
       int? completionWindowHours,
       DateTime firstRunDate,
       int? sortOrder,
       int? taskImageId});
 
+  @override
+  $TaskScheduleCopyWith<$Res> get schedule;
   @override
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
 }
@@ -710,8 +710,7 @@ class __$$CreateTaskRequestImplCopyWithImpl<$Res>
     Object? name = null,
     Object? description = freezed,
     Object? taskListId = null,
-    Object? repeatUnit = null,
-    Object? repeatDelta = null,
+    Object? schedule = null,
     Object? alarmAtTimeOfDay = freezed,
     Object? completionWindowHours = freezed,
     Object? firstRunDate = null,
@@ -731,14 +730,10 @@ class __$$CreateTaskRequestImplCopyWithImpl<$Res>
           ? _value.taskListId
           : taskListId // ignore: cast_nullable_to_non_nullable
               as int,
-      repeatUnit: null == repeatUnit
-          ? _value.repeatUnit
-          : repeatUnit // ignore: cast_nullable_to_non_nullable
-              as RepeatUnit,
-      repeatDelta: null == repeatDelta
-          ? _value.repeatDelta
-          : repeatDelta // ignore: cast_nullable_to_non_nullable
-              as int,
+      schedule: null == schedule
+          ? _value.schedule
+          : schedule // ignore: cast_nullable_to_non_nullable
+              as TaskSchedule,
       alarmAtTimeOfDay: freezed == alarmAtTimeOfDay
           ? _value.alarmAtTimeOfDay
           : alarmAtTimeOfDay // ignore: cast_nullable_to_non_nullable
@@ -770,8 +765,7 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
       {required this.name,
       this.description,
       required this.taskListId,
-      required this.repeatUnit,
-      required this.repeatDelta,
+      @TaskScheduleConverter() required this.schedule,
       this.alarmAtTimeOfDay,
       this.completionWindowHours,
       required this.firstRunDate,
@@ -788,9 +782,8 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
   @override
   final int taskListId;
   @override
-  final RepeatUnit repeatUnit;
-  @override
-  final int repeatDelta;
+  @TaskScheduleConverter()
+  final TaskSchedule schedule;
   @override
   final LocalTime? alarmAtTimeOfDay;
   @override
@@ -804,7 +797,7 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
 
   @override
   String toString() {
-    return 'CreateTaskRequest(name: $name, description: $description, taskListId: $taskListId, repeatUnit: $repeatUnit, repeatDelta: $repeatDelta, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, firstRunDate: $firstRunDate, sortOrder: $sortOrder, taskImageId: $taskImageId)';
+    return 'CreateTaskRequest(name: $name, description: $description, taskListId: $taskListId, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, firstRunDate: $firstRunDate, sortOrder: $sortOrder, taskImageId: $taskImageId)';
   }
 
   @override
@@ -817,10 +810,8 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
                 other.description == description) &&
             (identical(other.taskListId, taskListId) ||
                 other.taskListId == taskListId) &&
-            (identical(other.repeatUnit, repeatUnit) ||
-                other.repeatUnit == repeatUnit) &&
-            (identical(other.repeatDelta, repeatDelta) ||
-                other.repeatDelta == repeatDelta) &&
+            (identical(other.schedule, schedule) ||
+                other.schedule == schedule) &&
             (identical(other.alarmAtTimeOfDay, alarmAtTimeOfDay) ||
                 other.alarmAtTimeOfDay == alarmAtTimeOfDay) &&
             (identical(other.completionWindowHours, completionWindowHours) ||
@@ -840,8 +831,7 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
       name,
       description,
       taskListId,
-      repeatUnit,
-      repeatDelta,
+      schedule,
       alarmAtTimeOfDay,
       completionWindowHours,
       firstRunDate,
@@ -870,8 +860,7 @@ abstract class _CreateTaskRequest implements CreateTaskRequest {
       {required final String name,
       final String? description,
       required final int taskListId,
-      required final RepeatUnit repeatUnit,
-      required final int repeatDelta,
+      @TaskScheduleConverter() required final TaskSchedule schedule,
       final LocalTime? alarmAtTimeOfDay,
       final int? completionWindowHours,
       required final DateTime firstRunDate,
@@ -888,9 +877,8 @@ abstract class _CreateTaskRequest implements CreateTaskRequest {
   @override
   int get taskListId;
   @override
-  RepeatUnit get repeatUnit;
-  @override
-  int get repeatDelta;
+  @TaskScheduleConverter()
+  TaskSchedule get schedule;
   @override
   LocalTime? get alarmAtTimeOfDay;
   @override
@@ -918,8 +906,8 @@ UpdateTaskRequest _$UpdateTaskRequestFromJson(Map<String, dynamic> json) {
 mixin _$UpdateTaskRequest {
   String? get name => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
-  RepeatUnit? get repeatUnit => throw _privateConstructorUsedError;
-  int? get repeatDelta => throw _privateConstructorUsedError;
+  @TaskScheduleConverter()
+  TaskSchedule? get schedule => throw _privateConstructorUsedError;
   LocalTime? get alarmAtTimeOfDay => throw _privateConstructorUsedError;
   int? get completionWindowHours => throw _privateConstructorUsedError;
   int? get sortOrder => throw _privateConstructorUsedError;
@@ -945,14 +933,14 @@ abstract class $UpdateTaskRequestCopyWith<$Res> {
   $Res call(
       {String? name,
       String? description,
-      RepeatUnit? repeatUnit,
-      int? repeatDelta,
+      @TaskScheduleConverter() TaskSchedule? schedule,
       LocalTime? alarmAtTimeOfDay,
       int? completionWindowHours,
       int? sortOrder,
       bool? isActive,
       int? taskImageId});
 
+  $TaskScheduleCopyWith<$Res>? get schedule;
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
 }
 
@@ -973,8 +961,7 @@ class _$UpdateTaskRequestCopyWithImpl<$Res, $Val extends UpdateTaskRequest>
   $Res call({
     Object? name = freezed,
     Object? description = freezed,
-    Object? repeatUnit = freezed,
-    Object? repeatDelta = freezed,
+    Object? schedule = freezed,
     Object? alarmAtTimeOfDay = freezed,
     Object? completionWindowHours = freezed,
     Object? sortOrder = freezed,
@@ -990,14 +977,10 @@ class _$UpdateTaskRequestCopyWithImpl<$Res, $Val extends UpdateTaskRequest>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
-      repeatUnit: freezed == repeatUnit
-          ? _value.repeatUnit
-          : repeatUnit // ignore: cast_nullable_to_non_nullable
-              as RepeatUnit?,
-      repeatDelta: freezed == repeatDelta
-          ? _value.repeatDelta
-          : repeatDelta // ignore: cast_nullable_to_non_nullable
-              as int?,
+      schedule: freezed == schedule
+          ? _value.schedule
+          : schedule // ignore: cast_nullable_to_non_nullable
+              as TaskSchedule?,
       alarmAtTimeOfDay: freezed == alarmAtTimeOfDay
           ? _value.alarmAtTimeOfDay
           : alarmAtTimeOfDay // ignore: cast_nullable_to_non_nullable
@@ -1019,6 +1002,20 @@ class _$UpdateTaskRequestCopyWithImpl<$Res, $Val extends UpdateTaskRequest>
           : taskImageId // ignore: cast_nullable_to_non_nullable
               as int?,
     ) as $Val);
+  }
+
+  /// Create a copy of UpdateTaskRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $TaskScheduleCopyWith<$Res>? get schedule {
+    if (_value.schedule == null) {
+      return null;
+    }
+
+    return $TaskScheduleCopyWith<$Res>(_value.schedule!, (value) {
+      return _then(_value.copyWith(schedule: value) as $Val);
+    });
   }
 
   /// Create a copy of UpdateTaskRequest
@@ -1047,14 +1044,15 @@ abstract class _$$UpdateTaskRequestImplCopyWith<$Res>
   $Res call(
       {String? name,
       String? description,
-      RepeatUnit? repeatUnit,
-      int? repeatDelta,
+      @TaskScheduleConverter() TaskSchedule? schedule,
       LocalTime? alarmAtTimeOfDay,
       int? completionWindowHours,
       int? sortOrder,
       bool? isActive,
       int? taskImageId});
 
+  @override
+  $TaskScheduleCopyWith<$Res>? get schedule;
   @override
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
 }
@@ -1074,8 +1072,7 @@ class __$$UpdateTaskRequestImplCopyWithImpl<$Res>
   $Res call({
     Object? name = freezed,
     Object? description = freezed,
-    Object? repeatUnit = freezed,
-    Object? repeatDelta = freezed,
+    Object? schedule = freezed,
     Object? alarmAtTimeOfDay = freezed,
     Object? completionWindowHours = freezed,
     Object? sortOrder = freezed,
@@ -1091,14 +1088,10 @@ class __$$UpdateTaskRequestImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
-      repeatUnit: freezed == repeatUnit
-          ? _value.repeatUnit
-          : repeatUnit // ignore: cast_nullable_to_non_nullable
-              as RepeatUnit?,
-      repeatDelta: freezed == repeatDelta
-          ? _value.repeatDelta
-          : repeatDelta // ignore: cast_nullable_to_non_nullable
-              as int?,
+      schedule: freezed == schedule
+          ? _value.schedule
+          : schedule // ignore: cast_nullable_to_non_nullable
+              as TaskSchedule?,
       alarmAtTimeOfDay: freezed == alarmAtTimeOfDay
           ? _value.alarmAtTimeOfDay
           : alarmAtTimeOfDay // ignore: cast_nullable_to_non_nullable
@@ -1129,8 +1122,7 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
   const _$UpdateTaskRequestImpl(
       {this.name,
       this.description,
-      this.repeatUnit,
-      this.repeatDelta,
+      @TaskScheduleConverter() this.schedule,
       this.alarmAtTimeOfDay,
       this.completionWindowHours,
       this.sortOrder,
@@ -1145,9 +1137,8 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
   @override
   final String? description;
   @override
-  final RepeatUnit? repeatUnit;
-  @override
-  final int? repeatDelta;
+  @TaskScheduleConverter()
+  final TaskSchedule? schedule;
   @override
   final LocalTime? alarmAtTimeOfDay;
   @override
@@ -1161,7 +1152,7 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
 
   @override
   String toString() {
-    return 'UpdateTaskRequest(name: $name, description: $description, repeatUnit: $repeatUnit, repeatDelta: $repeatDelta, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, sortOrder: $sortOrder, isActive: $isActive, taskImageId: $taskImageId)';
+    return 'UpdateTaskRequest(name: $name, description: $description, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, sortOrder: $sortOrder, isActive: $isActive, taskImageId: $taskImageId)';
   }
 
   @override
@@ -1172,10 +1163,8 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
             (identical(other.name, name) || other.name == name) &&
             (identical(other.description, description) ||
                 other.description == description) &&
-            (identical(other.repeatUnit, repeatUnit) ||
-                other.repeatUnit == repeatUnit) &&
-            (identical(other.repeatDelta, repeatDelta) ||
-                other.repeatDelta == repeatDelta) &&
+            (identical(other.schedule, schedule) ||
+                other.schedule == schedule) &&
             (identical(other.alarmAtTimeOfDay, alarmAtTimeOfDay) ||
                 other.alarmAtTimeOfDay == alarmAtTimeOfDay) &&
             (identical(other.completionWindowHours, completionWindowHours) ||
@@ -1194,8 +1183,7 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
       runtimeType,
       name,
       description,
-      repeatUnit,
-      repeatDelta,
+      schedule,
       alarmAtTimeOfDay,
       completionWindowHours,
       sortOrder,
@@ -1223,8 +1211,7 @@ abstract class _UpdateTaskRequest implements UpdateTaskRequest {
   const factory _UpdateTaskRequest(
       {final String? name,
       final String? description,
-      final RepeatUnit? repeatUnit,
-      final int? repeatDelta,
+      @TaskScheduleConverter() final TaskSchedule? schedule,
       final LocalTime? alarmAtTimeOfDay,
       final int? completionWindowHours,
       final int? sortOrder,
@@ -1239,9 +1226,8 @@ abstract class _UpdateTaskRequest implements UpdateTaskRequest {
   @override
   String? get description;
   @override
-  RepeatUnit? get repeatUnit;
-  @override
-  int? get repeatDelta;
+  @TaskScheduleConverter()
+  TaskSchedule? get schedule;
   @override
   LocalTime? get alarmAtTimeOfDay;
   @override

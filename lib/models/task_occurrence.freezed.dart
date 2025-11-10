@@ -33,8 +33,8 @@ mixin _$UpcomingTaskOccurrenceResponse {
   String? get taskImagePath => throw _privateConstructorUsedError;
   int get totalCompletions => throw _privateConstructorUsedError;
   StreakResponse? get currentStreak => throw _privateConstructorUsedError;
-  RepeatUnit get repeatUnit => throw _privateConstructorUsedError;
-  int get repeatDelta => throw _privateConstructorUsedError;
+  @TaskScheduleConverter()
+  TaskSchedule get schedule => throw _privateConstructorUsedError;
   int get occurrenceNumber => throw _privateConstructorUsedError;
   bool get isNextOccurrence => throw _privateConstructorUsedError;
 
@@ -69,13 +69,13 @@ abstract class $UpcomingTaskOccurrenceResponseCopyWith<$Res> {
       String? taskImagePath,
       int totalCompletions,
       StreakResponse? currentStreak,
-      RepeatUnit repeatUnit,
-      int repeatDelta,
+      @TaskScheduleConverter() TaskSchedule schedule,
       int occurrenceNumber,
       bool isNextOccurrence});
 
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
   $StreakResponseCopyWith<$Res>? get currentStreak;
+  $TaskScheduleCopyWith<$Res> get schedule;
 }
 
 /// @nodoc
@@ -106,8 +106,7 @@ class _$UpcomingTaskOccurrenceResponseCopyWithImpl<$Res,
     Object? taskImagePath = freezed,
     Object? totalCompletions = null,
     Object? currentStreak = freezed,
-    Object? repeatUnit = null,
-    Object? repeatDelta = null,
+    Object? schedule = null,
     Object? occurrenceNumber = null,
     Object? isNextOccurrence = null,
   }) {
@@ -160,14 +159,10 @@ class _$UpcomingTaskOccurrenceResponseCopyWithImpl<$Res,
           ? _value.currentStreak
           : currentStreak // ignore: cast_nullable_to_non_nullable
               as StreakResponse?,
-      repeatUnit: null == repeatUnit
-          ? _value.repeatUnit
-          : repeatUnit // ignore: cast_nullable_to_non_nullable
-              as RepeatUnit,
-      repeatDelta: null == repeatDelta
-          ? _value.repeatDelta
-          : repeatDelta // ignore: cast_nullable_to_non_nullable
-              as int,
+      schedule: null == schedule
+          ? _value.schedule
+          : schedule // ignore: cast_nullable_to_non_nullable
+              as TaskSchedule,
       occurrenceNumber: null == occurrenceNumber
           ? _value.occurrenceNumber
           : occurrenceNumber // ignore: cast_nullable_to_non_nullable
@@ -206,6 +201,16 @@ class _$UpcomingTaskOccurrenceResponseCopyWithImpl<$Res,
       return _then(_value.copyWith(currentStreak: value) as $Val);
     });
   }
+
+  /// Create a copy of UpcomingTaskOccurrenceResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $TaskScheduleCopyWith<$Res> get schedule {
+    return $TaskScheduleCopyWith<$Res>(_value.schedule, (value) {
+      return _then(_value.copyWith(schedule: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -230,8 +235,7 @@ abstract class _$$UpcomingTaskOccurrenceResponseImplCopyWith<$Res>
       String? taskImagePath,
       int totalCompletions,
       StreakResponse? currentStreak,
-      RepeatUnit repeatUnit,
-      int repeatDelta,
+      @TaskScheduleConverter() TaskSchedule schedule,
       int occurrenceNumber,
       bool isNextOccurrence});
 
@@ -239,6 +243,8 @@ abstract class _$$UpcomingTaskOccurrenceResponseImplCopyWith<$Res>
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
   @override
   $StreakResponseCopyWith<$Res>? get currentStreak;
+  @override
+  $TaskScheduleCopyWith<$Res> get schedule;
 }
 
 /// @nodoc
@@ -268,8 +274,7 @@ class __$$UpcomingTaskOccurrenceResponseImplCopyWithImpl<$Res>
     Object? taskImagePath = freezed,
     Object? totalCompletions = null,
     Object? currentStreak = freezed,
-    Object? repeatUnit = null,
-    Object? repeatDelta = null,
+    Object? schedule = null,
     Object? occurrenceNumber = null,
     Object? isNextOccurrence = null,
   }) {
@@ -322,14 +327,10 @@ class __$$UpcomingTaskOccurrenceResponseImplCopyWithImpl<$Res>
           ? _value.currentStreak
           : currentStreak // ignore: cast_nullable_to_non_nullable
               as StreakResponse?,
-      repeatUnit: null == repeatUnit
-          ? _value.repeatUnit
-          : repeatUnit // ignore: cast_nullable_to_non_nullable
-              as RepeatUnit,
-      repeatDelta: null == repeatDelta
-          ? _value.repeatDelta
-          : repeatDelta // ignore: cast_nullable_to_non_nullable
-              as int,
+      schedule: null == schedule
+          ? _value.schedule
+          : schedule // ignore: cast_nullable_to_non_nullable
+              as TaskSchedule,
       occurrenceNumber: null == occurrenceNumber
           ? _value.occurrenceNumber
           : occurrenceNumber // ignore: cast_nullable_to_non_nullable
@@ -359,8 +360,7 @@ class _$UpcomingTaskOccurrenceResponseImpl
       this.taskImagePath,
       this.totalCompletions = 0,
       this.currentStreak,
-      required this.repeatUnit,
-      required this.repeatDelta,
+      @TaskScheduleConverter() required this.schedule,
       this.occurrenceNumber = 1,
       this.isNextOccurrence = false});
 
@@ -394,9 +394,8 @@ class _$UpcomingTaskOccurrenceResponseImpl
   @override
   final StreakResponse? currentStreak;
   @override
-  final RepeatUnit repeatUnit;
-  @override
-  final int repeatDelta;
+  @TaskScheduleConverter()
+  final TaskSchedule schedule;
   @override
   @JsonKey()
   final int occurrenceNumber;
@@ -406,7 +405,7 @@ class _$UpcomingTaskOccurrenceResponseImpl
 
   @override
   String toString() {
-    return 'UpcomingTaskOccurrenceResponse(occurrenceId: $occurrenceId, taskId: $taskId, taskName: $taskName, description: $description, taskListId: $taskListId, taskListName: $taskListName, dueDate: $dueDate, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, taskImagePath: $taskImagePath, totalCompletions: $totalCompletions, currentStreak: $currentStreak, repeatUnit: $repeatUnit, repeatDelta: $repeatDelta, occurrenceNumber: $occurrenceNumber, isNextOccurrence: $isNextOccurrence)';
+    return 'UpcomingTaskOccurrenceResponse(occurrenceId: $occurrenceId, taskId: $taskId, taskName: $taskName, description: $description, taskListId: $taskListId, taskListName: $taskListName, dueDate: $dueDate, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, taskImagePath: $taskImagePath, totalCompletions: $totalCompletions, currentStreak: $currentStreak, schedule: $schedule, occurrenceNumber: $occurrenceNumber, isNextOccurrence: $isNextOccurrence)';
   }
 
   @override
@@ -436,10 +435,8 @@ class _$UpcomingTaskOccurrenceResponseImpl
                 other.totalCompletions == totalCompletions) &&
             (identical(other.currentStreak, currentStreak) ||
                 other.currentStreak == currentStreak) &&
-            (identical(other.repeatUnit, repeatUnit) ||
-                other.repeatUnit == repeatUnit) &&
-            (identical(other.repeatDelta, repeatDelta) ||
-                other.repeatDelta == repeatDelta) &&
+            (identical(other.schedule, schedule) ||
+                other.schedule == schedule) &&
             (identical(other.occurrenceNumber, occurrenceNumber) ||
                 other.occurrenceNumber == occurrenceNumber) &&
             (identical(other.isNextOccurrence, isNextOccurrence) ||
@@ -462,8 +459,7 @@ class _$UpcomingTaskOccurrenceResponseImpl
       taskImagePath,
       totalCompletions,
       currentStreak,
-      repeatUnit,
-      repeatDelta,
+      schedule,
       occurrenceNumber,
       isNextOccurrence);
 
@@ -500,8 +496,7 @@ abstract class _UpcomingTaskOccurrenceResponse
       final String? taskImagePath,
       final int totalCompletions,
       final StreakResponse? currentStreak,
-      required final RepeatUnit repeatUnit,
-      required final int repeatDelta,
+      @TaskScheduleConverter() required final TaskSchedule schedule,
       final int occurrenceNumber,
       final bool isNextOccurrence}) = _$UpcomingTaskOccurrenceResponseImpl;
 
@@ -533,9 +528,8 @@ abstract class _UpcomingTaskOccurrenceResponse
   @override
   StreakResponse? get currentStreak;
   @override
-  RepeatUnit get repeatUnit;
-  @override
-  int get repeatDelta;
+  @TaskScheduleConverter()
+  TaskSchedule get schedule;
   @override
   int get occurrenceNumber;
   @override

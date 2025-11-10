@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/task_provider.dart';
 import '../models/task.dart';
-import '../models/enums.dart';
+import '../models/schedule.dart';
 import '../models/local_time.dart';
 import '../l10n/app_strings.dart';
-import 'common/recurrence_field.dart';
+import 'common/recurrence_editor.dart';
 
 /// Dialog for editing an existing task.
 /// Allows users to update task name, description, repeat settings, alarm time,
@@ -26,8 +26,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _descriptionController;
-  late RepeatUnit _repeatUnit;
-  late int _repeatDelta;
+  late TaskSchedule _schedule;
   late bool _isActive;
   LocalTime? _alarmTime;
   int? _completionWindowHours;
@@ -44,8 +43,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
     _descriptionController = TextEditingController(
       text: widget.task.description ?? '',
     );
-    _repeatUnit = widget.task.repeatUnit;
-    _repeatDelta = widget.task.repeatDelta;
+    _schedule = widget.task.schedule;
     _isActive = widget.task.isActive;
     _alarmTime = widget.task.alarmAtTimeOfDay;
     _completionWindowHours = widget.task.completionWindowHours;
@@ -82,8 +80,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
       description: _descriptionController.text.trim().isEmpty
           ? null
           : _descriptionController.text.trim(),
-      repeatUnit: _repeatUnit,
-      repeatDelta: _repeatDelta,
+      schedule: _schedule,
       isActive: _isActive,
       alarmAtTimeOfDay: _alarmTime,
       completionWindowHours: _completionWindowHours,
@@ -115,12 +112,14 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
 
     return AlertDialog(
       title: Text(strings.editTask),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+      content: SizedBox(
+        width: 500, // Fixed width to prevent shrinking when content expands
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
               // === PRIMARY FIELDS (Always Visible) ===
 
               // Task name field
@@ -142,15 +141,11 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
               ),
               const SizedBox(height: 16),
 
-              // Combined recurrence field with numerical delta and unit selector
-              RecurrenceField(
-                initialDelta: _repeatDelta,
-                initialUnit: _repeatUnit,
-                onDeltaChanged: (delta) {
-                  setState(() => _repeatDelta = delta);
-                },
-                onUnitChanged: (unit) {
-                  setState(() => _repeatUnit = unit);
+              // Comprehensive recurrence editor with interval and weekly pattern support
+              RecurrenceEditor(
+                initialSchedule: _schedule,
+                onScheduleChanged: (schedule) {
+                  setState(() => _schedule = schedule);
                 },
               ),
               const SizedBox(height: 16),
@@ -189,7 +184,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        _showOptionalFields ? 'Hide optional details' : 'Show optional details',
+                        _showOptionalFields ? strings.hideOptionalDetails : strings.showOptionalDetails,
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: colorScheme.primary,
                           fontWeight: FontWeight.w500,
@@ -207,15 +202,6 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                           ),
                         ),
                       ],
-                      const Spacer(),
-                      // Subtle hint about what's inside
-                      if (!_showOptionalFields)
-                        Text(
-                          'Description, Alarm, Window',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
                     ],
                   ),
                 ),
@@ -318,7 +304,8 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
             ],
           ),
         ),
-      ),
+      ), // Closes SingleChildScrollView
+      ), // Closes SizedBox (content parameter)
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.of(context).pop(false),

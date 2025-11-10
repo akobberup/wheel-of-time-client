@@ -1,10 +1,21 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'enums.dart';
 import 'local_time.dart';
 import 'streak.dart';
+import 'schedule.dart';
 
 part 'task.freezed.dart';
 part 'task.g.dart';
+
+/// JsonConverter for TaskSchedule to handle polymorphic serialization
+class TaskScheduleConverter implements JsonConverter<TaskSchedule, Map<String, dynamic>> {
+  const TaskScheduleConverter();
+
+  @override
+  TaskSchedule fromJson(Map<String, dynamic> json) => TaskSchedule.fromJson(json);
+
+  @override
+  Map<String, dynamic> toJson(TaskSchedule schedule) => schedule.toJson();
+}
 
 @freezed
 class TaskResponse with _$TaskResponse {
@@ -14,8 +25,7 @@ class TaskResponse with _$TaskResponse {
     String? description,
     required int taskListId,
     required String taskListName,
-    required RepeatUnit repeatUnit,
-    required int repeatDelta,
+    @TaskScheduleConverter() required TaskSchedule schedule,
     LocalTime? alarmAtTimeOfDay,
     int? completionWindowHours,
     required DateTime firstRunDate,
@@ -37,8 +47,7 @@ class CreateTaskRequest with _$CreateTaskRequest {
     required String name,
     String? description,
     required int taskListId,
-    required RepeatUnit repeatUnit,
-    required int repeatDelta,
+    @TaskScheduleConverter() required TaskSchedule schedule,
     LocalTime? alarmAtTimeOfDay,
     int? completionWindowHours,
     required DateTime firstRunDate,
@@ -48,22 +57,6 @@ class CreateTaskRequest with _$CreateTaskRequest {
 
   factory CreateTaskRequest.fromJson(Map<String, dynamic> json) =>
       _$CreateTaskRequestFromJson(json);
-
-  @override
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        if (description != null) 'description': description,
-        'taskListId': taskListId,
-        'repeatUnit': repeatUnit.toJson(),
-        'repeatDelta': repeatDelta,
-        if (alarmAtTimeOfDay != null)
-          'alarmAtTimeOfDay': alarmAtTimeOfDay!.toJson(),
-        if (completionWindowHours != null)
-          'completionWindowHours': completionWindowHours,
-        'firstRunDate': firstRunDate.toIso8601String().split('T')[0],
-        if (sortOrder != null) 'sortOrder': sortOrder,
-        if (taskImageId != null) 'taskImageId': taskImageId,
-      };
 }
 
 @freezed
@@ -71,8 +64,7 @@ class UpdateTaskRequest with _$UpdateTaskRequest {
   const factory UpdateTaskRequest({
     String? name,
     String? description,
-    RepeatUnit? repeatUnit,
-    int? repeatDelta,
+    @TaskScheduleConverter() TaskSchedule? schedule,
     LocalTime? alarmAtTimeOfDay,
     int? completionWindowHours,
     int? sortOrder,
@@ -82,19 +74,4 @@ class UpdateTaskRequest with _$UpdateTaskRequest {
 
   factory UpdateTaskRequest.fromJson(Map<String, dynamic> json) =>
       _$UpdateTaskRequestFromJson(json);
-
-  @override
-  Map<String, dynamic> toJson() => {
-        if (name != null) 'name': name,
-        if (description != null) 'description': description,
-        if (repeatUnit != null) 'repeatUnit': repeatUnit!.toJson(),
-        if (repeatDelta != null) 'repeatDelta': repeatDelta,
-        if (alarmAtTimeOfDay != null)
-          'alarmAtTimeOfDay': alarmAtTimeOfDay!.toJson(),
-        if (completionWindowHours != null)
-          'completionWindowHours': completionWindowHours,
-        if (sortOrder != null) 'sortOrder': sortOrder,
-        if (isActive != null) 'isActive': isActive,
-        if (taskImageId != null) 'taskImageId': taskImageId,
-      };
 }

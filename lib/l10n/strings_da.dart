@@ -212,6 +212,12 @@ class StringsDa extends AppStrings {
   @override
   String get completionTime => 'Fuldførelsestidspunkt';
 
+  @override
+  String get showOptionalDetails => 'Vis valgfrie detaljer';
+
+  @override
+  String get hideOptionalDetails => 'Skjul valgfrie detaljer';
+
   // Repeat Units
   @override
   String get daily => 'Dagligt';
@@ -697,9 +703,6 @@ class StringsDa extends AppStrings {
   String get addTaskDetails => 'Tilføj opgavedetaljer';
 
   @override
-  String get alarmTime => 'Alarmtid';
-
-  @override
   String get noAlarm => 'Ingen alarm indstillet';
 
   @override
@@ -715,28 +718,13 @@ class StringsDa extends AppStrings {
   String get hoursAfterAlarm => 'Timer efter alarm til fuldførelse';
 
   @override
-  String get pleaseEnterValidNumber => 'Indtast venligst et gyldigt tal (1 eller mere)';
-
-  @override
-  String get active => 'Aktiv';
-
-  @override
   String get inactiveTasksWontShow => 'Inaktive opgaver vises ikke til fuldførelse';
 
   @override
   String get enterTaskListName => 'Indtast opgavelistenavn';
 
   @override
-  String get failedToCreateTask => 'Kunne ikke oprette opgave';
-
-  @override
-  String get failedToUpdateTask => 'Kunne ikke opdatere opgave';
-
-  @override
   String get failedToCreateTaskList => 'Kunne ikke oprette opgaveliste';
-
-  @override
-  String get pleaseEnterTaskName => 'Indtast venligst et opgavenavn';
 
   // AI Suggestions
   @override
@@ -765,4 +753,85 @@ class StringsDa extends AppStrings {
 
   @override
   String get clear => 'Ryd';
+
+  // Weekdays (full names)
+  @override
+  String get monday => 'Mandag';
+
+  @override
+  String get tuesday => 'Tirsdag';
+
+  @override
+  String get wednesday => 'Onsdag';
+
+  @override
+  String get thursday => 'Torsdag';
+
+  @override
+  String get friday => 'Fredag';
+
+  @override
+  String get saturday => 'Lørdag';
+
+  @override
+  String get sunday => 'Søndag';
+
+  // Weekdays (short names - 2 letters)
+  @override
+  String get mondayShort => 'Ma';
+
+  @override
+  String get tuesdayShort => 'Ti';
+
+  @override
+  String get wednesdayShort => 'On';
+
+  @override
+  String get thursdayShort => 'To';
+
+  @override
+  String get fridayShort => 'Fr';
+
+  @override
+  String get saturdayShort => 'Lø';
+
+  @override
+  String get sundayShort => 'Sø';
+
+  // Schedule strings
+  @override
+  String get recurrence => 'Gentagelse';
+
+  @override
+  String get every => 'Hver';
+
+  @override
+  String get selectDays => 'Vælg dage';
+
+  @override
+  String get onDays => 'På dage';
+
+  @override
+  String get weekdays => 'Hverdage';
+
+  @override
+  String get weekends => 'Weekender';
+
+  @override
+  String get repeatMode => 'Gentagelsestype';
+
+  @override
+  String get simpleInterval => 'Interval';
+
+  @override
+  String get specificDays => 'Bestemte dage';
+
+  @override
+  String get simpleIntervalDescription => 'Hver X dage/uger/måneder';
+
+  @override
+  String get specificDaysDescription => 'Vælg specifikke ugedage';
+
+  @override
+  String get orCustomize => 'eller tilpas';
 }

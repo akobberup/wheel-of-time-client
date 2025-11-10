@@ -88,6 +88,8 @@ abstract class AppStrings {
   String get everyNumber;
   String get firstRunDate;
   String get completionTime;
+  String get showOptionalDetails;
+  String get hideOptionalDetails;
 
   // Repeat Units
   String get daily;
@@ -272,20 +274,14 @@ abstract class AppStrings {
   // Form fields and dialogs
   String get enterTaskName;
   String get addTaskDetails;
-  String get alarmTime;
   String get noAlarm;
   String get clearAlarm;
   String get completionWindowHours;
   String get completionWindowHint;
   String get hoursAfterAlarm;
-  String get pleaseEnterValidNumber;
-  String get active;
   String get inactiveTasksWontShow;
   String get enterTaskListName;
-  String get failedToCreateTask;
-  String get failedToUpdateTask;
   String get failedToCreateTaskList;
-  String get pleaseEnterTaskName;
 
   // AI Suggestions
   String get aiSuggestions;
@@ -297,6 +293,38 @@ abstract class AppStrings {
   String get noSuggestions;
   String get back;
   String get clear;
+
+  // Weekdays (full names)
+  String get monday;
+  String get tuesday;
+  String get wednesday;
+  String get thursday;
+  String get friday;
+  String get saturday;
+  String get sunday;
+
+  // Weekdays (short names - 2 letters)
+  String get mondayShort;
+  String get tuesdayShort;
+  String get wednesdayShort;
+  String get thursdayShort;
+  String get fridayShort;
+  String get saturdayShort;
+  String get sundayShort;
+
+  // Schedule strings
+  String get recurrence;
+  String get every;
+  String get selectDays;
+  String get onDays;
+  String get weekdays;
+  String get weekends;
+  String get repeatMode;
+  String get simpleInterval;
+  String get specificDays;
+  String get simpleIntervalDescription;
+  String get specificDaysDescription;
+  String get orCustomize;
 
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);

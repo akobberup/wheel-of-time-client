@@ -13,7 +13,7 @@ import 'task_history_screen.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/skeleton_loader.dart';
-import '../models/enums.dart';
+import '../models/schedule.dart';
 
 class TaskListDetailScreen extends ConsumerStatefulWidget {
   final int taskListId;
@@ -40,23 +40,14 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
     });
   }
 
-  /// Formats the repeat pattern into a natural, readable string.
-  /// Examples: "Daily", "Weekly", "Every 3 months"
-  String _formatRepeat(RepeatUnit unit, int delta) {
-    if (delta == 1) {
-      switch (unit) {
-        case RepeatUnit.DAYS:
-          return 'Daily';
-        case RepeatUnit.WEEKS:
-          return 'Weekly';
-        case RepeatUnit.MONTHS:
-          return 'Monthly';
-        case RepeatUnit.YEARS:
-          return 'Yearly';
-      }
-    }
-    final unitName = unit.name.toLowerCase();
-    return 'Every $delta $unitName';
+  /// Formats the schedule into a natural, readable string.
+  /// Supports both interval and weekly pattern schedules.
+  /// The schedule already contains a description, so we use that directly.
+  String _formatSchedule(TaskSchedule schedule) {
+    return schedule.when(
+      interval: (unit, delta, description) => description,
+      weeklyPattern: (weeks, days, description) => description,
+    );
   }
 
   /// Shows a contextual confirmation dialog for deleting a task.
@@ -238,7 +229,7 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
                           ],
                           const SizedBox(height: 4),
                           Text(
-                            _formatRepeat(task.repeatUnit, task.repeatDelta),
+                            _formatSchedule(task.schedule),
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontSize: 12,

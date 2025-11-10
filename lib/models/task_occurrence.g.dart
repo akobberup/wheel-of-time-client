@@ -28,8 +28,8 @@ _$UpcomingTaskOccurrenceResponseImpl
               ? null
               : StreakResponse.fromJson(
                   json['currentStreak'] as Map<String, dynamic>),
-          repeatUnit: $enumDecode(_$RepeatUnitEnumMap, json['repeatUnit']),
-          repeatDelta: (json['repeatDelta'] as num).toInt(),
+          schedule: const TaskScheduleConverter()
+              .fromJson(json['schedule'] as Map<String, dynamic>),
           occurrenceNumber: (json['occurrenceNumber'] as num?)?.toInt() ?? 1,
           isNextOccurrence: json['isNextOccurrence'] as bool? ?? false,
         );
@@ -49,15 +49,7 @@ Map<String, dynamic> _$$UpcomingTaskOccurrenceResponseImplToJson(
       'taskImagePath': instance.taskImagePath,
       'totalCompletions': instance.totalCompletions,
       'currentStreak': instance.currentStreak,
-      'repeatUnit': instance.repeatUnit,
-      'repeatDelta': instance.repeatDelta,
+      'schedule': const TaskScheduleConverter().toJson(instance.schedule),
       'occurrenceNumber': instance.occurrenceNumber,
       'isNextOccurrence': instance.isNextOccurrence,
     };
-
-const _$RepeatUnitEnumMap = {
-  RepeatUnit.DAYS: 'DAYS',
-  RepeatUnit.WEEKS: 'WEEKS',
-  RepeatUnit.MONTHS: 'MONTHS',
-  RepeatUnit.YEARS: 'YEARS',
-};

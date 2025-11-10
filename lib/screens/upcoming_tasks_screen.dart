@@ -5,7 +5,6 @@ import '../providers/upcoming_tasks_provider.dart';
 import '../providers/task_instance_provider.dart';
 import '../models/task_occurrence.dart';
 import '../models/task_instance.dart';
-import '../models/enums.dart';
 import '../widgets/complete_task_dialog.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/empty_state.dart';
@@ -41,24 +40,6 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
       ref.read(upcomingTasksProvider.notifier).loadMore();
     }
-  }
-
-  /// Formats the repeat pattern into a natural, readable string
-  String _formatRepeatPattern(RepeatUnit unit, int delta) {
-    if (delta == 1) {
-      switch (unit) {
-        case RepeatUnit.DAYS:
-          return 'Daily';
-        case RepeatUnit.WEEKS:
-          return 'Weekly';
-        case RepeatUnit.MONTHS:
-          return 'Monthly';
-        case RepeatUnit.YEARS:
-          return 'Yearly';
-      }
-    }
-    final unitName = unit.name.toLowerCase();
-    return 'Every $delta $unitName';
   }
 
   /// Formats the due date of a task into a human-readable string
@@ -162,7 +143,6 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppStrings.of(context);
     final state = ref.watch(upcomingTasksProvider);
 
     return Scaffold(
@@ -362,7 +342,7 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                       Icon(Icons.repeat, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       const SizedBox(width: 4),
                       Text(
-                        _formatRepeatPattern(occurrence.repeatUnit, occurrence.repeatDelta),
+                        occurrence.schedule.description,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 12,

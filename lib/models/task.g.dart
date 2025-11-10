@@ -13,8 +13,8 @@ _$TaskResponseImpl _$$TaskResponseImplFromJson(Map<String, dynamic> json) =>
       description: json['description'] as String?,
       taskListId: (json['taskListId'] as num).toInt(),
       taskListName: json['taskListName'] as String,
-      repeatUnit: $enumDecode(_$RepeatUnitEnumMap, json['repeatUnit']),
-      repeatDelta: (json['repeatDelta'] as num).toInt(),
+      schedule: const TaskScheduleConverter()
+          .fromJson(json['schedule'] as Map<String, dynamic>),
       alarmAtTimeOfDay: json['alarmAtTimeOfDay'] == null
           ? null
           : LocalTime.fromJson(
@@ -41,8 +41,7 @@ Map<String, dynamic> _$$TaskResponseImplToJson(_$TaskResponseImpl instance) =>
       'description': instance.description,
       'taskListId': instance.taskListId,
       'taskListName': instance.taskListName,
-      'repeatUnit': instance.repeatUnit,
-      'repeatDelta': instance.repeatDelta,
+      'schedule': const TaskScheduleConverter().toJson(instance.schedule),
       'alarmAtTimeOfDay': instance.alarmAtTimeOfDay,
       'completionWindowHours': instance.completionWindowHours,
       'firstRunDate': instance.firstRunDate.toIso8601String(),
@@ -54,21 +53,14 @@ Map<String, dynamic> _$$TaskResponseImplToJson(_$TaskResponseImpl instance) =>
       'currentStreak': instance.currentStreak,
     };
 
-const _$RepeatUnitEnumMap = {
-  RepeatUnit.DAYS: 'DAYS',
-  RepeatUnit.WEEKS: 'WEEKS',
-  RepeatUnit.MONTHS: 'MONTHS',
-  RepeatUnit.YEARS: 'YEARS',
-};
-
 _$CreateTaskRequestImpl _$$CreateTaskRequestImplFromJson(
         Map<String, dynamic> json) =>
     _$CreateTaskRequestImpl(
       name: json['name'] as String,
       description: json['description'] as String?,
       taskListId: (json['taskListId'] as num).toInt(),
-      repeatUnit: $enumDecode(_$RepeatUnitEnumMap, json['repeatUnit']),
-      repeatDelta: (json['repeatDelta'] as num).toInt(),
+      schedule: const TaskScheduleConverter()
+          .fromJson(json['schedule'] as Map<String, dynamic>),
       alarmAtTimeOfDay: json['alarmAtTimeOfDay'] == null
           ? null
           : LocalTime.fromJson(
@@ -85,8 +77,7 @@ Map<String, dynamic> _$$CreateTaskRequestImplToJson(
       'name': instance.name,
       'description': instance.description,
       'taskListId': instance.taskListId,
-      'repeatUnit': instance.repeatUnit,
-      'repeatDelta': instance.repeatDelta,
+      'schedule': const TaskScheduleConverter().toJson(instance.schedule),
       'alarmAtTimeOfDay': instance.alarmAtTimeOfDay,
       'completionWindowHours': instance.completionWindowHours,
       'firstRunDate': instance.firstRunDate.toIso8601String(),
@@ -99,8 +90,8 @@ _$UpdateTaskRequestImpl _$$UpdateTaskRequestImplFromJson(
     _$UpdateTaskRequestImpl(
       name: json['name'] as String?,
       description: json['description'] as String?,
-      repeatUnit: $enumDecodeNullable(_$RepeatUnitEnumMap, json['repeatUnit']),
-      repeatDelta: (json['repeatDelta'] as num?)?.toInt(),
+      schedule: _$JsonConverterFromJson<Map<String, dynamic>, TaskSchedule>(
+          json['schedule'], const TaskScheduleConverter().fromJson),
       alarmAtTimeOfDay: json['alarmAtTimeOfDay'] == null
           ? null
           : LocalTime.fromJson(
@@ -116,11 +107,23 @@ Map<String, dynamic> _$$UpdateTaskRequestImplToJson(
     <String, dynamic>{
       'name': instance.name,
       'description': instance.description,
-      'repeatUnit': instance.repeatUnit,
-      'repeatDelta': instance.repeatDelta,
+      'schedule': _$JsonConverterToJson<Map<String, dynamic>, TaskSchedule>(
+          instance.schedule, const TaskScheduleConverter().toJson),
       'alarmAtTimeOfDay': instance.alarmAtTimeOfDay,
       'completionWindowHours': instance.completionWindowHours,
       'sortOrder': instance.sortOrder,
       'isActive': instance.isActive,
       'taskImageId': instance.taskImageId,
     };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) =>
+    json == null ? null : fromJson(json as Json);
+
+Json? _$JsonConverterToJson<Json, Value>(
+  Value? value,
+  Json? Function(Value value) toJson,
+) =>
+    value == null ? null : toJson(value);

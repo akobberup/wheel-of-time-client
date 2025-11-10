@@ -42,3 +42,18 @@ enum ImageSource {
   static ImageSource fromJson(String value) =>
       ImageSource.values.byName(value);
 }
+
+/// Days of the week (matches Java DayOfWeek)
+/// Used for weekly pattern scheduling
+enum DayOfWeek {
+  MONDAY,
+  TUESDAY,
+  WEDNESDAY,
+  THURSDAY,
+  FRIDAY,
+  SATURDAY,
+  SUNDAY;
+
+  String toJson() => name;
+  static DayOfWeek fromJson(String value) => DayOfWeek.values.byName(value);
+}

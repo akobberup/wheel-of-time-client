@@ -1,28 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/enums.dart';
+import '../../l10n/app_strings.dart';
 
-/// A Material 3 recurrence field that combines numerical delta and unit selection
-/// in a single, cohesive TextField component.
+/// A Material 3 recurrence interval field for selecting repeat delta and unit.
 ///
-/// The field displays as: "every [number] [unit]"
+/// This is a composable version of the original RecurrenceField, designed to work
+/// within the RecurrenceEditor. It displays as: "every [number] [unit]"
+///
+/// Example: "every 2 weeks"
+///
+/// Features:
 /// - Prefix: Static "every" text
 /// - Main input: Numerical delta (positive integers only)
 /// - Suffix: Current unit with dropdown icon (tappable to change unit)
+/// - Clean separation of concerns for use in composite widgets
 ///
-/// Example: "every 2 weeks"
-class RecurrenceField extends StatefulWidget {
-  /// Initial repeat delta value (defaults to 1)
-  final int initialDelta;
+/// Usage:
+/// ```dart
+/// RecurrenceIntervalField(
+///   repeatDelta: 2,
+///   repeatUnit: RepeatUnit.WEEKS,
+///   onChanged: (delta, unit) {
+///     setState(() {
+///       _delta = delta;
+///       _unit = unit;
+///     });
+///   },
+/// )
+/// ```
+class RecurrenceIntervalField extends StatefulWidget {
+  /// Current repeat delta value
+  final int repeatDelta;
 
-  /// Initial repeat unit (defaults to WEEKS)
-  final RepeatUnit initialUnit;
+  /// Current repeat unit
+  final RepeatUnit repeatUnit;
 
-  /// Callback when delta changes (triggered on valid input)
-  final ValueChanged<int> onDeltaChanged;
-
-  /// Callback when unit changes (triggered immediately on selection)
-  final ValueChanged<RepeatUnit> onUnitChanged;
+  /// Callback when either delta or unit changes
+  /// Parameters: (newDelta, newUnit)
+  final void Function(int delta, RepeatUnit unit) onChanged;
 
   /// Optional validator for the delta input
   final FormFieldValidator<String>? validator;
@@ -30,29 +46,49 @@ class RecurrenceField extends StatefulWidget {
   /// Whether the field is enabled
   final bool enabled;
 
-  const RecurrenceField({
+  /// Optional label text (defaults to localized "Recurrence")
+  final String? labelText;
+
+  const RecurrenceIntervalField({
     super.key,
-    this.initialDelta = 1,
-    this.initialUnit = RepeatUnit.WEEKS,
-    required this.onDeltaChanged,
-    required this.onUnitChanged,
+    required this.repeatDelta,
+    required this.repeatUnit,
+    required this.onChanged,
     this.validator,
     this.enabled = true,
+    this.labelText,
   });
 
   @override
-  State<RecurrenceField> createState() => _RecurrenceFieldState();
+  State<RecurrenceIntervalField> createState() => _RecurrenceIntervalFieldState();
 }
 
-class _RecurrenceFieldState extends State<RecurrenceField> {
+class _RecurrenceIntervalFieldState extends State<RecurrenceIntervalField> {
   late TextEditingController _deltaController;
   late RepeatUnit _currentUnit;
 
   @override
   void initState() {
     super.initState();
-    _deltaController = TextEditingController(text: widget.initialDelta.toString());
-    _currentUnit = widget.initialUnit;
+    _deltaController = TextEditingController(text: widget.repeatDelta.toString());
+    _currentUnit = widget.repeatUnit;
+  }
+
+  @override
+  void didUpdateWidget(RecurrenceIntervalField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Update controller if delta changed externally
+    if (widget.repeatDelta != oldWidget.repeatDelta) {
+      _deltaController.text = widget.repeatDelta.toString();
+    }
+
+    // Update unit if changed externally
+    if (widget.repeatUnit != oldWidget.repeatUnit) {
+      setState(() {
+        _currentUnit = widget.repeatUnit;
+      });
+    }
   }
 
   @override
@@ -62,7 +98,6 @@ class _RecurrenceFieldState extends State<RecurrenceField> {
   }
 
   /// Converts RepeatUnit enum to singular display format
-  /// DAYS -> "day", WEEKS -> "week", MONTHS -> "month", YEARS -> "year"
   String _getUnitDisplayName(RepeatUnit unit) {
     switch (unit) {
       case RepeatUnit.DAYS:
@@ -77,7 +112,6 @@ class _RecurrenceFieldState extends State<RecurrenceField> {
   }
 
   /// Converts RepeatUnit enum to plural display format for menu items
-  /// DAYS -> "Days", WEEKS -> "Weeks", etc.
   String _getUnitMenuLabel(RepeatUnit unit) {
     switch (unit) {
       case RepeatUnit.DAYS:
@@ -138,7 +172,10 @@ class _RecurrenceFieldState extends State<RecurrenceField> {
       setState(() {
         _currentUnit = selected;
       });
-      widget.onUnitChanged(selected);
+
+      // Parse current delta and notify parent
+      final delta = int.tryParse(_deltaController.text) ?? 1;
+      widget.onChanged(delta, selected);
     }
   }
 
@@ -146,6 +183,7 @@ class _RecurrenceFieldState extends State<RecurrenceField> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final strings = AppStrings.of(context);
 
     return TextFormField(
       controller: _deltaController,
@@ -156,7 +194,7 @@ class _RecurrenceFieldState extends State<RecurrenceField> {
         FilteringTextInputFormatter.digitsOnly,
       ],
       decoration: InputDecoration(
-        labelText: 'Recurrence',
+        labelText: widget.labelText ?? strings.recurrence,
         border: const OutlineInputBorder(),
         // Prefix shows static "every" text in a muted color
         prefixIcon: Padding(
@@ -165,7 +203,7 @@ class _RecurrenceFieldState extends State<RecurrenceField> {
             alignment: Alignment.centerLeft,
             widthFactor: 1.0,
             child: Text(
-              'every',
+              strings.every,
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -223,7 +261,7 @@ class _RecurrenceFieldState extends State<RecurrenceField> {
 
         final n = int.tryParse(value);
         if (n != null && n > 0) {
-          widget.onDeltaChanged(n);
+          widget.onChanged(n, _currentUnit);
         }
       },
     );

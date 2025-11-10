@@ -211,6 +211,12 @@ class StringsEn extends AppStrings {
   @override
   String get completionTime => 'Completion Time';
 
+  @override
+  String get showOptionalDetails => 'Show optional details';
+
+  @override
+  String get hideOptionalDetails => 'Hide optional details';
+
   // Repeat Units
   @override
   String get daily => 'Daily';
@@ -696,9 +702,6 @@ class StringsEn extends AppStrings {
   String get addTaskDetails => 'Add task details';
 
   @override
-  String get alarmTime => 'Alarm Time';
-
-  @override
   String get noAlarm => 'No alarm set';
 
   @override
@@ -714,28 +717,13 @@ class StringsEn extends AppStrings {
   String get hoursAfterAlarm => 'Hours after alarm to complete';
 
   @override
-  String get pleaseEnterValidNumber => 'Please enter a valid number (1 or more)';
-
-  @override
-  String get active => 'Active';
-
-  @override
   String get inactiveTasksWontShow => 'Inactive tasks won\'t show up for completion';
 
   @override
   String get enterTaskListName => 'Enter task list name';
 
   @override
-  String get failedToCreateTask => 'Failed to create task';
-
-  @override
-  String get failedToUpdateTask => 'Failed to update task';
-
-  @override
   String get failedToCreateTaskList => 'Failed to create task list';
-
-  @override
-  String get pleaseEnterTaskName => 'Please enter a task name';
 
   // AI Suggestions
   @override
@@ -764,4 +752,85 @@ class StringsEn extends AppStrings {
 
   @override
   String get clear => 'Clear';
+
+  // Weekdays (full names)
+  @override
+  String get monday => 'Monday';
+
+  @override
+  String get tuesday => 'Tuesday';
+
+  @override
+  String get wednesday => 'Wednesday';
+
+  @override
+  String get thursday => 'Thursday';
+
+  @override
+  String get friday => 'Friday';
+
+  @override
+  String get saturday => 'Saturday';
+
+  @override
+  String get sunday => 'Sunday';
+
+  // Weekdays (short names - 2 letters)
+  @override
+  String get mondayShort => 'Mo';
+
+  @override
+  String get tuesdayShort => 'Tu';
+
+  @override
+  String get wednesdayShort => 'We';
+
+  @override
+  String get thursdayShort => 'Th';
+
+  @override
+  String get fridayShort => 'Fr';
+
+  @override
+  String get saturdayShort => 'Sa';
+
+  @override
+  String get sundayShort => 'Su';
+
+  // Schedule strings
+  @override
+  String get recurrence => 'Recurrence';
+
+  @override
+  String get every => 'Every';
+
+  @override
+  String get selectDays => 'Select days';
+
+  @override
+  String get onDays => 'On days';
+
+  @override
+  String get weekdays => 'Weekdays';
+
+  @override
+  String get weekends => 'Weekends';
+
+  @override
+  String get repeatMode => 'Repeat mode';
+
+  @override
+  String get simpleInterval => 'Interval';
+
+  @override
+  String get specificDays => 'Specific days';
+
+  @override
+  String get simpleIntervalDescription => 'Every X days/weeks/months';
+
+  @override
+  String get specificDaysDescription => 'Choose specific weekdays';
+
+  @override
+  String get orCustomize => 'or customize';
 }
