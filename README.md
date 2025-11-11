@@ -60,4 +60,24 @@ Make sure your Spring Boot server is running on port 8080 before testing the app
 Test credentials after registration:
 - Email: test@example.com
 - Password: password123
-# wheel-of-time-client
+
+## Deployment
+
+This application is deployed as part of the Wheel of Time fullstack application.
+
+See the [t16software-infrastructure](https://github.com/akobberup/t16software-infrastructure) repository for:
+- Production deployment procedures
+- Docker build and deployment
+- Server configuration
+- SSL certificates and domain setup
+
+### Production
+
+- **Frontend URL**: https://t16software.dev
+- **Backend API**: https://api.t16software.dev
+
+The production build uses:
+- Flutter web with release optimization
+- Nginx for static file serving
+- Traefik reverse proxy with Let's Encrypt SSL
+- Docker containerization
