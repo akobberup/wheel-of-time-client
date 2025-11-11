@@ -15,7 +15,7 @@ class ApiConfig {
     } else {
       // Production environment - this should be configured via environment variables
       // or a build configuration in a real production setup
-      const String prodUrl = String.fromEnvironment('API_BASE_URL', defaultValue: 'https://api.wheeloftime.com');
+      const String prodUrl = String.fromEnvironment('API_BASE_URL', defaultValue: 'https://api.t16software.dev');
       return prodUrl;
     }
   }
