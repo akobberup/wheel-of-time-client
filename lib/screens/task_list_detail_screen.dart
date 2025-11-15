@@ -200,7 +200,7 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
                               placeholder: (context, url) => Container(
                                 width: 50,
                                 height: 50,
-                                color: Theme.of(context).colorScheme.surfaceVariant,
+                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                                 child: const Center(
                                   child: SizedBox(
                                     width: 20,

@@ -301,7 +301,7 @@ class _NotificationCard extends HookConsumerWidget {
             context: context,
             builder: (context) => AlertDialog(
               title: Text(strings.dismissNotification),
-              content: Text('Are you sure you want to dismiss this notification?'),
+              content: const Text('Are you sure you want to dismiss this notification?'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),

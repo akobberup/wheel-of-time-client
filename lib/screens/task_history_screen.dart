@@ -341,7 +341,7 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
                   placeholder: (context, url) => Container(
                     width: double.infinity,
                     height: 200,
-                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     child: const Center(
                       child: CircularProgressIndicator(),
                     ),
@@ -349,7 +349,7 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
                   errorWidget: (context, url, error) => Container(
                     width: double.infinity,
                     height: 200,
-                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     child: Icon(
                       Icons.broken_image,
                       size: 48,

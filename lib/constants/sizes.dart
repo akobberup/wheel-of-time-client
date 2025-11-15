@@ -1,5 +1,6 @@
 /// Design system size constants
 /// Provides consistent sizing for icons, borders, and elevation
+library;
 
 /// Icon size constants
 class IconSizes {

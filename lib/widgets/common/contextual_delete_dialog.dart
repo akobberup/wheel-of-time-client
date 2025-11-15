@@ -190,7 +190,7 @@ class _ContextualDeleteDialogState extends State<_ContextualDeleteDialog> {
                 backgroundColor: Theme.of(context).colorScheme.error,
                 foregroundColor: Theme.of(context).colorScheme.onError,
                 disabledBackgroundColor:
-                    Theme.of(context).colorScheme.surfaceVariant,
+                    Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
               child: Text(
                 widget.deleteButtonLabel ?? 'Delete',
@@ -288,7 +288,7 @@ class _ContextualDeleteDialogState extends State<_ContextualDeleteDialog> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: isSafe
-                ? Theme.of(context).colorScheme.surfaceVariant
+                ? Theme.of(context).colorScheme.surfaceContainerHighest
                 : Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
