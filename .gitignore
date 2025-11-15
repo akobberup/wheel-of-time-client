@@ -41,10 +41,9 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Web related
+# Web related - only ignore generated files
 /web/.dart_tool/
 /web/flutter_service_worker.js*
-/web/index.html
 
 # Additional
 # pubspec.lock should be committed for application projects
