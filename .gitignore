@@ -47,4 +47,4 @@ app.*.map.json
 /web/index.html
 
 # Additional
-pubspec.lock
+# pubspec.lock should be committed for application projects
