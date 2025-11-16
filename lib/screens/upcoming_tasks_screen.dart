@@ -116,24 +116,29 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     UpcomingTaskOccurrenceResponse occurrence,
   ) async {
     HapticFeedback.mediumImpact();
-    final result = await showDialog<TaskInstanceResponse>(
+    final dialogResult = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (context) => CompleteTaskDialog(
         taskId: occurrence.taskId,
         taskName: occurrence.taskName,
+        currentStreak: occurrence.currentStreak,
       ),
     );
 
-    if (result != null && context.mounted) {
+    if (dialogResult != null && context.mounted) {
+      final result = dialogResult['result'] as TaskInstanceResponse;
+      final completionMessage = dialogResult['message'] as String?;
+
       // Calculate new streak count (current + 1 if contributed to streak)
       final newStreakCount = result.contributedToStreak
           ? (occurrence.currentStreak?.streakCount ?? 0) + 1
           : null;
 
-      // Show success animation
+      // Show success animation with completion message
       await TaskCompletionAnimation.show(
         context: context,
         streakCount: newStreakCount,
+        completionMessage: completionMessage,
       );
 
       // Refresh the list after animation completes

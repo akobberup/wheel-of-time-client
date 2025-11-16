@@ -1,0 +1,80 @@
+name: Build Android Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v1.0.0, v1.2.3, etc.
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1'
+          channel: 'stable'
+          cache: true
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run code generation
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Build Android APK (Release)
+        run: flutter build apk --release
+
+      - name: Build Android App Bundle (Release)
+        run: flutter build appbundle --release
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+          body: |
+            ## Wheel of Time Android Release ${{ steps.get_version.outputs.VERSION }}
+
+            ### Downloads:
+            - **APK**: Direct install on Android devices (download `app-release.apk`)
+            - **AAB**: For Google Play Store submission (download `app-release.aab`)
+
+            ### Installation:
+            1. Download `app-release.apk`
+            2. Enable "Install from Unknown Sources" on your Android device
+            3. Open the APK file to install
+
+            ### Changes:
+            <!-- Add release notes here -->
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build summary
+        run: |
+          echo "✅ Android release build completed!"
+          echo "Version: ${{ steps.get_version.outputs.VERSION }}"
+          echo "APK size: $(du -h build/app/outputs/flutter-apk/app-release.apk | cut -f1)"
+          echo "AAB size: $(du -h build/app/outputs/bundle/release/app-release.aab | cut -f1)"

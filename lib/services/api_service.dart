@@ -1076,4 +1076,29 @@ class ApiService {
   String getThumbnailUrl(String thumbnailPath) {
     return '$baseUrl$thumbnailPath';
   }
+
+  // ============================================================================
+  // TASK COMPLETION
+  // ============================================================================
+
+  /// Get completion message for a task
+  /// Returns a personalized message to display when completing a task
+  Future<String> getTaskCompletionMessage(int taskId) async {
+    try {
+      final response = await _loggedGet(
+        '$baseUrl/api/tasks/$taskId/completion-message',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        return data['message'] as String;
+      } else {
+        throw ApiException('Failed to load completion message', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
 }

@@ -17,16 +17,19 @@ import 'package:lottie/lottie.dart';
 /// await TaskCompletionAnimation.show(
 ///   context: context,
 ///   streakCount: occurrence.currentStreak?.streakCount,
+///   completionMessage: 'Great job!',
 /// );
 /// ```
 class TaskCompletionAnimation extends StatefulWidget {
   final int? streakCount;
   final VoidCallback? onComplete;
+  final String? completionMessage;
 
   const TaskCompletionAnimation({
     super.key,
     this.streakCount,
     this.onComplete,
+    this.completionMessage,
   });
 
   /// Shows the animation as a modal overlay
@@ -34,9 +37,11 @@ class TaskCompletionAnimation extends StatefulWidget {
   ///
   /// The streak badge will only show if [streakCount] is 3 or more,
   /// making it feel like a meaningful achievement rather than routine.
+  /// If [completionMessage] is provided, it will be displayed below the animation.
   static Future<void> show({
     required BuildContext context,
     int? streakCount,
+    String? completionMessage,
   }) {
     // Provide haptic feedback for tactile satisfaction
     HapticFeedback.mediumImpact();
@@ -47,6 +52,7 @@ class TaskCompletionAnimation extends StatefulWidget {
       barrierColor: Colors.black.withValues(alpha: 0.3),
       builder: (context) => TaskCompletionAnimation(
         streakCount: streakCount,
+        completionMessage: completionMessage,
         onComplete: () => Navigator.of(context).pop(),
       ),
     );
@@ -108,75 +114,111 @@ class _TaskCompletionAnimationState extends State<TaskCompletionAnimation>
         child: Material(
           color: Colors.transparent,
           child: Container(
-            constraints: const BoxConstraints(
-              maxWidth: 280,
-              maxHeight: 280,
+            constraints: BoxConstraints(
+              maxWidth: 320,
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Lottie animation - constrained to leave room for streak badge
-                SizedBox(
-                  width: 200,
-                  height: 200,
-                  child: Lottie.asset(
-                    'assets/animations/success_animation.json',
-                    repeat: false,
-                    fit: BoxFit.contain,
-                    onLoaded: (composition) {
-                      // Calculate when animation will complete based on duration
-                      final animationDuration = composition.duration;
-                      Future.delayed(animationDuration, _onAnimationComplete);
-                    },
-                  ),
-                ),
-
-                // Optional streak message - only show for meaningful streaks (3+ days)
-                if (widget.streakCount != null && widget.streakCount! >= 3) ...[
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Lottie animation
+                  SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: Lottie.asset(
+                      'assets/animations/success_animation.json',
+                      repeat: false,
+                      fit: BoxFit.contain,
+                      onLoaded: (composition) {
+                        // Calculate when animation will complete based on duration
+                        final animationDuration = composition.duration;
+                        Future.delayed(animationDuration, _onAnimationComplete);
+                      },
                     ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.orange.shade400,
-                          Colors.deepOrange.shade600,
+                  ),
+
+                  // Optional completion message - shown if provided by the API
+                  if (widget.completionMessage != null) ...[
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          widget.completionMessage!,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  // Optional streak message - only show for meaningful streaks (3+ days)
+                  if (widget.streakCount != null && widget.streakCount! >= 3) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.orange.shade400,
+                            Colors.deepOrange.shade600,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.orange.withValues(alpha: 0.4),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.orange.withValues(alpha: 0.4),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.local_fire_department,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${widget.streakCount} Day Streak!',
-                          style: const TextStyle(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.local_fire_department,
                             color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            size: 22,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Text(
+                            '${widget.streakCount} Day Streak!',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
