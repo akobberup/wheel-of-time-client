@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 
 /// Configuration for API endpoints based on environment
@@ -6,11 +7,16 @@ class ApiConfig {
   ApiConfig._();
 
   /// Base URL for API requests
-  /// - Debug mode: localhost:8080
+  /// - Debug mode: 10.0.2.2:8080 for Android emulator, localhost:8080 for other platforms
   /// - Production mode: configurable via environment variable or default
   static String get baseUrl {
     if (kDebugMode) {
-      // Development environment - use localhost
+      // Development environment
+      // Android emulator uses 10.0.2.2 to access host machine's localhost
+      if (Platform.isAndroid) {
+        return 'http://10.0.2.2:8080';
+      }
+      // For iOS simulator and other platforms, localhost works fine
       return 'http://localhost:8080';
     } else {
       // Production environment - this should be configured via environment variables
