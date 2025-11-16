@@ -6,6 +6,7 @@ import '../providers/task_instance_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/task_instance.dart';
 import '../models/streak.dart';
+import '../l10n/app_strings.dart';
 
 /// A celebratory dialog for completing tasks with animations and encouraging messages.
 ///
@@ -176,9 +177,12 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
         }
       } else {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to complete task')),
-        );
+        if (mounted) {
+          final strings = AppStrings.of(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(strings.failedToCompleteTask)),
+          );
+        }
       }
     }
   }
@@ -276,6 +280,7 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
 
   /// Builds the streak encouragement message container.
   Widget _buildStreakEncouragement(ColorScheme colorScheme) {
+    final strings = AppStrings.of(context);
     final streakCount = widget.currentStreak!.streakCount;
 
     return Container(
@@ -295,7 +300,7 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Keep your $streakCount-day streak going!',
+              strings.keepStreakGoing(streakCount),
               style: TextStyle(
                 color: Colors.orange.shade900,
                 fontWeight: FontWeight.w600,
@@ -310,6 +315,8 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
 
   /// Builds the time selector with animated highlight on selection.
   Widget _buildTimeSelector(ColorScheme colorScheme) {
+    final strings = AppStrings.of(context);
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
@@ -326,7 +333,7 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
       ),
       child: ListTile(
         title: Text(
-          'When did you complete this?',
+          strings.whenDidYouCompleteThis,
           style: TextStyle(
             color: colorScheme.onSurface,
             fontSize: 14,
@@ -355,12 +362,14 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
 
   /// Builds the comment text field.
   Widget _buildCommentField() {
+    final strings = AppStrings.of(context);
+
     return TextFormField(
       controller: _commentController,
-      decoration: const InputDecoration(
-        labelText: 'How did it go?',
-        hintText: 'Add a note about this completion...',
-        border: OutlineInputBorder(),
+      decoration: InputDecoration(
+        labelText: strings.howDidItGo,
+        hintText: strings.addNoteHint,
+        border: const OutlineInputBorder(),
       ),
       maxLines: 3,
       textCapitalization: TextCapitalization.sentences,
@@ -369,6 +378,8 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
 
   /// Builds the "Add a note" button for progressive disclosure.
   Widget _buildAddNoteButton() {
+    final strings = AppStrings.of(context);
+
     return Align(
       alignment: Alignment.centerLeft,
       child: TextButton.icon(
@@ -377,13 +388,15 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
           setState(() => _showCommentField = true);
         },
         icon: const Icon(Icons.note_add_outlined),
-        label: const Text('Add a note'),
+        label: Text(strings.addNote),
       ),
     );
   }
 
   /// Builds the action buttons with success state handling.
   Widget _buildActionButtons(ColorScheme colorScheme) {
+    final strings = AppStrings.of(context);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -392,7 +405,7 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
           onPressed: _isLoading || _isSuccess
               ? null
               : () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(strings.cancel),
         ),
         const SizedBox(width: 12),
 
@@ -409,7 +422,7 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             icon: _buildButtonIcon(),
-            label: Text(_getButtonLabel()),
+            label: Text(_getButtonLabel(strings)),
           ),
         ),
       ],
@@ -435,13 +448,13 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
   }
 
   /// Returns the appropriate label for the complete button based on state.
-  String _getButtonLabel() {
+  String _getButtonLabel(AppStrings strings) {
     if (_isSuccess) {
-      return 'Done!';
+      return strings.done;
     } else if (_isLoading) {
-      return 'Completing...';
+      return strings.completing;
     } else {
-      return 'Complete Task!';
+      return strings.completeTaskButton;
     }
   }
 }

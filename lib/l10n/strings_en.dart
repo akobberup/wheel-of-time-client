@@ -189,6 +189,9 @@ class StringsEn extends AppStrings {
   @override
   String get taskCompleted => 'Task completed';
 
+  @override
+  String timesCompleted(int count) => '${count}x completed';
+
   // Task Details
   @override
   String get taskName => 'Task Name';
@@ -248,6 +251,10 @@ class StringsEn extends AppStrings {
 
   @override
   String get declineInvitation => 'Decline';
+
+  @override
+  String declineInvitationConfirmation(String taskListName) =>
+      'Are you sure you want to decline the invitation to "$taskListName"?';
 
   @override
   String get accepted => 'Accepted';
@@ -358,8 +365,8 @@ class StringsEn extends AppStrings {
       'This list is empty and can be safely deleted.';
 
   @override
-  String confirmDeleteTaskWithStreak(String name, int days, int completions) =>
-      'Delete "$name"? This will permanently delete your $days-day streak and $completions completion ${completions == 1 ? 'record' : 'records'}.';
+  String confirmDeleteTaskWithStreak(String name, int streakCount, int completions) =>
+      'Delete "$name"? This will permanently delete your ${streakCount}x streak and $completions completion ${completions == 1 ? 'record' : 'records'}.';
 
   @override
   String confirmDeleteTaskNoStreak(String name, int completions) =>
@@ -491,7 +498,7 @@ class StringsEn extends AppStrings {
   String get inactiveTasksHidden => 'Inactive tasks won\'t show up for completion';
 
   @override
-  String dayStreak(int count) => '$count day streak';
+  String streakCount(int count) => '${count}x streak';
 
   // Send invitation
   @override
@@ -534,6 +541,9 @@ class StringsEn extends AppStrings {
 
   @override
   String get notificationDismissed => 'Notification dismissed';
+
+  @override
+  String get confirmDismissNotification => 'Are you sure you want to dismiss this notification?';
 
   @override
   String get newInvitation => 'New Invitation';
@@ -613,7 +623,10 @@ class StringsEn extends AppStrings {
   String get streakContinued => 'Streak continued!';
 
   @override
-  String streakExtended(int count) => 'Streak extended to $count days!';
+  String streakExtended(int count) => 'Streak extended to ${count}x!';
+
+  @override
+  String keepStreakGoing(int count) => 'Keep your ${count}x streak going!';
 
   @override
   String get failedToCompleteTask => 'Failed to complete task';
@@ -625,7 +638,28 @@ class StringsEn extends AppStrings {
   String get keepItGoing => 'Keep it going!';
 
   @override
-  String streakAtRisk(int count) => '⚠️ $count-day streak at risk!';
+  String streakAtRisk(int count) => '⚠️ ${count}x streak at risk!';
+
+  @override
+  String get whenDidYouCompleteThis => 'When did you complete this?';
+
+  @override
+  String get howDidItGo => 'How did it go?';
+
+  @override
+  String get addNoteHint => 'Add a note about this completion...';
+
+  @override
+  String get addNote => 'Add a note';
+
+  @override
+  String get completing => 'Completing...';
+
+  @override
+  String get done => 'Done!';
+
+  @override
+  String get completeTaskButton => 'Complete Task!';
 
   // Task History
   @override

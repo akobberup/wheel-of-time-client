@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
+import '../../l10n/app_strings.dart';
 
 /// A polished overlay animation displayed when a user completes a task.
 ///
@@ -108,6 +109,8 @@ class _TaskCompletionAnimationState extends State<TaskCompletionAnimation>
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Center(
@@ -206,7 +209,7 @@ class _TaskCompletionAnimationState extends State<TaskCompletionAnimation>
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            '${widget.streakCount} Day Streak!',
+                            strings.streakCount(widget.streakCount!),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,

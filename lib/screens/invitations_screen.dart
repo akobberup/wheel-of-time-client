@@ -6,6 +6,7 @@ import '../l10n/app_strings.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/status_badge.dart';
 
+/// Viser skærm med brugerens invitationer til opgavelister
 class InvitationsScreen extends HookConsumerWidget {
   const InvitationsScreen({super.key});
 
@@ -16,70 +17,43 @@ class InvitationsScreen extends HookConsumerWidget {
 
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: () async {
-          await ref.read(invitationProvider.notifier).loadPendingInvitations();
-        },
+        onRefresh: () => ref.read(invitationProvider.notifier).loadPendingInvitations(),
         child: invitationsAsync.when(
-          data: (invitations) {
-            if (invitations.isEmpty) {
-              return EmptyState(
-                title: strings.noPendingInvitations,
-                subtitle: strings.invitationsWillAppearHere,
-              );
-            }
-
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: invitations.length,
-              itemBuilder: (context, index) {
-                final invitation = invitations[index];
-                return _InvitationCard(invitation: invitation);
-              },
-            );
-          },
+          data: (invitations) => _buildInvitationsList(invitations, strings),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => Center(
-            child: Text(strings.errorLoadingInvitations(error.toString())),
-          ),
+          error: (error, stack) => _buildErrorState(error, strings),
         ),
       ),
     );
   }
+
+  Widget _buildInvitationsList(List<dynamic> invitations, AppStrings strings) {
+    if (invitations.isEmpty) {
+      return EmptyState(
+        title: strings.noPendingInvitations,
+        subtitle: strings.invitationsWillAppearHere,
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: invitations.length,
+      itemBuilder: (context, index) => _InvitationCard(invitation: invitations[index]),
+    );
+  }
+
+  Widget _buildErrorState(Object error, AppStrings strings) {
+    return Center(
+      child: Text(strings.errorLoadingInvitations(error.toString())),
+    );
+  }
 }
 
-/// Separate widget for each invitation card to manage its own loading state
+/// Kort der viser en enkelt invitation med accept/afvis handlinger
 class _InvitationCard extends HookConsumerWidget {
   final dynamic invitation;
 
   const _InvitationCard({required this.invitation});
-
-  String _getStateLabel(dynamic state, AppStrings strings) {
-    final stateName = state.name.toString();
-    switch (stateName) {
-      case 'SENT':
-        return strings.pending;
-      case 'ACCEPTED':
-        return strings.accepted;
-      case 'DECLINED':
-        return strings.declined;
-      default:
-        return stateName;
-    }
-  }
-
-  IconData _getStateIcon(dynamic state) {
-    final stateName = state.name.toString();
-    switch (stateName) {
-      case 'SENT':
-        return Icons.schedule;
-      case 'ACCEPTED':
-        return Icons.check_circle;
-      case 'DECLINED':
-        return Icons.cancel;
-      default:
-        return Icons.info;
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -92,118 +66,213 @@ class _InvitationCard extends HookConsumerWidget {
       child: ListTile(
         leading: const Icon(Icons.list_alt, size: 40),
         title: Text(invitation.taskListName),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Text('${strings.invitationFrom}: ${invitation.initiatedByUserName}'),
-            const SizedBox(height: 4),
-            StatusBadge(
-              icon: _getStateIcon(invitation.currentState),
-              label: _getStateLabel(invitation.currentState, strings),
-              color: invitation.currentState.name == 'SENT'
-                  ? Colors.orange
-                  : Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ],
+        subtitle: _buildSubtitle(context, strings),
+        trailing: _buildActions(
+          context,
+          ref,
+          strings,
+          isLoadingAccept,
+          isLoadingDecline,
         ),
-        trailing: invitation.currentState.name == 'PENDING'
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Accept button with loading state
-                  isLoadingAccept.value
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Semantics(
-                          label: '${strings.acceptInvitation} ${invitation.taskListName}',
-                          button: true,
-                          child: IconButton(
-                            icon: const Icon(Icons.check_circle, color: Colors.green),
-                            onPressed: (isLoadingAccept.value || isLoadingDecline.value)
-                                ? null
-                                : () async {
-                                    isLoadingAccept.value = true;
-                                    try {
-                                      final success = await ref
-                                          .read(invitationProvider.notifier)
-                                          .acceptInvitation(invitation.id);
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text(strings.invitationAccepted)),
-                                        );
-                                      }
-                                    } finally {
-                                      isLoadingAccept.value = false;
-                                    }
-                                  },
-                          ),
-                        ),
-                  // Decline button with loading state
-                  isLoadingDecline.value
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Semantics(
-                          label: '${strings.declineInvitation} ${invitation.taskListName}',
-                          button: true,
-                          child: IconButton(
-                            icon: const Icon(Icons.cancel, color: Colors.red),
-                            onPressed: (isLoadingAccept.value || isLoadingDecline.value)
-                                ? null
-                                : () async {
-                                    // Show confirmation dialog before declining
-                                    final confirmed = await showDialog<bool>(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: Text(strings.declineInvitation),
-                                        content: Text(
-                                          'Are you sure you want to decline the invitation to "${invitation.taskListName}"?',
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => Navigator.of(context).pop(false),
-                                            child: Text(strings.cancel),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () => Navigator.of(context).pop(true),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.red,
-                                              foregroundColor: Colors.white,
-                                            ),
-                                            child: Text(strings.declineInvitation),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-
-                                    if (confirmed != true) return;
-
-                                    isLoadingDecline.value = true;
-                                    try {
-                                      final success = await ref
-                                          .read(invitationProvider.notifier)
-                                          .declineInvitation(invitation.id);
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text(strings.invitationDeclined)),
-                                        );
-                                      }
-                                    } finally {
-                                      isLoadingDecline.value = false;
-                                    }
-                                  },
-                          ),
-                        ),
-                ],
-              )
-            : null,
       ),
+    );
+  }
+
+  Widget _buildSubtitle(BuildContext context, AppStrings strings) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 4),
+        Text('${strings.invitationFrom}: ${invitation.initiatedByUserName}'),
+        const SizedBox(height: 4),
+        StatusBadge(
+          icon: _getStateIcon(invitation.currentState),
+          label: _getStateLabel(invitation.currentState, strings),
+          color: _getStateColor(context, invitation.currentState),
+        ),
+      ],
+    );
+  }
+
+  Widget? _buildActions(
+    BuildContext context,
+    WidgetRef ref,
+    AppStrings strings,
+    ValueNotifier<bool> isLoadingAccept,
+    ValueNotifier<bool> isLoadingDecline,
+  ) {
+    if (invitation.currentState.name != 'PENDING') return null;
+
+    return _InvitationActions(
+      invitation: invitation,
+      isLoadingAccept: isLoadingAccept,
+      isLoadingDecline: isLoadingDecline,
+    );
+  }
+
+  String _getStateLabel(dynamic state, AppStrings strings) {
+    switch (state.name.toString()) {
+      case 'SENT':
+        return strings.pending;
+      case 'ACCEPTED':
+        return strings.accepted;
+      case 'DECLINED':
+        return strings.declined;
+      default:
+        return state.name.toString();
+    }
+  }
+
+  IconData _getStateIcon(dynamic state) {
+    switch (state.name.toString()) {
+      case 'SENT':
+        return Icons.schedule;
+      case 'ACCEPTED':
+        return Icons.check_circle;
+      case 'DECLINED':
+        return Icons.cancel;
+      default:
+        return Icons.info;
+    }
+  }
+
+  Color _getStateColor(BuildContext context, dynamic state) {
+    return state.name == 'SENT'
+        ? Colors.orange
+        : Theme.of(context).colorScheme.onSurfaceVariant;
+  }
+}
+
+/// Action buttons for accepting or declining an invitation
+class _InvitationActions extends HookConsumerWidget {
+  final dynamic invitation;
+  final ValueNotifier<bool> isLoadingAccept;
+  final ValueNotifier<bool> isLoadingDecline;
+
+  const _InvitationActions({
+    required this.invitation,
+    required this.isLoadingAccept,
+    required this.isLoadingDecline,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppStrings.of(context);
+    final isAnyLoading = isLoadingAccept.value || isLoadingDecline.value;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildActionButton(
+          isLoading: isLoadingAccept.value,
+          icon: Icons.check_circle,
+          color: Colors.green,
+          semanticLabel: '${strings.acceptInvitation} ${invitation.taskListName}',
+          onPressed: isAnyLoading ? null : () => _handleAccept(context, ref, strings),
+        ),
+        _buildActionButton(
+          isLoading: isLoadingDecline.value,
+          icon: Icons.cancel,
+          color: Colors.red,
+          semanticLabel: '${strings.declineInvitation} ${invitation.taskListName}',
+          onPressed: isAnyLoading ? null : () => _handleDecline(context, ref, strings),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButton({
+    required bool isLoading,
+    required IconData icon,
+    required Color color,
+    required String semanticLabel,
+    required VoidCallback? onPressed,
+  }) {
+    if (isLoading) {
+      return const SizedBox(
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    }
+
+    return Semantics(
+      label: semanticLabel,
+      button: true,
+      child: IconButton(
+        icon: Icon(icon, color: color),
+        onPressed: onPressed,
+      ),
+    );
+  }
+
+  Future<void> _handleAccept(
+    BuildContext context,
+    WidgetRef ref,
+    AppStrings strings,
+  ) async {
+    isLoadingAccept.value = true;
+    try {
+      await ref.read(invitationProvider.notifier).acceptInvitation(invitation.id);
+      if (context.mounted) {
+        _showSnackBar(context, strings.invitationAccepted);
+      }
+    } finally {
+      isLoadingAccept.value = false;
+    }
+  }
+
+  Future<void> _handleDecline(
+    BuildContext context,
+    WidgetRef ref,
+    AppStrings strings,
+  ) async {
+    final confirmed = await _showDeclineConfirmationDialog(context, strings);
+    if (confirmed != true) return;
+
+    isLoadingDecline.value = true;
+    try {
+      await ref.read(invitationProvider.notifier).declineInvitation(invitation.id);
+      if (context.mounted) {
+        _showSnackBar(context, strings.invitationDeclined);
+      }
+    } finally {
+      isLoadingDecline.value = false;
+    }
+  }
+
+  Future<bool?> _showDeclineConfirmationDialog(
+    BuildContext context,
+    AppStrings strings,
+  ) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(strings.declineInvitation),
+        content: Text(
+          strings.declineInvitationConfirmation(invitation.taskListName),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(strings.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(strings.declineInvitation),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 }

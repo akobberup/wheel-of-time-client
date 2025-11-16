@@ -79,6 +79,7 @@ abstract class AppStrings {
   String get taskDeleted;
   String get completeTask;
   String get taskCompleted;
+  String timesCompleted(int count);
 
   // Task Details
   String get taskName;
@@ -104,6 +105,7 @@ abstract class AppStrings {
   String get invitationFrom;
   String get acceptInvitation;
   String get declineInvitation;
+  String declineInvitationConfirmation(String taskListName);
   String get accepted;
   String get declined;
   String get invitationAccepted;
@@ -144,7 +146,7 @@ abstract class AppStrings {
   String confirmDeleteTask(String name);
   String confirmDeleteTaskList(String name);
   String get confirmDeleteTaskListEmpty;
-  String confirmDeleteTaskWithStreak(String name, int days, int completions);
+  String confirmDeleteTaskWithStreak(String name, int streakCount, int completions);
   String confirmDeleteTaskNoStreak(String name, int completions);
   String confirmRemoveMember(String name);
   String confirmCancelInvitation(String email);
@@ -193,7 +195,7 @@ abstract class AppStrings {
   String get completionWindowOptional;
   String get completionWindowHelper;
   String get inactiveTasksHidden;
-  String dayStreak(int count);
+  String streakCount(int count);
 
   // Send invitation
   String inviteSomeoneTo(String taskListName);
@@ -213,6 +215,7 @@ abstract class AppStrings {
   String get dismissNotification;
   String get dismiss;
   String get notificationDismissed;
+  String get confirmDismissNotification;
   String get newInvitation;
   String get invitationWasAccepted;
   String get invitationWasDeclined;
@@ -243,10 +246,18 @@ abstract class AppStrings {
   String get taskCompletedSuccess;
   String get streakContinued;
   String streakExtended(int count);
+  String keepStreakGoing(int count);
   String get failedToCompleteTask;
   String get completeEarlierTasksFirst;
   String get keepItGoing;
   String streakAtRisk(int count);
+  String get whenDidYouCompleteThis;
+  String get howDidItGo;
+  String get addNoteHint;
+  String get addNote;
+  String get completing;
+  String get done;
+  String get completeTaskButton;
 
   // Task History
   String get taskHistory;

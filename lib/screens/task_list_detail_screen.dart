@@ -14,7 +14,9 @@ import '../l10n/app_strings.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/skeleton_loader.dart';
 import '../models/schedule.dart';
+import '../models/task.dart' show TaskResponse;
 
+/// Viser detaljer for en opgaveliste med alle dens opgaver
 class TaskListDetailScreen extends ConsumerStatefulWidget {
   final int taskListId;
   final String? taskListName;
@@ -33,87 +35,14 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Pre-fetch suggestions in the background when screen loads
-    // This is non-blocking and will silently enhance UX
+    _preFetchSuggestions();
+  }
+
+  /// Pre-henter AI-forslag i baggrunden for bedre brugeroplevelse
+  void _preFetchSuggestions() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(suggestionCacheProvider.notifier).preFetchSuggestions(widget.taskListId);
     });
-  }
-
-  /// Formats the schedule into a natural, readable string.
-  /// Supports both interval and weekly pattern schedules.
-  /// The schedule already contains a description, so we use that directly.
-  String _formatSchedule(TaskSchedule schedule) {
-    return schedule.when(
-      interval: (unit, delta, description) => description,
-      weeklyPattern: (weeks, days, description) => description,
-    );
-  }
-
-  /// Shows a contextual confirmation dialog for deleting a task.
-  /// Fetches task instances and streak data to provide specific warnings.
-  /// Returns true if user confirms deletion, false otherwise.
-  Future<bool> _showDeleteConfirmation(
-    BuildContext context,
-    int taskId,
-    String taskName,
-  ) async {
-    final strings = AppStrings.of(context);
-
-    return await showContextualDeleteDialog(
-      context: context,
-      title: strings.deleteTask,
-      itemName: taskName,
-      fetchContext: () async {
-        try {
-          // Fetch task instances to get completion count
-          final taskHistoryNotifier = ref.read(taskHistoryProvider(taskId).notifier);
-          await taskHistoryNotifier.refresh();
-          final instances = ref.read(taskHistoryProvider(taskId)).value ?? [];
-
-          // Get task details for streak information
-          final tasks = ref.read(tasksProvider(widget.taskListId)).value ?? [];
-          final task = tasks.firstWhere((t) => t.id == taskId);
-
-          final hasStreak = task.currentStreak != null && task.currentStreak!.streakCount > 0;
-          final streakCount = task.currentStreak?.streakCount ?? 0;
-          final completionCount = instances.length;
-
-          if (completionCount == 0) {
-            return const DeletionContext.safe();
-          }
-
-          return DeletionContext(
-            primaryCount: completionCount,
-            hasActiveStreak: hasStreak,
-            streakCount: streakCount,
-            isSafe: false,
-          );
-        } catch (e) {
-          // If we can't fetch the data, return a non-safe default context
-          return const DeletionContext(primaryCount: 0, isSafe: false);
-        }
-      },
-      buildMessage: (context) {
-        if (context.isSafe) {
-          return 'This task has no completion records and can be safely deleted.';
-        }
-
-        if (context.hasActiveStreak && context.streakCount != null) {
-          return 'This will permanently delete:\n\n'
-              '• Your ${context.streakCount}-day streak\n'
-              '• ${context.primaryCount} completion ${context.primaryCount == 1 ? 'record' : 'records'}';
-        }
-
-        if (context.primaryCount > 0) {
-          return 'This will permanently delete ${context.primaryCount} completion ${context.primaryCount == 1 ? 'record' : 'records'}.';
-        }
-
-        return 'This task will be permanently deleted.';
-      },
-      deleteButtonLabel: strings.delete,
-      cancelButtonLabel: strings.cancel,
-    );
   }
 
   @override
@@ -122,216 +51,374 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
     final tasksAsync = ref.watch(tasksProvider(widget.taskListId));
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.taskListName != null ? strings.tasksIn(widget.taskListName!) : strings.tasks),
-        actions: [
-          Semantics(
-            label: strings.members,
-            button: true,
-            child: IconButton(
-              icon: const Icon(Icons.people),
-              tooltip: strings.members,
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => TaskListMembersScreen(
-                      taskListId: widget.taskListId,
-                      taskListName: widget.taskListName ?? strings.taskLists,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
-        },
-        child: tasksAsync.when(
-          data: (tasks) {
-            if (tasks.isEmpty) {
-              return EmptyState(
-                title: strings.noTasks,
-                subtitle: strings.addFirstTask,
-                action: ElevatedButton.icon(
-                  icon: const Icon(Icons.add),
-                  label: Text(strings.createTask),
-                  onPressed: () async {
-                    final result = await showDialog(
-                      context: context,
-                      builder: (context) => CreateTaskDialog(taskListId: widget.taskListId),
-                    );
-                    if (result == true && context.mounted) {
-                      ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
-                    }
-                  },
-                ),
-              );
-            }
+      appBar: _buildAppBar(strings),
+      body: _buildBody(tasksAsync, strings),
+      floatingActionButton: _buildFloatingActionButton(strings),
+    );
+  }
 
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                final task = tasks[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => TaskHistoryScreen(
-                            taskId: task.id,
-                            taskName: task.name,
-                          ),
-                        ),
-                      );
-                    },
-                    child: ListTile(
-                      leading: task.taskImagePath != null
-                          ? CachedNetworkImage(
-                              imageUrl: ApiConfig.getImageUrl(task.taskImagePath!),
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Container(
-                                width: 50,
-                                height: 50,
-                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                                child: const Center(
-                                  child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                  ),
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => const Icon(
-                                Icons.broken_image,
-                                size: 40,
-                              ),
-                            )
-                          : const Icon(Icons.check_circle_outline, size: 40),
-                      title: Text(task.name),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (task.description != null) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              task.description!,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                          const SizedBox(height: 4),
-                          Text(
-                            _formatSchedule(task.schedule),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontSize: 12,
-                            ),
-                          ),
-                          if (task.currentStreak != null) ...[
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.local_fire_department,
-                                  size: 16,
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(strings.dayStreak(task.currentStreak!.streakCount)),
-                              ],
-                            ),
-                          ],
-                        ],
-                      ),
-                      trailing: PopupMenuButton<String>(
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 'edit',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.edit, size: 20),
-                                const SizedBox(width: 12),
-                                Text(strings.edit),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.delete, size: 20, color: Colors.red),
-                                const SizedBox(width: 12),
-                                Text(strings.delete, style: const TextStyle(color: Colors.red)),
-                              ],
-                            ),
-                          ),
-                        ],
-                        onSelected: (value) async {
-                          if (value == 'edit') {
-                            final result = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => EditTaskDialog(task: task),
-                            );
-                            if (result == true) {
-                              ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
-                            }
-                          } else if (value == 'delete') {
-                            final confirmed = await _showDeleteConfirmation(
-                              context,
-                              task.id,
-                              task.name,
-                            );
-                            if (confirmed) {
-                              final success = await ref
-                                  .read(tasksProvider(widget.taskListId).notifier)
-                                  .deleteTask(task.id);
-                              if (context.mounted) {
-                                final strings = AppStrings.of(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      success
-                                          ? strings.taskDeletedSuccess
-                                          : strings.failedToDeleteTask,
-                                    ),
-                                  ),
-                                );
-                              }
-                            }
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-          loading: () => const SkeletonListLoader(),
-          error: (error, stack) => Center(
-            child: Text('Error: $error'),
-          ),
+  AppBar _buildAppBar(AppStrings strings) {
+    return AppBar(
+      title: Text(widget.taskListName != null
+          ? strings.tasksIn(widget.taskListName!)
+          : strings.tasks),
+      actions: [_buildMembersButton(strings)],
+    );
+  }
+
+  Widget _buildMembersButton(AppStrings strings) {
+    return Semantics(
+      label: strings.members,
+      button: true,
+      child: IconButton(
+        icon: const Icon(Icons.people),
+        tooltip: strings.members,
+        onPressed: () => _navigateToMembers(strings),
+      ),
+    );
+  }
+
+  Widget _buildBody(AsyncValue<List<TaskResponse>> tasksAsync, AppStrings strings) {
+    return RefreshIndicator(
+      onRefresh: () => ref.read(tasksProvider(widget.taskListId).notifier).loadTasks(),
+      child: tasksAsync.when(
+        data: (tasks) => _buildTasksList(tasks, strings),
+        loading: () => const SkeletonListLoader(),
+        error: (error, stack) => _buildErrorState(error, strings),
+      ),
+    );
+  }
+
+  Widget _buildTasksList(List<TaskResponse> tasks, AppStrings strings) {
+    if (tasks.isEmpty) {
+      return _buildEmptyState(strings);
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: tasks.length,
+      itemBuilder: (context, index) => _TaskCard(
+        task: tasks[index],
+        taskListId: widget.taskListId,
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(AppStrings strings) {
+    return EmptyState(
+      title: strings.noTasks,
+      subtitle: strings.addFirstTask,
+      action: ElevatedButton.icon(
+        icon: const Icon(Icons.add),
+        label: Text(strings.createTask),
+        onPressed: () => _handleCreateTask(),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(Object error, AppStrings strings) {
+    return Center(
+      child: Text(strings.networkError(error.toString())),
+    );
+  }
+
+  Widget _buildFloatingActionButton(AppStrings strings) {
+    return FloatingActionButton(
+      onPressed: () => _handleCreateTask(),
+      child: const Icon(Icons.add),
+    );
+  }
+
+  void _navigateToMembers(AppStrings strings) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TaskListMembersScreen(
+          taskListId: widget.taskListId,
+          taskListName: widget.taskListName ?? strings.taskLists,
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await showDialog(
-            context: context,
-            builder: (context) => CreateTaskDialog(taskListId: widget.taskListId),
-          );
-          if (result == true) {
-            ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
-          }
-        },
-        child: const Icon(Icons.add),
+    );
+  }
+
+  Future<void> _handleCreateTask() async {
+    final result = await showDialog(
+      context: context,
+      builder: (context) => CreateTaskDialog(taskListId: widget.taskListId),
+    );
+    if (result == true && mounted) {
+      ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
+    }
+  }
+}
+
+/// Kort der viser en enkelt opgave med billede, detaljer og handlinger
+class _TaskCard extends ConsumerWidget {
+  final TaskResponse task;
+  final int taskListId;
+
+  const _TaskCard({
+    required this.task,
+    required this.taskListId,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _navigateToTaskHistory(context),
+        child: ListTile(
+          leading: _buildLeadingImage(context),
+          title: Text(task.name),
+          subtitle: _buildSubtitle(context),
+          trailing: _buildPopupMenu(context, ref),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLeadingImage(BuildContext context) {
+    if (task.taskImagePath == null) {
+      return const Icon(Icons.check_circle_outline, size: 40);
+    }
+
+    return CachedNetworkImage(
+      imageUrl: ApiConfig.getImageUrl(task.taskImagePath!),
+      width: 50,
+      height: 50,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => _buildImagePlaceholder(context),
+      errorWidget: (context, url, error) => const Icon(
+        Icons.broken_image,
+        size: 40,
+      ),
+    );
+  }
+
+  Widget _buildImagePlaceholder(BuildContext context) {
+    return Container(
+      width: 50,
+      height: 50,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: const Center(
+        child: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubtitle(BuildContext context) {
+    final strings = AppStrings.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (task.description != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            task.description!,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+        const SizedBox(height: 4),
+        _buildScheduleText(context),
+        if (task.currentStreak != null) ...[
+          const SizedBox(height: 4),
+          _buildStreakIndicator(context, strings),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildScheduleText(BuildContext context) {
+    return Text(
+      _formatSchedule(task.schedule),
+      style: TextStyle(
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        fontSize: 12,
+      ),
+    );
+  }
+
+  Widget _buildStreakIndicator(BuildContext context, AppStrings strings) {
+    return Row(
+      children: [
+        Icon(
+          Icons.local_fire_department,
+          size: 16,
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
+        const SizedBox(width: 4),
+        Text(strings.streakCount(task.currentStreak!.streakCount)),
+      ],
+    );
+  }
+
+  Widget _buildPopupMenu(BuildContext context, WidgetRef ref) {
+    final strings = AppStrings.of(context);
+
+    return PopupMenuButton<String>(
+      itemBuilder: (context) => [
+        _buildEditMenuItem(strings),
+        _buildDeleteMenuItem(strings),
+      ],
+      onSelected: (value) => _handleMenuSelection(context, ref, value),
+    );
+  }
+
+  PopupMenuItem<String> _buildEditMenuItem(AppStrings strings) {
+    return PopupMenuItem(
+      value: 'edit',
+      child: Row(
+        children: [
+          const Icon(Icons.edit, size: 20),
+          const SizedBox(width: 12),
+          Text(strings.edit),
+        ],
+      ),
+    );
+  }
+
+  PopupMenuItem<String> _buildDeleteMenuItem(AppStrings strings) {
+    return PopupMenuItem(
+      value: 'delete',
+      child: Row(
+        children: [
+          const Icon(Icons.delete, size: 20, color: Colors.red),
+          const SizedBox(width: 12),
+          Text(strings.delete, style: const TextStyle(color: Colors.red)),
+        ],
+      ),
+    );
+  }
+
+  String _formatSchedule(TaskSchedule schedule) {
+    return schedule.when(
+      interval: (unit, delta, description) => description,
+      weeklyPattern: (weeks, days, description) => description,
+    );
+  }
+
+  void _navigateToTaskHistory(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TaskHistoryScreen(
+          taskId: task.id,
+          taskName: task.name,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleMenuSelection(
+    BuildContext context,
+    WidgetRef ref,
+    String value,
+  ) async {
+    if (value == 'edit') {
+      await _handleEdit(context, ref);
+    } else if (value == 'delete') {
+      await _handleDelete(context, ref);
+    }
+  }
+
+  Future<void> _handleEdit(BuildContext context, WidgetRef ref) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => EditTaskDialog(task: task),
+    );
+    if (result == true) {
+      ref.read(tasksProvider(taskListId).notifier).loadTasks();
+    }
+  }
+
+  Future<void> _handleDelete(BuildContext context, WidgetRef ref) async {
+    final strings = AppStrings.of(context);
+    final confirmed = await _showDeleteConfirmation(context, ref, strings);
+
+    if (!confirmed) return;
+
+    final success = await ref
+        .read(tasksProvider(taskListId).notifier)
+        .deleteTask(task.id);
+
+    if (context.mounted) {
+      _showDeleteResult(context, success, strings);
+    }
+  }
+
+  /// Viser bekræftelsesdialog med kontekstuel information om sletning
+  Future<bool> _showDeleteConfirmation(
+    BuildContext context,
+    WidgetRef ref,
+    AppStrings strings,
+  ) async {
+    return await showContextualDeleteDialog(
+      context: context,
+      title: strings.deleteTask,
+      itemName: task.name,
+      fetchContext: () => _fetchDeletionContext(ref),
+      buildMessage: _buildDeletionMessage,
+      deleteButtonLabel: strings.delete,
+      cancelButtonLabel: strings.cancel,
+    );
+  }
+
+  /// Henter kontekst for sletning (antal completions og streak-info)
+  Future<DeletionContext> _fetchDeletionContext(WidgetRef ref) async {
+    try {
+      final taskHistoryNotifier = ref.read(taskHistoryProvider(task.id).notifier);
+      await taskHistoryNotifier.refresh();
+      final instances = ref.read(taskHistoryProvider(task.id)).value ?? [];
+
+      final hasStreak = task.currentStreak != null && task.currentStreak!.streakCount > 0;
+      final streakCount = task.currentStreak?.streakCount ?? 0;
+      final completionCount = instances.length;
+
+      if (completionCount == 0) {
+        return const DeletionContext.safe();
+      }
+
+      return DeletionContext(
+        primaryCount: completionCount,
+        hasActiveStreak: hasStreak,
+        streakCount: streakCount,
+        isSafe: false,
+      );
+    } catch (e) {
+      return const DeletionContext(primaryCount: 0, isSafe: false);
+    }
+  }
+
+  String _buildDeletionMessage(DeletionContext context) {
+    if (context.isSafe) {
+      return 'This task has no completion records and can be safely deleted.';
+    }
+
+    if (context.hasActiveStreak && context.streakCount != null) {
+      return 'This will permanently delete:\n\n'
+          '• Your ${context.streakCount}x streak\n'
+          '• ${context.primaryCount} completion ${context.primaryCount == 1 ? 'record' : 'records'}';
+    }
+
+    if (context.primaryCount > 0) {
+      return 'This will permanently delete ${context.primaryCount} completion ${context.primaryCount == 1 ? 'record' : 'records'}.';
+    }
+
+    return 'This task will be permanently deleted.';
+  }
+
+  void _showDeleteResult(BuildContext context, bool success, AppStrings strings) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success ? strings.taskDeletedSuccess : strings.failedToDeleteTask,
+        ),
       ),
     );
   }

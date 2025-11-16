@@ -10,8 +10,10 @@ import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
 import '../l10n/app_strings.dart';
 
-final selectedIndexProvider = StateProvider<int>((ref) => 1); // Default to Upcoming tasks tab
+/// Provider der holder styr på hvilket tab der er valgt i bottom navigation
+final selectedIndexProvider = StateProvider<int>((ref) => 1);
 
+/// Hovedskærm med bottom navigation mellem Lists, Upcoming Tasks og Invitations
 class MainNavigationScreen extends ConsumerWidget {
   const MainNavigationScreen({super.key});
 
@@ -19,84 +21,168 @@ class MainNavigationScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
     final selectedIndex = ref.watch(selectedIndexProvider);
-    final pendingInvitationsAsync = ref.watch(invitationProvider);
-    final notificationCount = ref.watch(notificationCountProvider);
 
-    int pendingCount = 0;
-    pendingInvitationsAsync.whenData((invitations) {
-      pendingCount = invitations.length;
-    });
+    return Scaffold(
+      appBar: _buildAppBar(context, ref, strings),
+      body: _buildBody(selectedIndex),
+      bottomNavigationBar: _buildBottomNavigationBar(ref, strings, selectedIndex),
+    );
+  }
 
+  /// Bygger app bar med titel og action buttons
+  PreferredSizeWidget _buildAppBar(
+    BuildContext context,
+    WidgetRef ref,
+    AppStrings strings,
+  ) {
+    return AppBar(
+      title: Text(strings.appTitle),
+      actions: [
+        _NotificationButton(strings: strings),
+        _LogoutButton(strings: strings),
+      ],
+    );
+  }
+
+  /// Bygger body med de forskellige skærme baseret på valgt tab
+  Widget _buildBody(int selectedIndex) {
     final screens = [
       const TaskListsScreen(),
       const UpcomingTasksScreen(),
       const InvitationsScreen(),
     ];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.appTitle),
-        actions: [
-          Semantics(
-            label: strings.notifications,
-            button: true,
-            child: IconButton(
-              icon: Badge(
-                isLabelVisible: notificationCount > 0,
-                label: Text('$notificationCount'),
-                child: const Icon(Icons.notifications),
-              ),
-              tooltip: strings.notifications,
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const NotificationsScreen()),
-                );
-              },
-            ),
-          ),
-          Semantics(
-            label: strings.logout,
-            button: true,
-            child: IconButton(
-              icon: const Icon(Icons.logout),
-              tooltip: strings.logout,
-              onPressed: () async {
-                await ref.read(authProvider.notifier).logout();
-                if (context.mounted) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
-                }
-              },
-            ),
-          ),
-        ],
+    return screens[selectedIndex];
+  }
+
+  /// Bygger bottom navigation bar med badges for invitations
+  Widget _buildBottomNavigationBar(
+    WidgetRef ref,
+    AppStrings strings,
+    int selectedIndex,
+  ) {
+    return NavigationBar(
+      selectedIndex: selectedIndex,
+      onDestinationSelected: (index) => _handleNavigationChange(ref, index),
+      destinations: _buildNavigationDestinations(ref, strings),
+    );
+  }
+
+  /// Bygger navigation destinations med badges
+  List<NavigationDestination> _buildNavigationDestinations(
+    WidgetRef ref,
+    AppStrings strings,
+  ) {
+    final pendingInvitationsCount = _getPendingInvitationsCount(ref);
+
+    return [
+      NavigationDestination(
+        icon: const Icon(Icons.list),
+        label: strings.lists,
       ),
-      body: screens[selectedIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: selectedIndex,
-        onDestinationSelected: (index) {
-          ref.read(selectedIndexProvider.notifier).state = index;
-        },
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.list),
-            label: strings.lists,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.upcoming),
-            label: strings.upcomingTasks,
-          ),
-          NavigationDestination(
-            icon: Badge(
-              isLabelVisible: pendingCount > 0,
-              label: Text('$pendingCount'),
-              child: const Icon(Icons.mail),
-            ),
-            label: strings.invitations,
-          ),
-        ],
+      NavigationDestination(
+        icon: const Icon(Icons.upcoming),
+        label: strings.upcomingTasks,
+      ),
+      NavigationDestination(
+        icon: _buildInvitationsBadge(pendingInvitationsCount),
+        label: strings.invitations,
+      ),
+    ];
+  }
+
+  /// Bygger badge til invitations tab
+  Widget _buildInvitationsBadge(int count) {
+    return Badge(
+      isLabelVisible: count > 0,
+      label: Text('$count'),
+      child: const Icon(Icons.mail),
+    );
+  }
+
+  /// Henter antal pending invitations
+  int _getPendingInvitationsCount(WidgetRef ref) {
+    final pendingInvitationsAsync = ref.watch(invitationProvider);
+    int count = 0;
+
+    pendingInvitationsAsync.whenData((invitations) {
+      count = invitations.length;
+    });
+
+    return count;
+  }
+
+  /// Håndterer ændring af valgt tab
+  void _handleNavigationChange(WidgetRef ref, int index) {
+    ref.read(selectedIndexProvider.notifier).state = index;
+  }
+}
+
+/// Notification button med badge der viser antal ulæste notifikationer
+class _NotificationButton extends ConsumerWidget {
+  final AppStrings strings;
+
+  const _NotificationButton({required this.strings});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notificationCount = ref.watch(notificationCountProvider);
+
+    return Semantics(
+      label: strings.notifications,
+      button: true,
+      child: IconButton(
+        icon: _buildBadge(notificationCount),
+        tooltip: strings.notifications,
+        onPressed: () => _handleNotificationPressed(context),
       ),
     );
+  }
+
+  /// Bygger notification badge
+  Widget _buildBadge(int count) {
+    return Badge(
+      isLabelVisible: count > 0,
+      label: Text('$count'),
+      child: const Icon(Icons.notifications),
+    );
+  }
+
+  /// Håndterer tryk på notification button
+  void _handleNotificationPressed(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+    );
+  }
+}
+
+/// Logout button der logger brugeren ud
+class _LogoutButton extends ConsumerWidget {
+  final AppStrings strings;
+
+  const _LogoutButton({required this.strings});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Semantics(
+      label: strings.logout,
+      button: true,
+      child: IconButton(
+        icon: const Icon(Icons.logout),
+        tooltip: strings.logout,
+        onPressed: () => _handleLogout(context, ref),
+      ),
+    );
+  }
+
+  /// Håndterer logout og navigerer til login skærm
+  Future<void> _handleLogout(BuildContext context, WidgetRef ref) async {
+    await ref.read(authProvider.notifier).logout();
+
+    if (context.mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    }
   }
 }

@@ -190,6 +190,9 @@ class StringsDa extends AppStrings {
   @override
   String get taskCompleted => 'Opgave fuldført';
 
+  @override
+  String timesCompleted(int count) => 'Fuldført ${count}x';
+
   // Task Details
   @override
   String get taskName => 'Opgavenavn';
@@ -249,6 +252,10 @@ class StringsDa extends AppStrings {
 
   @override
   String get declineInvitation => 'Afvis';
+
+  @override
+  String declineInvitationConfirmation(String taskListName) =>
+      'Er du sikker på, at du vil afvise invitationen til "$taskListName"?';
 
   @override
   String get accepted => 'Accepteret';
@@ -359,8 +366,8 @@ class StringsDa extends AppStrings {
       'Denne liste er tom og kan slettes sikkert.';
 
   @override
-  String confirmDeleteTaskWithStreak(String name, int days, int completions) =>
-      'Slet "$name"? Dette vil permanent slette din $days-dages streak og $completions afslutnings${completions == 1 ? 'post' : 'poster'}.';
+  String confirmDeleteTaskWithStreak(String name, int streakCount, int completions) =>
+      'Slet "$name"? Dette vil permanent slette din ${streakCount}x streak og $completions afslutnings${completions == 1 ? 'post' : 'poster'}.';
 
   @override
   String confirmDeleteTaskNoStreak(String name, int completions) =>
@@ -492,7 +499,7 @@ class StringsDa extends AppStrings {
   String get inactiveTasksHidden => 'Inaktive opgaver vises ikke til fuldførelse';
 
   @override
-  String dayStreak(int count) => '$count dages stribe';
+  String streakCount(int count) => '${count}x streak';
 
   // Send invitation
   @override
@@ -535,6 +542,9 @@ class StringsDa extends AppStrings {
 
   @override
   String get notificationDismissed => 'Notifikation afvist';
+
+  @override
+  String get confirmDismissNotification => 'Er du sikker på, at du vil afvise denne notifikation?';
 
   @override
   String get newInvitation => 'Ny invitation';
@@ -614,7 +624,10 @@ class StringsDa extends AppStrings {
   String get streakContinued => 'Serie fortsat!';
 
   @override
-  String streakExtended(int count) => 'Serie udvidet til $count dage!';
+  String streakExtended(int count) => 'Serie udvidet til ${count}x!';
+
+  @override
+  String keepStreakGoing(int count) => 'Hold din ${count}x streak i gang!';
 
   @override
   String get failedToCompleteTask => 'Kunne ikke fuldføre opgave';
@@ -626,7 +639,28 @@ class StringsDa extends AppStrings {
   String get keepItGoing => 'Bliv ved!';
 
   @override
-  String streakAtRisk(int count) => '⚠️ $count-dages stribe i fare!';
+  String streakAtRisk(int count) => '⚠️ ${count}x streak i fare!';
+
+  @override
+  String get whenDidYouCompleteThis => 'Hvornår fuldførte du dette?';
+
+  @override
+  String get howDidItGo => 'Hvordan gik det?';
+
+  @override
+  String get addNoteHint => 'Tilføj en note om denne fuldførelse...';
+
+  @override
+  String get addNote => 'Tilføj note';
+
+  @override
+  String get completing => 'Fuldfører...';
+
+  @override
+  String get done => 'Færdig!';
+
+  @override
+  String get completeTaskButton => 'Fuldfør opgave!';
 
   // Task History
   @override
