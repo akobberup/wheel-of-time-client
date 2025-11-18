@@ -74,7 +74,7 @@ jobs:
             cd ~/apps/wheel-of-time
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull frontend
-            docker compose up -d frontend
+            docker compose up -d --force-recreate frontend
             docker logout ghcr.io
 
       - name: Health check
@@ -82,7 +82,7 @@ jobs:
           echo "Venter 30 sekunder på at container starter..."
           sleep 30
           echo "Tjekker frontend health..."
-          curl -f https://t16software.dev || exit 1
+          curl -f https://t16software.dev/wheel-of-time/ || exit 1
           echo "✅ Frontend er healthy!"
 
       - name: Deployment success
@@ -90,4 +90,4 @@ jobs:
         run: |
           echo "🚀 Frontend deployment gennemført!"
           echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
-          echo "URL: https://t16software.dev"
+          echo "URL: https://t16software.dev/wheel-of-time"
