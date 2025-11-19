@@ -1,17 +1,50 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
+import 'providers/remote_logger_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/reset_password_screen.dart';
 
 void main() {
+  // Create provider container for accessing services
+  final container = ProviderContainer();
+  final logger = container.read(remoteLoggerProvider);
+
+  // Catch Flutter framework errors
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    logger.error(
+      details.exceptionAsString(),
+      category: 'flutter_error',
+      error: details.exception,
+      stackTrace: details.stack,
+      metadata: {
+        'library': details.library ?? 'unknown',
+        'context': details.context?.toString(),
+      },
+    );
+  };
+
+  // Catch async errors that escape Flutter's error handling
+  PlatformDispatcher.instance.onError = (error, stack) {
+    logger.error(
+      'Uncaught async error',
+      category: 'async_error',
+      error: error,
+      stackTrace: stack,
+    );
+    return true; // Handled
+  };
+
   runApp(
-    const ProviderScope(
-      child: WheelOfTimeApp(),
+    UncontrolledProviderScope(
+      container: container,
+      child: const WheelOfTimeApp(),
     ),
   );
 }

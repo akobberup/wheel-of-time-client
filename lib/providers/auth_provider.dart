@@ -4,6 +4,8 @@ import '../models/auth_response.dart';
 import '../models/login_request.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
+import '../services/remote_logger_service.dart';
+import 'remote_logger_provider.dart';
 
 /// Represents the current authentication state of the application.
 /// Contains information about whether the user is authenticated, loading status,
@@ -46,10 +48,15 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final ApiService _apiService;
   final StorageService _storageService;
+  final RemoteLoggerService _logger;
 
   /// Constructor initializes with unauthenticated state and immediately checks
   /// for existing authentication data in storage to restore user session.
-  AuthNotifier(this._apiService, this._storageService) : super(AuthState()) {
+  AuthNotifier(
+    this._apiService,
+    this._storageService,
+    this._logger,
+  ) : super(AuthState()) {
     _checkAuthStatus();
   }
 
@@ -160,6 +167,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Set token in API service for subsequent authenticated requests
       _apiService.setToken(response.token);
 
+      // Track successful login
+      _logger.setUserId(response.userId.toString());
+      _logger.trackEvent('user_login', properties: {
+        'email': response.email,
+        'name': response.name,
+      });
+
       state = state.copyWith(
         isAuthenticated: true,
         isLoading: false,
@@ -169,6 +183,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (e) {
       // Set error state with the exception message
       developer.log('❌ Login failed: $e', name: 'AuthProvider');
+      _logger.warning(
+        'Login failed',
+        category: 'auth',
+        metadata: {'email': email, 'error': e.toString()},
+      );
       state = state.copyWith(
         isAuthenticated: false,
         isLoading: false,
@@ -202,12 +221,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       _apiService.setToken(response.token);
 
+      // Track successful registration
+      _logger.setUserId(response.userId.toString());
+      _logger.trackEvent('user_register', properties: {
+        'email': response.email,
+        'name': response.name,
+      });
+
       state = state.copyWith(
         isAuthenticated: true,
         isLoading: false,
         user: response,
       );
     } catch (e) {
+      _logger.warning(
+        'Registration failed',
+        category: 'auth',
+        metadata: {'email': email, 'error': e.toString()},
+      );
       state = state.copyWith(
         isAuthenticated: false,
         isLoading: false,
@@ -260,8 +291,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Logs out the current user by clearing all stored authentication data
   /// and resetting the state to unauthenticated.
   Future<void> logout() async {
+    // Track logout event before clearing user data
+    _logger.trackEvent('user_logout');
+
     await _storageService.clearAuthData();
     _apiService.setToken(null);
+    _logger.setUserId(null);
     state = AuthState();
   }
 }
@@ -285,5 +320,6 @@ final storageServiceProvider = Provider<StorageService>((ref) => StorageService(
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final apiService = ref.watch(apiServiceProvider);
   final storageService = ref.watch(storageServiceProvider);
-  return AuthNotifier(apiService, storageService);
+  final logger = ref.watch(remoteLoggerProvider);
+  return AuthNotifier(apiService, storageService, logger);
 });

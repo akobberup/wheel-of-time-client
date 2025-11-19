@@ -74,10 +74,11 @@ See the [t16software-infrastructure](https://github.com/akobberup/t16software-in
 ### Production
 
 - **Frontend URL**: https://t16software.dev
-- **Backend API**: https://api.t16software.dev
+- **Backend API**: https://t16software.dev/wheel-of-time/api
 
 The production build uses:
 - Flutter web with release optimization
 - Nginx for static file serving
 - Traefik reverse proxy with Let's Encrypt SSL
 - Docker containerization
+- Path-based routing with context path `/wheel-of-time`
