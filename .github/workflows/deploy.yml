@@ -65,12 +65,35 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Prepare SSH key
+        run: |
+          echo "SSH key length: ${#DEPLOY_SSH_KEY}"
+          echo "First 20 chars: ${DEPLOY_SSH_KEY:0:20}"
+          echo "Last 20 chars: ${DEPLOY_SSH_KEY: -20}"
+
+          # Decode base64 if needed
+          if [[ "$DEPLOY_SSH_KEY" == LS0tLS1CRUdJTi* ]]; then
+            echo "Key is base64 encoded, decoding..."
+            echo "$DEPLOY_SSH_KEY" | base64 -d > /tmp/ssh_key
+            echo "Decoded key length: $(wc -c < /tmp/ssh_key)"
+            echo "Decoded key starts with: $(head -c 30 /tmp/ssh_key)"
+          elif [[ "$DEPLOY_SSH_KEY" == -----BEGIN* ]]; then
+            echo "Key is already in raw format"
+            echo "$DEPLOY_SSH_KEY" > /tmp/ssh_key
+          else
+            echo "Key format unknown - trying to decode as base64..."
+            echo "$DEPLOY_SSH_KEY" | base64 -d > /tmp/ssh_key
+          fi
+          chmod 600 /tmp/ssh_key
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          key_path: /tmp/ssh_key
           script: |
             cd ~/apps/wheel-of-time
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin

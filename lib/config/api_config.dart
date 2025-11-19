@@ -14,18 +14,18 @@ class ApiConfig {
       // Development environment
       // Web always uses localhost
       if (kIsWeb) {
-        return 'http://localhost:8080/wheel-of-time/api';
+        return 'http://localhost:8080/wheel-of-time';
       }
       // Android emulator uses 10.0.2.2 to access host machine's localhost
       if (Platform.isAndroid) {
-        return 'http://10.0.2.2:8080/wheel-of-time/api';
+        return 'http://10.0.2.2:8080/wheel-of-time';
       }
       // For iOS simulator and other platforms, localhost works fine
-      return 'http://localhost:8080/wheel-of-time/api';
+      return 'http://localhost:8080/wheel-of-time';
     } else {
       // Production environment - this should be configured via environment variables
       // or a build configuration in a real production setup
-      const String prodUrl = String.fromEnvironment('API_BASE_URL', defaultValue: 'https://t16software.dev/wheel-of-time/api');
+      const String prodUrl = String.fromEnvironment('API_BASE_URL', defaultValue: 'https://t16software.dev/wheel-of-time');
       return prodUrl;
     }
   }
