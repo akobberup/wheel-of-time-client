@@ -15,6 +15,7 @@ import '../models/streak.dart';
 import '../models/image.dart';
 import '../models/enums.dart';
 import '../config/api_config.dart';
+import 'remote_logger_service.dart';
 
 /// Custom exception class for API-related errors.
 /// Includes the error message and optional HTTP status code for better error handling.
@@ -35,11 +36,16 @@ class ApiService {
   static String get baseUrl => ApiConfig.baseUrl;
 
   final http.Client _client;
+  final RemoteLoggerService? _logger;
   String? _token;
 
   /// Constructor allows dependency injection of HTTP client for testing purposes.
   /// If no client is provided, uses the default http.Client().
-  ApiService({http.Client? client}) : _client = client ?? http.Client();
+  ApiService({
+    http.Client? client,
+    RemoteLoggerService? logger,
+  })  : _client = client ?? http.Client(),
+        _logger = logger;
 
   /// Updates the stored authentication token.
   /// This token will be included in subsequent authenticated requests.
@@ -70,6 +76,21 @@ class ApiService {
     developer.log('<<< GET $url - Status: ${response.statusCode}', name: 'ApiService');
     developer.log('Response body: ${response.body}', name: 'ApiService');
 
+    // Log errors to remote
+    if (response.statusCode >= 400) {
+      _logger?.warning(
+        'API GET request failed',
+        category: 'api',
+        metadata: {
+          'url': url,
+          'statusCode': response.statusCode,
+          'responseBody': response.body.length > 200
+              ? '${response.body.substring(0, 200)}...'
+              : response.body,
+        },
+      );
+    }
+
     return response;
   }
 
@@ -84,6 +105,21 @@ class ApiService {
 
     developer.log('<<< POST $url - Status: ${response.statusCode}', name: 'ApiService');
     developer.log('Response body: ${response.body}', name: 'ApiService');
+
+    // Log errors to remote
+    if (response.statusCode >= 400) {
+      _logger?.warning(
+        'API POST request failed',
+        category: 'api',
+        metadata: {
+          'url': url,
+          'statusCode': response.statusCode,
+          'responseBody': response.body.length > 200
+              ? '${response.body.substring(0, 200)}...'
+              : response.body,
+        },
+      );
+    }
 
     return response;
   }
@@ -100,6 +136,21 @@ class ApiService {
     developer.log('<<< PUT $url - Status: ${response.statusCode}', name: 'ApiService');
     developer.log('Response body: ${response.body}', name: 'ApiService');
 
+    // Log errors to remote
+    if (response.statusCode >= 400) {
+      _logger?.warning(
+        'API PUT request failed',
+        category: 'api',
+        metadata: {
+          'url': url,
+          'statusCode': response.statusCode,
+          'responseBody': response.body.length > 200
+              ? '${response.body.substring(0, 200)}...'
+              : response.body,
+        },
+      );
+    }
+
     return response;
   }
 
@@ -111,6 +162,21 @@ class ApiService {
 
     developer.log('<<< DELETE $url - Status: ${response.statusCode}', name: 'ApiService');
     developer.log('Response body: ${response.body}', name: 'ApiService');
+
+    // Log errors to remote
+    if (response.statusCode >= 400) {
+      _logger?.warning(
+        'API DELETE request failed',
+        category: 'api',
+        metadata: {
+          'url': url,
+          'statusCode': response.statusCode,
+          'responseBody': response.body.length > 200
+              ? '${response.body.substring(0, 200)}...'
+              : response.body,
+        },
+      );
+    }
 
     return response;
   }
@@ -204,6 +270,12 @@ class ApiService {
     } catch (e) {
       // Any error decoding the token is treated as invalid
       developer.log('Error validating token: $e', name: 'ApiService');
+      _logger?.error(
+        'Token validation error',
+        category: 'auth',
+        error: e,
+        metadata: {'hasToken': _token != null},
+      );
       return false;
     }
   }

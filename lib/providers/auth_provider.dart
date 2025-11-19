@@ -306,7 +306,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
 /// Provider for ApiService singleton.
 /// Use this to access API functionality from anywhere in the app.
-final apiServiceProvider = Provider<ApiService>((ref) => ApiService());
+final apiServiceProvider = Provider<ApiService>((ref) {
+  final logger = ref.watch(remoteLoggerProvider);
+  return ApiService(logger: logger);
+});
 
 /// Provider for StorageService singleton.
 /// Use this to access persistent storage functionality from anywhere in the app.
