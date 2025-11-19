@@ -66,6 +66,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Prepare SSH key
+        id: ssh_key
         run: |
           echo "SSH key length: ${#DEPLOY_SSH_KEY}"
           echo "First 20 chars: ${DEPLOY_SSH_KEY:0:20}"
@@ -74,17 +75,21 @@ jobs:
           # Decode base64 if needed
           if [[ "$DEPLOY_SSH_KEY" == LS0tLS1CRUdJTi* ]]; then
             echo "Key is base64 encoded, decoding..."
-            echo "$DEPLOY_SSH_KEY" | base64 -d > /tmp/ssh_key
-            echo "Decoded key length: $(wc -c < /tmp/ssh_key)"
-            echo "Decoded key starts with: $(head -c 30 /tmp/ssh_key)"
+            DECODED_KEY=$(echo "$DEPLOY_SSH_KEY" | base64 -d)
+            echo "Decoded key length: ${#DECODED_KEY}"
+            echo "Decoded key starts with: ${DECODED_KEY:0:30}"
           elif [[ "$DEPLOY_SSH_KEY" == -----BEGIN* ]]; then
             echo "Key is already in raw format"
-            echo "$DEPLOY_SSH_KEY" > /tmp/ssh_key
+            DECODED_KEY="$DEPLOY_SSH_KEY"
           else
             echo "Key format unknown - trying to decode as base64..."
-            echo "$DEPLOY_SSH_KEY" | base64 -d > /tmp/ssh_key
+            DECODED_KEY=$(echo "$DEPLOY_SSH_KEY" | base64 -d)
           fi
-          chmod 600 /tmp/ssh_key
+
+          # Export to environment for next step
+          echo "ssh_key<<EOF" >> $GITHUB_OUTPUT
+          echo "$DECODED_KEY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
 
@@ -93,7 +98,7 @@ jobs:
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
-          key_path: /tmp/ssh_key
+          key: ${{ steps.ssh_key.outputs.ssh_key }}
           script: |
             cd ~/apps/wheel-of-time
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
