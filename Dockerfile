@@ -31,8 +31,11 @@ COPY . .
 # Generer code (freezed, json_serializable)
 RUN dart run build_runner build --delete-conflicting-outputs
 
-# Build web app til production
-RUN flutter build web --release
+# Accept build version argument
+ARG BUILD_VERSION=unknown
+
+# Build web app til production med version info
+RUN flutter build web --release --dart-define=BUILD_VERSION=${BUILD_VERSION}
 
 # Production stage - Nginx
 FROM nginx:alpine

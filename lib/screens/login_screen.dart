@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import '../l10n/app_strings.dart';
+import '../config/version_config.dart';
 import 'home_screen.dart';
 
 /// Skærm til bruger-login og registrering
@@ -68,6 +69,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     isLoading: authState.isLoading,
                     onToggle: _handleModeToggle,
                   ),
+                  const SizedBox(height: 24),
+                  const _VersionDisplay(),
                 ],
               ),
             ),
@@ -415,6 +418,23 @@ class _ModeToggleButton extends StatelessWidget {
       onPressed: isLoading ? null : onToggle,
       child: Text(
         isLoginMode ? strings.dontHaveAccount : strings.alreadyHaveAccount,
+      ),
+    );
+  }
+}
+
+/// Viser app-version i bunden af login-skærmen
+class _VersionDisplay extends StatelessWidget {
+  const _VersionDisplay();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        VersionConfig.displayVersion,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Colors.grey[500],
+            ),
       ),
     );
   }
