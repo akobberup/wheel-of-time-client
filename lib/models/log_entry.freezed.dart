@@ -23,7 +23,7 @@ mixin _$LogEntry {
   LogLevel get level => throw _privateConstructorUsedError;
   String get message => throw _privateConstructorUsedError;
   String get timestamp => throw _privateConstructorUsedError;
-  String get version => throw _privateConstructorUsedError;
+  String get clientVersion => throw _privateConstructorUsedError;
   String? get userId => throw _privateConstructorUsedError;
   String? get category => throw _privateConstructorUsedError;
   Map<String, dynamic>? get metadata => throw _privateConstructorUsedError;
@@ -49,7 +49,7 @@ abstract class $LogEntryCopyWith<$Res> {
       {LogLevel level,
       String message,
       String timestamp,
-      String version,
+      String clientVersion,
       String? userId,
       String? category,
       Map<String, dynamic>? metadata,
@@ -75,7 +75,7 @@ class _$LogEntryCopyWithImpl<$Res, $Val extends LogEntry>
     Object? level = null,
     Object? message = null,
     Object? timestamp = null,
-    Object? version = null,
+    Object? clientVersion = null,
     Object? userId = freezed,
     Object? category = freezed,
     Object? metadata = freezed,
@@ -95,9 +95,9 @@ class _$LogEntryCopyWithImpl<$Res, $Val extends LogEntry>
           ? _value.timestamp
           : timestamp // ignore: cast_nullable_to_non_nullable
               as String,
-      version: null == version
-          ? _value.version
-          : version // ignore: cast_nullable_to_non_nullable
+      clientVersion: null == clientVersion
+          ? _value.clientVersion
+          : clientVersion // ignore: cast_nullable_to_non_nullable
               as String,
       userId: freezed == userId
           ? _value.userId
@@ -135,7 +135,7 @@ abstract class _$$LogEntryImplCopyWith<$Res>
       {LogLevel level,
       String message,
       String timestamp,
-      String version,
+      String clientVersion,
       String? userId,
       String? category,
       Map<String, dynamic>? metadata,
@@ -159,7 +159,7 @@ class __$$LogEntryImplCopyWithImpl<$Res>
     Object? level = null,
     Object? message = null,
     Object? timestamp = null,
-    Object? version = null,
+    Object? clientVersion = null,
     Object? userId = freezed,
     Object? category = freezed,
     Object? metadata = freezed,
@@ -179,9 +179,9 @@ class __$$LogEntryImplCopyWithImpl<$Res>
           ? _value.timestamp
           : timestamp // ignore: cast_nullable_to_non_nullable
               as String,
-      version: null == version
-          ? _value.version
-          : version // ignore: cast_nullable_to_non_nullable
+      clientVersion: null == clientVersion
+          ? _value.clientVersion
+          : clientVersion // ignore: cast_nullable_to_non_nullable
               as String,
       userId: freezed == userId
           ? _value.userId
@@ -214,7 +214,7 @@ class _$LogEntryImpl implements _LogEntry {
       {required this.level,
       required this.message,
       required this.timestamp,
-      required this.version,
+      required this.clientVersion,
       this.userId,
       this.category,
       final Map<String, dynamic>? metadata,
@@ -232,7 +232,7 @@ class _$LogEntryImpl implements _LogEntry {
   @override
   final String timestamp;
   @override
-  final String version;
+  final String clientVersion;
   @override
   final String? userId;
   @override
@@ -254,7 +254,7 @@ class _$LogEntryImpl implements _LogEntry {
 
   @override
   String toString() {
-    return 'LogEntry(level: $level, message: $message, timestamp: $timestamp, version: $version, userId: $userId, category: $category, metadata: $metadata, stackTrace: $stackTrace, errorType: $errorType)';
+    return 'LogEntry(level: $level, message: $message, timestamp: $timestamp, clientVersion: $clientVersion, userId: $userId, category: $category, metadata: $metadata, stackTrace: $stackTrace, errorType: $errorType)';
   }
 
   @override
@@ -266,7 +266,8 @@ class _$LogEntryImpl implements _LogEntry {
             (identical(other.message, message) || other.message == message) &&
             (identical(other.timestamp, timestamp) ||
                 other.timestamp == timestamp) &&
-            (identical(other.version, version) || other.version == version) &&
+            (identical(other.clientVersion, clientVersion) ||
+                other.clientVersion == clientVersion) &&
             (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.category, category) ||
                 other.category == category) &&
@@ -284,7 +285,7 @@ class _$LogEntryImpl implements _LogEntry {
       level,
       message,
       timestamp,
-      version,
+      clientVersion,
       userId,
       category,
       const DeepCollectionEquality().hash(_metadata),
@@ -312,7 +313,7 @@ abstract class _LogEntry implements LogEntry {
       {required final LogLevel level,
       required final String message,
       required final String timestamp,
-      required final String version,
+      required final String clientVersion,
       final String? userId,
       final String? category,
       final Map<String, dynamic>? metadata,
@@ -329,7 +330,7 @@ abstract class _LogEntry implements LogEntry {
   @override
   String get timestamp;
   @override
-  String get version;
+  String get clientVersion;
   @override
   String? get userId;
   @override

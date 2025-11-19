@@ -109,7 +109,7 @@ class RemoteLoggerService {
         level: level,
         message: message,
         timestamp: DateTime.now().toIso8601String(),
-        version: VersionConfig.version,
+        clientVersion: VersionConfig.version,
         userId: _userId,
         category: category,
         metadata: metadata,

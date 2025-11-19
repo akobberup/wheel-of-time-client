@@ -22,7 +22,7 @@ class LogEntry with _$LogEntry {
     required LogLevel level,
     required String message,
     required String timestamp,
-    required String version,
+    required String clientVersion,
     String? userId,
     String? category,
     Map<String, dynamic>? metadata,
