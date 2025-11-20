@@ -34,8 +34,8 @@ RUN dart run build_runner build --delete-conflicting-outputs
 # Accept build version argument
 ARG BUILD_VERSION=unknown
 
-# Build web app til production med version info
-RUN flutter build web --release --dart-define=BUILD_VERSION=${BUILD_VERSION}
+# Build web app til production med version info og korrekt base href
+RUN flutter build web --release --base-href /wheel-of-time/ --dart-define=BUILD_VERSION=${BUILD_VERSION}
 
 # Production stage - Nginx
 FROM nginx:alpine
