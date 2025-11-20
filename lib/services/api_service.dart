@@ -187,7 +187,7 @@ class ApiService {
   Future<AuthResponse> register(RegisterRequest request) async {
     try {
       final response = await _loggedPost(
-        '$baseUrl/api/auth/register',
+        '$baseUrl/wheel-of-time/api/auth/register',
         headers: _getHeaders(),
         body: jsonEncode(request.toJson()),
       );
@@ -215,7 +215,7 @@ class ApiService {
   Future<AuthResponse> login(LoginRequest request) async {
     try {
       final response = await _loggedPost(
-        '$baseUrl/api/auth/login',
+        '$baseUrl/wheel-of-time/api/auth/login',
         headers: _getHeaders(),
         body: jsonEncode(request.toJson()),
       );
@@ -286,7 +286,7 @@ class ApiService {
   Future<void> forgotPassword(String email) async {
     try {
       final response = await _loggedPost(
-        '$baseUrl/api/auth/forgot-password',
+        '$baseUrl/wheel-of-time/api/auth/forgot-password',
         headers: _getHeaders(),
         body: jsonEncode({'email': email}),
       );
@@ -310,7 +310,7 @@ class ApiService {
   Future<bool> validateResetToken(String token) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/auth/validate-reset-token?token=$token',
+        '$baseUrl/wheel-of-time/api/auth/validate-reset-token?token=$token',
         headers: _getHeaders(),
       );
 
@@ -327,7 +327,7 @@ class ApiService {
   Future<void> resetPassword(String token, String newPassword) async {
     try {
       final response = await _loggedPost(
-        '$baseUrl/api/auth/reset-password',
+        '$baseUrl/wheel-of-time/api/auth/reset-password',
         headers: _getHeaders(),
         body: jsonEncode({
           'token': token,
@@ -355,7 +355,7 @@ class ApiService {
   Future<AuthResponse> refreshAccessToken(String refreshToken) async {
     try {
       final response = await _loggedPost(
-        '$baseUrl/api/auth/refresh',
+        '$baseUrl/wheel-of-time/api/auth/refresh',
         headers: _getHeaders(),
         body: jsonEncode({'refreshToken': refreshToken}),
       );
@@ -384,7 +384,7 @@ class ApiService {
   Future<List<TaskListResponse>> getAllTaskLists() async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/task-lists',
+        '$baseUrl/wheel-of-time/api/task-lists',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -404,7 +404,7 @@ class ApiService {
   Future<List<TaskListResponse>> getOwnedTaskLists() async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/task-lists/owned',
+        '$baseUrl/wheel-of-time/api/task-lists/owned',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -424,7 +424,7 @@ class ApiService {
   Future<List<TaskListResponse>> getSharedTaskLists() async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/task-lists/shared',
+        '$baseUrl/wheel-of-time/api/task-lists/shared',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -444,7 +444,7 @@ class ApiService {
   Future<TaskListResponse> getTaskList(int id) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/task-lists/$id',
+        '$baseUrl/wheel-of-time/api/task-lists/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -463,7 +463,7 @@ class ApiService {
   Future<TaskListResponse> createTaskList(CreateTaskListRequest request) async {
     try {
       final response = await _loggedPost(
-        '$baseUrl/api/task-lists',
+        '$baseUrl/wheel-of-time/api/task-lists',
         headers: _getHeaders(includeAuth: true),
         body: jsonEncode(request.toJson()),
       );
@@ -487,7 +487,7 @@ class ApiService {
   Future<TaskListResponse> updateTaskList(int id, UpdateTaskListRequest request) async {
     try {
       final response = await _loggedPut(
-        '$baseUrl/api/task-lists/$id',
+        '$baseUrl/wheel-of-time/api/task-lists/$id',
         headers: _getHeaders(includeAuth: true),
         body: jsonEncode(request.toJson()),
       );
@@ -511,7 +511,7 @@ class ApiService {
   Future<void> deleteTaskList(int id) async {
     try {
       final response = await _loggedDelete(
-        '$baseUrl/api/task-lists/$id',
+        '$baseUrl/wheel-of-time/api/task-lists/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -536,7 +536,7 @@ class ApiService {
   Future<List<TaskResponse>> getTasksByTaskList(int taskListId, {bool activeOnly = false}) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/tasks/task-list/$taskListId?activeOnly=$activeOnly',
+        '$baseUrl/wheel-of-time/api/tasks/task-list/$taskListId?activeOnly=$activeOnly',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -556,7 +556,7 @@ class ApiService {
   Future<TaskResponse> getTask(int id) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/tasks/$id',
+        '$baseUrl/wheel-of-time/api/tasks/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -575,7 +575,7 @@ class ApiService {
   Future<TaskResponse> createTask(CreateTaskRequest request) async {
     try {
       final response = await _loggedPost(
-        '$baseUrl/api/tasks',
+        '$baseUrl/wheel-of-time/api/tasks',
         headers: _getHeaders(includeAuth: true),
         body: jsonEncode(request.toJson()),
       );
@@ -599,7 +599,7 @@ class ApiService {
   Future<TaskResponse> updateTask(int id, UpdateTaskRequest request) async {
     try {
       final response = await _loggedPut(
-        '$baseUrl/api/tasks/$id',
+        '$baseUrl/wheel-of-time/api/tasks/$id',
         headers: _getHeaders(includeAuth: true),
         body: jsonEncode(request.toJson()),
       );
@@ -623,7 +623,7 @@ class ApiService {
   Future<void> deleteTask(int id) async {
     try {
       final response = await _loggedDelete(
-        '$baseUrl/api/tasks/$id',
+        '$baseUrl/wheel-of-time/api/tasks/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -644,7 +644,7 @@ class ApiService {
   Future<List<TaskResponse>> getTasksDueWithinDays({int days = 14}) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/tasks/due-within-days?days=$days',
+        '$baseUrl/wheel-of-time/api/tasks/due-within-days?days=$days',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -668,7 +668,7 @@ class ApiService {
   }) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/tasks/upcoming-occurrences?limit=$limit&offset=$offset',
+        '$baseUrl/wheel-of-time/api/tasks/upcoming-occurrences?limit=$limit&offset=$offset',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -692,7 +692,7 @@ class ApiService {
   Future<List<TaskInstanceResponse>> getTaskInstancesByTask(int taskId) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/task-instances/task/$taskId',
+        '$baseUrl/wheel-of-time/api/task-instances/task/$taskId',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -712,7 +712,7 @@ class ApiService {
   Future<List<TaskInstanceResponse>> getTaskInstancesByTaskList(int taskListId) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/task-instances/task-list/$taskListId',
+        '$baseUrl/wheel-of-time/api/task-instances/task-list/$taskListId',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -732,7 +732,7 @@ class ApiService {
   Future<TaskInstanceResponse> getTaskInstance(int id) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/task-instances/$id',
+        '$baseUrl/wheel-of-time/api/task-instances/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -751,7 +751,7 @@ class ApiService {
   Future<TaskInstanceResponse> createTaskInstance(CreateTaskInstanceRequest request) async {
     try {
       final response = await _loggedPost(
-        '$baseUrl/api/task-instances',
+        '$baseUrl/wheel-of-time/api/task-instances',
         headers: _getHeaders(includeAuth: true),
         body: jsonEncode(request.toJson()),
       );
@@ -779,7 +779,7 @@ class ApiService {
   Future<StreakResponse?> getCurrentStreak(int taskId) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/task-instances/task/$taskId/streak/current',
+        '$baseUrl/wheel-of-time/api/task-instances/task/$taskId/streak/current',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -800,7 +800,7 @@ class ApiService {
   Future<StreakResponse?> getLongestStreak(int taskId) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/task-instances/task/$taskId/streak/longest',
+        '$baseUrl/wheel-of-time/api/task-instances/task/$taskId/streak/longest',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -821,7 +821,7 @@ class ApiService {
   Future<List<StreakResponse>> getAllStreaks(int taskId) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/task-instances/task/$taskId/streaks',
+        '$baseUrl/wheel-of-time/api/task-instances/task/$taskId/streaks',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -845,7 +845,7 @@ class ApiService {
   Future<List<InvitationResponse>> getMyPendingInvitations() async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/invitations/my-invitations/pending',
+        '$baseUrl/wheel-of-time/api/invitations/my-invitations/pending',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -865,7 +865,7 @@ class ApiService {
   Future<List<InvitationResponse>> getMyInvitations() async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/invitations/my-invitations',
+        '$baseUrl/wheel-of-time/api/invitations/my-invitations',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -885,7 +885,7 @@ class ApiService {
   Future<List<InvitationResponse>> getInvitationsByTaskList(int taskListId) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/invitations/task-list/$taskListId',
+        '$baseUrl/wheel-of-time/api/invitations/task-list/$taskListId',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -905,7 +905,7 @@ class ApiService {
   Future<InvitationResponse> getInvitation(int id) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/invitations/$id',
+        '$baseUrl/wheel-of-time/api/invitations/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -924,7 +924,7 @@ class ApiService {
   Future<InvitationResponse> createInvitation(CreateInvitationRequest request) async {
     try {
       final response = await _loggedPost(
-        '$baseUrl/api/invitations',
+        '$baseUrl/wheel-of-time/api/invitations',
         headers: _getHeaders(includeAuth: true),
         body: jsonEncode(request.toJson()),
       );
@@ -948,7 +948,7 @@ class ApiService {
   Future<InvitationResponse> acceptInvitation(int id) async {
     try {
       final response = await _loggedPost(
-        '$baseUrl/api/invitations/$id/accept',
+        '$baseUrl/wheel-of-time/api/invitations/$id/accept',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -971,7 +971,7 @@ class ApiService {
   Future<InvitationResponse> declineInvitation(int id) async {
     try {
       final response = await _loggedPost(
-        '$baseUrl/api/invitations/$id/decline',
+        '$baseUrl/wheel-of-time/api/invitations/$id/decline',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -994,7 +994,7 @@ class ApiService {
   Future<void> cancelInvitation(int id) async {
     try {
       final response = await _loggedDelete(
-        '$baseUrl/api/invitations/$id',
+        '$baseUrl/wheel-of-time/api/invitations/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -1019,7 +1019,7 @@ class ApiService {
   Future<List<TaskListUserResponse>> getUsersByTaskList(int taskListId) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/task-list-users/task-list/$taskListId',
+        '$baseUrl/wheel-of-time/api/task-list-users/task-list/$taskListId',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -1043,7 +1043,7 @@ class ApiService {
   ) async {
     try {
       final response = await _loggedPut(
-        '$baseUrl/api/task-list-users?taskListId=$taskListId&userId=$userId&newAdminLevel=${newAdminLevel.toJson()}',
+        '$baseUrl/wheel-of-time/api/task-list-users?taskListId=$taskListId&userId=$userId&newAdminLevel=${newAdminLevel.toJson()}',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -1066,7 +1066,7 @@ class ApiService {
   Future<void> removeUserFromTaskList(int taskListId, int userId) async {
     try {
       final response = await _loggedDelete(
-        '$baseUrl/api/task-list-users?taskListId=$taskListId&userId=$userId',
+        '$baseUrl/wheel-of-time/api/task-list-users?taskListId=$taskListId&userId=$userId',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -1092,7 +1092,7 @@ class ApiService {
     try {
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse('$baseUrl/api/images?imageSource=${imageSource.toJson()}'),
+        Uri.parse('$baseUrl/wheel-of-time/api/images?imageSource=${imageSource.toJson()}'),
       );
 
       request.headers.addAll(_getHeaders(includeAuth: true));
@@ -1122,7 +1122,7 @@ class ApiService {
   Future<void> deleteImage(int id) async {
     try {
       final response = await _loggedDelete(
-        '$baseUrl/api/images/$id',
+        '$baseUrl/wheel-of-time/api/images/$id',
         headers: _getHeaders(includeAuth: true),
       );
 
@@ -1158,7 +1158,7 @@ class ApiService {
   Future<String> getTaskCompletionMessage(int taskId) async {
     try {
       final response = await _loggedGet(
-        '$baseUrl/api/tasks/$taskId/completion-message',
+        '$baseUrl/wheel-of-time/api/tasks/$taskId/completion-message',
         headers: _getHeaders(includeAuth: true),
       );
 
