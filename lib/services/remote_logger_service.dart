@@ -108,7 +108,7 @@ class RemoteLoggerService {
       final logEntry = LogEntry(
         level: level,
         message: message,
-        timestamp: DateTime.now().toIso8601String(),
+        timestamp: DateTime.now().toUtc().toIso8601String(),
         clientVersion: VersionConfig.version,
         userId: _userId,
         category: category,
