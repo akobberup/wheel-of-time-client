@@ -37,7 +37,7 @@ class CreateTaskInstanceRequest with _$CreateTaskInstanceRequest {
   Map<String, dynamic> toJson() => {
         'taskId': taskId,
         if (completedDateTime != null)
-          'completedDateTime': completedDateTime!.toIso8601String(),
+          'completedDateTime': completedDateTime!.toUtc().toIso8601String(),
         if (optionalImageId != null) 'optionalImageId': optionalImageId,
         if (optionalComment != null) 'optionalComment': optionalComment,
       };
