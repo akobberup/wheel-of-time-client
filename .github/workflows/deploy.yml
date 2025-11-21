@@ -67,46 +67,29 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Prepare SSH key
-        id: ssh_key
-        run: |
-          echo "SSH key length: ${#DEPLOY_SSH_KEY}"
-          echo "First 20 chars: ${DEPLOY_SSH_KEY:0:20}"
-          echo "Last 20 chars: ${DEPLOY_SSH_KEY: -20}"
-
-          # Decode base64 if needed
-          if [[ "$DEPLOY_SSH_KEY" == LS0tLS1CRUdJTi* ]]; then
-            echo "Key is base64 encoded, decoding..."
-            DECODED_KEY=$(echo "$DEPLOY_SSH_KEY" | base64 -d)
-            echo "Decoded key length: ${#DECODED_KEY}"
-            echo "Decoded key starts with: ${DECODED_KEY:0:30}"
-          elif [[ "$DEPLOY_SSH_KEY" == -----BEGIN* ]]; then
-            echo "Key is already in raw format"
-            DECODED_KEY="$DEPLOY_SSH_KEY"
-          else
-            echo "Key format unknown - trying to decode as base64..."
-            DECODED_KEY=$(echo "$DEPLOY_SSH_KEY" | base64 -d)
-          fi
-
-          # Export to environment for next step
-          echo "ssh_key<<EOF" >> $GITHUB_OUTPUT
-          echo "$DECODED_KEY" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-        env:
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-
       - name: Deploy to server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ steps.ssh_key.outputs.ssh_key }}
-          script: |
+        env:
+          SSH_KEY_BASE64: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          # Decode SSH key from base64
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY_BASE64" | base64 -d > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Add server to known hosts
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+          # Deploy via SSH
+          ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
             cd ~/apps/wheel-of-time
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull frontend
             docker compose up -d --force-recreate frontend
             docker logout ghcr.io
+          EOF
+
+          # Cleanup
+          rm -f ~/.ssh/deploy_key
 
       - name: Health check
         run: |
