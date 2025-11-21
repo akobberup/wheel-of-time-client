@@ -37,15 +37,19 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      - name: Build Android APK (Release)
-        run: flutter build apk --release
-
-      - name: Build Android App Bundle (Release)
-        run: flutter build appbundle --release
-
       - name: Get version from tag
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Get build time
+        id: build_time
+        run: echo "BUILD_TIME=$(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_OUTPUT
+
+      - name: Build Android APK (Release)
+        run: flutter build apk --release --dart-define=BUILD_VERSION=${{ github.sha }} --dart-define=BUILD_TIME="${{ steps.build_time.outputs.BUILD_TIME }}"
+
+      - name: Build Android App Bundle (Release)
+        run: flutter build appbundle --release --dart-define=BUILD_VERSION=${{ github.sha }} --dart-define=BUILD_TIME="${{ steps.build_time.outputs.BUILD_TIME }}"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1

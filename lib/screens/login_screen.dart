@@ -423,7 +423,7 @@ class _ModeToggleButton extends StatelessWidget {
   }
 }
 
-/// Viser app-version i bunden af login-skærmen
+/// Viser app-version og build tidspunkt i bunden af login-skærmen
 class _VersionDisplay extends StatelessWidget {
   const _VersionDisplay();
 
@@ -431,7 +431,8 @@ class _VersionDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Text(
-        VersionConfig.displayVersion,
+        VersionConfig.fullVersionInfo,
+        textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Colors.grey[500],
             ),
