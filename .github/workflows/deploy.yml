@@ -68,29 +68,43 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Deploy to server
+      - name: Setup Ansible
+        run: |
+          pip install ansible
+          ansible-galaxy collection install community.docker
+
+      - name: Setup SSH key
         env:
           SSH_KEY_BASE64: ${{ secrets.DEPLOY_SSH_KEY }}
         run: |
-          # Decode SSH key from base64
           mkdir -p ~/.ssh
-          echo "$SSH_KEY_BASE64" | base64 -d > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-
-          # Add server to known hosts
+          echo "$SSH_KEY_BASE64" | base64 -d > ~/.ssh/hetzner_ed25519
+          chmod 600 ~/.ssh/hetzner_ed25519
           ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
-          # Deploy via SSH
-          ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
-            cd ~/apps/wheel-of-time
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker compose pull frontend
-            docker compose up -d --force-recreate frontend
-            docker logout ghcr.io
-          EOF
+      - name: Checkout infrastructure repo
+        uses: actions/checkout@v4
+        with:
+          repository: akobberup/t16software-infrastructure
+          path: infrastructure
+          ssh-key: ${{ secrets.INFRASTRUCTURE_REPO_SSH_KEY }}
 
-          # Cleanup
-          rm -f ~/.ssh/deploy_key
+      - name: Create vault password file
+        run: echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > infrastructure/.vault_password
+
+      - name: Deploy with Ansible
+        working-directory: infrastructure
+        run: |
+          ansible-playbook -i inventory/hosts.yml \
+            playbooks/deploy-app.yml \
+            --vault-password-file .vault_password \
+            --extra-vars "frontend_image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f ~/.ssh/hetzner_ed25519
+          rm -f infrastructure/.vault_password
 
       - name: Health check
         run: |
