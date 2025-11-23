@@ -87,10 +87,7 @@ class WheelOfTimeApp extends ConsumerWidget {
           ),
         ),
       ),
-      home: const AuthWrapper(),
-      routes: {
-        '/forgot-password': (context) => const ForgotPasswordScreen(),
-      },
+      initialRoute: '/',
       onGenerateRoute: (settings) {
         // Handle reset password route with token parameter
         if (settings.name?.startsWith('/reset-password') ?? false) {
@@ -102,7 +99,20 @@ class WheelOfTimeApp extends ConsumerWidget {
             );
           }
         }
-        return null;
+
+        // Handle other routes
+        switch (settings.name) {
+          case '/':
+            return MaterialPageRoute(
+              builder: (context) => const AuthWrapper(),
+            );
+          case '/forgot-password':
+            return MaterialPageRoute(
+              builder: (context) => const ForgotPasswordScreen(),
+            );
+          default:
+            return null;
+        }
       },
     );
   }
