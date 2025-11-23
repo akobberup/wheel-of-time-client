@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/remote_logger_provider.dart';
@@ -13,6 +14,10 @@ import 'services/background_task_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Brug path-baseret URL strategi i stedet for hash-baseret (#)
+  // Dette gør at URLs som /reset-password?token=... fungerer korrekt
+  usePathUrlStrategy();
 
   // Aktiverer baggrunds-notifikationer på mobile platforme
   // Planlægger periodiske checks hver 30. minut for nye invitationer og forfaldne opgaver
