@@ -278,7 +278,7 @@ Future<List<AppNotification>> _loadTaskDueNotifications(ApiService apiService) a
 ///
 /// Sammenligner opgavens forfaldsdato med dagens dato (uden tid).
 /// Returnerer true hvis opgaven er aktiv og forfalder i dag eller tidligere.
-bool _isTaskDueToday(Task task) {
+bool _isTaskDueToday(TaskResponse task) {
   if (task.nextDueDate == null || !task.isActive) {
     return false;
   }
