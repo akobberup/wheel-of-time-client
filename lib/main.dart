@@ -96,14 +96,28 @@ class WheelOfTimeApp extends ConsumerWidget {
       ),
       initialRoute: '/',
       onGenerateRoute: (settings) {
+        // Debug logging to see what route is received
+        print('Route requested: ${settings.name}');
+
         // Handle reset password route with token parameter
-        if (settings.name?.startsWith('/reset-password') ?? false) {
-          final uri = Uri.parse(settings.name!);
-          final token = uri.queryParameters['token'];
-          if (token != null) {
-            return MaterialPageRoute(
-              builder: (context) => ResetPasswordScreen(token: token),
-            );
+        if (settings.name?.contains('reset-password') ?? false) {
+          print('Reset password route detected');
+          try {
+            // Parse the full URL or just the path
+            final uri = Uri.parse(settings.name!);
+            final token = uri.queryParameters['token'];
+            print('Parsed token: $token');
+
+            if (token != null && token.isNotEmpty) {
+              print('Showing ResetPasswordScreen with token');
+              return MaterialPageRoute(
+                builder: (context) => ResetPasswordScreen(token: token),
+              );
+            } else {
+              print('No token found in URL');
+            }
+          } catch (e) {
+            print('Error parsing reset password URL: $e');
           }
         }
 
@@ -118,7 +132,10 @@ class WheelOfTimeApp extends ConsumerWidget {
               builder: (context) => const ForgotPasswordScreen(),
             );
           default:
-            return null;
+            print('No route matched, falling back to AuthWrapper');
+            return MaterialPageRoute(
+              builder: (context) => const AuthWrapper(),
+            );
         }
       },
     );
