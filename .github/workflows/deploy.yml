@@ -98,7 +98,6 @@ jobs:
           ansible-playbook -i inventory/hosts.yml \
             playbooks/deploy-app.yml \
             --vault-password-file .vault_password \
-            --skip-tags update \
             --extra-vars "frontend_image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
 
       - name: Cleanup
