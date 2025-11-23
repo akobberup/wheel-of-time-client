@@ -1,3 +1,6 @@
+# DEPLOYMENT: Dette Docker image bygges i GitHub Actions og pushes til GHCR.
+# Se deployment docs: https://github.com/akobberup/t16software-infrastructure/blob/main/DEPLOYMENT_PROCESS.md
+
 # Multi-stage build til Flutter Web
 FROM debian:bookworm-slim AS build
 

@@ -1,3 +1,8 @@
+# DEPLOYMENT DOCUMENTATION:
+# For details om deployment processen, se:
+# https://github.com/akobberup/t16software-infrastructure/blob/main/DEPLOYMENT_PROCESS.md
+# Infrastructure konfiguration (Ansible playbooks, templates) lever i t16software-infrastructure repo.
+
 name: Build and Deploy Frontend
 
 on:
