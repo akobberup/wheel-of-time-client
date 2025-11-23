@@ -20,18 +20,27 @@ class StorageService {
   // Shared preferences for web platform - uses browser's local storage
   SharedPreferences? _prefs;
 
-  /// Ensures SharedPreferences is initialized for web platform.
-  /// This lazy initialization approach avoids unnecessary initialization on mobile platforms.
-  Future<void> _ensurePrefs() async {
+  /// Sikrer at SharedPreferences er initialiseret på web-platformen.
+  ///
+  /// Lazy initialization pattern undgår unødvendig initialisering på mobile platforme
+  /// hvor vi primært bruger FlutterSecureStorage.
+  Future<void> _ensureSharedPreferencesInitialized() async {
     if (kIsWeb && _prefs == null) {
       _prefs = await SharedPreferences.getInstance();
     }
   }
 
-  /// Saves user authentication data to persistent storage.
-  /// On web, uses SharedPreferences (local storage).
-  /// On mobile, uses FlutterSecureStorage (encrypted storage) for enhanced security.
-  /// All write operations are executed in parallel using Future.wait for better performance.
+  /// Gemmer brugerens autentificeringsdata i persistent storage.
+  ///
+  /// På web bruges SharedPreferences (browser local storage).
+  /// På mobile bruges FlutterSecureStorage (krypteret storage) for forbedret sikkerhed.
+  ///
+  /// User ID gemmes også i SharedPreferences på mobile for at give baggrundstasks
+  /// adgang til bruger-ID, da WorkManager's isolate-baserede execution model ikke
+  /// kan tilgå FlutterSecureStorage. Dette er en kendt sikkerhedstrade-off der
+  /// accepteres fordi user ID ikke er sensitiv information.
+  ///
+  /// Alle write-operationer køres parallelt med Future.wait for bedre performance.
   Future<void> saveAuthData({
     required String token,
     required String refreshToken,
@@ -39,13 +48,10 @@ class StorageService {
     required String name,
     required String email,
   }) async {
-    developer.log('💾 STORAGE SAVE - Platform: ${kIsWeb ? "WEB" : "MOBILE"}', name: 'StorageService');
-    developer.log('💾 Saving refreshToken: ${refreshToken.substring(0, 8)}...', name: 'StorageService');
-
     if (kIsWeb) {
-      await _ensurePrefs();
-      developer.log('💾 SharedPreferences instance: ${_prefs.hashCode}', name: 'StorageService');
-      // Execute all writes in parallel for better performance
+      await _ensureSharedPreferencesInitialized();
+
+      // Udfør alle writes parallelt for bedre performance
       await Future.wait([
         _prefs!.setString(_tokenKey, token),
         _prefs!.setString(_refreshTokenKey, refreshToken),
@@ -53,11 +59,8 @@ class StorageService {
         _prefs!.setString(_userNameKey, name),
         _prefs!.setString(_userEmailKey, email),
       ]);
-      // Verify write
-      final saved = _prefs!.getString(_refreshTokenKey);
-      developer.log('💾 Verified save - refreshToken now: ${saved?.substring(0, 8)}...', name: 'StorageService');
     } else {
-      // Mobile: use secure encrypted storage
+      // Mobile: brug krypteret storage for alle følsomme data
       await Future.wait([
         _secureStorage.write(key: _tokenKey, value: token),
         _secureStorage.write(key: _refreshTokenKey, value: refreshToken),
@@ -65,57 +68,55 @@ class StorageService {
         _secureStorage.write(key: _userNameKey, value: name),
         _secureStorage.write(key: _userEmailKey, value: email),
       ]);
+
+      // Gem også user_id i SharedPreferences for baggrundstasks
+      // (WorkManager kan ikke tilgå FlutterSecureStorage fra baggrunds-isolate)
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_userIdKey, userId);
     }
   }
 
-  /// Retrieves the authentication token from storage.
-  /// Returns null if no token is stored.
+  /// Henter autentificerings-token fra storage.
+  /// Returnerer null hvis intet token er gemt.
   Future<String?> getToken() async {
     if (kIsWeb) {
-      await _ensurePrefs();
+      await _ensureSharedPreferencesInitialized();
       return _prefs!.getString(_tokenKey);
     } else {
       return await _secureStorage.read(key: _tokenKey);
     }
   }
 
-  /// Retrieves the refresh token from storage.
-  /// Returns null if no refresh token is stored.
+  /// Henter refresh token fra storage.
+  /// Returnerer null hvis intet refresh token er gemt.
   Future<String?> getRefreshToken() async {
     if (kIsWeb) {
-      await _ensurePrefs();
+      await _ensureSharedPreferencesInitialized();
       return _prefs!.getString(_refreshTokenKey);
     } else {
       return await _secureStorage.read(key: _refreshTokenKey);
     }
   }
 
-  /// Retrieves all stored authentication data.
-  /// Returns a map containing token, refreshToken, userId, name, and email.
-  /// Any missing values will be null in the returned map.
+  /// Henter alle gemte autentificeringsdata.
+  ///
+  /// Returnerer et map med token, refreshToken, userId, name og email.
+  /// Manglende værdier vil være null i det returnerede map.
+  ///
+  /// På mobile læses alle værdier parallelt med Future.wait for bedre performance.
   Future<Map<String, String?>> getAuthData() async {
-    developer.log('📖 STORAGE READ - Platform: ${kIsWeb ? "WEB" : "MOBILE"}', name: 'StorageService');
-
     if (kIsWeb) {
-      await _ensurePrefs();
-      developer.log('📖 SharedPreferences instance: ${_prefs.hashCode}', name: 'StorageService');
-
-      final refreshToken = _prefs!.getString(_refreshTokenKey);
-      developer.log('📖 Read refreshToken: ${refreshToken != null ? "${refreshToken.substring(0, 8)}..." : "NULL"}', name: 'StorageService');
-
-      // List all keys in SharedPreferences for debugging
-      final keys = _prefs!.getKeys();
-      developer.log('📖 All SharedPreferences keys: $keys', name: 'StorageService');
+      await _ensureSharedPreferencesInitialized();
 
       return {
         'token': _prefs!.getString(_tokenKey),
-        'refreshToken': refreshToken,
+        'refreshToken': _prefs!.getString(_refreshTokenKey),
         'userId': _prefs!.getString(_userIdKey),
         'name': _prefs!.getString(_userNameKey),
         'email': _prefs!.getString(_userEmailKey),
       };
     } else {
-      // Read all values in parallel for better performance
+      // Læs alle værdier parallelt for bedre performance
       final values = await Future.wait([
         _secureStorage.read(key: _tokenKey),
         _secureStorage.read(key: _refreshTokenKey),
@@ -134,12 +135,18 @@ class StorageService {
     }
   }
 
-  /// Clears all stored authentication data.
-  /// Called during logout to remove all user session information.
+  /// Sletter alle gemte autentificeringsdata fra storage.
+  ///
+  /// Kaldes ved logout for at fjerne al brugersession-information.
+  /// Rydder også notification-historik for at undgå at vise gamle
+  /// notifikationer hvis en ny bruger logger ind på samme enhed.
+  ///
+  /// Alle delete-operationer køres parallelt med Future.wait for bedre performance.
   Future<void> clearAuthData() async {
     if (kIsWeb) {
-      await _ensurePrefs();
-      // Remove all auth-related keys in parallel
+      await _ensureSharedPreferencesInitialized();
+
+      // Fjern alle auth-relaterede keys parallelt
       await Future.wait([
         _prefs!.remove(_tokenKey),
         _prefs!.remove(_refreshTokenKey),
@@ -148,7 +155,7 @@ class StorageService {
         _prefs!.remove(_userEmailKey),
       ]);
     } else {
-      // Delete all auth-related keys from secure storage in parallel
+      // Slet alle auth-relaterede keys fra krypteret storage parallelt
       await Future.wait([
         _secureStorage.delete(key: _tokenKey),
         _secureStorage.delete(key: _refreshTokenKey),
@@ -156,6 +163,12 @@ class StorageService {
         _secureStorage.delete(key: _userNameKey),
         _secureStorage.delete(key: _userEmailKey),
       ]);
+
+      // Ryd også user_id og notification-historik fra SharedPreferences
+      // (brugt af baggrundstasks til at undgå at vise samme notifikationer gentagne gange)
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_userIdKey);
+      await prefs.remove('seen_notification_ids');
     }
   }
 }

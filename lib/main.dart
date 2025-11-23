@@ -9,13 +9,20 @@ import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/reset_password_screen.dart';
+import 'services/background_task_service.dart';
 
-void main() {
-  // Create provider container for accessing services
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Aktiverer baggrunds-notifikationer på mobile platforme
+  // Planlægger periodiske checks hver 30. minut for nye invitationer og forfaldne opgaver
+  await BackgroundTaskService.initialize();
+
   final container = ProviderContainer();
   final logger = container.read(remoteLoggerProvider);
 
-  // Catch Flutter framework errors
+  // Opsæt global error handling for framework-fejl
+  // Logger til remote service for debugging i production
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
     logger.error(
@@ -30,7 +37,7 @@ void main() {
     );
   };
 
-  // Catch async errors that escape Flutter's error handling
+  // Fang asynkrone fejl der ikke håndteres af Flutter
   PlatformDispatcher.instance.onError = (error, stack) {
     logger.error(
       'Uncaught async error',
