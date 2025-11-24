@@ -13,6 +13,7 @@ import '../models/invitation.dart';
 import '../models/task_list_user.dart';
 import '../models/streak.dart';
 import '../models/image.dart';
+import '../models/user_settings.dart';
 import '../models/enums.dart';
 import '../config/api_config.dart';
 import 'remote_logger_service.dart';
@@ -1167,6 +1168,57 @@ class ApiService {
         return data['message'] as String;
       } else {
         throw ApiException('Failed to load completion message', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  // ============================================================================
+  // USER SETTINGS
+  // ============================================================================
+
+  /// Get user settings including theme preferences
+  /// Returns the current user's settings (creates default if not exists)
+  Future<UserSettingsResponse> getUserSettings() async {
+    try {
+      final response = await _loggedGet(
+        '$baseUrl/api/user/settings',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        return UserSettingsResponse.fromJson(
+          jsonDecode(response.body) as Map<String, dynamic>,
+        );
+      } else {
+        throw ApiException('Failed to load user settings', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Update user settings (partial updates supported)
+  /// Only updates fields that are not null in the request
+  Future<UserSettingsResponse> updateUserSettings(
+    UpdateUserSettingsRequest request,
+  ) async {
+    try {
+      final response = await _loggedPut(
+        '$baseUrl/api/user/settings',
+        headers: _getHeaders(includeAuth: true),
+        body: jsonEncode(request.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        return UserSettingsResponse.fromJson(
+          jsonDecode(response.body) as Map<String, dynamic>,
+        );
+      } else {
+        throw ApiException('Failed to update user settings', response.statusCode);
       }
     } catch (e) {
       if (e is ApiException) rethrow;

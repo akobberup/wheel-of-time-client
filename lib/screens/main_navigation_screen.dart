@@ -5,6 +5,7 @@ import 'invitations_screen.dart';
 import 'upcoming_tasks_screen.dart';
 import 'login_screen.dart';
 import 'notifications_screen.dart';
+import 'settings_screen.dart';
 import '../providers/invitation_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
@@ -39,6 +40,7 @@ class MainNavigationScreen extends ConsumerWidget {
       title: Text(strings.appTitle),
       actions: [
         _NotificationButton(strings: strings),
+        _SettingsButton(strings: strings),
         _LogoutButton(strings: strings),
       ],
     );
@@ -152,6 +154,33 @@ class _NotificationButton extends ConsumerWidget {
   void _handleNotificationPressed(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+    );
+  }
+}
+
+/// Settings button der navigerer til indstillinger
+class _SettingsButton extends ConsumerWidget {
+  final AppStrings strings;
+
+  const _SettingsButton({required this.strings});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Semantics(
+      label: 'Indstillinger',
+      button: true,
+      child: IconButton(
+        icon: const Icon(Icons.settings),
+        tooltip: 'Indstillinger',
+        onPressed: () => _handleSettingsPressed(context),
+      ),
+    );
+  }
+
+  /// Håndterer tryk på settings button
+  void _handleSettingsPressed(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const SettingsScreen()),
     );
   }
 }
