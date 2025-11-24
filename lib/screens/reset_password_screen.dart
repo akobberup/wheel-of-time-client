@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../providers/auth_provider.dart';
 import '../l10n/app_strings.dart';
+import 'package:universal_html/html.dart' as html;
 
 /// Skærm til nulstilling af adgangskode via token
 class ResetPasswordScreen extends HookConsumerWidget {
@@ -180,6 +182,13 @@ class _ResetPasswordForm extends HookConsumerWidget {
     try {
       final apiService = ref.read(apiServiceProvider);
       await apiService.resetPassword(token, passwordController.text);
+
+      // Fjern token fra URL på web (for at undgå at den vises i browseren)
+      // På mobile platforme er URL'en ikke synlig, så dette er kun nødvendigt på web
+      if (kIsWeb) {
+        html.window.history.replaceState(null, '', '/reset-password');
+      }
+
       onSuccess();
     } catch (e) {
       error.value = e.toString();

@@ -54,6 +54,9 @@ dependencies:
   # JWT Token Decoding
   jwt_decode: ^0.3.1
 
+  # Cross-platform HTML API (for URL manipulation on web)
+  universal_html: ^2.2.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
