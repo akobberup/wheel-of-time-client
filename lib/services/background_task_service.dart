@@ -60,7 +60,7 @@ class BackgroundTaskService {
           networkType: NetworkType.connected,
           requiresBatteryNotLow: true,
         ),
-        existingWorkPolicy: ExistingWorkPolicy.replace,
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
       );
 
       developer.log('WorkManager initialized successfully', name: 'BackgroundTaskService');
