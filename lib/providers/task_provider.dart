@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/task.dart';
 import '../services/api_service.dart';
 import 'auth_provider.dart';
+import 'image_polling_provider.dart';
 
 // Provider for tasks in a specific task list
 final tasksProvider = StateNotifierProvider.family<TasksNotifier, AsyncValue<List<TaskResponse>>, int>(
@@ -14,15 +15,16 @@ final tasksProvider = StateNotifierProvider.family<TasksNotifier, AsyncValue<Lis
       apiService.setToken(authState.user!.token);
     }
 
-    return TasksNotifier(apiService, taskListId);
+    return TasksNotifier(apiService, taskListId, ref);
   },
 );
 
 class TasksNotifier extends StateNotifier<AsyncValue<List<TaskResponse>>> {
   final ApiService _apiService;
   final int taskListId;
+  final Ref _ref;
 
-  TasksNotifier(this._apiService, this.taskListId) : super(const AsyncValue.loading()) {
+  TasksNotifier(this._apiService, this.taskListId, this._ref) : super(const AsyncValue.loading()) {
     loadTasks();
   }
 
@@ -35,6 +37,12 @@ class TasksNotifier extends StateNotifier<AsyncValue<List<TaskResponse>>> {
     try {
       final task = await _apiService.createTask(request);
       await loadTasks(); // Refresh the list
+
+      // Start polling for billede-generering hvis ingen billede endnu
+      if (task.taskImagePath == null || task.taskImagePath!.isEmpty) {
+        _ref.read(imagePollingProvider).pollForTaskImage(task.id, taskListId);
+      }
+
       return task;
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);

@@ -8,6 +8,7 @@ import '../l10n/app_strings.dart';
 import '../config/api_config.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/status_badge.dart';
+import '../widgets/common/animated_card.dart';
 
 /// Filtrerings-muligheder for opgave historik efter dato
 enum DateFilter { all, thisWeek, thisMonth, last3Months }
@@ -236,9 +237,8 @@ class _HistoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = AppStrings.of(context);
 
-    return Card(
+    return AnimatedCard(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

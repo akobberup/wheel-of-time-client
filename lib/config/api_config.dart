@@ -32,13 +32,22 @@ class ApiConfig {
 
   /// Gets the full URL for an image path
   ///
+  /// Hvis stien allerede er en fuld URL (starter med http:// eller https://),
+  /// returneres den uændret. Ellers tilføjes baseUrl.
+  ///
   /// Example:
   /// ```dart
   /// ApiConfig.getImageUrl('/images/task-icon.png')
   /// // Returns: 'http://localhost:8080/images/task-icon.png' (in debug)
+  /// ApiConfig.getImageUrl('http://example.com/image.png')
+  /// // Returns: 'http://example.com/image.png' (unchanged)
   /// ```
   static String getImageUrl(String path) {
-    // Remove leading slash if present to avoid double slashes
+    // Hvis stien allerede er en fuld URL, returner den direkte
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    // Ellers tilføj baseUrl
     final cleanPath = path.startsWith('/') ? path.substring(1) : path;
     return '$baseUrl/$cleanPath';
   }

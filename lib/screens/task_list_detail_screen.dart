@@ -7,6 +7,8 @@ import '../providers/suggestion_cache_provider.dart';
 import '../widgets/create_task_dialog.dart';
 import '../widgets/edit_task_dialog.dart';
 import '../widgets/common/contextual_delete_dialog.dart';
+import '../widgets/common/animated_card.dart';
+import '../widgets/common/gradient_background.dart';
 import '../config/api_config.dart';
 import 'task_list_members_screen.dart';
 import 'task_history_screen.dart';
@@ -151,7 +153,7 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
   }
 }
 
-/// Kort der viser en enkelt opgave med billede, detaljer og handlinger
+/// Kort der viser en enkelt opgave med hero-billede, detaljer og handlinger
 class _TaskCard extends ConsumerWidget {
   final TaskResponse task;
   final int taskListId;
@@ -163,43 +165,102 @@ class _TaskCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => _navigateToTaskHistory(context),
-        child: ListTile(
-          leading: _buildLeadingImage(context),
-          title: Text(task.name),
-          subtitle: _buildSubtitle(context),
-          trailing: _buildPopupMenu(context, ref),
-        ),
+    return AnimatedCard(
+      margin: const EdgeInsets.only(bottom: 16),
+      onTap: () => _navigateToTaskHistory(context),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Hero billede eller gradient
+          _buildHeroSection(context),
+          // Indhold
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Titel og menu
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        task.name,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    _buildPopupMenu(context, ref),
+                  ],
+                ),
+                // Beskrivelse
+                if (task.description != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    task.description!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                // Metadata række
+                _buildMetadataRow(context),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildLeadingImage(BuildContext context) {
-    if (task.taskImagePath == null) {
-      return const Icon(Icons.check_circle_outline, size: 40);
+  /// Bygger hero sektionen med billede eller gradient
+  Widget _buildHeroSection(BuildContext context) {
+    const heroHeight = 80.0;
+    const borderRadius = BorderRadius.only(
+      topLeft: Radius.circular(16),
+      topRight: Radius.circular(16),
+    );
+
+    final hasImage = task.taskImagePath != null && task.taskImagePath!.isNotEmpty;
+    if (hasImage) {
+      return HeroImageContainer(
+        height: heroHeight,
+        borderRadius: borderRadius,
+        image: CachedNetworkImage(
+          imageUrl: ApiConfig.getImageUrl(task.taskImagePath!),
+          fit: BoxFit.cover,
+          placeholder: (context, url) => _buildImagePlaceholder(context),
+          errorWidget: (context, url, error) => GradientBackground(
+            seed: task.name,
+            height: heroHeight,
+            showOverlay: false,
+          ),
+        ),
+      );
     }
 
-    return CachedNetworkImage(
-      imageUrl: ApiConfig.getImageUrl(task.taskImagePath!),
-      width: 50,
-      height: 50,
-      fit: BoxFit.cover,
-      placeholder: (context, url) => _buildImagePlaceholder(context),
-      errorWidget: (context, url, error) => const Icon(
-        Icons.broken_image,
-        size: 40,
+    return GradientBackground(
+      seed: task.name,
+      height: heroHeight,
+      borderRadius: borderRadius,
+      showOverlay: false,
+      child: Center(
+        child: Icon(
+          Icons.check_circle_outline,
+          size: 32,
+          color: Colors.white.withValues(alpha: 0.8),
+        ),
       ),
     );
   }
 
   Widget _buildImagePlaceholder(BuildContext context) {
     return Container(
-      width: 50,
-      height: 50,
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: const Center(
         child: SizedBox(
@@ -211,51 +272,69 @@ class _TaskCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildSubtitle(BuildContext context) {
+  /// Bygger metadata række med schedule og streak
+  Widget _buildMetadataRow(BuildContext context) {
     final strings = AppStrings.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Wrap(
+      spacing: 16,
+      runSpacing: 8,
       children: [
-        if (task.description != null) ...[
-          const SizedBox(height: 4),
+        // Schedule chip
+        _buildChip(
+          context,
+          icon: Icons.repeat,
+          label: _formatSchedule(task.schedule),
+          color: colorScheme.primary,
+        ),
+        // Streak chip hvis aktiv
+        if (task.currentStreak != null && task.currentStreak!.streakCount > 0)
+          _buildChip(
+            context,
+            icon: Icons.local_fire_department,
+            label: strings.streakCount(task.currentStreak!.streakCount),
+            color: colorScheme.tertiary,
+          ),
+        // Completions chip
+        if (task.totalCompletions > 0)
+          _buildChip(
+            context,
+            icon: Icons.check_circle_outline,
+            label: '${task.totalCompletions}x',
+            color: colorScheme.secondary,
+          ),
+      ],
+    );
+  }
+
+  Widget _buildChip(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 4),
           Text(
-            task.description!,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
-        const SizedBox(height: 4),
-        _buildScheduleText(context),
-        if (task.currentStreak != null) ...[
-          const SizedBox(height: 4),
-          _buildStreakIndicator(context, strings),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildScheduleText(BuildContext context) {
-    return Text(
-      _formatSchedule(task.schedule),
-      style: TextStyle(
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-        fontSize: 12,
       ),
-    );
-  }
-
-  Widget _buildStreakIndicator(BuildContext context, AppStrings strings) {
-    return Row(
-      children: [
-        Icon(
-          Icons.local_fire_department,
-          size: 16,
-          color: Theme.of(context).colorScheme.tertiary,
-        ),
-        const SizedBox(width: 4),
-        Text(strings.streakCount(task.currentStreak!.streakCount)),
-      ],
     );
   }
 

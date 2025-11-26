@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/task_list.dart';
 import '../services/api_service.dart';
 import 'auth_provider.dart';
+import 'image_polling_provider.dart';
 
 final taskListProvider = StateNotifierProvider<TaskListNotifier, AsyncValue<List<TaskListResponse>>>((ref) {
   final apiService = ref.watch(apiServiceProvider);
@@ -12,13 +13,14 @@ final taskListProvider = StateNotifierProvider<TaskListNotifier, AsyncValue<List
     apiService.setToken(authState.user!.token);
   }
 
-  return TaskListNotifier(apiService);
+  return TaskListNotifier(apiService, ref);
 });
 
 class TaskListNotifier extends StateNotifier<AsyncValue<List<TaskListResponse>>> {
   final ApiService _apiService;
+  final Ref _ref;
 
-  TaskListNotifier(this._apiService) : super(const AsyncValue.loading()) {
+  TaskListNotifier(this._apiService, this._ref) : super(const AsyncValue.loading()) {
     loadAllTaskLists();
   }
 
@@ -41,6 +43,12 @@ class TaskListNotifier extends StateNotifier<AsyncValue<List<TaskListResponse>>>
     try {
       final taskList = await _apiService.createTaskList(request);
       await loadAllTaskLists(); // Refresh the list
+
+      // Start polling for billede-generering hvis ingen billede endnu
+      if (taskList.taskListImagePath == null || taskList.taskListImagePath!.isEmpty) {
+        _ref.read(imagePollingProvider).pollForTaskListImage(taskList.id);
+      }
+
       return taskList;
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);

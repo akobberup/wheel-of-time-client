@@ -10,8 +10,11 @@ import '../widgets/create_task_list_dialog.dart';
 import '../widgets/edit_task_list_dialog.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/error_state_widget.dart';
-import '../widgets/common/metric_chip.dart';
 import '../widgets/common/contextual_delete_dialog.dart';
+import '../widgets/common/animated_card.dart';
+import '../widgets/common/circular_progress_indicator_with_icon.dart';
+import '../widgets/common/gradient_background.dart';
+import '../widgets/common/stacked_avatars.dart';
 import '../constants/spacing.dart';
 
 /// Viser liste over brugerens opgavelister med mulighed for at oprette, redigere og slette
@@ -91,7 +94,7 @@ class TaskListsScreen extends HookConsumerWidget {
   }
 }
 
-/// Kort der viser en enkelt opgaveliste med billede, titel, beskrivelse og statistik
+/// Kort der viser en enkelt opgaveliste med hero-billede, fremskridtsindikator og medlemmer
 class _TaskListCard extends HookConsumerWidget {
   final dynamic taskList;
 
@@ -100,69 +103,168 @@ class _TaskListCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: Spacing.md),
-      child: ListTile(
-        leading: _buildLeadingImage(),
-        title: Text(taskList.name),
-        subtitle: _buildSubtitle(context, strings),
-        trailing: _buildMenuButton(context, ref, strings),
-        onTap: () => _handleNavigateToDetail(context),
+    return AnimatedCard(
+      margin: const EdgeInsets.only(bottom: Spacing.lg),
+      onTap: () => _handleNavigateToDetail(context),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Hero billede eller gradient baggrund
+          _buildHeroSection(context),
+          // Indhold under hero
+          Padding(
+            padding: const EdgeInsets.all(Spacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Titel og menu
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        taskList.name,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    _buildMenuButton(context, ref, strings),
+                  ],
+                ),
+                // Beskrivelse
+                if (taskList.description != null) ...[
+                  const SizedBox(height: Spacing.xs),
+                  Text(
+                    taskList.description!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: Spacing.md),
+                // Statistik række
+                _buildStatsRow(context, strings),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildLeadingImage() {
-    if (taskList.taskListImagePath == null) {
-      return const Icon(Icons.list_alt, size: 40);
+  /// Bygger hero sektionen med billede eller gradient baggrund
+  Widget _buildHeroSection(BuildContext context) {
+    const heroHeight = 100.0;
+    const borderRadius = BorderRadius.only(
+      topLeft: Radius.circular(16),
+      topRight: Radius.circular(16),
+    );
+
+    if (taskList.taskListImagePath != null) {
+      return HeroImageContainer(
+        height: heroHeight,
+        borderRadius: borderRadius,
+        image: CachedNetworkImage(
+          imageUrl: ApiConfig.getImageUrl(taskList.taskListImagePath!),
+          fit: BoxFit.cover,
+          placeholder: (context, url) => _buildImagePlaceholder(context),
+          errorWidget: (context, url, error) => GradientBackground(
+            seed: taskList.name,
+            height: heroHeight,
+            showOverlay: false,
+          ),
+        ),
+      );
     }
 
-    return CachedNetworkImage(
-      imageUrl: ApiConfig.getImageUrl(taskList.taskListImagePath!),
-      width: 50,
-      height: 50,
-      fit: BoxFit.cover,
-      placeholder: (context, url) => const CircularProgressIndicator(),
-      errorWidget: (context, url, error) => const Icon(Icons.list_alt),
+    return GradientBackground(
+      seed: taskList.name,
+      height: heroHeight,
+      borderRadius: borderRadius,
+      showOverlay: false,
+      child: Center(
+        child: Icon(
+          Icons.list_alt,
+          size: 40,
+          color: Colors.white.withValues(alpha: 0.8),
+        ),
+      ),
     );
   }
 
-  Widget _buildSubtitle(BuildContext context, AppStrings strings) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildImagePlaceholder(BuildContext context) {
+    return Container(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: const Center(
+        child: CircularProgressIndicator(strokeWidth: 2),
+      ),
+    );
+  }
+
+  /// Bygger statistik række med fremskridtsindikator og medlemmer
+  Widget _buildStatsRow(BuildContext context, AppStrings strings) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Row(
       children: [
-        if (taskList.description != null) ...[
-          const SizedBox(height: 4),
-          Text(
-            taskList.description!,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+        // Cirkulær fremskridtsindikator
+        CircularProgressIndicatorWithIcon(
+          completed: taskList.activeTaskCount as int,
+          total: taskList.taskCount as int,
+          icon: Icons.task_alt,
+          size: 40,
+          strokeWidth: 3,
+        ),
+        const SizedBox(width: Spacing.sm),
+        // Tekst med opgavestatus
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${taskList.activeTaskCount}/${taskList.taskCount} ${strings.tasks.toLowerCase()}',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              Text(
+                _getProgressText(strings),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
-        ],
-        const SizedBox(height: 4),
-        _buildMetrics(context),
+        ),
+        // Stablede medlems-avatarer
+        if (taskList.memberCount > 0)
+          StackedAvatars(
+            memberCount: taskList.memberCount as int,
+            avatarSize: 28,
+            maxVisible: 3,
+          ),
       ],
     );
   }
 
-  Widget _buildMetrics(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 4,
-      children: [
-        MetricChip(
-          icon: Icons.task,
-          label: '${taskList.activeTaskCount}/${taskList.taskCount}',
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        MetricChip(
-          icon: Icons.people,
-          label: '${taskList.memberCount}',
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-      ],
-    );
+  /// Returnerer progress tekst baseret på fuldførelsesprocent
+  String _getProgressText(AppStrings strings) {
+    final total = taskList.taskCount as int;
+    final completed = taskList.activeTaskCount as int;
+
+    if (total == 0) return strings.noTasks;
+
+    final percent = total > 0 ? ((completed / total) * 100).round() : 0;
+    return '$percent% fuldført';
   }
 
   Widget _buildMenuButton(BuildContext context, WidgetRef ref, AppStrings strings) {

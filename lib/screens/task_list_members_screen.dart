@@ -10,6 +10,7 @@ import '../widgets/send_invitation_dialog.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/skeleton_loader.dart';
 import '../widgets/common/status_badge.dart';
+import '../widgets/common/animated_card.dart';
 import 'dart:math';
 
 /// Skærm til administration af medlemmer i en opgaveliste.
@@ -193,10 +194,10 @@ class _MemberCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
 
-    return Card(
+    return AnimatedCard(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        leading: _buildAvatar(),
+        leading: _buildAvatar(context),
         title: _buildTitle(),
         subtitle: _buildSubtitle(context, strings),
         trailing: _buildMenu(context, ref, strings),
@@ -204,8 +205,21 @@ class _MemberCard extends HookConsumerWidget {
     );
   }
 
-  Widget _buildAvatar() {
+  Widget _buildAvatar(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final colors = [
+      colorScheme.primary,
+      colorScheme.secondary,
+      colorScheme.tertiary,
+      Colors.purple,
+      Colors.teal,
+      Colors.orange,
+    ];
+    final colorIndex = member.userName.hashCode.abs() % colors.length;
+
     return CircleAvatar(
+      backgroundColor: colors[colorIndex],
+      foregroundColor: Colors.white,
       child: Text(_getInitials(member.userName)),
     );
   }
@@ -568,12 +582,17 @@ class _InvitationCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
     final isLoading = useState(false);
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
+    return AnimatedCard(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        leading: const CircleAvatar(
-          child: Icon(Icons.mail_outline),
+        leading: CircleAvatar(
+          backgroundColor: colorScheme.secondaryContainer,
+          child: Icon(
+            Icons.mail_outline,
+            color: colorScheme.onSecondaryContainer,
+          ),
         ),
         title: Text(invitation.emailAddress),
         subtitle: _buildSubtitle(context, strings),

@@ -137,7 +137,7 @@ class AiSuggestionService {
       );
 
       final response = await _client.post(
-        Uri.parse('$baseUrl/wheel-of-time/api/ai/suggestions/task-lists'),
+        Uri.parse('$baseUrl/api/ai/suggestions/task-lists'),
         headers: _getHeaders(),
         body: jsonEncode({
           'partialInput': partialInput,
@@ -206,7 +206,7 @@ class AiSuggestionService {
       );
 
       final response = await _client.post(
-        Uri.parse('$baseUrl/wheel-of-time/api/ai/suggestions/tasks'),
+        Uri.parse('$baseUrl/api/ai/suggestions/tasks'),
         headers: _getHeaders(),
         body: jsonEncode({
           'taskListId': taskListId,

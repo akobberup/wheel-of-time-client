@@ -1140,13 +1140,19 @@ class ApiService {
     }
   }
 
-  /// Get image URL
+  /// Get image URL - returnerer stien uændret hvis det allerede er en fuld URL
   String getImageUrl(String imagePath) {
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
     return '$baseUrl$imagePath';
   }
 
-  /// Get thumbnail URL
+  /// Get thumbnail URL - returnerer stien uændret hvis det allerede er en fuld URL
   String getThumbnailUrl(String thumbnailPath) {
+    if (thumbnailPath.startsWith('http://') || thumbnailPath.startsWith('https://')) {
+      return thumbnailPath;
+    }
     return '$baseUrl$thumbnailPath';
   }
 

@@ -8,6 +8,7 @@ import '../providers/task_list_provider.dart';
 import '../models/notification.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/skeleton_loader.dart';
+import '../widgets/common/animated_card.dart';
 import 'main_navigation_screen.dart';
 
 /// Viser skærm med alle notifikationer samlet ét sted
@@ -222,16 +223,18 @@ class _NotificationCard extends HookConsumerWidget {
     final strings = AppStrings.of(context);
     final isLoadingAccept = useState(false);
     final isLoadingDecline = useState(false);
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      color: notification.isRead ? null : Colors.blue.shade50,
-      child: Dismissible(
-        key: Key(notification.id),
-        direction: DismissDirection.endToStart,
-        background: _buildDismissBackground(),
-        confirmDismiss: (direction) => _showDismissConfirmationDialog(context, strings),
-        onDismissed: (direction) => _handleDismiss(context, ref, strings),
+    return Dismissible(
+      key: Key(notification.id),
+      direction: DismissDirection.endToStart,
+      background: _buildDismissBackground(),
+      confirmDismiss: (direction) => _showDismissConfirmationDialog(context, strings),
+      onDismissed: (direction) => _handleDismiss(context, ref, strings),
+      child: AnimatedCard(
+        margin: const EdgeInsets.only(bottom: 12),
+        color: notification.isRead ? null : colorScheme.primaryContainer.withValues(alpha: 0.3),
+        onTap: () => _handleNotificationTap(context, ref),
         child: ListTile(
           leading: _buildLeadingIcon(),
           title: Text(_getNotificationTitle(strings)),
@@ -243,7 +246,6 @@ class _NotificationCard extends HookConsumerWidget {
             isLoadingAccept,
             isLoadingDecline,
           ),
-          onTap: () => _handleNotificationTap(context, ref),
         ),
       ),
     );

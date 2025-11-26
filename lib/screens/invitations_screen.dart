@@ -5,6 +5,7 @@ import '../providers/invitation_provider.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/status_badge.dart';
+import '../widgets/common/animated_card.dart';
 
 /// Viser skærm med brugerens invitationer til opgavelister
 class InvitationsScreen extends HookConsumerWidget {
@@ -61,11 +62,14 @@ class _InvitationCard extends HookConsumerWidget {
     final isLoadingAccept = useState(false);
     final isLoadingDecline = useState(false);
 
-    return Card(
+    return AnimatedCard(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        leading: const Icon(Icons.list_alt, size: 40),
-        title: Text(invitation.taskListName),
+        leading: _buildLeadingIcon(context),
+        title: Text(
+          invitation.taskListName,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
         subtitle: _buildSubtitle(context, strings),
         trailing: _buildActions(
           context,
@@ -74,6 +78,22 @@ class _InvitationCard extends HookConsumerWidget {
           isLoadingAccept,
           isLoadingDecline,
         ),
+      ),
+    );
+  }
+
+  Widget _buildLeadingIcon(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(
+        Icons.list_alt,
+        color: colorScheme.onPrimaryContainer,
       ),
     );
   }
