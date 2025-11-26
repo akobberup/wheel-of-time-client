@@ -723,6 +723,9 @@ class StringsEn extends AppStrings {
   String get thisWeek => 'This Week';
 
   @override
+  String get later => 'Later';
+
+  @override
   String get thisMonth => 'This Month';
 
   @override

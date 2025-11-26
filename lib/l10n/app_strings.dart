@@ -279,6 +279,7 @@ abstract class AppStrings {
   String get filter;
   String get allTime;
   String get thisWeek;
+  String get later;
   String get thisMonth;
   String get last3Months;
 

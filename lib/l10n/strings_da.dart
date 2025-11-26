@@ -724,6 +724,9 @@ class StringsDa extends AppStrings {
   String get thisWeek => 'Denne uge';
 
   @override
+  String get later => 'Senere';
+
+  @override
   String get thisMonth => 'Denne måned';
 
   @override

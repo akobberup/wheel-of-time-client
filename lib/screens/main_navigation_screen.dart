@@ -9,6 +9,7 @@ import 'settings_screen.dart';
 import '../providers/invitation_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
+import '../providers/upcoming_tasks_provider.dart';
 import '../l10n/app_strings.dart';
 
 /// Provider der holder styr på hvilket tab der er valgt i bottom navigation
@@ -36,9 +37,19 @@ class MainNavigationScreen extends ConsumerWidget {
     WidgetRef ref,
     AppStrings strings,
   ) {
+    final selectedIndex = ref.watch(selectedIndexProvider);
+    final isUpcomingTasksTab = selectedIndex == 1;
+
     return AppBar(
       title: Text(strings.appTitle),
       actions: [
+        // Refresh knap for upcoming tasks (synlig på desktop)
+        if (isUpcomingTasksTab)
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: strings.refresh,
+            onPressed: () => ref.read(upcomingTasksProvider.notifier).refresh(),
+          ),
         _NotificationButton(strings: strings),
         _SettingsButton(strings: strings),
         _LogoutButton(strings: strings),
@@ -114,9 +125,15 @@ class MainNavigationScreen extends ConsumerWidget {
     return count;
   }
 
-  /// Håndterer ændring af valgt tab
+  /// Håndterer ændring af valgt tab og refresher data ved behov
   void _handleNavigationChange(WidgetRef ref, int index) {
+    final previousIndex = ref.read(selectedIndexProvider);
     ref.read(selectedIndexProvider.notifier).state = index;
+
+    // Refresh upcoming tasks når vi navigerer til det tab
+    if (index == 1 && previousIndex != 1) {
+      ref.read(upcomingTasksProvider.notifier).refresh();
+    }
   }
 }
 
