@@ -14,19 +14,12 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-LocalTime _$LocalTimeFromJson(Map<String, dynamic> json) {
-  return _LocalTime.fromJson(json);
-}
-
 /// @nodoc
 mixin _$LocalTime {
   int get hour => throw _privateConstructorUsedError;
   int get minute => throw _privateConstructorUsedError;
   int get second => throw _privateConstructorUsedError;
   int get nano => throw _privateConstructorUsedError;
-
-  /// Serializes this LocalTime to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
   /// Create a copy of LocalTime
   /// with the given fields replaced by the non-null parameter values.
@@ -135,16 +128,14 @@ class __$$LocalTimeImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
-class _$LocalTimeImpl implements _LocalTime {
+
+class _$LocalTimeImpl extends _LocalTime {
   const _$LocalTimeImpl(
       {required this.hour,
       required this.minute,
       this.second = 0,
-      this.nano = 0});
-
-  factory _$LocalTimeImpl.fromJson(Map<String, dynamic> json) =>
-      _$$LocalTimeImplFromJson(json);
+      this.nano = 0})
+      : super._();
 
   @override
   final int hour;
@@ -173,7 +164,6 @@ class _$LocalTimeImpl implements _LocalTime {
             (identical(other.nano, nano) || other.nano == nano));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, hour, minute, second, nano);
 
@@ -184,24 +174,15 @@ class _$LocalTimeImpl implements _LocalTime {
   @pragma('vm:prefer-inline')
   _$$LocalTimeImplCopyWith<_$LocalTimeImpl> get copyWith =>
       __$$LocalTimeImplCopyWithImpl<_$LocalTimeImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$LocalTimeImplToJson(
-      this,
-    );
-  }
 }
 
-abstract class _LocalTime implements LocalTime {
+abstract class _LocalTime extends LocalTime {
   const factory _LocalTime(
       {required final int hour,
       required final int minute,
       final int second,
       final int nano}) = _$LocalTimeImpl;
-
-  factory _LocalTime.fromJson(Map<String, dynamic> json) =
-      _$LocalTimeImpl.fromJson;
+  const _LocalTime._() : super._();
 
   @override
   int get hour;

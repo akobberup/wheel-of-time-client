@@ -28,6 +28,7 @@ mixin _$UpcomingTaskOccurrenceResponse {
   int get taskListId => throw _privateConstructorUsedError;
   String get taskListName => throw _privateConstructorUsedError;
   DateTime get dueDate => throw _privateConstructorUsedError;
+  @LocalTimeConverter()
   LocalTime? get alarmAtTimeOfDay => throw _privateConstructorUsedError;
   int? get completionWindowHours => throw _privateConstructorUsedError;
   String? get taskImagePath => throw _privateConstructorUsedError;
@@ -64,7 +65,7 @@ abstract class $UpcomingTaskOccurrenceResponseCopyWith<$Res> {
       int taskListId,
       String taskListName,
       DateTime dueDate,
-      LocalTime? alarmAtTimeOfDay,
+      @LocalTimeConverter() LocalTime? alarmAtTimeOfDay,
       int? completionWindowHours,
       String? taskImagePath,
       int totalCompletions,
@@ -230,7 +231,7 @@ abstract class _$$UpcomingTaskOccurrenceResponseImplCopyWith<$Res>
       int taskListId,
       String taskListName,
       DateTime dueDate,
-      LocalTime? alarmAtTimeOfDay,
+      @LocalTimeConverter() LocalTime? alarmAtTimeOfDay,
       int? completionWindowHours,
       String? taskImagePath,
       int totalCompletions,
@@ -355,7 +356,7 @@ class _$UpcomingTaskOccurrenceResponseImpl
       required this.taskListId,
       required this.taskListName,
       required this.dueDate,
-      this.alarmAtTimeOfDay,
+      @LocalTimeConverter() this.alarmAtTimeOfDay,
       this.completionWindowHours,
       this.taskImagePath,
       this.totalCompletions = 0,
@@ -383,6 +384,7 @@ class _$UpcomingTaskOccurrenceResponseImpl
   @override
   final DateTime dueDate;
   @override
+  @LocalTimeConverter()
   final LocalTime? alarmAtTimeOfDay;
   @override
   final int? completionWindowHours;
@@ -491,7 +493,7 @@ abstract class _UpcomingTaskOccurrenceResponse
       required final int taskListId,
       required final String taskListName,
       required final DateTime dueDate,
-      final LocalTime? alarmAtTimeOfDay,
+      @LocalTimeConverter() final LocalTime? alarmAtTimeOfDay,
       final int? completionWindowHours,
       final String? taskImagePath,
       final int totalCompletions,
@@ -518,6 +520,7 @@ abstract class _UpcomingTaskOccurrenceResponse
   @override
   DateTime get dueDate;
   @override
+  @LocalTimeConverter()
   LocalTime? get alarmAtTimeOfDay;
   @override
   int? get completionWindowHours;

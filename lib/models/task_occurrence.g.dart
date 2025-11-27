@@ -16,10 +16,8 @@ _$UpcomingTaskOccurrenceResponseImpl
           taskListId: (json['taskListId'] as num).toInt(),
           taskListName: json['taskListName'] as String,
           dueDate: DateTime.parse(json['dueDate'] as String),
-          alarmAtTimeOfDay: json['alarmAtTimeOfDay'] == null
-              ? null
-              : LocalTime.fromJson(
-                  json['alarmAtTimeOfDay'] as Map<String, dynamic>),
+          alarmAtTimeOfDay: const LocalTimeConverter()
+              .fromJson(json['alarmAtTimeOfDay'] as String?),
           completionWindowHours:
               (json['completionWindowHours'] as num?)?.toInt(),
           taskImagePath: json['taskImagePath'] as String?,
@@ -44,7 +42,8 @@ Map<String, dynamic> _$$UpcomingTaskOccurrenceResponseImplToJson(
       'taskListId': instance.taskListId,
       'taskListName': instance.taskListName,
       'dueDate': instance.dueDate.toIso8601String(),
-      'alarmAtTimeOfDay': instance.alarmAtTimeOfDay,
+      'alarmAtTimeOfDay':
+          const LocalTimeConverter().toJson(instance.alarmAtTimeOfDay),
       'completionWindowHours': instance.completionWindowHours,
       'taskImagePath': instance.taskImagePath,
       'totalCompletions': instance.totalCompletions,

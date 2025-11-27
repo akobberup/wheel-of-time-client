@@ -19,7 +19,7 @@ class UpcomingTaskOccurrenceResponse with _$UpcomingTaskOccurrenceResponse {
     required int taskListId,
     required String taskListName,
     required DateTime dueDate,
-    LocalTime? alarmAtTimeOfDay,
+    @LocalTimeConverter() LocalTime? alarmAtTimeOfDay,
     int? completionWindowHours,
     String? taskImagePath,
     @Default(0) int totalCompletions,

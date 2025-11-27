@@ -15,10 +15,8 @@ _$TaskResponseImpl _$$TaskResponseImplFromJson(Map<String, dynamic> json) =>
       taskListName: json['taskListName'] as String,
       schedule: const TaskScheduleConverter()
           .fromJson(json['schedule'] as Map<String, dynamic>),
-      alarmAtTimeOfDay: json['alarmAtTimeOfDay'] == null
-          ? null
-          : LocalTime.fromJson(
-              json['alarmAtTimeOfDay'] as Map<String, dynamic>),
+      alarmAtTimeOfDay: const LocalTimeConverter()
+          .fromJson(json['alarmAtTimeOfDay'] as String?),
       completionWindowHours: (json['completionWindowHours'] as num?)?.toInt(),
       firstRunDate: DateTime.parse(json['firstRunDate'] as String),
       nextDueDate: json['nextDueDate'] == null
@@ -42,7 +40,8 @@ Map<String, dynamic> _$$TaskResponseImplToJson(_$TaskResponseImpl instance) =>
       'taskListId': instance.taskListId,
       'taskListName': instance.taskListName,
       'schedule': const TaskScheduleConverter().toJson(instance.schedule),
-      'alarmAtTimeOfDay': instance.alarmAtTimeOfDay,
+      'alarmAtTimeOfDay':
+          const LocalTimeConverter().toJson(instance.alarmAtTimeOfDay),
       'completionWindowHours': instance.completionWindowHours,
       'firstRunDate': instance.firstRunDate.toIso8601String(),
       'nextDueDate': instance.nextDueDate?.toIso8601String(),
@@ -61,10 +60,8 @@ _$CreateTaskRequestImpl _$$CreateTaskRequestImplFromJson(
       taskListId: (json['taskListId'] as num).toInt(),
       schedule: const TaskScheduleConverter()
           .fromJson(json['schedule'] as Map<String, dynamic>),
-      alarmAtTimeOfDay: json['alarmAtTimeOfDay'] == null
-          ? null
-          : LocalTime.fromJson(
-              json['alarmAtTimeOfDay'] as Map<String, dynamic>),
+      alarmAtTimeOfDay: const LocalTimeConverter()
+          .fromJson(json['alarmAtTimeOfDay'] as String?),
       completionWindowHours: (json['completionWindowHours'] as num?)?.toInt(),
       firstRunDate: DateTime.parse(json['firstRunDate'] as String),
       sortOrder: (json['sortOrder'] as num?)?.toInt(),
@@ -78,7 +75,8 @@ Map<String, dynamic> _$$CreateTaskRequestImplToJson(
       'description': instance.description,
       'taskListId': instance.taskListId,
       'schedule': const TaskScheduleConverter().toJson(instance.schedule),
-      'alarmAtTimeOfDay': instance.alarmAtTimeOfDay,
+      'alarmAtTimeOfDay':
+          const LocalTimeConverter().toJson(instance.alarmAtTimeOfDay),
       'completionWindowHours': instance.completionWindowHours,
       'firstRunDate': instance.firstRunDate.toIso8601String(),
       'sortOrder': instance.sortOrder,
@@ -92,10 +90,8 @@ _$UpdateTaskRequestImpl _$$UpdateTaskRequestImplFromJson(
       description: json['description'] as String?,
       schedule: _$JsonConverterFromJson<Map<String, dynamic>, TaskSchedule>(
           json['schedule'], const TaskScheduleConverter().fromJson),
-      alarmAtTimeOfDay: json['alarmAtTimeOfDay'] == null
-          ? null
-          : LocalTime.fromJson(
-              json['alarmAtTimeOfDay'] as Map<String, dynamic>),
+      alarmAtTimeOfDay: const LocalTimeConverter()
+          .fromJson(json['alarmAtTimeOfDay'] as String?),
       completionWindowHours: (json['completionWindowHours'] as num?)?.toInt(),
       sortOrder: (json['sortOrder'] as num?)?.toInt(),
       isActive: json['isActive'] as bool?,
@@ -109,7 +105,8 @@ Map<String, dynamic> _$$UpdateTaskRequestImplToJson(
       'description': instance.description,
       'schedule': _$JsonConverterToJson<Map<String, dynamic>, TaskSchedule>(
           instance.schedule, const TaskScheduleConverter().toJson),
-      'alarmAtTimeOfDay': instance.alarmAtTimeOfDay,
+      'alarmAtTimeOfDay':
+          const LocalTimeConverter().toJson(instance.alarmAtTimeOfDay),
       'completionWindowHours': instance.completionWindowHours,
       'sortOrder': instance.sortOrder,
       'isActive': instance.isActive,

@@ -27,6 +27,7 @@ mixin _$TaskResponse {
   String get taskListName => throw _privateConstructorUsedError;
   @TaskScheduleConverter()
   TaskSchedule get schedule => throw _privateConstructorUsedError;
+  @LocalTimeConverter()
   LocalTime? get alarmAtTimeOfDay => throw _privateConstructorUsedError;
   int? get completionWindowHours => throw _privateConstructorUsedError;
   DateTime get firstRunDate => throw _privateConstructorUsedError;
@@ -60,7 +61,7 @@ abstract class $TaskResponseCopyWith<$Res> {
       int taskListId,
       String taskListName,
       @TaskScheduleConverter() TaskSchedule schedule,
-      LocalTime? alarmAtTimeOfDay,
+      @LocalTimeConverter() LocalTime? alarmAtTimeOfDay,
       int? completionWindowHours,
       DateTime firstRunDate,
       DateTime? nextDueDate,
@@ -224,7 +225,7 @@ abstract class _$$TaskResponseImplCopyWith<$Res>
       int taskListId,
       String taskListName,
       @TaskScheduleConverter() TaskSchedule schedule,
-      LocalTime? alarmAtTimeOfDay,
+      @LocalTimeConverter() LocalTime? alarmAtTimeOfDay,
       int? completionWindowHours,
       DateTime firstRunDate,
       DateTime? nextDueDate,
@@ -346,7 +347,7 @@ class _$TaskResponseImpl implements _TaskResponse {
       required this.taskListId,
       required this.taskListName,
       @TaskScheduleConverter() required this.schedule,
-      this.alarmAtTimeOfDay,
+      @LocalTimeConverter() this.alarmAtTimeOfDay,
       this.completionWindowHours,
       required this.firstRunDate,
       this.nextDueDate,
@@ -373,6 +374,7 @@ class _$TaskResponseImpl implements _TaskResponse {
   @TaskScheduleConverter()
   final TaskSchedule schedule;
   @override
+  @LocalTimeConverter()
   final LocalTime? alarmAtTimeOfDay;
   @override
   final int? completionWindowHours;
@@ -478,7 +480,7 @@ abstract class _TaskResponse implements TaskResponse {
       required final int taskListId,
       required final String taskListName,
       @TaskScheduleConverter() required final TaskSchedule schedule,
-      final LocalTime? alarmAtTimeOfDay,
+      @LocalTimeConverter() final LocalTime? alarmAtTimeOfDay,
       final int? completionWindowHours,
       required final DateTime firstRunDate,
       final DateTime? nextDueDate,
@@ -505,6 +507,7 @@ abstract class _TaskResponse implements TaskResponse {
   @TaskScheduleConverter()
   TaskSchedule get schedule;
   @override
+  @LocalTimeConverter()
   LocalTime? get alarmAtTimeOfDay;
   @override
   int? get completionWindowHours;
@@ -542,6 +545,7 @@ mixin _$CreateTaskRequest {
   int get taskListId => throw _privateConstructorUsedError;
   @TaskScheduleConverter()
   TaskSchedule get schedule => throw _privateConstructorUsedError;
+  @LocalTimeConverter()
   LocalTime? get alarmAtTimeOfDay => throw _privateConstructorUsedError;
   int? get completionWindowHours => throw _privateConstructorUsedError;
   DateTime get firstRunDate => throw _privateConstructorUsedError;
@@ -569,7 +573,7 @@ abstract class $CreateTaskRequestCopyWith<$Res> {
       String? description,
       int taskListId,
       @TaskScheduleConverter() TaskSchedule schedule,
-      LocalTime? alarmAtTimeOfDay,
+      @LocalTimeConverter() LocalTime? alarmAtTimeOfDay,
       int? completionWindowHours,
       DateTime firstRunDate,
       int? sortOrder,
@@ -682,7 +686,7 @@ abstract class _$$CreateTaskRequestImplCopyWith<$Res>
       String? description,
       int taskListId,
       @TaskScheduleConverter() TaskSchedule schedule,
-      LocalTime? alarmAtTimeOfDay,
+      @LocalTimeConverter() LocalTime? alarmAtTimeOfDay,
       int? completionWindowHours,
       DateTime firstRunDate,
       int? sortOrder,
@@ -766,7 +770,7 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
       this.description,
       required this.taskListId,
       @TaskScheduleConverter() required this.schedule,
-      this.alarmAtTimeOfDay,
+      @LocalTimeConverter() this.alarmAtTimeOfDay,
       this.completionWindowHours,
       required this.firstRunDate,
       this.sortOrder,
@@ -785,6 +789,7 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
   @TaskScheduleConverter()
   final TaskSchedule schedule;
   @override
+  @LocalTimeConverter()
   final LocalTime? alarmAtTimeOfDay;
   @override
   final int? completionWindowHours;
@@ -861,7 +866,7 @@ abstract class _CreateTaskRequest implements CreateTaskRequest {
       final String? description,
       required final int taskListId,
       @TaskScheduleConverter() required final TaskSchedule schedule,
-      final LocalTime? alarmAtTimeOfDay,
+      @LocalTimeConverter() final LocalTime? alarmAtTimeOfDay,
       final int? completionWindowHours,
       required final DateTime firstRunDate,
       final int? sortOrder,
@@ -880,6 +885,7 @@ abstract class _CreateTaskRequest implements CreateTaskRequest {
   @TaskScheduleConverter()
   TaskSchedule get schedule;
   @override
+  @LocalTimeConverter()
   LocalTime? get alarmAtTimeOfDay;
   @override
   int? get completionWindowHours;
@@ -908,6 +914,7 @@ mixin _$UpdateTaskRequest {
   String? get description => throw _privateConstructorUsedError;
   @TaskScheduleConverter()
   TaskSchedule? get schedule => throw _privateConstructorUsedError;
+  @LocalTimeConverter()
   LocalTime? get alarmAtTimeOfDay => throw _privateConstructorUsedError;
   int? get completionWindowHours => throw _privateConstructorUsedError;
   int? get sortOrder => throw _privateConstructorUsedError;
@@ -934,7 +941,7 @@ abstract class $UpdateTaskRequestCopyWith<$Res> {
       {String? name,
       String? description,
       @TaskScheduleConverter() TaskSchedule? schedule,
-      LocalTime? alarmAtTimeOfDay,
+      @LocalTimeConverter() LocalTime? alarmAtTimeOfDay,
       int? completionWindowHours,
       int? sortOrder,
       bool? isActive,
@@ -1045,7 +1052,7 @@ abstract class _$$UpdateTaskRequestImplCopyWith<$Res>
       {String? name,
       String? description,
       @TaskScheduleConverter() TaskSchedule? schedule,
-      LocalTime? alarmAtTimeOfDay,
+      @LocalTimeConverter() LocalTime? alarmAtTimeOfDay,
       int? completionWindowHours,
       int? sortOrder,
       bool? isActive,
@@ -1123,7 +1130,7 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
       {this.name,
       this.description,
       @TaskScheduleConverter() this.schedule,
-      this.alarmAtTimeOfDay,
+      @LocalTimeConverter() this.alarmAtTimeOfDay,
       this.completionWindowHours,
       this.sortOrder,
       this.isActive,
@@ -1140,6 +1147,7 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
   @TaskScheduleConverter()
   final TaskSchedule? schedule;
   @override
+  @LocalTimeConverter()
   final LocalTime? alarmAtTimeOfDay;
   @override
   final int? completionWindowHours;
@@ -1212,7 +1220,7 @@ abstract class _UpdateTaskRequest implements UpdateTaskRequest {
       {final String? name,
       final String? description,
       @TaskScheduleConverter() final TaskSchedule? schedule,
-      final LocalTime? alarmAtTimeOfDay,
+      @LocalTimeConverter() final LocalTime? alarmAtTimeOfDay,
       final int? completionWindowHours,
       final int? sortOrder,
       final bool? isActive,
@@ -1229,6 +1237,7 @@ abstract class _UpdateTaskRequest implements UpdateTaskRequest {
   @TaskScheduleConverter()
   TaskSchedule? get schedule;
   @override
+  @LocalTimeConverter()
   LocalTime? get alarmAtTimeOfDay;
   @override
   int? get completionWindowHours;
