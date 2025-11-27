@@ -49,10 +49,24 @@ class TaskListsScreen extends HookConsumerWidget {
       return _buildEmptyState(strings, context, ref);
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(Spacing.lg),
-      itemCount: taskLists.length,
-      itemBuilder: (context, index) => _TaskListCard(taskList: taskLists[index]),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Begrans bredden pa desktop for bedre laesbarhed og proportioner
+        const maxContentWidth = 700.0;
+        final isWideScreen = constraints.maxWidth > maxContentWidth;
+        final horizontalPadding = isWideScreen
+            ? (constraints.maxWidth - maxContentWidth) / 2
+            : Spacing.lg;
+
+        return ListView.builder(
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: Spacing.lg,
+          ),
+          itemCount: taskLists.length,
+          itemBuilder: (context, index) => _TaskListCard(taskList: taskLists[index]),
+        );
+      },
     );
   }
 

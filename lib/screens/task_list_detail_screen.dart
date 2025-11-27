@@ -96,13 +96,27 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
       return _buildEmptyState(strings);
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: tasks.length,
-      itemBuilder: (context, index) => _TaskCard(
-        task: tasks[index],
-        taskListId: widget.taskListId,
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Begrans bredden pa desktop for bedre laesbarhed og proportioner
+        const maxContentWidth = 700.0;
+        final isWideScreen = constraints.maxWidth > maxContentWidth;
+        final horizontalPadding = isWideScreen
+            ? (constraints.maxWidth - maxContentWidth) / 2
+            : 16.0;
+
+        return ListView.builder(
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: 16,
+          ),
+          itemCount: tasks.length,
+          itemBuilder: (context, index) => _TaskCard(
+            task: tasks[index],
+            taskListId: widget.taskListId,
+          ),
+        );
+      },
     );
   }
 

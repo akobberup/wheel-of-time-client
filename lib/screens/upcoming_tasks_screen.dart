@@ -150,14 +150,21 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         final columnCount = _getColumnCount(width);
+        final isDesktop = width >= 900;
+        
+        // Beregn responsiv padding baseret på skærmbredde
+        final horizontalPadding = _getResponsivePadding(width);
 
         return CustomScrollView(
           controller: _scrollController,
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: 16,
+              ),
               sliver: SliverMainAxisGroup(
-                slivers: _buildResponsiveSlivers(grouped, strings, columnCount),
+                slivers: _buildResponsiveSlivers(grouped, strings, columnCount, isDesktop),
               ),
             ),
             if (state.hasMore)
@@ -169,12 +176,24 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
       },
     );
   }
+  
+  /// Beregner responsiv horisontal padding baseret på skærmbredde
+  double _getResponsivePadding(double width) {
+    if (width >= 1800) return 80.0;
+    if (width >= 1400) return 48.0;
+    if (width >= 1200) return 32.0;
+    if (width >= 900) return 24.0;
+    return 16.0;
+  }
 
   /// Returnerer antal kolonner baseret på skærmbredde
+  /// Optimeret til at udnytte desktop-plads bedre
   int _getColumnCount(double width) {
-    if (width >= 1200) return 3;
-    if (width >= 600) return 2;
-    return 1;
+    if (width >= 1800) return 4;  // Meget bred skærm
+    if (width >= 1400) return 3;  // Bred desktop
+    if (width >= 1000) return 3;  // Standard desktop
+    if (width >= 700) return 2;   // Tablet/smal desktop
+    return 1;                      // Mobil
   }
 
   /// Bygger responsive slivers med sektioner og grid layouts
@@ -182,6 +201,7 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     Map<String, List<UpcomingTaskOccurrenceResponse>> grouped,
     AppStrings strings,
     int columnCount,
+    bool isDesktop,
   ) {
     final List<Widget> slivers = [];
     final sectionOrder = [
@@ -204,12 +224,14 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
               title: section,
               accentColor: color,
               taskCount: tasks.length,
+              isDesktop: isDesktop,
             ),
           ),
         );
 
         // Opgaver i grid eller liste baseret på kolonneantal
         if (columnCount == 1) {
+          // Mobil: enkelt kolonne liste
           slivers.add(
             SliverList(
               delegate: SliverChildBuilderDelegate(
@@ -217,26 +239,32 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                   occurrence: tasks[index],
                   onQuickComplete: _handleQuickComplete,
                   onTap: _handleTaskCompletion,
+                  isDesktop: false,
                 ),
                 childCount: tasks.length,
               ),
             ),
           );
         } else {
+          // Desktop/tablet: grid layout med forbedret spacing
+          final crossAxisSpacing = isDesktop ? 16.0 : 12.0;
+          final mainAxisSpacing = isDesktop ? 12.0 : 8.0;
+          
           slivers.add(
             SliverGrid(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: columnCount,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 8,
-                // Dynamisk aspect ratio baseret på opgavetype
-                childAspectRatio: _getAspectRatio(section, strings),
+                crossAxisSpacing: crossAxisSpacing,
+                mainAxisSpacing: mainAxisSpacing,
+                // Dynamisk aspect ratio baseret på opgavetype og skærm
+                childAspectRatio: _getAspectRatio(section, strings, columnCount, isDesktop),
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) => _TaskOccurrenceCard(
                   occurrence: tasks[index],
                   onQuickComplete: _handleQuickComplete,
                   onTap: _handleTaskCompletion,
+                  isDesktop: isDesktop,
                 ),
                 childCount: tasks.length,
               ),
@@ -249,18 +277,30 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     return slivers;
   }
 
-  /// Returnerer aspect ratio baseret på sektionstype
-  double _getAspectRatio(String section, AppStrings strings) {
-    // Hero-kort (overdue/today) er højere
-    if (section == strings.overdue || section == strings.dueToday) {
-      return 1.1;
+  /// Returnerer aspect ratio baseret på sektionstype, kolonneantal og skærmstørrelse
+  /// Optimeret til at give kortene en passende størrelse på alle skærme
+  double _getAspectRatio(String section, AppStrings strings, int columnCount, bool isDesktop) {
+    final isHero = section == strings.overdue || section == strings.dueToday;
+    final isMedium = section == strings.dueTomorrow || section == strings.thisWeek;
+    
+    // Hero-kort (overdue/today) - større og mere fremtrædende
+    if (isHero) {
+      if (columnCount >= 4) return 1.3;   // 4 kolonner: lidt bredere
+      if (columnCount >= 3) return 1.15;  // 3 kolonner: næsten kvadratisk
+      return 1.0;                          // 2 kolonner: kvadratisk
     }
+    
     // Medium-kort (tomorrow/this week)
-    if (section == strings.dueTomorrow || section == strings.thisWeek) {
-      return 2.0;
+    if (isMedium) {
+      if (columnCount >= 4) return 2.2;   // 4 kolonner: kompakt
+      if (columnCount >= 3) return 1.8;   // 3 kolonner: medium bredde
+      return 2.0;                          // 2 kolonner: standard
     }
-    // Kompakte kort (later)
-    return 2.8;
+    
+    // Kompakte kort (later) - smallere på desktop for at vise flere
+    if (columnCount >= 4) return 2.8;
+    if (columnCount >= 3) return 2.4;
+    return 2.6;
   }
 
 
@@ -349,11 +389,13 @@ class _SectionHeader extends StatelessWidget {
   final String title;
   final Color accentColor;
   final int taskCount;
+  final bool isDesktop;
 
   const _SectionHeader({
     required this.title,
     required this.accentColor,
     required this.taskCount,
+    this.isDesktop = false,
   });
 
   @override
@@ -362,39 +404,53 @@ class _SectionHeader extends StatelessWidget {
     final isUrgent = accentColor == theme.colorScheme.error ||
         accentColor == theme.colorScheme.tertiary;
 
+    // Større tekst og spacing på desktop
+    final titleStyle = isDesktop 
+        ? theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: isUrgent ? accentColor : theme.colorScheme.onSurface,
+          )
+        : theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: isUrgent ? accentColor : theme.colorScheme.onSurface,
+          );
+
     return Padding(
-      padding: const EdgeInsets.only(top: 16, bottom: 8),
+      padding: EdgeInsets.only(
+        top: isDesktop ? 24 : 16, 
+        bottom: isDesktop ? 12 : 8,
+      ),
       child: Row(
         children: [
           // Farvet accent-linje
           Container(
-            width: 4,
-            height: 24,
+            width: isDesktop ? 5 : 4,
+            height: isDesktop ? 28 : 24,
             decoration: BoxDecoration(
               color: accentColor,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: isDesktop ? 16 : 12),
           // Sektions-titel
           Text(
             title,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: isUrgent ? accentColor : theme.colorScheme.onSurface,
-            ),
+            style: titleStyle,
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: isDesktop ? 12 : 8),
           // Opgave-antal badge
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            padding: EdgeInsets.symmetric(
+              horizontal: isDesktop ? 10 : 8, 
+              vertical: isDesktop ? 4 : 2,
+            ),
             decoration: BoxDecoration(
               color: accentColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               '$taskCount',
-              style: theme.textTheme.labelSmall?.copyWith(
+              style: (isDesktop ? theme.textTheme.labelMedium : theme.textTheme.labelSmall)?.copyWith(
                 color: accentColor,
                 fontWeight: FontWeight.bold,
               ),
@@ -402,7 +458,7 @@ class _SectionHeader extends StatelessWidget {
           ),
           // Pulserende indikator for hastende sektioner
           if (isUrgent) ...[
-            const SizedBox(width: 8),
+            SizedBox(width: isDesktop ? 12 : 8),
             _PulsingDot(color: accentColor),
           ],
         ],
@@ -436,11 +492,13 @@ class _TaskOccurrenceCard extends StatelessWidget {
   final UpcomingTaskOccurrenceResponse occurrence;
   final Future<void> Function(UpcomingTaskOccurrenceResponse) onQuickComplete;
   final Future<void> Function(BuildContext, UpcomingTaskOccurrenceResponse) onTap;
+  final bool isDesktop;
 
   const _TaskOccurrenceCard({
     required this.occurrence,
     required this.onQuickComplete,
     required this.onTap,
+    this.isDesktop = false,
   });
 
   @override
@@ -487,7 +545,7 @@ class _TaskOccurrenceCard extends StatelessWidget {
           Icon(Icons.check_circle, color: Colors.white, size: 28),
           SizedBox(width: 8),
           Text(
-            'Fuldført!',
+            'Fuldfort!',
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -507,17 +565,20 @@ class _TaskOccurrenceCard extends StatelessWidget {
           isClickable: isClickable,
           urgency: urgency,
           onTap: () => onTap(context, occurrence),
+          isDesktop: isDesktop,
         ),
       TaskUrgency.tomorrow || TaskUrgency.thisWeek => _MediumTaskCard(
           occurrence: occurrence,
           isClickable: isClickable,
           urgency: urgency,
           onTap: () => onTap(context, occurrence),
+          isDesktop: isDesktop,
         ),
       TaskUrgency.future => _CompactTaskCard(
           occurrence: occurrence,
           isClickable: isClickable,
           onTap: () => onTap(context, occurrence),
+          isDesktop: isDesktop,
         ),
     };
 
@@ -530,21 +591,20 @@ class _TaskOccurrenceCard extends StatelessWidget {
   }
 }
 
-/// Hero-kort til overdue og today opgaver - stort, iøjnefaldende design med billede
+/// Hero-kort til overdue og today opgaver - stort, iojnefaldende design med billede
 class _HeroTaskCard extends StatelessWidget {
   final UpcomingTaskOccurrenceResponse occurrence;
   final bool isClickable;
   final TaskUrgency urgency;
   final VoidCallback? onTap;
-
-  /// Minimum højde for hero-kortet
-  static const double _minHeight = 160.0;
+  final bool isDesktop;
 
   const _HeroTaskCard({
     required this.occurrence,
     required this.isClickable,
     required this.urgency,
     this.onTap,
+    this.isDesktop = false,
   });
 
   @override
@@ -556,44 +616,41 @@ class _HeroTaskCard extends StatelessWidget {
 
     return AnimatedCard(
       onTap: isClickable ? onTap : null,
-      baseElevation: 4,
-      pressedElevation: 8,
-      margin: const EdgeInsets.only(bottom: 8),
+      baseElevation: isDesktop ? 6 : 4,
+      pressedElevation: isDesktop ? 12 : 8,
+      margin: EdgeInsets.only(bottom: isDesktop ? 0 : 8),
       borderSide: BorderSide(
         color: accentColor.withValues(alpha: 0.5),
         width: 2,
       ),
-      borderRadius: 20,
-      child: SizedBox(
-        height: _minHeight,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Baggrund: billede eller gradient
-            _buildBackground(context, accentColor),
-            // Gradient overlay for læsbarhed
-            _buildGradientOverlay(accentColor),
-            // Indhold positioneret i bunden
+      borderRadius: isDesktop ? 16 : 20,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Baggrund: billede eller gradient
+          _buildBackground(context, accentColor),
+          // Gradient overlay for laesbarhed
+          _buildGradientOverlay(accentColor),
+          // Indhold positioneret i bunden
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _buildContent(context, accentColor),
+          ),
+          // Streak badge oeverst til venstre
+          if (occurrence.currentStreak != null && occurrence.currentStreak!.isActive)
             Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: _buildContent(context, accentColor),
-            ),
-            // Streak badge øverst til venstre
-            if (occurrence.currentStreak != null && occurrence.currentStreak!.isActive)
-              Positioned(
-                top: 16,
-                left: 16,
-                child: _AnimatedStreakBadge(
-                  streakCount: occurrence.currentStreak!.streakCount,
-                  isAtRisk: _shouldShowStreakWarning(),
-                ),
+              top: isDesktop ? 12 : 16,
+              left: isDesktop ? 12 : 16,
+              child: _AnimatedStreakBadge(
+                streakCount: occurrence.currentStreak!.streakCount,
+                isAtRisk: _shouldShowStreakWarning(),
               ),
-            // Urgency indikator
-            if (isOverdue) _buildUrgencyBanner(context),
-          ],
-        ),
+            ),
+          // Urgency indikator
+          if (isOverdue) _buildUrgencyBanner(context),
+        ],
       ),
     );
   }
@@ -644,49 +701,67 @@ class _HeroTaskCard extends StatelessWidget {
   Widget _buildContent(BuildContext context, Color accentColor) {
     final theme = Theme.of(context);
     final strings = AppStrings.of(context);
+    
+    // Responsive padding og font-stoerrelser
+    final contentPadding = isDesktop ? 16.0 : 20.0;
+    final titleStyle = isDesktop 
+        ? theme.textTheme.titleMedium?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            shadows: [
+              Shadow(
+                color: Colors.black.withValues(alpha: 0.5),
+                blurRadius: 8,
+              ),
+            ],
+          )
+        : theme.textTheme.headlineSmall?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            shadows: [
+              Shadow(
+                color: Colors.black.withValues(alpha: 0.5),
+                blurRadius: 8,
+              ),
+            ],
+          );
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(contentPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           // Opgave-liste label
           _buildTaskListLabel(context),
-          const SizedBox(height: 8),
+          SizedBox(height: isDesktop ? 6 : 8),
           // Titel
           Text(
             occurrence.taskName,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              shadows: [
-                Shadow(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-            maxLines: 2,
+            style: titleStyle,
+            maxLines: isDesktop ? 1 : 2,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 12),
-          // Metadata række
+          SizedBox(height: isDesktop ? 8 : 12),
+          // Metadata raekke
           Row(
             children: [
-              _DueDateBadge(dueDate: occurrence.dueDate),
-              const SizedBox(width: 12),
+              _DueDateBadge(dueDate: occurrence.dueDate, compact: isDesktop),
+              SizedBox(width: isDesktop ? 8 : 12),
               if (occurrence.totalCompletions > 0)
-                _MetadataChip(
-                  icon: Icons.check_circle_outline,
-                  label: strings.timesCompleted(occurrence.totalCompletions),
+                Flexible(
+                  child: _MetadataChip(
+                    icon: Icons.check_circle_outline,
+                    label: strings.timesCompleted(occurrence.totalCompletions),
+                    small: isDesktop,
+                  ),
                 ),
             ],
           ),
           // Streak advarsel hvis relevant
           if (_shouldShowStreakWarning())
             Padding(
-              padding: const EdgeInsets.only(top: 12),
+              padding: EdgeInsets.only(top: isDesktop ? 8 : 12),
               child: _StreakWarningBanner(
                 streakCount: occurrence.currentStreak!.streakCount,
               ),
@@ -764,18 +839,20 @@ class _HeroTaskCard extends StatelessWidget {
   }
 }
 
-/// Medium-kort til tomorrow og this week - moderat størrelse med accent farve
+/// Medium-kort til tomorrow og this week - moderat storrelse med accent farve
 class _MediumTaskCard extends StatelessWidget {
   final UpcomingTaskOccurrenceResponse occurrence;
   final bool isClickable;
   final TaskUrgency urgency;
   final VoidCallback? onTap;
+  final bool isDesktop;
 
   const _MediumTaskCard({
     required this.occurrence,
     required this.isClickable,
     required this.urgency,
     this.onTap,
+    this.isDesktop = false,
   });
 
   @override
@@ -787,9 +864,9 @@ class _MediumTaskCard extends StatelessWidget {
 
     return AnimatedCard(
       onTap: isClickable ? onTap : null,
-      baseElevation: 2,
-      pressedElevation: 6,
-      margin: const EdgeInsets.only(bottom: 4),
+      baseElevation: isDesktop ? 3 : 2,
+      pressedElevation: isDesktop ? 8 : 6,
+      margin: EdgeInsets.only(bottom: isDesktop ? 0 : 4),
       borderSide: BorderSide(
         color: accentColor.withValues(alpha: 0.3),
         width: 1,
@@ -798,9 +875,9 @@ class _MediumTaskCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Accent-linje på venstre side
+            // Accent-linje paa venstre side
             Container(
-              width: 4,
+              width: isDesktop ? 3 : 4,
               color: accentColor,
             ),
             // Lille billede eller ikon
@@ -808,7 +885,10 @@ class _MediumTaskCard extends StatelessWidget {
             // Indhold
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isDesktop ? 10 : 12, 
+                  vertical: isDesktop ? 6 : 8,
+                ),
                 child: _buildContent(context, accentColor),
               ),
             ),
@@ -820,10 +900,11 @@ class _MediumTaskCard extends StatelessWidget {
 
   Widget _buildImageSection(BuildContext context, Color accentColor) {
     final imagePath = occurrence.taskImagePath;
+    final imageWidth = isDesktop ? 56.0 : 70.0;
 
     if (imagePath != null && imagePath.isNotEmpty) {
       return SizedBox(
-        width: 70,
+        width: imageWidth,
         child: CachedNetworkImage(
           imageUrl: ApiConfig.getImageUrl(imagePath),
           fit: BoxFit.cover,
@@ -837,8 +918,11 @@ class _MediumTaskCard extends StatelessWidget {
   }
 
   Widget _buildPlaceholder(Color accentColor) {
+    final imageWidth = isDesktop ? 56.0 : 70.0;
+    final iconSize = isDesktop ? 22.0 : 28.0;
+    
     return Container(
-      width: 70,
+      width: imageWidth,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -852,13 +936,17 @@ class _MediumTaskCard extends StatelessWidget {
       child: Icon(
         Icons.task_alt,
         color: accentColor.withValues(alpha: 0.5),
-        size: 28,
+        size: iconSize,
       ),
     );
   }
 
   Widget _buildContent(BuildContext context, Color accentColor) {
     final theme = Theme.of(context);
+    final titleStyle = isDesktop 
+        ? theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)
+        : theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold);
+    final subtitleFontSize = isDesktop ? 11.0 : 12.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -870,33 +958,31 @@ class _MediumTaskCard extends StatelessWidget {
             Expanded(
               child: Text(
                 occurrence.taskName,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: titleStyle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(width: 8),
-            _DueDateBadge(dueDate: occurrence.dueDate),
+            SizedBox(width: isDesktop ? 6 : 8),
+            _DueDateBadge(dueDate: occurrence.dueDate, compact: isDesktop),
           ],
         ),
-        const SizedBox(height: 2),
+        SizedBox(height: isDesktop ? 1 : 2),
         // Task list
         Row(
           children: [
             Icon(
               Icons.list,
-              size: 12,
+              size: isDesktop ? 10 : 12,
               color: theme.colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(width: 4),
+            SizedBox(width: isDesktop ? 3 : 4),
             Expanded(
               child: Text(
                 occurrence.taskListName,
                 style: TextStyle(
                   color: theme.colorScheme.onSurfaceVariant,
-                  fontSize: 12,
+                  fontSize: subtitleFontSize,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -907,7 +993,7 @@ class _MediumTaskCard extends StatelessWidget {
         // Streak badge hvis aktiv
         if (occurrence.currentStreak != null &&
             occurrence.currentStreak!.isActive) ...[
-          const SizedBox(height: 4),
+          SizedBox(height: isDesktop ? 3 : 4),
           _AnimatedStreakBadge(
             streakCount: occurrence.currentStreak!.streakCount,
             isAtRisk: false,
@@ -924,44 +1010,55 @@ class _CompactTaskCard extends StatelessWidget {
   final UpcomingTaskOccurrenceResponse occurrence;
   final bool isClickable;
   final VoidCallback? onTap;
+  final bool isDesktop;
 
   const _CompactTaskCard({
     required this.occurrence,
     required this.isClickable,
     this.onTap,
+    this.isDesktop = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    
+    // Responsive dimensioner
+    final iconContainerSize = isDesktop ? 30.0 : 36.0;
+    final iconSize = isDesktop ? 15.0 : 18.0;
+    final horizontalPadding = isDesktop ? 10.0 : 12.0;
+    final verticalPadding = isDesktop ? 6.0 : 8.0;
 
     return AnimatedCard(
       onTap: isClickable ? onTap : null,
-      baseElevation: 1,
-      pressedElevation: 3,
-      margin: const EdgeInsets.only(bottom: 4),
+      baseElevation: isDesktop ? 2 : 1,
+      pressedElevation: isDesktop ? 4 : 3,
+      margin: EdgeInsets.only(bottom: isDesktop ? 0 : 4),
       color: colorScheme.surfaceContainerLow,
-      borderRadius: 12,
+      borderRadius: isDesktop ? 10 : 12,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: EdgeInsets.symmetric(
+          horizontal: horizontalPadding, 
+          vertical: verticalPadding,
+        ),
         child: Row(
           children: [
             // Lille ikon
             Container(
-              width: 36,
-              height: 36,
+              width: iconContainerSize,
+              height: iconContainerSize,
               decoration: BoxDecoration(
                 color: colorScheme.primaryContainer.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(isDesktop ? 6 : 8),
               ),
               child: Icon(
                 Icons.event_note,
                 color: colorScheme.primary,
-                size: 18,
+                size: iconSize,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: isDesktop ? 8 : 12),
             // Titel og liste
             Expanded(
               child: Column(
@@ -970,7 +1067,7 @@ class _CompactTaskCard extends StatelessWidget {
                 children: [
                   Text(
                     occurrence.taskName,
-                    style: theme.textTheme.bodySmall?.copyWith(
+                    style: (isDesktop ? theme.textTheme.labelMedium : theme.textTheme.bodySmall)?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
                     maxLines: 1,
@@ -980,7 +1077,7 @@ class _CompactTaskCard extends StatelessWidget {
                     occurrence.taskListName,
                     style: TextStyle(
                       color: colorScheme.onSurfaceVariant,
-                      fontSize: 11,
+                      fontSize: isDesktop ? 10 : 11,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -989,7 +1086,7 @@ class _CompactTaskCard extends StatelessWidget {
               ),
             ),
             // Dato badge
-            _DueDateBadge(dueDate: occurrence.dueDate),
+            _DueDateBadge(dueDate: occurrence.dueDate, compact: isDesktop),
           ],
         ),
       ),
@@ -1195,26 +1292,35 @@ class _StreakWarningBanner extends StatelessWidget {
   }
 }
 
-/// Badge der viser forfaldsdato med farve baseret på hastværk
+/// Badge der viser forfaldsdato med farve baseret pa hastvaerk
 class _DueDateBadge extends StatelessWidget {
   final DateTime dueDate;
+  final bool compact;
 
-  const _DueDateBadge({required this.dueDate});
+  const _DueDateBadge({
+    required this.dueDate,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final strings = AppStrings.of(context);
     final dueDateColor = _getDueDateColor(context);
     final dueDateText = _formatDueDate(strings);
+    
+    // Responsive padding og font-storrelse
+    final horizontalPadding = compact ? 8.0 : 12.0;
+    final verticalPadding = compact ? 4.0 : 6.0;
+    final fontSize = compact ? 10.0 : 12.0;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 6,
+      padding: EdgeInsets.symmetric(
+        horizontal: horizontalPadding,
+        vertical: verticalPadding,
       ),
       decoration: BoxDecoration(
         color: dueDateColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(compact ? 12 : 16),
         border: Border.all(
           color: dueDateColor.withValues(alpha: 0.5),
         ),
@@ -1223,7 +1329,7 @@ class _DueDateBadge extends StatelessWidget {
         dueDateText,
         style: TextStyle(
           color: dueDateColor,
-          fontSize: 12,
+          fontSize: fontSize,
           fontWeight: FontWeight.bold,
         ),
       ),
