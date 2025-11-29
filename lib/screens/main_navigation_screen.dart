@@ -10,31 +10,46 @@ import '../providers/invitation_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
 import '../providers/upcoming_tasks_provider.dart';
+import '../services/background_task_service.dart';
 import '../l10n/app_strings.dart';
 
 /// Provider der holder styr på hvilket tab der er valgt i bottom navigation
 final selectedIndexProvider = StateProvider<int>((ref) => 1);
 
 /// Hovedskærm med bottom navigation mellem Lists, Upcoming Tasks og Invitations
-class MainNavigationScreen extends ConsumerWidget {
+class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MainNavigationScreen> createState() => _MainNavigationScreenState();
+}
+
+class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Bed om battery optimization exemption efter første frame er tegnet
+    // Dette sikrer at dialogen vises efter UI'en er klar
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      BackgroundTaskService.requestBatteryOptimizationExemption();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final strings = AppStrings.of(context);
     final selectedIndex = ref.watch(selectedIndexProvider);
 
     return Scaffold(
-      appBar: _buildAppBar(context, ref, strings),
+      appBar: _buildAppBar(context, strings),
       body: _buildBody(selectedIndex),
-      bottomNavigationBar: _buildBottomNavigationBar(ref, strings, selectedIndex),
+      bottomNavigationBar: _buildBottomNavigationBar(strings, selectedIndex),
     );
   }
 
   /// Bygger app bar med titel og action buttons
   PreferredSizeWidget _buildAppBar(
     BuildContext context,
-    WidgetRef ref,
     AppStrings strings,
   ) {
     final selectedIndex = ref.watch(selectedIndexProvider);
@@ -70,23 +85,21 @@ class MainNavigationScreen extends ConsumerWidget {
 
   /// Bygger bottom navigation bar med badges for invitations
   Widget _buildBottomNavigationBar(
-    WidgetRef ref,
     AppStrings strings,
     int selectedIndex,
   ) {
     return NavigationBar(
       selectedIndex: selectedIndex,
-      onDestinationSelected: (index) => _handleNavigationChange(ref, index),
-      destinations: _buildNavigationDestinations(ref, strings),
+      onDestinationSelected: (index) => _handleNavigationChange(index),
+      destinations: _buildNavigationDestinations(strings),
     );
   }
 
   /// Bygger navigation destinations med badges
   List<NavigationDestination> _buildNavigationDestinations(
-    WidgetRef ref,
     AppStrings strings,
   ) {
-    final pendingInvitationsCount = _getPendingInvitationsCount(ref);
+    final pendingInvitationsCount = _getPendingInvitationsCount();
 
     return [
       NavigationDestination(
@@ -114,7 +127,7 @@ class MainNavigationScreen extends ConsumerWidget {
   }
 
   /// Henter antal pending invitations
-  int _getPendingInvitationsCount(WidgetRef ref) {
+  int _getPendingInvitationsCount() {
     final pendingInvitationsAsync = ref.watch(invitationProvider);
     int count = 0;
 
@@ -126,7 +139,7 @@ class MainNavigationScreen extends ConsumerWidget {
   }
 
   /// Håndterer ændring af valgt tab og refresher data ved behov
-  void _handleNavigationChange(WidgetRef ref, int index) {
+  void _handleNavigationChange(int index) {
     final previousIndex = ref.read(selectedIndexProvider);
     ref.read(selectedIndexProvider.notifier).state = index;
 

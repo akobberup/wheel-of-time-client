@@ -42,6 +42,9 @@ dependencies:
   # Background Tasks (mobile only)
   workmanager: ^0.9.0
 
+  # Battery Optimization (Android)
+  disable_battery_optimization: ^1.1.1
+
   # Date and Time Formatting
   intl: ^0.20.2
 

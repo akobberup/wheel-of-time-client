@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../services/notification_service.dart';
+import '../services/battery_optimization_service.dart';
 import '../models/notification.dart';
 import '../models/enums.dart';
 import '../models/task.dart';
@@ -80,6 +81,31 @@ class BackgroundTaskService {
       developer.log('All background tasks cancelled', name: 'BackgroundTaskService');
     } catch (e) {
       developer.log('Error cancelling background tasks: $e', name: 'BackgroundTaskService');
+    }
+  }
+
+  /// Beder brugeren om at deaktivere batterioptimering på Android.
+  ///
+  /// Android's Doze mode og Battery Saver kan forhindre WorkManager i at køre
+  /// pålideligt. Denne metode viser en dialog der forklarer problemet og
+  /// guider brugeren til at deaktivere batterioptimering for appen.
+  ///
+  /// Dialogen vises kun én gang, medmindre brugeren stadig har optimering aktiveret.
+  static Future<void> requestBatteryOptimizationExemption() async {
+    if (kIsWeb) return;
+
+    try {
+      final isDisabled = await BatteryOptimizationService.checkAndRequestIfNeeded();
+      if (isDisabled) {
+        developer.log('Battery optimization is disabled - background tasks should work reliably',
+            name: 'BackgroundTaskService');
+      } else {
+        developer.log('Battery optimization is still enabled - background tasks may be unreliable',
+            name: 'BackgroundTaskService');
+      }
+    } catch (e) {
+      developer.log('Error requesting battery optimization exemption: $e',
+          name: 'BackgroundTaskService');
     }
   }
 }
