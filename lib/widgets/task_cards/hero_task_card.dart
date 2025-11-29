@@ -32,18 +32,21 @@ class HeroTaskCard extends StatelessWidget {
     final isOverdue = urgency == TaskUrgency.overdue;
     final accentColor = isOverdue ? colorScheme.error : colorScheme.tertiary;
 
-    return AnimatedCard(
-      onTap: isClickable ? onTap : null,
-      baseElevation: isDesktop ? 6 : 4,
-      pressedElevation: isDesktop ? 12 : 8,
-      margin: EdgeInsets.only(bottom: isDesktop ? 0 : 8),
-      borderSide: BorderSide(
-        color: accentColor.withValues(alpha: 0.5),
-        width: 2,
-      ),
-      borderRadius: isDesktop ? 16 : 20,
-      child: Stack(
-        fit: StackFit.expand,
+    // Giv kortet en fast aspect ratio for at undgå unbounded constraints
+    return AspectRatio(
+      aspectRatio: isDesktop ? 2.5 : 1.8,
+      child: AnimatedCard(
+        onTap: isClickable ? onTap : null,
+        baseElevation: isDesktop ? 6 : 4,
+        pressedElevation: isDesktop ? 12 : 8,
+        margin: EdgeInsets.only(bottom: isDesktop ? 0 : 8),
+        borderSide: BorderSide(
+          color: accentColor.withValues(alpha: 0.5),
+          width: 2,
+        ),
+        borderRadius: isDesktop ? 16 : 20,
+        child: Stack(
+          fit: StackFit.expand,
         children: [
           // Baggrund: billede eller gradient
           _buildBackground(context, accentColor),
@@ -70,7 +73,8 @@ class HeroTaskCard extends StatelessWidget {
           if (isOverdue) _buildUrgencyBanner(context),
         ],
       ),
-    );
+    ));
+
   }
 
   Widget _buildBackground(BuildContext context, Color accentColor) {

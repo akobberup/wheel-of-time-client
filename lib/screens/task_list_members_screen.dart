@@ -1,9 +1,11 @@
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../providers/task_list_user_provider.dart';
 import '../providers/invitation_provider.dart';
+import '../providers/theme_provider.dart';
 import '../models/task_list_user.dart';
 import '../models/enums.dart';
 import '../widgets/send_invitation_dialog.dart';
@@ -30,20 +32,44 @@ class TaskListMembersScreen extends ConsumerWidget {
     final strings = AppStrings.of(context);
     final membersAsync = ref.watch(taskListUserNotifierProvider(taskListId));
     final invitationsAsync = ref.watch(taskListInvitationsProvider(taskListId));
+    final themeColor = ref.watch(themeProvider).seedColor;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: _buildAppBar(strings),
-      body: RefreshIndicator(
-        onRefresh: () => _handleRefresh(ref),
-        child: _buildBody(context, ref, membersAsync, invitationsAsync, strings),
+      body: CustomScrollView(
+        slivers: [
+          _buildSliverAppBar(context, strings, themeColor, isDark),
+          SliverToBoxAdapter(
+            child: RefreshIndicator(
+              onRefresh: () => _handleRefresh(ref),
+              child: _buildBody(context, ref, membersAsync, invitationsAsync, strings, themeColor, isDark),
+            ),
+          ),
+        ],
       ),
-      floatingActionButton: _buildFAB(context, ref, strings),
+      floatingActionButton: _buildFAB(context, ref, strings, themeColor),
     );
   }
 
-  AppBar _buildAppBar(AppStrings strings) {
-    return AppBar(
-      title: Text(strings.membersIn(taskListName)),
+  Widget _buildSliverAppBar(BuildContext context, AppStrings strings, Color themeColor, bool isDark) {
+    return SliverAppBar(
+      expandedHeight: 100,
+      floating: false,
+      pinned: true,
+      backgroundColor: isDark ? const Color(0xFF1A1A1C) : const Color(0xFFFAFAF8),
+      elevation: 0,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(
+          strings.membersIn(taskListName),
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.5,
+          ),
+        ),
+        centerTitle: false,
+        titlePadding: const EdgeInsets.only(left: 56, bottom: 16),
+      ),
     );
   }
 
@@ -60,28 +86,64 @@ class TaskListMembersScreen extends ConsumerWidget {
     AsyncValue membersAsync,
     AsyncValue invitationsAsync,
     AppStrings strings,
+    Color themeColor,
+    bool isDark,
   ) {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      physics: const AlwaysScrollableScrollPhysics(),
       children: [
         _MembersSection(
           taskListId: taskListId,
           membersAsync: membersAsync,
+          themeColor: themeColor,
+          isDark: isDark,
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
         _InvitationsSection(
           taskListId: taskListId,
           invitationsAsync: invitationsAsync,
+          themeColor: themeColor,
+          isDark: isDark,
         ),
       ],
     );
   }
 
-  Widget _buildFAB(BuildContext context, WidgetRef ref, AppStrings strings) {
-    return FloatingActionButton.extended(
-      onPressed: () => _handleInviteMember(context, ref),
-      icon: const Icon(Icons.person_add),
-      label: Text(strings.invite),
+  Widget _buildFAB(BuildContext context, WidgetRef ref, AppStrings strings, Color themeColor) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          colors: [
+            themeColor,
+            themeColor.withOpacity(0.8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: themeColor.withOpacity(0.3),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: FloatingActionButton.extended(
+        onPressed: () => _handleInviteMember(context, ref),
+        icon: const Icon(Icons.person_add_outlined, size: 22),
+        label: Text(
+          strings.invite,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        highlightElevation: 0,
+      ),
     );
   }
 
@@ -104,10 +166,14 @@ class TaskListMembersScreen extends ConsumerWidget {
 class _MembersSection extends ConsumerWidget {
   final int taskListId;
   final AsyncValue membersAsync;
+  final Color themeColor;
+  final bool isDark;
 
   const _MembersSection({
     required this.taskListId,
     required this.membersAsync,
+    required this.themeColor,
+    required this.isDark,
   });
 
   @override
@@ -127,9 +193,11 @@ class _MembersSection extends ConsumerWidget {
   Widget _buildSectionTitle(BuildContext context, AppStrings strings) {
     return Text(
       strings.members,
-      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+      style: const TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.5,
+      ),
     );
   }
 
@@ -151,19 +219,35 @@ class _MembersSection extends ConsumerWidget {
           .map((member) => _MemberCard(
                 taskListId: taskListId,
                 member: member,
+                themeColor: themeColor,
+                isDark: isDark,
               ))
           .toList(),
     );
   }
 
   Widget _buildEmptyState(AppStrings strings) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF222226) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+      ),
+      child: Center(
         child: Text(
           strings.noMembers,
-          style: const TextStyle(
-            color: Colors.grey,
+          style: TextStyle(
+            fontSize: 14,
+            color: isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B),
           ),
         ),
       ),
@@ -171,10 +255,24 @@ class _MembersSection extends ConsumerWidget {
   }
 
   Widget _buildError(BuildContext context, AppStrings strings, Object error) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Text(strings.errorLoadingMembers(error.toString())),
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF222226) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+      ),
+      child: Text(
+        strings.errorLoadingMembers(error.toString()),
+        style: const TextStyle(color: Color(0xFFEF4444)),
       ),
     );
   }
@@ -184,19 +282,37 @@ class _MembersSection extends ConsumerWidget {
 class _MemberCard extends HookConsumerWidget {
   final int taskListId;
   final TaskListUserResponse member;
+  final Color themeColor;
+  final bool isDark;
 
   const _MemberCard({
     required this.taskListId,
     required this.member,
+    required this.themeColor,
+    required this.isDark,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
 
-    return AnimatedCard(
-      margin: const EdgeInsets.only(bottom: 8),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF222226) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+      ),
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         leading: _buildAvatar(context),
         title: _buildTitle(),
         subtitle: _buildSubtitle(context, strings),
@@ -206,21 +322,32 @@ class _MemberCard extends HookConsumerWidget {
   }
 
   Widget _buildAvatar(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final colors = [
-      colorScheme.primary,
-      colorScheme.secondary,
-      colorScheme.tertiary,
-      Colors.purple,
-      Colors.teal,
-      Colors.orange,
-    ];
-    final colorIndex = member.userName.hashCode.abs() % colors.length;
+    // Generer gradient baseret på brugerens navn
+    final baseHue = (member.userName.hashCode.abs() % 360).toDouble();
+    final color1 = HSLColor.fromAHSL(1.0, baseHue, 0.7, 0.5).toColor();
+    final color2 = HSLColor.fromAHSL(1.0, (baseHue + 30) % 360, 0.7, 0.4).toColor();
 
-    return CircleAvatar(
-      backgroundColor: colors[colorIndex],
-      foregroundColor: Colors.white,
-      child: Text(_getInitials(member.userName)),
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [color1, color2],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Text(
+          _getInitials(member.userName),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
     );
   }
 
@@ -261,18 +388,23 @@ class _MemberCard extends HookConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 2,
+        horizontal: 10,
+        vertical: 4,
       ),
       decoration: BoxDecoration(
-        color: isEditor ? Colors.blue.shade100 : Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(12),
+        color: isEditor
+            ? (isDark ? themeColor.withOpacity(0.2) : themeColor.withOpacity(0.15))
+            : (isDark ? const Color(0xFF333337) : const Color(0xFFF5F4F2)),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         isEditor ? strings.canEdit : strings.canView,
         style: TextStyle(
           fontSize: 11,
-          color: isEditor ? Colors.blue.shade900 : Colors.grey.shade700,
+          fontWeight: FontWeight.w500,
+          color: isEditor
+              ? (isDark ? themeColor.withOpacity(0.9) : themeColor)
+              : (isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B)),
         ),
       ),
     );
@@ -488,10 +620,14 @@ class _MemberCard extends HookConsumerWidget {
 class _InvitationsSection extends ConsumerWidget {
   final int taskListId;
   final AsyncValue invitationsAsync;
+  final Color themeColor;
+  final bool isDark;
 
   const _InvitationsSection({
     required this.taskListId,
     required this.invitationsAsync,
+    required this.themeColor,
+    required this.isDark,
   });
 
   @override
@@ -511,9 +647,11 @@ class _InvitationsSection extends ConsumerWidget {
   Widget _buildSectionTitle(BuildContext context, AppStrings strings) {
     return Text(
       strings.pendingInvitations,
-      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+      style: const TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.5,
+      ),
     );
   }
 
@@ -539,19 +677,35 @@ class _InvitationsSection extends ConsumerWidget {
           .map<Widget>((invitation) => _InvitationCard(
                 taskListId: taskListId,
                 invitation: invitation,
+                themeColor: themeColor,
+                isDark: isDark,
               ))
           .toList(),
     );
   }
 
   Widget _buildEmptyState(AppStrings strings) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF222226) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+      ),
+      child: Center(
         child: Text(
           strings.noPendingInvitations,
-          style: const TextStyle(
-            color: Colors.grey,
+          style: TextStyle(
+            fontSize: 14,
+            color: isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B),
           ),
         ),
       ),
@@ -559,10 +713,24 @@ class _InvitationsSection extends ConsumerWidget {
   }
 
   Widget _buildError(BuildContext context, AppStrings strings, Object error) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Text(strings.errorLoadingInvitations(error.toString())),
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF222226) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+      ),
+      child: Text(
+        strings.errorLoadingInvitations(error.toString()),
+        style: const TextStyle(color: Color(0xFFEF4444)),
       ),
     );
   }
@@ -572,29 +740,65 @@ class _InvitationsSection extends ConsumerWidget {
 class _InvitationCard extends HookConsumerWidget {
   final int taskListId;
   final dynamic invitation;
+  final Color themeColor;
+  final bool isDark;
 
   const _InvitationCard({
     required this.taskListId,
     required this.invitation,
+    required this.themeColor,
+    required this.isDark,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
     final isLoading = useState(false);
-    final colorScheme = Theme.of(context).colorScheme;
 
-    return AnimatedCard(
-      margin: const EdgeInsets.only(bottom: 8),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF222226) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+      ),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: colorScheme.secondaryContainer,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        leading: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                themeColor.withOpacity(0.2),
+                themeColor.withOpacity(0.1),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            shape: BoxShape.circle,
+          ),
           child: Icon(
             Icons.mail_outline,
-            color: colorScheme.onSecondaryContainer,
+            color: themeColor,
+            size: 24,
           ),
         ),
-        title: Text(invitation.emailAddress),
+        title: Text(
+          invitation.emailAddress,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         subtitle: _buildSubtitle(context, strings),
         trailing: _buildCancelButton(context, ref, strings, isLoading),
       ),
@@ -605,17 +809,29 @@ class _InvitationCard extends HookConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const SizedBox(height: 2),
         Text(
           strings.invitedBy(invitation.initiatedByUserName),
           style: TextStyle(
-            fontSize: 12,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontSize: 13,
+            color: isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B),
           ),
         ),
-        const SizedBox(height: 4),
-        StatusBadge(
-          label: strings.pending,
-          color: Colors.orange,
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFFF59E0B).withOpacity(0.2) : const Color(0xFFF59E0B).withOpacity(0.15),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            strings.pending,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFFF59E0B),
+            ),
+          ),
         ),
       ],
     );

@@ -1,8 +1,11 @@
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/upcoming_tasks_provider.dart';
 import '../providers/task_instance_provider.dart';
+import '../providers/theme_provider.dart';
 import '../models/task_occurrence.dart';
 import '../models/task_instance.dart';
 import '../widgets/complete_task_dialog.dart';
@@ -41,7 +44,8 @@ class UpcomingTasksScreen extends ConsumerStatefulWidget {
   const UpcomingTasksScreen({super.key});
 
   @override
-  ConsumerState<UpcomingTasksScreen> createState() => _UpcomingTasksScreenState();
+  ConsumerState<UpcomingTasksScreen> createState() =>
+      _UpcomingTasksScreenState();
 }
 
 class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
@@ -62,7 +66,8 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
 
   /// Registrerer når bruger scroller tæt på bunden og indlæser mere data
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       ref.read(upcomingTasksProvider.notifier).loadMore();
     }
   }
@@ -70,11 +75,85 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(upcomingTasksProvider);
+    final themeState = ref.watch(themeProvider);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final strings = AppStrings.of(context);
+
+    // Brugerens valgte tema-farve
+    final seedColor = themeState.seedColor;
 
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () => ref.read(upcomingTasksProvider.notifier).refresh(),
-        child: _buildBody(context, state),
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            // Custom SliverAppBar med varm, organisk æstetik
+            SliverAppBar(
+              expandedHeight: 100,
+              floating: true,
+              pinned: false,
+              elevation: 0,
+              backgroundColor:
+                  isDark ? const Color(0xFF1A1A1C) : const Color(0xFFFAFAF8),
+              flexibleSpace: FlexibleSpaceBar(
+                titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+                title: Row(
+                  children: [
+                    // Cirkulært ikon-element (reference til "hjulet")
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            seedColor.withValues(alpha: 0.8),
+                            seedColor.withValues(alpha: 0.6),
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: seedColor.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.event_repeat,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      strings.upcomingTasks,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Body content
+            SliverToBoxAdapter(
+              child: _buildBody(context, state),
+            ),
+            // Loading indicator ved bunden
+            if (state.hasMore)
+              SliverToBoxAdapter(
+                child: _buildLoadingIndicator(state.isLoadingMore),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -83,17 +162,26 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     final strings = AppStrings.of(context);
 
     if (state.isLoading && state.occurrences.isEmpty) {
-      return const SkeletonListLoader();
+      return const SizedBox(
+        height: 400,
+        child: SkeletonListLoader(),
+      );
     }
 
     if (state.error != null && state.occurrences.isEmpty) {
-      return _buildErrorState(strings, state.error!);
+      return SizedBox(
+        height: 400,
+        child: _buildErrorState(strings, state.error!),
+      );
     }
 
     if (state.occurrences.isEmpty) {
-      return EmptyState(
-        title: strings.noUpcomingTasks,
-        subtitle: strings.allCaughtUpWithTasks,
+      return SizedBox(
+        height: 400,
+        child: EmptyState(
+          title: strings.noUpcomingTasks,
+          subtitle: strings.allCaughtUpWithTasks,
+        ),
       );
     }
 
@@ -135,22 +223,18 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
         // Beregn responsiv padding baseret på skærmbredde
         final horizontalPadding = _getResponsivePadding(width);
 
-        return CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            SliverPadding(
+        return Column(
+          children: [
+            Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: horizontalPadding,
                 vertical: 16,
               ),
-              sliver: SliverMainAxisGroup(
-                slivers: _buildResponsiveSlivers(grouped, strings, columnCount, isDesktop),
+              child: Column(
+                children: _buildResponsiveContent(
+                    grouped, strings, columnCount, isDesktop),
               ),
             ),
-            if (state.hasMore)
-              SliverToBoxAdapter(
-                child: _buildLoadingIndicator(state.isLoadingMore),
-              ),
           ],
         );
       },
@@ -169,21 +253,21 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
   /// Returnerer antal kolonner baseret på skærmbredde
   /// Optimeret til at udnytte desktop-plads bedre
   int _getColumnCount(double width) {
-    if (width >= 1800) return 4;  // Meget bred skærm
-    if (width >= 1400) return 3;  // Bred desktop
-    if (width >= 1000) return 3;  // Standard desktop
-    if (width >= 700) return 2;   // Tablet/smal desktop
-    return 1;                      // Mobil
+    if (width >= 1800) return 4; // Meget bred skærm
+    if (width >= 1400) return 3; // Bred desktop
+    if (width >= 1000) return 3; // Standard desktop
+    if (width >= 700) return 2; // Tablet/smal desktop
+    return 1; // Mobil
   }
 
-  /// Bygger responsive slivers med sektioner og grid layouts
-  List<Widget> _buildResponsiveSlivers(
+  /// Bygger responsive widgets med sektioner og grid layouts
+  List<Widget> _buildResponsiveContent(
     Map<String, List<UpcomingTaskOccurrenceResponse>> grouped,
     AppStrings strings,
     int columnCount,
     bool isDesktop,
   ) {
-    final List<Widget> slivers = [];
+    final List<Widget> widgets = [];
     final sectionOrder = [
       strings.overdue,
       strings.dueToday,
@@ -197,56 +281,54 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
       if (tasks != null && tasks.isNotEmpty) {
         final color = _getSectionColor(section, strings);
 
-        // Sektionsoverskrift (altid fuld bredde)
-        slivers.add(
-          SliverToBoxAdapter(
-            child: _SectionHeader(
-              title: section,
-              accentColor: color,
-              taskCount: tasks.length,
-              isDesktop: isDesktop,
-            ),
+        // Sektionsoverskrift
+        widgets.add(
+          _SectionHeader(
+            title: section,
+            accentColor: color,
+            taskCount: tasks.length,
+            isDesktop: isDesktop,
           ),
         );
 
         // Opgaver i grid eller liste baseret på kolonneantal
         if (columnCount == 1) {
           // Mobil: enkelt kolonne liste
-          slivers.add(
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => TaskOccurrenceCard(
-                  occurrence: tasks[index],
+          for (final task in tasks) {
+            widgets.add(
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: TaskOccurrenceCard(
+                  occurrence: task,
                   onQuickComplete: _handleQuickComplete,
                   onTap: _handleTaskCompletion,
                   isDesktop: false,
                 ),
-                childCount: tasks.length,
               ),
-            ),
-          );
+            );
+          }
         } else {
           // Desktop/tablet: grid layout med forbedret spacing
           final crossAxisSpacing = isDesktop ? 16.0 : 12.0;
           final mainAxisSpacing = isDesktop ? 12.0 : 8.0;
 
-          slivers.add(
-            SliverGrid(
+          widgets.add(
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: columnCount,
                 crossAxisSpacing: crossAxisSpacing,
                 mainAxisSpacing: mainAxisSpacing,
-                // Dynamisk aspect ratio baseret på opgavetype og skærm
-                childAspectRatio: _getAspectRatio(section, strings, columnCount, isDesktop),
+                childAspectRatio:
+                    _getAspectRatio(section, strings, columnCount, isDesktop),
               ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => TaskOccurrenceCard(
-                  occurrence: tasks[index],
-                  onQuickComplete: _handleQuickComplete,
-                  onTap: _handleTaskCompletion,
-                  isDesktop: isDesktop,
-                ),
-                childCount: tasks.length,
+              itemCount: tasks.length,
+              itemBuilder: (context, index) => TaskOccurrenceCard(
+                occurrence: tasks[index],
+                onQuickComplete: _handleQuickComplete,
+                onTap: _handleTaskCompletion,
+                isDesktop: isDesktop,
               ),
             ),
           );
@@ -254,41 +336,53 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
       }
     }
 
-    return slivers;
+    return widgets;
   }
 
   /// Returnerer aspect ratio baseret på sektionstype, kolonneantal og skærmstørrelse
   /// Optimeret til at give kortene en passende størrelse på alle skærme
-  double _getAspectRatio(String section, AppStrings strings, int columnCount, bool isDesktop) {
+  /// OBS: Hero-kort ratio matcher HeroTaskCard's interne AspectRatio (2.5 desktop, 1.8 mobil)
+  double _getAspectRatio(
+      String section, AppStrings strings, int columnCount, bool isDesktop) {
     final isHero = section == strings.overdue || section == strings.dueToday;
-    final isMedium = section == strings.dueTomorrow || section == strings.thisWeek;
+    final isMedium =
+        section == strings.dueTomorrow || section == strings.thisWeek;
 
-    // Hero-kort (overdue/today) - større og mere fremtrædende
+    // Hero-kort (overdue/today) - matcher HeroTaskCard's AspectRatio
     if (isHero) {
-      if (columnCount >= 4) return 1.3;   // 4 kolonner: lidt bredere
-      if (columnCount >= 3) return 1.15;  // 3 kolonner: næsten kvadratisk
-      return 1.0;                          // 2 kolonner: kvadratisk
+      // Desktop aspect ratio ~2.5, med lidt variation for kolonneantal
+      if (columnCount >= 4) return 2.3; // 4 kolonner: lidt smallere
+      if (columnCount >= 3) return 2.5; // 3 kolonner: standard desktop
+      return 2.2; // 2 kolonner: lidt smallere
     }
 
     // Medium-kort (tomorrow/this week)
     if (isMedium) {
-      if (columnCount >= 4) return 2.2;   // 4 kolonner: kompakt
-      if (columnCount >= 3) return 1.8;   // 3 kolonner: medium bredde
-      return 2.0;                          // 2 kolonner: standard
+      if (columnCount >= 4) return 3.0; // 4 kolonner: kompakt
+      if (columnCount >= 3) return 2.5; // 3 kolonner: medium bredde
+      return 2.2; // 2 kolonner: standard
     }
 
     // Kompakte kort (later) - smallere på desktop for at vise flere
-    if (columnCount >= 4) return 2.8;
-    if (columnCount >= 3) return 2.4;
-    return 2.6;
+    if (columnCount >= 4) return 4.0;
+    if (columnCount >= 3) return 3.5;
+    return 3.0;
   }
 
   /// Returnerer farve for en sektion baseret på urgency
+  /// Bruger brugerens valgte tema-farve for relevante sektioner
   Color _getSectionColor(String section, AppStrings strings) {
+    final themeState = ref.read(themeProvider);
+    final seedColor = themeState.seedColor;
     final colorScheme = Theme.of(context).colorScheme;
-    if (section == strings.overdue) return colorScheme.error;
-    if (section == strings.dueToday) return colorScheme.tertiary;
-    if (section == strings.dueTomorrow) return colorScheme.primary;
+
+    if (section == strings.overdue)
+      return const Color(0xFFEF4444); // Status farve: Fejl
+    if (section == strings.dueToday)
+      return const Color(0xFFF59E0B); // Status farve: Advarsel
+    if (section == strings.dueTomorrow)
+      return seedColor; // Brugerens tema-farve
+    if (section == strings.thisWeek) return seedColor.withValues(alpha: 0.7);
     return colorScheme.onSurfaceVariant;
   }
 
@@ -304,7 +398,8 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
   }
 
   /// Hurtig fuldførelse med nuværende tidsstempel (til swipe-handling)
-  Future<void> _handleQuickComplete(UpcomingTaskOccurrenceResponse occurrence) async {
+  Future<void> _handleQuickComplete(
+      UpcomingTaskOccurrenceResponse occurrence) async {
     final request = CreateTaskInstanceRequest(
       taskId: occurrence.taskId,
       completedDateTime: DateTime.now(),
@@ -364,6 +459,7 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
 }
 
 /// Sektionsoverskrift med titel, farveaccent og opgaveantal
+/// Design: Varm, organisk æstetik med bløde former og tema-farver
 class _SectionHeader extends StatelessWidget {
   final String title;
   final Color accentColor;
@@ -380,86 +476,117 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isUrgent = accentColor == theme.colorScheme.error ||
-        accentColor == theme.colorScheme.tertiary;
+    final isDark = theme.brightness == Brightness.dark;
 
-    // Større tekst og spacing på desktop
-    final titleStyle = isDesktop
-        ? theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: isUrgent ? accentColor : theme.colorScheme.onSurface,
-          )
-        : theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: isUrgent ? accentColor : theme.colorScheme.onSurface,
-          );
+    // Tjek om det er en hastende sektion (overdue eller today)
+    final isUrgent = accentColor == const Color(0xFFEF4444) ||
+        accentColor == const Color(0xFFF59E0B);
+
+    // Typografi følger design guidelines (H2: 22px, vægt 600)
+    final titleStyle = TextStyle(
+      fontSize: isDesktop ? 22 : 18,
+      fontWeight: FontWeight.w600,
+      color: accentColor,
+      letterSpacing: -0.3,
+    );
 
     return Padding(
       padding: EdgeInsets.only(
-        top: isDesktop ? 24 : 16,
-        bottom: isDesktop ? 12 : 8,
+        top: isDesktop ? 32 : 24, // Spacing: lg-xl mellem sektioner
+        bottom: isDesktop ? 16 : 12,
       ),
-      child: Row(
-        children: [
-          // Farvet accent-linje
-          Container(
-            width: isDesktop ? 5 : 4,
-            height: isDesktop ? 28 : 24,
-            decoration: BoxDecoration(
-              color: accentColor,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          SizedBox(width: isDesktop ? 16 : 12),
-          // Sektions-titel
-          Text(
-            title,
-            style: titleStyle,
-          ),
-          SizedBox(width: isDesktop ? 12 : 8),
-          // Opgave-antal badge
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: isDesktop ? 10 : 8,
-              vertical: isDesktop ? 4 : 2,
-            ),
-            decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              '$taskCount',
-              style: (isDesktop ? theme.textTheme.labelMedium : theme.textTheme.labelSmall)?.copyWith(
-                color: accentColor,
-                fontWeight: FontWeight.bold,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: isDesktop ? 20 : 16,
+          vertical: isDesktop ? 14 : 12,
+        ),
+        decoration: BoxDecoration(
+          // Blødt kort med borderRadius: 16px (Design Guidelines)
+          borderRadius: BorderRadius.circular(16),
+          // Varm baggrund der passer til tema
+          color: isDark
+              ? const Color(0xFF222226) // Overflade (cards) - mørk
+              : const Color(0xFFFFFFFF), // Overflade (cards) - lys
+          // Subtil skygge (Niveau 1: subtle)
+          boxShadow: isDark
+              ? null // Ingen skygger i mørk tilstand
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+          // Subtil border i mørk tilstand
+          border: isDark
+              ? Border.all(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  width: 1,
+                )
+              : null,
+        ),
+        child: Row(
+          children: [
+            // Cirkulært ikon-element (reference til "hjulet")
+            Container(
+              width: isDesktop ? 36 : 32,
+              height: isDesktop ? 36 : 32,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    accentColor,
+                    accentColor.withValues(alpha: 0.7),
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: accentColor.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                isUrgent ? Icons.priority_high : Icons.calendar_today,
+                size: isDesktop ? 18 : 16,
+                color: Colors.white,
               ),
             ),
-          ),
-          // Pulserende indikator for hastende sektioner
-          if (isUrgent) ...[
+            SizedBox(width: isDesktop ? 16 : 12),
+            // Sektions-titel
+            Expanded(
+              child: Text(
+                title,
+                style: titleStyle,
+              ),
+            ),
             SizedBox(width: isDesktop ? 12 : 8),
-            _PulsingDot(color: accentColor),
+            // Opgave-antal badge med bløde kanter
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: isDesktop ? 12 : 10,
+                vertical: isDesktop ? 6 : 4,
+              ),
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.15),
+                borderRadius:
+                    BorderRadius.circular(8), // Border radius: 8px for badges
+              ),
+              child: Text(
+                '$taskCount',
+                style: TextStyle(
+                  fontSize: isDesktop ? 14 : 12,
+                  fontWeight: FontWeight.w600,
+                  color: accentColor,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-/// Prik til at indikere hastende opgaver
-class _PulsingDot extends StatelessWidget {
-  final Color color;
-
-  const _PulsingDot({required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color,
+        ),
       ),
     );
   }

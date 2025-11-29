@@ -1,8 +1,11 @@
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/task_list_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/theme_provider.dart';
 import '../l10n/app_strings.dart';
 import '../config/api_config.dart';
 import 'task_list_detail_screen.dart';
@@ -25,12 +28,18 @@ class TaskListsScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
     final taskListsAsync = ref.watch(taskListProvider);
+    final themeState = ref.watch(themeProvider);
+    final isDark = themeState.isDarkMode;
+    final backgroundColor =
+        isDark ? const Color(0xFF121214) : const Color(0xFFFAFAF8);
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       body: RefreshIndicator(
         onRefresh: () => ref.read(taskListProvider.notifier).loadAllTaskLists(),
         child: taskListsAsync.when(
-          data: (taskLists) => _buildTaskListsContent(taskLists, strings, context, ref),
+          data: (taskLists) =>
+              _buildTaskListsContent(taskLists, strings, context, ref),
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) => _buildErrorState(error, strings, ref),
         ),
@@ -49,28 +58,64 @@ class TaskListsScreen extends HookConsumerWidget {
       return _buildEmptyState(strings, context, ref);
     }
 
+    final themeState = ref.watch(themeProvider);
+    final isDark = themeState.isDarkMode;
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Begrans bredden pa desktop for bedre laesbarhed og proportioner
+        // Begræns bredden på desktop for bedre læsbarhed og proportioner
         const maxContentWidth = 700.0;
         final isWideScreen = constraints.maxWidth > maxContentWidth;
-        final horizontalPadding = isWideScreen
-            ? (constraints.maxWidth - maxContentWidth) / 2
-            : Spacing.lg;
+        final horizontalPadding =
+            isWideScreen ? (constraints.maxWidth - maxContentWidth) / 2 : 24.0;
 
-        return ListView.builder(
-          padding: EdgeInsets.symmetric(
-            horizontal: horizontalPadding,
-            vertical: Spacing.lg,
-          ),
-          itemCount: taskLists.length,
-          itemBuilder: (context, index) => _TaskListCard(taskList: taskLists[index]),
+        return CustomScrollView(
+          slivers: [
+            // Custom SliverAppBar med varm æstetik
+            SliverAppBar(
+              expandedHeight: 100,
+              floating: false,
+              pinned: true,
+              backgroundColor:
+                  isDark ? const Color(0xFF121214) : const Color(0xFFFAFAF8),
+              elevation: 0,
+              flexibleSpace: FlexibleSpaceBar(
+                title: Text(
+                  strings.taskLists,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
+                    color: themeState.seedColor,
+                  ),
+                ),
+                titlePadding: EdgeInsets.only(
+                  left: horizontalPadding,
+                  bottom: 16,
+                ),
+              ),
+            ),
+            // Liste af opgavelister
+            SliverPadding(
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: 24,
+              ),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => _TaskListCard(taskList: taskLists[index]),
+                  childCount: taskLists.length,
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
-  Widget _buildEmptyState(AppStrings strings, BuildContext context, WidgetRef ref) {
+  Widget _buildEmptyState(
+      AppStrings strings, BuildContext context, WidgetRef ref) {
     return EmptyState(
       title: strings.noTaskListsYet,
       subtitle: strings.createFirstTaskList,
@@ -97,7 +142,8 @@ class TaskListsScreen extends HookConsumerWidget {
     );
   }
 
-  Future<void> _handleCreateTaskList(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleCreateTaskList(
+      BuildContext context, WidgetRef ref) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => const CreateTaskListDialog(),
@@ -117,57 +163,87 @@ class _TaskListCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
+    final themeState = ref.watch(themeProvider);
+    final isDark = themeState.isDarkMode;
+    final cardColor =
+        isDark ? const Color(0xFF222226) : const Color(0xFFFFFFFF);
 
-    return AnimatedCard(
-      margin: const EdgeInsets.only(bottom: Spacing.lg),
-      onTap: () => _handleNavigateToDetail(context),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Hero billede eller gradient baggrund
-          _buildHeroSection(context),
-          // Indhold under hero
-          Padding(
-            padding: const EdgeInsets.all(Spacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Titel og menu
-                Row(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: cardColor,
+        // Subtil skygge i lyst tema, lysere baggrund i mørkt tema
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => _handleNavigateToDetail(context),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Hero billede eller gradient baggrund
+              _buildHeroSection(context),
+              // Indhold under hero
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        taskList.name,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                    // Titel og menu
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            taskList.name,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: isDark
+                                  ? const Color(0xFFF5F5F5)
+                                  : const Color(0xFF1A1A1A),
+                            ),
+                          ),
+                        ),
+                        _buildMenuButton(context, ref, strings),
+                      ],
+                    ),
+                    // Beskrivelse
+                    if (taskList.description != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        taskList.description!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: isDark
+                              ? const Color(0xFFA0A0A0)
+                              : const Color(0xFF6B6B6B),
+                          fontSize: 13,
                         ),
                       ),
-                    ),
-                    _buildMenuButton(context, ref, strings),
+                    ],
+                    const SizedBox(height: 16),
+                    // Statistik række
+                    _buildStatsRow(context, strings, themeState),
                   ],
                 ),
-                // Beskrivelse
-                if (taskList.description != null) ...[
-                  const SizedBox(height: Spacing.xs),
-                  Text(
-                    taskList.description!,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: Spacing.md),
-                // Statistik række
-                _buildStatsRow(context, strings),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -181,17 +257,20 @@ class _TaskListCard extends HookConsumerWidget {
     );
 
     if (taskList.taskListImagePath != null) {
-      return HeroImageContainer(
-        height: heroHeight,
+      return ClipRRect(
         borderRadius: borderRadius,
-        image: CachedNetworkImage(
-          imageUrl: ApiConfig.getImageUrl(taskList.taskListImagePath!),
-          fit: BoxFit.cover,
-          placeholder: (context, url) => _buildImagePlaceholder(context),
-          errorWidget: (context, url, error) => GradientBackground(
-            seed: taskList.name,
-            height: heroHeight,
-            showOverlay: false,
+        child: SizedBox(
+          height: heroHeight,
+          width: double.infinity,
+          child: CachedNetworkImage(
+            imageUrl: ApiConfig.getImageUrl(taskList.taskListImagePath!),
+            fit: BoxFit.cover,
+            placeholder: (context, url) => _buildImagePlaceholder(context),
+            errorWidget: (context, url, error) => GradientBackground(
+              seed: taskList.name,
+              height: heroHeight,
+              showOverlay: false,
+            ),
           ),
         ),
       );
@@ -222,8 +301,13 @@ class _TaskListCard extends HookConsumerWidget {
   }
 
   /// Bygger statistik række med fremskridtsindikator og medlemmer
-  Widget _buildStatsRow(BuildContext context, AppStrings strings) {
-    final colorScheme = Theme.of(context).colorScheme;
+  Widget _buildStatsRow(
+      BuildContext context, AppStrings strings, ThemeState themeState) {
+    final isDark = themeState.isDarkMode;
+    final primaryTextColor =
+        isDark ? const Color(0xFFF5F5F5) : const Color(0xFF1A1A1A);
+    final secondaryTextColor =
+        isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B);
 
     return Row(
       children: [
@@ -235,7 +319,7 @@ class _TaskListCard extends HookConsumerWidget {
           size: 40,
           strokeWidth: 3,
         ),
-        const SizedBox(width: Spacing.sm),
+        const SizedBox(width: 8),
         // Tekst med opgavestatus
         Expanded(
           child: Column(
@@ -246,14 +330,14 @@ class _TaskListCard extends HookConsumerWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
-                  color: colorScheme.onSurface,
+                  color: primaryTextColor,
                 ),
               ),
               Text(
                 _getProgressText(strings),
                 style: TextStyle(
                   fontSize: 11,
-                  color: colorScheme.onSurfaceVariant,
+                  color: secondaryTextColor,
                 ),
               ),
             ],
@@ -281,13 +365,15 @@ class _TaskListCard extends HookConsumerWidget {
     return '$percent% fuldført';
   }
 
-  Widget _buildMenuButton(BuildContext context, WidgetRef ref, AppStrings strings) {
+  Widget _buildMenuButton(
+      BuildContext context, WidgetRef ref, AppStrings strings) {
     return Semantics(
       label: '${strings.moreOptions} ${taskList.name}',
       button: true,
       child: PopupMenuButton<String>(
         itemBuilder: (context) => _buildMenuItems(strings),
-        onSelected: (value) => _handleMenuSelection(value, context, ref, strings),
+        onSelected: (value) =>
+            _handleMenuSelection(value, context, ref, strings),
       ),
     );
   }
@@ -348,9 +434,8 @@ class _TaskListCard extends HookConsumerWidget {
     final confirmed = await _showDeleteConfirmation(context, ref, strings);
     if (!confirmed) return;
 
-    final success = await ref
-        .read(taskListProvider.notifier)
-        .deleteTaskList(taskList.id);
+    final success =
+        await ref.read(taskListProvider.notifier).deleteTaskList(taskList.id);
 
     if (context.mounted) {
       _showDeleteResultSnackBar(context, strings, success);
@@ -414,14 +499,17 @@ class _TaskListCard extends HookConsumerWidget {
 
     final parts = <String>[];
     parts.add('This will permanently delete:');
-    parts.add('\n\n• ${context.primaryCount} ${context.primaryCount == 1 ? 'task' : 'tasks'}');
+    parts.add(
+        '\n\n• ${context.primaryCount} ${context.primaryCount == 1 ? 'task' : 'tasks'}');
 
     if (context.secondaryCount != null && context.secondaryCount! > 0) {
-      parts.add('\n• ${context.secondaryCount} completion ${context.secondaryCount == 1 ? 'record' : 'records'}');
+      parts.add(
+          '\n• ${context.secondaryCount} completion ${context.secondaryCount == 1 ? 'record' : 'records'}');
     }
 
     if (context.tertiaryCount != null && context.tertiaryCount! > 0) {
-      parts.add('\n• ${context.tertiaryCount} active ${context.tertiaryCount == 1 ? 'streak' : 'streaks'}');
+      parts.add(
+          '\n• ${context.tertiaryCount} active ${context.tertiaryCount == 1 ? 'streak' : 'streaks'}');
     }
 
     return parts.join('');

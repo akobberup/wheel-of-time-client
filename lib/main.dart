@@ -7,7 +7,7 @@ import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/remote_logger_provider.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_navigation_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/reset_password_screen.dart';
@@ -150,6 +150,6 @@ class AuthWrapper extends ConsumerWidget {
       );
     }
 
-    return authState.isAuthenticated ? const HomeScreen() : const LoginScreen();
+    return authState.isAuthenticated ? const MainNavigationScreen() : const LoginScreen();
   }
 }

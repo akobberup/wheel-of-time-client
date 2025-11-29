@@ -103,11 +103,18 @@ class TaskOccurrenceCard extends StatelessWidget {
         ),
     };
 
-    return Stack(
-      children: [
-        card,
-        if (!isClickable) FrostedLockedOverlay(urgency: urgency),
-      ],
-    );
+    // Brug IntrinsicHeight for at give Stack en defineret størrelse
+    // når FrostedLockedOverlay bruger Positioned.fill
+    if (!isClickable) {
+      return IntrinsicHeight(
+        child: Stack(
+          children: [
+            card,
+            FrostedLockedOverlay(urgency: urgency),
+          ],
+        ),
+      );
+    }
+    return card;
   }
 }

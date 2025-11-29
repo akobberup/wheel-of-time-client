@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import '../l10n/app_strings.dart';
 import '../config/version_config.dart';
-import 'home_screen.dart';
+import 'main_navigation_screen.dart';
 
 /// Brand-farve til login-skærme (teal/grøn - symboliserer cyklus og natur)
 const Color kBrandColor = Color(0xFF00897B);
@@ -333,7 +333,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final authState = ref.read(authProvider);
     if (authState.isAuthenticated) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
       );
     }
   }

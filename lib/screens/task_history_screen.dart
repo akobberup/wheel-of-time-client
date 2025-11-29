@@ -1,9 +1,12 @@
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/task_instance.dart';
 import '../providers/task_history_provider.dart';
+import '../providers/theme_provider.dart';
 import '../l10n/app_strings.dart';
 import '../config/api_config.dart';
 import '../widgets/common/empty_state.dart';
@@ -38,47 +41,102 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
   Widget build(BuildContext context) {
     final strings = AppStrings.of(context);
     final historyAsync = ref.watch(taskHistoryProvider(widget.taskId));
+    final themeState = ref.watch(themeProvider);
+    final seedColor = themeState.seedColor;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.taskHistoryFor(widget.taskName)),
-        actions: [_buildFilterButton(strings)],
-      ),
+      backgroundColor: themeState.isDarkMode 
+          ? const Color(0xFF121214) 
+          : const Color(0xFFFAFAF8),
       body: RefreshIndicator(
         onRefresh: () => ref.read(taskHistoryProvider(widget.taskId).notifier).refresh(),
-        child: historyAsync.when(
-          data: (instances) => _buildHistoryList(instances, strings),
-          loading: () => _buildLoadingState(strings),
-          error: (error, stack) => _buildErrorState(error, strings),
+        child: CustomScrollView(
+          slivers: [
+            _buildSliverAppBar(context, strings, seedColor, themeState.isDarkMode),
+            historyAsync.when(
+              data: (instances) => _buildHistoryContent(instances, strings, seedColor, themeState.isDarkMode),
+              loading: () => _buildLoadingSliver(strings),
+              error: (error, stack) => _buildErrorSliver(error, strings, seedColor),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildFilterButton(AppStrings strings) {
+  /// Bygger custom SliverAppBar med organisk design
+  Widget _buildSliverAppBar(BuildContext context, AppStrings strings, Color seedColor, bool isDark) {
+    return SliverAppBar(
+      expandedHeight: 100,
+      floating: false,
+      pinned: true,
+      elevation: 0,
+      backgroundColor: isDark ? const Color(0xFF1A1A1C) : Colors.white,
+      surfaceTintColor: Colors.transparent,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_rounded),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+      flexibleSpace: FlexibleSpaceBar(
+        titlePadding: const EdgeInsets.only(left: 56, bottom: 16, right: 16),
+        title: Text(
+          widget.taskName,
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.5,
+            color: isDark ? const Color(0xFFF5F5F5) : const Color(0xFF1A1A1A),
+          ),
+        ),
+        background: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                seedColor.withOpacity(0.05),
+                seedColor.withOpacity(0.02),
+              ],
+            ),
+          ),
+        ),
+      ),
+      actions: [_buildFilterButton(strings, seedColor, isDark)],
+    );
+  }
+
+  Widget _buildFilterButton(AppStrings strings, Color seedColor, bool isDark) {
     return PopupMenuButton<DateFilter>(
-      icon: const Icon(Icons.filter_list),
+      icon: const Icon(Icons.filter_list_rounded),
       tooltip: strings.filter,
       onSelected: _handleFilterSelected,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       itemBuilder: (context) => [
-        _buildFilterMenuItem(DateFilter.all, strings.allTime),
-        _buildFilterMenuItem(DateFilter.thisWeek, strings.thisWeek),
-        _buildFilterMenuItem(DateFilter.thisMonth, strings.thisMonth),
-        _buildFilterMenuItem(DateFilter.last3Months, strings.last3Months),
+        _buildFilterMenuItem(DateFilter.all, strings.allTime, seedColor),
+        _buildFilterMenuItem(DateFilter.thisWeek, strings.thisWeek, seedColor),
+        _buildFilterMenuItem(DateFilter.thisMonth, strings.thisMonth, seedColor),
+        _buildFilterMenuItem(DateFilter.last3Months, strings.last3Months, seedColor),
       ],
     );
   }
 
-  PopupMenuItem<DateFilter> _buildFilterMenuItem(DateFilter filter, String label) {
+  PopupMenuItem<DateFilter> _buildFilterMenuItem(DateFilter filter, String label, Color seedColor) {
+    final isSelected = _selectedFilter == filter;
     return PopupMenuItem(
       value: filter,
       child: Row(
         children: [
-          if (_selectedFilter == filter) ...[
-            const Icon(Icons.check, size: 20),
+          if (isSelected) ...[
+            Icon(Icons.check_circle_rounded, size: 20, color: seedColor),
             const SizedBox(width: 8),
           ],
-          Text(label),
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              color: isSelected ? seedColor : null,
+            ),
+          ),
         ],
       ),
     );
@@ -88,23 +146,37 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
     setState(() => _selectedFilter = filter);
   }
 
-  Widget _buildHistoryList(List<TaskInstanceResponse> instances, AppStrings strings) {
+  /// Bygger hovedindhold med historik-liste
+  Widget _buildHistoryContent(List<TaskInstanceResponse> instances, AppStrings strings, Color seedColor, bool isDark) {
     final filteredInstances = _applyFilter(instances);
 
     if (filteredInstances.isEmpty) {
-      return EmptyState(
-        title: strings.noCompletionsYet,
-        subtitle: strings.noCompletionsYetDescription,
+      return SliverFillRemaining(
+        child: EmptyState(
+          title: strings.noCompletionsYet,
+          subtitle: strings.noCompletionsYetDescription,
+        ),
       );
     }
 
     final sortedInstances = _sortInstancesByDate(filteredInstances);
 
-    return Column(
-      children: [
-        _buildSummaryHeader(sortedInstances.length, strings),
-        _buildCompletionsList(sortedInstances),
-      ],
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        _buildSummaryHeader(sortedInstances.length, strings, seedColor, isDark),
+        const SizedBox(height: 24),
+        ...sortedInstances.map((instance) => 
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+            child: _HistoryCard(
+              instance: instance,
+              seedColor: seedColor,
+              isDark: isDark,
+            ),
+          ),
+        ),
+        const SizedBox(height: 32),
+      ]),
     );
   }
 
@@ -113,89 +185,136 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
       ..sort((a, b) => b.completedDateTime.compareTo(a.completedDateTime));
   }
 
-  Widget _buildSummaryHeader(int count, AppStrings strings) {
+  /// Bygger summary header med organisk design og subtil gradient
+  Widget _buildSummaryHeader(int count, AppStrings strings, Color seedColor, bool isDark) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
+        gradient: LinearGradient(
+          colors: [
+            seedColor.withOpacity(0.15),
+            seedColor.withOpacity(0.08),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark 
+              ? Colors.white.withOpacity(0.08)
+              : Colors.black.withOpacity(0.08),
+          width: 1,
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.check_circle,
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-            size: 24,
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: seedColor.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.check_circle_rounded,
+              color: seedColor,
+              size: 24,
+            ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           Text(
             strings.totalCompletions(count),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.bold,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.5,
+              color: isDark ? const Color(0xFFF5F5F5) : const Color(0xFF1A1A1A),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingSliver(AppStrings strings) {
+    return SliverFillRemaining(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(
+              strings.loadingHistory,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorSliver(Object error, AppStrings strings, Color seedColor) {
+    return SliverFillRemaining(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEF4444).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline_rounded,
+                size: 64,
+                color: const Color(0xFFEF4444),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              strings.errorLoadingHistory,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFEF4444),
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              strings.errorLoadingHistoryDetails(error.toString()),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF6B6B6B),
+              ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () => ref.invalidate(taskHistoryProvider(widget.taskId)),
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text(strings.retry),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: seedColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
                 ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCompletionsList(List<TaskInstanceResponse> instances) {
-    return Expanded(
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: instances.length,
-        itemBuilder: (context, index) => _HistoryCard(instance: instances[index]),
-      ),
-    );
-  }
-
-  Widget _buildLoadingState(AppStrings strings) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: 16),
-          Text(strings.loadingHistory, style: Theme.of(context).textTheme.bodyLarge),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorState(Object error, AppStrings strings) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const SizedBox(height: 60),
-        Icon(Icons.error_outline, size: 100, color: Colors.red[300]),
-        const SizedBox(height: 24),
-        Text(
-          strings.errorLoadingHistory,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Colors.red[700],
-                fontWeight: FontWeight.bold,
+                elevation: 0,
               ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
-        Text(
-          strings.errorLoadingHistoryDetails(error.toString()),
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
-        ),
-        const SizedBox(height: 24),
-        Center(
-          child: ElevatedButton.icon(
-            onPressed: () => ref.invalidate(taskHistoryProvider(widget.taskId)),
-            icon: const Icon(Icons.refresh),
-            label: Text(strings.retry),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -225,27 +344,53 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
   }
 }
 
-/// Kort der viser en enkelt opgave-fuldførelse
+/// Kort der viser en enkelt opgave-fuldførelse med Design Version 1.0.0
 ///
 /// Viser bruger, dato/tid, serie-bidrag og eventuel kommentar/billede.
+/// Bruger organisk design med bløde hjørner og subtile skygger.
 class _HistoryCard extends StatelessWidget {
   final TaskInstanceResponse instance;
+  final Color seedColor;
+  final bool isDark;
 
-  const _HistoryCard({required this.instance});
+  const _HistoryCard({
+    required this.instance,
+    required this.seedColor,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context) {
     final strings = AppStrings.of(context);
 
-    return AnimatedCard(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF222226) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark 
+              ? Colors.white.withOpacity(0.08)
+              : Colors.black.withOpacity(0.08),
+          width: 1,
+        ),
+        boxShadow: isDark 
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(context, strings),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             _buildBadges(strings),
             if (_hasComment) _buildCommentSection(context, strings),
             if (_hasImage) _buildImageSection(context),
@@ -258,27 +403,49 @@ class _HistoryCard extends StatelessWidget {
   Widget _buildHeader(BuildContext context, AppStrings strings) {
     return Row(
       children: [
-        _buildAvatar(context),
+        _buildAvatar(),
         const SizedBox(width: 12),
-        Expanded(child: _buildUserInfo(context, strings)),
+        Expanded(child: _buildUserInfo(strings)),
       ],
     );
   }
 
-  Widget _buildAvatar(BuildContext context) {
-    return CircleAvatar(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      child: Text(
-        instance.userName.isNotEmpty ? instance.userName[0].toUpperCase() : '?',
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onPrimary,
-          fontWeight: FontWeight.bold,
+  Widget _buildAvatar() {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            seedColor,
+            seedColor.withOpacity(0.7),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: seedColor.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          instance.userName.isNotEmpty ? instance.userName[0].toUpperCase() : '?',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildUserInfo(BuildContext context, AppStrings strings) {
+  Widget _buildUserInfo(AppStrings strings) {
     final dateFormat = DateFormat.yMMMd();
     final timeFormat = DateFormat.jm();
     final completedDate = dateFormat.format(instance.completedDateTime);
@@ -289,16 +456,20 @@ class _HistoryCard extends StatelessWidget {
       children: [
         Text(
           instance.userName,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.5,
+            color: isDark ? const Color(0xFFF5F5F5) : const Color(0xFF1A1A1A),
+          ),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 4),
         Text(
           '${strings.completedOn(completedDate)} ${strings.completedAt(completedTime)}',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+          style: TextStyle(
+            fontSize: 14,
+            color: isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B),
+          ),
         ),
       ],
     );
@@ -310,53 +481,104 @@ class _HistoryCard extends StatelessWidget {
       runSpacing: 8,
       children: [
         if (instance.contributedToStreak)
-          StatusBadge(
-            icon: Icons.local_fire_department,
+          _buildBadge(
+            icon: Icons.local_fire_department_rounded,
             label: strings.contributedToStreak,
-            color: Colors.orange,
+            color: const Color(0xFFF59E0B),
           ),
         if (_hasComment)
-          StatusBadge(
-            icon: Icons.comment,
+          _buildBadge(
+            icon: Icons.comment_rounded,
             label: strings.withComment,
-            color: Colors.blue,
+            color: seedColor,
           ),
       ],
+    );
+  }
+
+  Widget _buildBadge({
+    required IconData icon,
+    required String label,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildCommentSection(BuildContext context, AppStrings strings) {
     return Column(
       children: [
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey[300]!),
+            color: isDark 
+                ? const Color(0xFF1A1A1C) 
+                : const Color(0xFFF5F4F2),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark 
+                  ? Colors.white.withOpacity(0.08)
+                  : Colors.black.withOpacity(0.08),
+              width: 1,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey[600]),
+                  Icon(
+                    Icons.chat_bubble_outline_rounded,
+                    size: 16,
+                    color: isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B),
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     strings.comment,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                      color: isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B),
+                      height: 1.2,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               Text(
                 instance.optionalComment!,
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.5,
+                  color: isDark ? const Color(0xFFF5F5F5) : const Color(0xFF1A1A1A),
+                ),
               ),
             ],
           ),
@@ -368,40 +590,55 @@ class _HistoryCard extends StatelessWidget {
   Widget _buildImageSection(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         ClipRRect(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           child: CachedNetworkImage(
             imageUrl: ApiConfig.getImageUrl(instance.optionalImagePath!),
             width: double.infinity,
             height: 200,
             fit: BoxFit.cover,
-            placeholder: (context, url) => _buildImagePlaceholder(context),
-            errorWidget: (context, url, error) => _buildImageError(context),
+            placeholder: (context, url) => _buildImagePlaceholder(),
+            errorWidget: (context, url, error) => _buildImageError(),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildImagePlaceholder(BuildContext context) {
+  Widget _buildImagePlaceholder() {
     return Container(
       width: double.infinity,
       height: 200,
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: const Center(child: CircularProgressIndicator()),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1A1A1C) : const Color(0xFFF5F4F2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(seedColor),
+        ),
+      ),
     );
   }
 
-  Widget _buildImageError(BuildContext context) {
+  Widget _buildImageError() {
     return Container(
       width: double.infinity,
       height: 200,
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1A1A1C) : const Color(0xFFF5F4F2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark 
+              ? Colors.white.withOpacity(0.08)
+              : Colors.black.withOpacity(0.08),
+        ),
+      ),
       child: Icon(
-        Icons.broken_image,
+        Icons.broken_image_rounded,
         size: 48,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        color: isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B),
       ),
     );
   }
