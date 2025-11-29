@@ -1,5 +1,18 @@
 # Wheel of Time - Design Guidelines
 
+**Version:** 1.0.0  
+**Sidst opdateret:** November 2025
+
+---
+
+## Versionshistorik
+
+| Version | Dato | Beskrivelse |
+|---------|------|-------------|
+| 1.0.0 | Nov 2025 | Initial design system med brand-farve, komponenter og animationer |
+
+---
+
 ## Design Filosofi
 
 Wheel of Time er en app om **cyklusser, gentagelser og tid**. Designet skal afspejle denne idé gennem:

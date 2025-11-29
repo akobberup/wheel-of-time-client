@@ -1,3 +1,8 @@
+// =============================================================================
+// Login Screen
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+// =============================================================================
+
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +14,11 @@ import 'home_screen.dart';
 /// Brand-farve til login-skærme (teal/grøn - symboliserer cyklus og natur)
 const Color kBrandColor = Color(0xFF00897B);
 
-/// Login-skærm med varm, indbydende æstetik og subtile cyklus-motiver
+/// Login-skærm med varm, indbydende æstetik og subtile cyklus-motiver.
+///
+/// Design: v1.0.0 - Organisk æstetik med animerede orber, bløde former,
+/// og teal brand-farve. Inkluderer klikbare feature highlights og
+/// interaktiv registrerings-intro.
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 

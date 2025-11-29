@@ -1,3 +1,8 @@
+// =============================================================================
+// Forgot Password Screen
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+// =============================================================================
+
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -8,7 +13,10 @@ import '../l10n/app_strings.dart';
 /// Brand-farve til login-skærme (teal/grøn - symboliserer cyklus og natur)
 const Color _kBrandColor = Color(0xFF00897B);
 
-/// Skærm til gendannelse af glemt adgangskode med varm, indbydende æstetik
+/// Skærm til gendannelse af glemt adgangskode med varm, indbydende æstetik.
+///
+/// Design: v1.0.0 - Organisk æstetik med animerede orber, bløde former,
+/// og teal brand-farve. Matcher login-skærmens design.
 class ForgotPasswordScreen extends HookConsumerWidget {
   const ForgotPasswordScreen({super.key});
 
