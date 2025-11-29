@@ -1,3 +1,8 @@
+// =============================================================================
+// Notifications Screen
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+// =============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -5,45 +10,53 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../providers/notification_provider.dart';
 import '../providers/invitation_provider.dart';
 import '../providers/task_list_provider.dart';
+import '../providers/theme_provider.dart';
 import '../models/notification.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/skeleton_loader.dart';
-import '../widgets/common/animated_card.dart';
 import 'main_navigation_screen.dart';
 
-/// Viser skærm med alle notifikationer samlet ét sted
+/// Notifikations skærm med varm, organisk æstetik.
+///
+/// Design: v1.0.0 - Bruger den valgte tema-farve, bløde kort,
+/// og konsistent typografi.
 class NotificationsScreen extends HookConsumerWidget {
   const NotificationsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
+    final themeState = ref.watch(themeProvider);
+    final seedColor = themeState.seedColor;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final notificationsAsync = ref.watch(notificationProvider);
 
     return Scaffold(
-      appBar: _buildAppBar(context, ref, strings),
+      backgroundColor: isDark ? const Color(0xFF121214) : const Color(0xFFFAFAF8),
       body: RefreshIndicator(
+        color: seedColor,
         onRefresh: () => _handleRefresh(ref),
-        child: notificationsAsync.when(
-          data: (notifications) => _buildNotificationsList(context, ref, notifications, strings),
-          loading: () => const SkeletonListLoader(),
-          error: (error, stack) => _buildErrorState(context, ref, error, strings),
+        child: CustomScrollView(
+          slivers: [
+            _NotificationsAppBar(
+              seedColor: seedColor,
+              isDark: isDark,
+              onRefresh: () => _handleRefresh(ref),
+            ),
+            notificationsAsync.when(
+              data: (notifications) => _buildNotificationsList(
+                context, ref, notifications, strings, seedColor, isDark,
+              ),
+              loading: () => const SliverFillRemaining(
+                child: SkeletonListLoader(),
+              ),
+              error: (error, stack) => SliverFillRemaining(
+                child: _buildErrorState(context, ref, error, strings, seedColor, isDark),
+              ),
+            ),
+          ],
         ),
       ),
-    );
-  }
-
-  /// Bygger app bar med refresh knap
-  AppBar _buildAppBar(BuildContext context, WidgetRef ref, AppStrings strings) {
-    return AppBar(
-      title: Text(strings.notifications),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.refresh),
-          tooltip: strings.refresh,
-          onPressed: () => _handleRefresh(ref),
-        ),
-      ],
     );
   }
 
@@ -52,40 +65,23 @@ class NotificationsScreen extends HookConsumerWidget {
     WidgetRef ref,
     List<AppNotification> notifications,
     AppStrings strings,
+    Color seedColor,
+    bool isDark,
   ) {
     if (notifications.isEmpty) {
-      return _buildEmptyState(context, strings);
+      return SliverFillRemaining(
+        child: _EmptyNotificationsState(
+          strings: strings,
+          seedColor: seedColor,
+          isDark: isDark,
+        ),
+      );
     }
 
-    return _NotificationGroupedList(notifications: notifications);
-  }
-
-  Widget _buildEmptyState(BuildContext context, AppStrings strings) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.notifications_none,
-            size: 80,
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            strings.noNotifications,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            strings.allCaughtUp,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-          ),
-        ],
-      ),
+    return _NotificationGroupedList(
+      notifications: notifications,
+      seedColor: seedColor,
+      isDark: isDark,
     );
   }
 
@@ -94,22 +90,74 @@ class NotificationsScreen extends HookConsumerWidget {
     WidgetRef ref,
     Object error,
     AppStrings strings,
+    Color seedColor,
+    bool isDark,
   ) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 60, color: Colors.red),
-          const SizedBox(height: 16),
-          Text(strings.error),
-          const SizedBox(height: 8),
-          Text('$error'),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () => _handleRefresh(ref),
-            child: Text(strings.retry),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.error_outline_rounded,
+                size: 40,
+                color: Colors.red,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              strings.error,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '$error',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.white54 : Colors.black45,
+              ),
+            ),
+            const SizedBox(height: 24),
+            GestureDetector(
+              onTap: () => _handleRefresh(ref),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: seedColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: seedColor.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  strings.retry,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -119,48 +167,173 @@ class NotificationsScreen extends HookConsumerWidget {
   }
 }
 
+/// Custom app bar til notifikationer
+class _NotificationsAppBar extends StatelessWidget {
+  final Color seedColor;
+  final bool isDark;
+  final VoidCallback onRefresh;
+
+  const _NotificationsAppBar({
+    required this.seedColor,
+    required this.isDark,
+    required this.onRefresh,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor = isDark ? Colors.white : const Color(0xFF1A1A1A);
+
+    return SliverAppBar(
+      expandedHeight: 100,
+      floating: false,
+      pinned: true,
+      backgroundColor: isDark ? const Color(0xFF121214) : const Color(0xFFFAFAF8),
+      surfaceTintColor: Colors.transparent,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back_rounded, color: textColor),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.refresh_rounded, color: seedColor),
+          onPressed: onRefresh,
+        ),
+        const SizedBox(width: 8),
+      ],
+      flexibleSpace: FlexibleSpaceBar(
+        titlePadding: const EdgeInsets.only(left: 52, bottom: 16),
+        title: Text(
+          'Notifikationer',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: textColor,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Tom tilstand for ingen notifikationer
+class _EmptyNotificationsState extends StatelessWidget {
+  final AppStrings strings;
+  final Color seedColor;
+  final bool isDark;
+
+  const _EmptyNotificationsState({
+    required this.strings,
+    required this.seedColor,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: seedColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.notifications_none_rounded,
+                size: 48,
+                color: seedColor.withOpacity(0.6),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              strings.noNotifications,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              strings.allCaughtUp,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.white54 : Colors.black45,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Widget der grupperer notifikationer i sektioner: I dag, I går, Ældre
 class _NotificationGroupedList extends HookConsumerWidget {
   final List<AppNotification> notifications;
+  final Color seedColor;
+  final bool isDark;
 
-  const _NotificationGroupedList({required this.notifications});
+  const _NotificationGroupedList({
+    required this.notifications,
+    required this.seedColor,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
     final groupedNotifications = _groupNotificationsByDate(notifications);
 
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        if (groupedNotifications.today.isNotEmpty) ...[
-          _buildSectionHeader(context, strings.today),
-          ...groupedNotifications.today.map((n) => _NotificationCard(notification: n)),
-          const SizedBox(height: 16),
-        ],
-        if (groupedNotifications.yesterday.isNotEmpty) ...[
-          _buildSectionHeader(context, strings.yesterday),
-          ...groupedNotifications.yesterday.map((n) => _NotificationCard(notification: n)),
-          const SizedBox(height: 16),
-        ],
-        if (groupedNotifications.older.isNotEmpty) ...[
-          _buildSectionHeader(context, strings.older),
-          ...groupedNotifications.older.map((n) => _NotificationCard(notification: n)),
-        ],
-      ],
-    );
-  }
+    final List<Widget> children = [];
 
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8, top: 8),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+    if (groupedNotifications.today.isNotEmpty) {
+      children.add(_SectionHeader(title: strings.today, seedColor: seedColor));
+      children.addAll(groupedNotifications.today.map((n) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: _NotificationCard(
+          notification: n,
+          seedColor: seedColor,
+          isDark: isDark,
         ),
+      )));
+      children.add(const SizedBox(height: 16));
+    }
+
+    if (groupedNotifications.yesterday.isNotEmpty) {
+      children.add(_SectionHeader(title: strings.yesterday, seedColor: seedColor));
+      children.addAll(groupedNotifications.yesterday.map((n) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: _NotificationCard(
+          notification: n,
+          seedColor: seedColor,
+          isDark: isDark,
+        ),
+      )));
+      children.add(const SizedBox(height: 16));
+    }
+
+    if (groupedNotifications.older.isNotEmpty) {
+      children.add(_SectionHeader(title: strings.older, seedColor: seedColor));
+      children.addAll(groupedNotifications.older.map((n) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: _NotificationCard(
+          notification: n,
+          seedColor: seedColor,
+          isDark: isDark,
+        ),
+      )));
+    }
+
+    return SliverPadding(
+      padding: const EdgeInsets.all(20),
+      sliver: SliverList(
+        delegate: SliverChildListDelegate(children),
       ),
     );
   }
@@ -199,6 +372,30 @@ class _NotificationGroupedList extends HookConsumerWidget {
   }
 }
 
+/// Sektion header
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final Color seedColor;
+
+  const _SectionHeader({required this.title, required this.seedColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 12, top: 8),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.2,
+          color: seedColor,
+        ),
+      ),
+    );
+  }
+}
+
 /// Data class for grupperede notifikationer
 class _GroupedNotifications {
   final List<AppNotification> today;
@@ -215,111 +412,172 @@ class _GroupedNotifications {
 /// Kort der viser en enkelt notifikation med swipe-to-dismiss funktionalitet
 class _NotificationCard extends HookConsumerWidget {
   final AppNotification notification;
+  final Color seedColor;
+  final bool isDark;
 
-  const _NotificationCard({required this.notification});
+  const _NotificationCard({
+    required this.notification,
+    required this.seedColor,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
     final isLoadingAccept = useState(false);
     final isLoadingDecline = useState(false);
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Dismissible(
       key: Key(notification.id),
       direction: DismissDirection.endToStart,
-      background: _buildDismissBackground(),
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Icon(Icons.delete_outline_rounded, color: Colors.white),
+      ),
       confirmDismiss: (direction) => _showDismissConfirmationDialog(context, strings),
       onDismissed: (direction) => _handleDismiss(context, ref, strings),
-      child: AnimatedCard(
-        margin: const EdgeInsets.only(bottom: 12),
-        color: notification.isRead ? null : colorScheme.primaryContainer.withValues(alpha: 0.3),
+      child: GestureDetector(
         onTap: () => _handleNotificationTap(context, ref),
-        child: ListTile(
-          leading: _buildLeadingIcon(),
-          title: Text(_getNotificationTitle(strings)),
-          subtitle: _buildSubtitle(context, strings),
-          trailing: _buildTrailingWidget(
-            context,
-            ref,
-            strings,
-            isLoadingAccept,
-            isLoadingDecline,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: notification.isRead
+                ? (isDark ? Colors.white.withOpacity(0.05) : Colors.white)
+                : (isDark ? seedColor.withOpacity(0.15) : seedColor.withOpacity(0.08)),
+            border: Border.all(
+              color: notification.isRead
+                  ? (isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.06))
+                  : seedColor.withOpacity(0.2),
+            ),
+            boxShadow: isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildNotificationIcon(),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _getNotificationTitle(strings),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: notification.isRead ? FontWeight.w500 : FontWeight.w600,
+                              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                            ),
+                          ),
+                        ),
+                        if (!notification.isRead)
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: seedColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _getNotificationSubtitle(strings),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? Colors.white54 : Colors.black45,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      _formatTimestamp(strings),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isDark ? Colors.white38 : Colors.black26,
+                      ),
+                    ),
+                    if (notification.type == NotificationType.INVITATION_RECEIVED) ...[
+                      const SizedBox(height: 12),
+                      _NotificationInvitationActions(
+                        notification: notification,
+                        seedColor: seedColor,
+                        isDark: isDark,
+                        isLoadingAccept: isLoadingAccept,
+                        isLoadingDecline: isLoadingDecline,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (notification.type == NotificationType.TASK_DUE)
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: isDark ? Colors.white38 : Colors.black26,
+                ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildDismissBackground() {
+  Widget _buildNotificationIcon() {
+    final (Color color, IconData icon) = switch (notification.type) {
+      NotificationType.INVITATION_RECEIVED => (Colors.blue, Icons.mail_rounded),
+      NotificationType.INVITATION_ACCEPTED => (Colors.green, Icons.check_circle_rounded),
+      NotificationType.INVITATION_DECLINED => (Colors.orange, Icons.cancel_rounded),
+      NotificationType.TASK_DUE => (seedColor, Icons.task_alt_rounded),
+    };
+
     return Container(
-      alignment: Alignment.centerRight,
-      padding: const EdgeInsets.only(right: 20),
-      color: Colors.red,
-      child: const Icon(Icons.delete, color: Colors.white),
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(icon, color: color, size: 22),
     );
-  }
-
-  Widget _buildLeadingIcon() {
-    final icon = _getNotificationIcon();
-    return notification.isRead ? icon : Badge(child: icon);
-  }
-
-  Widget _buildSubtitle(BuildContext context, AppStrings strings) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 4),
-        Text(_getNotificationSubtitle(strings)),
-        const SizedBox(height: 4),
-        Text(
-          _formatTimestamp(strings),
-          style: TextStyle(
-            fontSize: 12,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget? _buildTrailingWidget(
-    BuildContext context,
-    WidgetRef ref,
-    AppStrings strings,
-    ValueNotifier<bool> isLoadingAccept,
-    ValueNotifier<bool> isLoadingDecline,
-  ) {
-    if (notification.type == NotificationType.INVITATION_RECEIVED) {
-      return _NotificationInvitationActions(
-        notification: notification,
-        isLoadingAccept: isLoadingAccept,
-        isLoadingDecline: isLoadingDecline,
-      );
-    } else if (notification.type == NotificationType.TASK_DUE) {
-      return const Icon(Icons.chevron_right);
-    }
-    return null;
   }
 
   Future<bool?> _showDismissConfirmationDialog(BuildContext context, AppStrings strings) {
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(strings.dismissNotification),
         content: Text(strings.confirmDismissNotification),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text(strings.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+            child: Text(
+              strings.cancel,
+              style: TextStyle(color: isDark ? Colors.white70 : Colors.black54),
             ),
-            child: Text(strings.dismiss),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(
+              strings.dismiss,
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -329,7 +587,11 @@ class _NotificationCard extends HookConsumerWidget {
   void _handleDismiss(BuildContext context, WidgetRef ref, AppStrings strings) {
     ref.read(notificationProvider.notifier).dismissNotification(notification.id);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(strings.notificationDismissed)),
+      SnackBar(
+        content: Text(strings.notificationDismissed),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
     );
   }
 
@@ -346,66 +608,38 @@ class _NotificationCard extends HookConsumerWidget {
     }
   }
 
-  Widget _getNotificationIcon() {
-    switch (notification.type) {
-      case NotificationType.INVITATION_RECEIVED:
-        return const CircleAvatar(
-          backgroundColor: Colors.blue,
-          child: Icon(Icons.mail, color: Colors.white),
-        );
-      case NotificationType.INVITATION_ACCEPTED:
-        return const CircleAvatar(
-          backgroundColor: Colors.green,
-          child: Icon(Icons.check_circle, color: Colors.white),
-        );
-      case NotificationType.INVITATION_DECLINED:
-        return const CircleAvatar(
-          backgroundColor: Colors.orange,
-          child: Icon(Icons.cancel, color: Colors.white),
-        );
-      case NotificationType.TASK_DUE:
-        return const CircleAvatar(
-          backgroundColor: Colors.purple,
-          child: Icon(Icons.task_alt, color: Colors.white),
-        );
-    }
-  }
-
   String _getNotificationTitle(AppStrings strings) {
-    switch (notification.type) {
-      case NotificationType.INVITATION_RECEIVED:
-        return strings.newInvitation;
-      case NotificationType.INVITATION_ACCEPTED:
-        return strings.invitationWasAccepted;
-      case NotificationType.INVITATION_DECLINED:
-        return strings.invitationWasDeclined;
-      case NotificationType.TASK_DUE:
-        return strings.taskDue;
-    }
+    return switch (notification.type) {
+      NotificationType.INVITATION_RECEIVED => strings.newInvitation,
+      NotificationType.INVITATION_ACCEPTED => strings.invitationWasAccepted,
+      NotificationType.INVITATION_DECLINED => strings.invitationWasDeclined,
+      NotificationType.TASK_DUE => strings.taskDue,
+    };
   }
 
   String _getNotificationSubtitle(AppStrings strings) {
-    switch (notification.type) {
-      case NotificationType.INVITATION_RECEIVED:
+    return switch (notification.type) {
+      NotificationType.INVITATION_RECEIVED => () {
         final taskListName = notification.invitation?.taskListName ?? '';
         final fromUser = notification.invitation?.initiatedByUserName ?? '';
         return '${strings.invitationFrom}: $fromUser - "$taskListName"';
-
-      case NotificationType.INVITATION_ACCEPTED:
+      }(),
+      NotificationType.INVITATION_ACCEPTED => () {
         final taskListName = notification.invitation?.taskListName ?? '';
         final email = notification.invitation?.emailAddress ?? '';
         return '$email - "$taskListName"';
-
-      case NotificationType.INVITATION_DECLINED:
+      }(),
+      NotificationType.INVITATION_DECLINED => () {
         final taskListName = notification.invitation?.taskListName ?? '';
         final email = notification.invitation?.emailAddress ?? '';
         return '$email - "$taskListName"';
-
-      case NotificationType.TASK_DUE:
+      }(),
+      NotificationType.TASK_DUE => () {
         final taskName = notification.task?.name ?? '';
         final taskListName = notification.task?.taskListName ?? '';
         return '"$taskName" ${strings.inList} "$taskListName"';
-    }
+      }(),
+    };
   }
 
   String _formatTimestamp(AppStrings strings) {
@@ -429,11 +663,15 @@ class _NotificationCard extends HookConsumerWidget {
 /// Action buttons for accepting or declining an invitation notification
 class _NotificationInvitationActions extends HookConsumerWidget {
   final AppNotification notification;
+  final Color seedColor;
+  final bool isDark;
   final ValueNotifier<bool> isLoadingAccept;
   final ValueNotifier<bool> isLoadingDecline;
 
   const _NotificationInvitationActions({
     required this.notification,
+    required this.seedColor,
+    required this.isDark,
     required this.isLoadingAccept,
     required this.isLoadingDecline,
   });
@@ -444,45 +682,31 @@ class _NotificationInvitationActions extends HookConsumerWidget {
     final isAnyLoading = isLoadingAccept.value || isLoadingDecline.value;
 
     return Row(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        _buildActionButton(
-          isLoading: isLoadingAccept.value,
-          icon: Icons.check_circle,
-          color: Colors.green,
-          tooltip: strings.acceptInvitation,
-          onPressed: isAnyLoading ? null : () => _handleAccept(context, ref, strings),
+        Expanded(
+          child: _MiniActionButton(
+            label: strings.declineInvitation,
+            icon: Icons.close_rounded,
+            isLoading: isLoadingDecline.value,
+            isOutlined: true,
+            color: Colors.red,
+            isDark: isDark,
+            onPressed: isAnyLoading ? null : () => _handleDecline(context, ref, strings),
+          ),
         ),
-        _buildActionButton(
-          isLoading: isLoadingDecline.value,
-          icon: Icons.cancel,
-          color: Colors.red,
-          tooltip: strings.declineInvitation,
-          onPressed: isAnyLoading ? null : () => _handleDecline(context, ref, strings),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _MiniActionButton(
+            label: strings.acceptInvitation,
+            icon: Icons.check_rounded,
+            isLoading: isLoadingAccept.value,
+            isOutlined: false,
+            color: seedColor,
+            isDark: isDark,
+            onPressed: isAnyLoading ? null : () => _handleAccept(context, ref, strings),
+          ),
         ),
       ],
-    );
-  }
-
-  Widget _buildActionButton({
-    required bool isLoading,
-    required IconData icon,
-    required Color color,
-    required String tooltip,
-    required VoidCallback? onPressed,
-  }) {
-    if (isLoading) {
-      return const SizedBox(
-        width: 24,
-        height: 24,
-        child: CircularProgressIndicator(strokeWidth: 2),
-      );
-    }
-
-    return IconButton(
-      icon: Icon(icon, color: color),
-      tooltip: tooltip,
-      onPressed: onPressed,
     );
   }
 
@@ -507,16 +731,22 @@ class _NotificationInvitationActions extends HookConsumerWidget {
         await ref.read(taskListProvider.notifier).loadAllTaskLists();
 
         if (!context.mounted) return;
-        _showSnackBar(
-          context,
-          strings.invitationAccepted,
-          backgroundColor: Colors.green,
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.invitationAccepted),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
         );
       } else {
-        _showSnackBar(
-          context,
-          strings.failedToAcceptInvitation,
-          backgroundColor: Colors.red,
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.failedToAcceptInvitation),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
         );
       }
     } finally {
@@ -544,28 +774,93 @@ class _NotificationInvitationActions extends HookConsumerWidget {
         await ref.read(notificationProvider.notifier).dismissNotification(notification.id);
 
         if (!context.mounted) return;
-        _showSnackBar(
-          context,
-          strings.invitationDeclined,
-          backgroundColor: Colors.orange,
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.invitationDeclined),
+            backgroundColor: Colors.orange,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
         );
       } else {
-        _showSnackBar(
-          context,
-          strings.failedToDeclineInvitation,
-          backgroundColor: Colors.red,
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.failedToDeclineInvitation),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
         );
       }
     } finally {
       isLoadingDecline.value = false;
     }
   }
+}
 
-  void _showSnackBar(BuildContext context, String message, {Color? backgroundColor}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: backgroundColor,
+/// Mini action button til notifikations-kort
+class _MiniActionButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isLoading;
+  final bool isOutlined;
+  final Color color;
+  final bool isDark;
+  final VoidCallback? onPressed;
+
+  const _MiniActionButton({
+    required this.label,
+    required this.icon,
+    required this.isLoading,
+    required this.isOutlined,
+    required this.color,
+    required this.isDark,
+    this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        height: 36,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: isOutlined ? Colors.transparent : color,
+          border: isOutlined
+              ? Border.all(color: color.withOpacity(0.5), width: 1.5)
+              : null,
+        ),
+        child: Center(
+          child: isLoading
+              ? SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: isOutlined ? color : Colors.white,
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 16,
+                      color: isOutlined ? color : Colors.white,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: isOutlined ? color : Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
       ),
     );
   }
