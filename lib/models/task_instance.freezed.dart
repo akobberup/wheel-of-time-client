@@ -28,7 +28,10 @@ mixin _$TaskInstanceResponse {
   DateTime get completedDateTime => throw _privateConstructorUsedError;
   String? get optionalImagePath => throw _privateConstructorUsedError;
   String? get optionalComment => throw _privateConstructorUsedError;
-  bool get contributedToStreak => throw _privateConstructorUsedError;
+  bool get contributedToStreak =>
+      throw _privateConstructorUsedError; // Timeline view fields
+  TaskInstanceStatus get status => throw _privateConstructorUsedError;
+  DateTime? get dueDate => throw _privateConstructorUsedError;
 
   /// Serializes this TaskInstanceResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -55,7 +58,9 @@ abstract class $TaskInstanceResponseCopyWith<$Res> {
       DateTime completedDateTime,
       String? optionalImagePath,
       String? optionalComment,
-      bool contributedToStreak});
+      bool contributedToStreak,
+      TaskInstanceStatus status,
+      DateTime? dueDate});
 }
 
 /// @nodoc
@@ -83,6 +88,8 @@ class _$TaskInstanceResponseCopyWithImpl<$Res,
     Object? optionalImagePath = freezed,
     Object? optionalComment = freezed,
     Object? contributedToStreak = null,
+    Object? status = null,
+    Object? dueDate = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -121,6 +128,14 @@ class _$TaskInstanceResponseCopyWithImpl<$Res,
           ? _value.contributedToStreak
           : contributedToStreak // ignore: cast_nullable_to_non_nullable
               as bool,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as TaskInstanceStatus,
+      dueDate: freezed == dueDate
+          ? _value.dueDate
+          : dueDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ) as $Val);
   }
 }
@@ -142,7 +157,9 @@ abstract class _$$TaskInstanceResponseImplCopyWith<$Res>
       DateTime completedDateTime,
       String? optionalImagePath,
       String? optionalComment,
-      bool contributedToStreak});
+      bool contributedToStreak,
+      TaskInstanceStatus status,
+      DateTime? dueDate});
 }
 
 /// @nodoc
@@ -167,6 +184,8 @@ class __$$TaskInstanceResponseImplCopyWithImpl<$Res>
     Object? optionalImagePath = freezed,
     Object? optionalComment = freezed,
     Object? contributedToStreak = null,
+    Object? status = null,
+    Object? dueDate = freezed,
   }) {
     return _then(_$TaskInstanceResponseImpl(
       id: null == id
@@ -205,6 +224,14 @@ class __$$TaskInstanceResponseImplCopyWithImpl<$Res>
           ? _value.contributedToStreak
           : contributedToStreak // ignore: cast_nullable_to_non_nullable
               as bool,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as TaskInstanceStatus,
+      dueDate: freezed == dueDate
+          ? _value.dueDate
+          : dueDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -221,7 +248,9 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
       required this.completedDateTime,
       this.optionalImagePath,
       this.optionalComment,
-      this.contributedToStreak = false});
+      this.contributedToStreak = false,
+      this.status = TaskInstanceStatus.completed,
+      this.dueDate});
 
   factory _$TaskInstanceResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$TaskInstanceResponseImplFromJson(json);
@@ -245,10 +274,16 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
   @override
   @JsonKey()
   final bool contributedToStreak;
+// Timeline view fields
+  @override
+  @JsonKey()
+  final TaskInstanceStatus status;
+  @override
+  final DateTime? dueDate;
 
   @override
   String toString() {
-    return 'TaskInstanceResponse(id: $id, taskId: $taskId, taskName: $taskName, userId: $userId, userName: $userName, completedDateTime: $completedDateTime, optionalImagePath: $optionalImagePath, optionalComment: $optionalComment, contributedToStreak: $contributedToStreak)';
+    return 'TaskInstanceResponse(id: $id, taskId: $taskId, taskName: $taskName, userId: $userId, userName: $userName, completedDateTime: $completedDateTime, optionalImagePath: $optionalImagePath, optionalComment: $optionalComment, contributedToStreak: $contributedToStreak, status: $status, dueDate: $dueDate)';
   }
 
   @override
@@ -270,7 +305,9 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
             (identical(other.optionalComment, optionalComment) ||
                 other.optionalComment == optionalComment) &&
             (identical(other.contributedToStreak, contributedToStreak) ||
-                other.contributedToStreak == contributedToStreak));
+                other.contributedToStreak == contributedToStreak) &&
+            (identical(other.status, status) || other.status == status) &&
+            (identical(other.dueDate, dueDate) || other.dueDate == dueDate));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -285,7 +322,9 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
       completedDateTime,
       optionalImagePath,
       optionalComment,
-      contributedToStreak);
+      contributedToStreak,
+      status,
+      dueDate);
 
   /// Create a copy of TaskInstanceResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -315,7 +354,9 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
       required final DateTime completedDateTime,
       final String? optionalImagePath,
       final String? optionalComment,
-      final bool contributedToStreak}) = _$TaskInstanceResponseImpl;
+      final bool contributedToStreak,
+      final TaskInstanceStatus status,
+      final DateTime? dueDate}) = _$TaskInstanceResponseImpl;
 
   factory _TaskInstanceResponse.fromJson(Map<String, dynamic> json) =
       _$TaskInstanceResponseImpl.fromJson;
@@ -337,7 +378,11 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
   @override
   String? get optionalComment;
   @override
-  bool get contributedToStreak;
+  bool get contributedToStreak; // Timeline view fields
+  @override
+  TaskInstanceStatus get status;
+  @override
+  DateTime? get dueDate;
 
   /// Create a copy of TaskInstanceResponse
   /// with the given fields replaced by the non-null parameter values.

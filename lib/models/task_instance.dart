@@ -3,6 +3,14 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'task_instance.freezed.dart';
 part 'task_instance.g.dart';
 
+/// Status for a task instance in the timeline
+enum TaskInstanceStatus {
+  @JsonValue('COMPLETED')
+  completed,
+  @JsonValue('EXPIRED')
+  expired,
+}
+
 @freezed
 class TaskInstanceResponse with _$TaskInstanceResponse {
   const factory TaskInstanceResponse({
@@ -15,6 +23,9 @@ class TaskInstanceResponse with _$TaskInstanceResponse {
     String? optionalImagePath,
     String? optionalComment,
     @Default(false) bool contributedToStreak,
+    // Timeline view fields
+    @Default(TaskInstanceStatus.completed) TaskInstanceStatus status,
+    DateTime? dueDate,
   }) = _TaskInstanceResponse;
 
   factory TaskInstanceResponse.fromJson(Map<String, dynamic> json) =>

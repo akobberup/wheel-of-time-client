@@ -338,6 +338,18 @@ abstract class AppStrings {
   String get specificDaysDescription;
   String get orCustomize;
 
+  // Timeline / Completed Tasks
+  String get recentlyCompleted;
+  String tasksCompletedCount(int count);
+  String get now;
+  String get showMore;
+  String get showLess;
+  String completedAgo(String timeAgo);
+  String get expired;
+  String expiredAgo(String timeAgo);
+  String get taskExpired;
+  String get recentActivity;
+
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);
 

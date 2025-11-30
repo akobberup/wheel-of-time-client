@@ -870,4 +870,36 @@ class StringsEn extends AppStrings {
 
   @override
   String get orCustomize => 'or customize';
+
+  // Timeline / Completed Tasks
+  @override
+  String get recentlyCompleted => 'Recently Completed';
+
+  @override
+  String tasksCompletedCount(int count) =>
+      count == 1 ? '1 task completed' : '$count tasks completed';
+
+  @override
+  String get now => 'Now';
+
+  @override
+  String get showMore => 'Show more';
+
+  @override
+  String get showLess => 'Show less';
+
+  @override
+  String completedAgo(String timeAgo) => 'Completed $timeAgo';
+
+  @override
+  String get expired => 'Expired';
+
+  @override
+  String expiredAgo(String timeAgo) => 'Expired $timeAgo';
+
+  @override
+  String get taskExpired => 'Task expired';
+
+  @override
+  String get recentActivity => 'Recent Activity';
 }

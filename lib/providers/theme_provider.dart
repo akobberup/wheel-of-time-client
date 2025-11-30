@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_settings.dart';
 import '../services/api_service.dart';
+import 'auth_provider.dart';
 
 /// Repræsenterer appens tema tilstand med farve og mørk tilstand præferencer.
 /// Håndterer både Material 3 ColorScheme generation og synkronisering med backend.
@@ -143,7 +144,7 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
 /// Provider til tema management.
 /// Bruges til at få adgang til tema tilstand og funktioner i hele appen.
 final themeProvider = StateNotifierProvider<ThemeNotifier, ThemeState>((ref) {
-  final apiService = ApiService();
+  final apiService = ref.watch(apiServiceProvider);
   return ThemeNotifier(apiService);
 });
 

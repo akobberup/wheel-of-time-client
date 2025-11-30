@@ -772,6 +772,30 @@ class ApiService {
     }
   }
 
+  /// Get recently completed task instances with pagination
+  /// Returns the last [limit] completed tasks starting from [offset]
+  Future<List<TaskInstanceResponse>> getRecentlyCompletedTasks({
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await _loggedGet(
+        '$baseUrl/api/task-instances/completed/recent?limit=$limit&offset=$offset',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => TaskInstanceResponse.fromJson(json)).toList();
+      } else {
+        throw ApiException('Failed to load recently completed tasks', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
   // ============================================================================
   // STREAKS
   // ============================================================================

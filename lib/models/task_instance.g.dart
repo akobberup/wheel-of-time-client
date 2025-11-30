@@ -18,6 +18,12 @@ _$TaskInstanceResponseImpl _$$TaskInstanceResponseImplFromJson(
       optionalImagePath: json['optionalImagePath'] as String?,
       optionalComment: json['optionalComment'] as String?,
       contributedToStreak: json['contributedToStreak'] as bool? ?? false,
+      status:
+          $enumDecodeNullable(_$TaskInstanceStatusEnumMap, json['status']) ??
+              TaskInstanceStatus.completed,
+      dueDate: json['dueDate'] == null
+          ? null
+          : DateTime.parse(json['dueDate'] as String),
     );
 
 Map<String, dynamic> _$$TaskInstanceResponseImplToJson(
@@ -32,7 +38,14 @@ Map<String, dynamic> _$$TaskInstanceResponseImplToJson(
       'optionalImagePath': instance.optionalImagePath,
       'optionalComment': instance.optionalComment,
       'contributedToStreak': instance.contributedToStreak,
+      'status': _$TaskInstanceStatusEnumMap[instance.status]!,
+      'dueDate': instance.dueDate?.toIso8601String(),
     };
+
+const _$TaskInstanceStatusEnumMap = {
+  TaskInstanceStatus.completed: 'COMPLETED',
+  TaskInstanceStatus.expired: 'EXPIRED',
+};
 
 _$CreateTaskInstanceRequestImpl _$$CreateTaskInstanceRequestImplFromJson(
         Map<String, dynamic> json) =>

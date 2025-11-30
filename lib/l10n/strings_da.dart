@@ -871,4 +871,36 @@ class StringsDa extends AppStrings {
 
   @override
   String get orCustomize => 'eller tilpas';
+
+  // Timeline / Completed Tasks
+  @override
+  String get recentlyCompleted => 'Nyligt fuldført';
+
+  @override
+  String tasksCompletedCount(int count) =>
+      count == 1 ? '1 opgave fuldført' : '$count opgaver fuldført';
+
+  @override
+  String get now => 'Nu';
+
+  @override
+  String get showMore => 'Vis mere';
+
+  @override
+  String get showLess => 'Vis mindre';
+
+  @override
+  String completedAgo(String timeAgo) => 'Fuldført $timeAgo';
+
+  @override
+  String get expired => 'Udløbet';
+
+  @override
+  String expiredAgo(String timeAgo) => 'Udløbet $timeAgo';
+
+  @override
+  String get taskExpired => 'Opgave udløbet';
+
+  @override
+  String get recentActivity => 'Seneste aktivitet';
 }

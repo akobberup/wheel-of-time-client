@@ -8,3 +8,4 @@ export 'medium_task_card.dart';
 export 'compact_task_card.dart';
 export 'frosted_locked_overlay.dart';
 export 'task_occurrence_card.dart';
+export 'completed_task_card.dart';
