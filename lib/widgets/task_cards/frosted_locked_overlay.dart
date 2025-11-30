@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_strings.dart';
 import 'task_urgency.dart';
 
-/// Semi-transparent overlay for låste opgaver
+/// Blød overlay for opgaver der venter på tur
+/// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+/// Bruger lav opacity og venligt schedule-ikon i stedet for lås
 class FrostedLockedOverlay extends StatelessWidget {
   final TaskUrgency urgency;
 
@@ -11,27 +13,52 @@ class FrostedLockedOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = AppStrings.of(context);
-    final isUrgent = urgency == TaskUrgency.overdue || urgency == TaskUrgency.today;
-    final bottomMargin = isUrgent ? 8.0 : 4.0;
+    final isUrgent =
+        urgency == TaskUrgency.overdue || urgency == TaskUrgency.today;
+    final bottomMargin = isUrgent ? 8.0 : 6.0;
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    // Blødere overlay - mindre blokerende, mere "venter på tur"
+    final overlayColor = isDark
+        ? colorScheme.surface.withValues(alpha: 0.4)
+        : colorScheme.surface.withValues(alpha: 0.35);
 
     return Positioned.fill(
       child: Container(
         margin: EdgeInsets.only(bottom: bottomMargin),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface.withValues(alpha: 0.7),
-          borderRadius: BorderRadius.circular(isUrgent ? 20 : 16),
+          color: overlayColor,
+          borderRadius: BorderRadius.circular(isUrgent ? 20 : 14),
         ),
         child: Center(
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(24),
+              // Gradient badge der matcher hero cards
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isDark
+                    ? [
+                        colorScheme.surfaceContainerHighest,
+                        colorScheme.surfaceContainerHigh,
+                      ]
+                    : [
+                        colorScheme.surface,
+                        colorScheme.surfaceContainerLow,
+                      ],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: colorScheme.primary.withValues(alpha: 0.1),
+                width: 1,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 8,
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
               ],
@@ -39,17 +66,18 @@ class FrostedLockedOverlay extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Hourglass ikon - venter på sin tur, ikke blokeret
                 Icon(
-                  Icons.lock_outline,
-                  size: 18,
-                  color: theme.colorScheme.onSurfaceVariant,
+                  Icons.hourglass_empty_rounded,
+                  size: 16,
+                  color: colorScheme.primary.withValues(alpha: 0.7),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Text(
                   strings.completeEarlierTasksFirst,
                   style: TextStyle(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontSize: 13,
+                    color: colorScheme.onSurfaceVariant,
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

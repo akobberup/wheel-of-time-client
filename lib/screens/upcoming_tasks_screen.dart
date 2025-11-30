@@ -312,10 +312,19 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
       strings.later,
     ];
 
+    final state = ref.watch(upcomingTasksProvider);
+
     for (final section in sectionOrder) {
       final tasks = grouped[section];
       if (tasks != null && tasks.isNotEmpty) {
         final color = _getSectionColor(section, strings);
+        final isLaterSection = section == strings.later;
+
+        // Bestem hvor mange opgaver der skal vises i "Senere" sektionen
+        final tasksToShow = isLaterSection && !state.isLaterExpanded
+            ? tasks.take(5).toList()
+            : tasks;
+        final hasMoreToShow = isLaterSection && tasks.length > 5 && !state.isLaterExpanded;
 
         // Sektionsoverskrift
         widgets.add(
@@ -330,7 +339,7 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
         // Opgaver i grid eller liste baseret på kolonneantal
         if (columnCount == 1) {
           // Mobil: enkelt kolonne liste
-          for (final task in tasks) {
+          for (final task in tasksToShow) {
             widgets.add(
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -359,13 +368,34 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                 childAspectRatio:
                     _getAspectRatio(section, strings, columnCount, isDesktop),
               ),
-              itemCount: tasks.length,
+              itemCount: tasksToShow.length,
               itemBuilder: (context, index) => TaskOccurrenceCard(
-                occurrence: tasks[index],
+                occurrence: tasksToShow[index],
                 onQuickComplete: _handleQuickComplete,
                 onTap: _handleTaskCompletion,
                 isDesktop: isDesktop,
               ),
+            ),
+          );
+        }
+
+        // Vis "Se alle" knap for "Senere" sektionen hvis der er flere opgaver
+        if (hasMoreToShow) {
+          widgets.add(
+            _ExpandLaterButton(
+              remainingCount: tasks.length - 5,
+              isDesktop: isDesktop,
+              onTap: () => ref.read(upcomingTasksProvider.notifier).toggleLaterExpanded(),
+            ),
+          );
+        }
+
+        // Vis "Vis færre" knap hvis sektionen er udvidet
+        if (isLaterSection && state.isLaterExpanded && tasks.length > 5) {
+          widgets.add(
+            _CollapseLaterButton(
+              isDesktop: isDesktop,
+              onTap: () => ref.read(upcomingTasksProvider.notifier).toggleLaterExpanded(),
             ),
           );
         }
@@ -622,6 +652,160 @@ class _SectionHeader extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Knap til at udvide "Senere" sektionen
+/// Design: Varm, indbydende knap der matcher den organiske æstetik
+class _ExpandLaterButton extends ConsumerWidget {
+  final int remainingCount;
+  final bool isDesktop;
+  final VoidCallback onTap;
+
+  const _ExpandLaterButton({
+    required this.remainingCount,
+    required this.isDesktop,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final themeState = ref.watch(themeProvider);
+    final seedColor = themeState.seedColor;
+    final strings = AppStrings.of(context);
+
+    return Padding(
+      padding: EdgeInsets.only(
+        top: isDesktop ? 16 : 12,
+        bottom: isDesktop ? 8 : 6,
+      ),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isDesktop ? 24 : 20,
+            vertical: isDesktop ? 16 : 14,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            // Subtil gradient baggrund med tema-farve
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                seedColor.withValues(alpha: 0.08),
+                seedColor.withValues(alpha: 0.12),
+              ],
+            ),
+            border: Border.all(
+              color: seedColor.withValues(alpha: 0.2),
+              width: 1.5,
+            ),
+            // Subtil skygge
+            boxShadow: isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: seedColor.withValues(alpha: 0.1),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Expand ikon
+              Icon(
+                Icons.expand_more,
+                color: seedColor,
+                size: isDesktop ? 24 : 22,
+              ),
+              SizedBox(width: isDesktop ? 12 : 10),
+              // Tekst
+              Text(
+                '${strings.showMore} ($remainingCount ${strings.tasks.toLowerCase()})',
+                style: TextStyle(
+                  fontSize: isDesktop ? 16 : 15,
+                  fontWeight: FontWeight.w600,
+                  color: seedColor,
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Knap til at kollapse "Senere" sektionen
+/// Design: Diskret, mindre fremtrædende end expand-knappen
+class _CollapseLaterButton extends ConsumerWidget {
+  final bool isDesktop;
+  final VoidCallback onTap;
+
+  const _CollapseLaterButton({
+    required this.isDesktop,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final themeState = ref.watch(themeProvider);
+    final seedColor = themeState.seedColor;
+    final strings = AppStrings.of(context);
+
+    return Padding(
+      padding: EdgeInsets.only(
+        top: isDesktop ? 12 : 8,
+        bottom: isDesktop ? 8 : 6,
+      ),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isDesktop ? 20 : 16,
+            vertical: isDesktop ? 12 : 10,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            // Mere diskret farve
+            color: seedColor.withValues(alpha: 0.05),
+            border: Border.all(
+              color: seedColor.withValues(alpha: 0.15),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Collapse ikon
+              Icon(
+                Icons.expand_less,
+                color: seedColor.withValues(alpha: 0.7),
+                size: isDesktop ? 22 : 20,
+              ),
+              SizedBox(width: isDesktop ? 8 : 6),
+              // Tekst
+              Text(
+                strings.showLess,
+                style: TextStyle(
+                  fontSize: isDesktop ? 14 : 13,
+                  fontWeight: FontWeight.w500,
+                  color: seedColor.withValues(alpha: 0.7),
+                  letterSpacing: -0.1,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

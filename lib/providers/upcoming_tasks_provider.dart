@@ -10,6 +10,7 @@ class UpcomingTasksState {
   final bool isLoadingMore;
   final bool hasMore;
   final String? error;
+  final bool isLaterExpanded; // Holder styr på om "Senere" sektionen er udvidet
 
   const UpcomingTasksState({
     this.occurrences = const [],
@@ -17,6 +18,7 @@ class UpcomingTasksState {
     this.isLoadingMore = false,
     this.hasMore = true,
     this.error,
+    this.isLaterExpanded = false,
   });
 
   UpcomingTasksState copyWith({
@@ -25,6 +27,7 @@ class UpcomingTasksState {
     bool? isLoadingMore,
     bool? hasMore,
     String? error,
+    bool? isLaterExpanded,
   }) {
     return UpcomingTasksState(
       occurrences: occurrences ?? this.occurrences,
@@ -32,6 +35,7 @@ class UpcomingTasksState {
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       hasMore: hasMore ?? this.hasMore,
       error: error,
+      isLaterExpanded: isLaterExpanded ?? this.isLaterExpanded,
     );
   }
 }
@@ -114,5 +118,10 @@ class UpcomingTasksNotifier extends StateNotifier<UpcomingTasksState> {
   /// Refreshes the list (pull to refresh)
   Future<void> refresh() async {
     await loadInitial();
+  }
+
+  /// Toggle expansion state for "Senere" section
+  void toggleLaterExpanded() {
+    state = state.copyWith(isLaterExpanded: !state.isLaterExpanded);
   }
 }
