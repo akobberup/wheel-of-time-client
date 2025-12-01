@@ -97,60 +97,6 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
         child: CustomScrollView(
           controller: _scrollController,
           slivers: [
-            // Custom SliverAppBar med varm, organisk æstetik
-            SliverAppBar(
-              expandedHeight: 100,
-              floating: true,
-              pinned: false,
-              elevation: 0,
-              backgroundColor:
-                  isDark ? const Color(0xFF1A1A1C) : const Color(0xFFFAFAF8),
-              flexibleSpace: FlexibleSpaceBar(
-                titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
-                title: Row(
-                  children: [
-                    // Cirkulært ikon-element (reference til "hjulet")
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            seedColor.withValues(alpha: 0.8),
-                            seedColor.withValues(alpha: 0.6),
-                          ],
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: seedColor.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.event_repeat,
-                        size: 18,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      strings.upcomingTasks,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.5,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
             // Body content
             SliverToBoxAdapter(
               child: _buildBody(context, state, completedState),

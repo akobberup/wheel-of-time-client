@@ -32,7 +32,6 @@ class InvitationsScreen extends HookConsumerWidget {
         onRefresh: () => ref.read(invitationProvider.notifier).loadPendingInvitations(),
         child: CustomScrollView(
           slivers: [
-            _InvitationsAppBar(seedColor: seedColor, isDark: isDark),
             invitationsAsync.when(
               data: (invitations) => _buildInvitationsList(
                 context, invitations, strings, seedColor, isDark,
@@ -123,42 +122,6 @@ class InvitationsScreen extends HookConsumerWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Custom app bar til invitationer
-class _InvitationsAppBar extends StatelessWidget {
-  final Color seedColor;
-  final bool isDark;
-
-  const _InvitationsAppBar({required this.seedColor, required this.isDark});
-
-  @override
-  Widget build(BuildContext context) {
-    final textColor = isDark ? Colors.white : const Color(0xFF1A1A1A);
-
-    return SliverAppBar(
-      expandedHeight: 100,
-      floating: false,
-      pinned: true,
-      backgroundColor: isDark ? const Color(0xFF121214) : const Color(0xFFFAFAF8),
-      surfaceTintColor: Colors.transparent,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back_rounded, color: textColor),
-        onPressed: () => Navigator.of(context).pop(),
-      ),
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 52, bottom: 16),
-        title: Text(
-          'Invitationer',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: textColor,
-          ),
         ),
       ),
     );

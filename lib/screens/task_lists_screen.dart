@@ -71,30 +71,6 @@ class TaskListsScreen extends HookConsumerWidget {
 
         return CustomScrollView(
           slivers: [
-            // Custom SliverAppBar med varm æstetik
-            SliverAppBar(
-              expandedHeight: 100,
-              floating: false,
-              pinned: true,
-              backgroundColor:
-                  isDark ? const Color(0xFF121214) : const Color(0xFFFAFAF8),
-              elevation: 0,
-              flexibleSpace: FlexibleSpaceBar(
-                title: Text(
-                  strings.taskLists,
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.5,
-                    color: themeState.seedColor,
-                  ),
-                ),
-                titlePadding: EdgeInsets.only(
-                  left: horizontalPadding,
-                  bottom: 16,
-                ),
-              ),
-            ),
             // Liste af opgavelister
             SliverPadding(
               padding: EdgeInsets.symmetric(
