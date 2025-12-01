@@ -201,7 +201,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   obscureText: _obscurePassword,
                                   seedColor: seedColor,
                                   isDark: isDark,
-                                  suffixIcon: IconButton(
+                                  suffixIcon: ExcludeFocus(
+                                  child: IconButton(
                                     icon: Icon(
                                       _obscurePassword
                                           ? Icons.visibility_outlined
@@ -215,6 +216,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       setState(() => _obscurePassword = !_obscurePassword);
                                     },
                                   ),
+                                ),
                                   onFieldSubmitted: (_) => _handleSubmit(),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
