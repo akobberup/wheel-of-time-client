@@ -36,16 +36,33 @@ class TaskListMembersScreen extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          _buildSliverAppBar(context, strings, themeColor, isDark),
-          SliverToBoxAdapter(
-            child: RefreshIndicator(
-              onRefresh: () => _handleRefresh(ref),
-              child: _buildBody(context, ref, membersAsync, invitationsAsync, strings, themeColor, isDark),
+      body: RefreshIndicator(
+        onRefresh: () => _handleRefresh(ref),
+        child: CustomScrollView(
+          slivers: [
+            _buildSliverAppBar(context, strings, themeColor, isDark),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  _MembersSection(
+                    taskListId: taskListId,
+                    membersAsync: membersAsync,
+                    themeColor: themeColor,
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 32),
+                  _InvitationsSection(
+                    taskListId: taskListId,
+                    invitationsAsync: invitationsAsync,
+                    themeColor: themeColor,
+                    isDark: isDark,
+                  ),
+                ]),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: _buildFAB(context, ref, strings, themeColor),
     );
@@ -78,36 +95,6 @@ class TaskListMembersScreen extends ConsumerWidget {
       ref.read(taskListUserNotifierProvider(taskListId).notifier).loadUsers(),
       ref.refresh(taskListInvitationsProvider(taskListId).future),
     ]);
-  }
-
-  Widget _buildBody(
-    BuildContext context,
-    WidgetRef ref,
-    AsyncValue membersAsync,
-    AsyncValue invitationsAsync,
-    AppStrings strings,
-    Color themeColor,
-    bool isDark,
-  ) {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      physics: const AlwaysScrollableScrollPhysics(),
-      children: [
-        _MembersSection(
-          taskListId: taskListId,
-          membersAsync: membersAsync,
-          themeColor: themeColor,
-          isDark: isDark,
-        ),
-        const SizedBox(height: 32),
-        _InvitationsSection(
-          taskListId: taskListId,
-          invitationsAsync: invitationsAsync,
-          themeColor: themeColor,
-          isDark: isDark,
-        ),
-      ],
-    );
   }
 
   Widget _buildFAB(BuildContext context, WidgetRef ref, AppStrings strings, Color themeColor) {
