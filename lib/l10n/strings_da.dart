@@ -264,6 +264,9 @@ class StringsDa extends AppStrings {
   String get declined => 'Afvist';
 
   @override
+  String get cancelled => 'Annulleret';
+
+  @override
   String get invitationAccepted => 'Invitation accepteret';
 
   @override

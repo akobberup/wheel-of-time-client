@@ -6,6 +6,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import '../models/enums.dart';
+import '../models/invitation.dart';
 import '../providers/invitation_provider.dart';
 import '../providers/theme_provider.dart';
 import '../l10n/app_strings.dart';
@@ -53,7 +55,7 @@ class InvitationsScreen extends HookConsumerWidget {
 
   Widget _buildInvitationsList(
     BuildContext context,
-    List<dynamic> invitations,
+    List<InvitationResponse> invitations,
     AppStrings strings,
     Color seedColor,
     bool isDark,
@@ -188,7 +190,7 @@ class _EmptyInvitationsState extends StatelessWidget {
 
 /// Kort der viser en enkelt invitation med accept/afvis handlinger
 class _InvitationCard extends HookConsumerWidget {
-  final dynamic invitation;
+  final InvitationResponse invitation;
   final Color seedColor;
   final bool isDark;
 
@@ -267,7 +269,7 @@ class _InvitationCard extends HookConsumerWidget {
               _buildStatusBadge(strings),
             ],
           ),
-          if (invitation.currentState.name == 'SENT') ...[
+          if (invitation.currentState == InvitationState.SENT) ...[
             const SizedBox(height: 16),
             Divider(
               height: 1,
@@ -312,31 +314,29 @@ class _InvitationCard extends HookConsumerWidget {
   }
 
   Widget _buildStatusBadge(AppStrings strings) {
-    final state = invitation.currentState.name.toString();
+    final state = invitation.currentState;
     final Color color;
     final IconData icon;
     final String label;
 
     switch (state) {
-      case 'SENT':
+      case InvitationState.SENT:
+      case InvitationState.PENDING:
         color = Colors.orange;
         icon = Icons.schedule_rounded;
         label = strings.pending;
-        break;
-      case 'ACCEPTED':
+      case InvitationState.ACCEPTED:
         color = Colors.green;
         icon = Icons.check_circle_rounded;
         label = strings.accepted;
-        break;
-      case 'DECLINED':
+      case InvitationState.DECLINED:
         color = Colors.red;
         icon = Icons.cancel_rounded;
         label = strings.declined;
-        break;
-      default:
+      case InvitationState.CANCELLED:
         color = Colors.grey;
-        icon = Icons.info_outline_rounded;
-        label = state;
+        icon = Icons.cancel_outlined;
+        label = strings.cancelled;
     }
 
     return Container(

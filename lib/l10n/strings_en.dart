@@ -263,6 +263,9 @@ class StringsEn extends AppStrings {
   String get declined => 'Declined';
 
   @override
+  String get cancelled => 'Cancelled';
+
+  @override
   String get invitationAccepted => 'Invitation accepted';
 
   @override

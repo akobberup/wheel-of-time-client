@@ -108,6 +108,7 @@ abstract class AppStrings {
   String declineInvitationConfirmation(String taskListName);
   String get accepted;
   String get declined;
+  String get cancelled;
   String get invitationAccepted;
   String get invitationDeclined;
   String get sendInvitation;
