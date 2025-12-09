@@ -129,9 +129,10 @@ class CompletedTaskCard extends StatelessWidget {
                           fontSize: isDesktop ? 11 : 12,
                         ),
                       ),
-                      // Bruger (kun for completed tasks)
+                      // Bruger (kun for completed tasks med userName)
                       if (!_isExpired &&
-                          taskInstance.userName.isNotEmpty) ...[
+                          taskInstance.userName != null &&
+                          taskInstance.userName!.isNotEmpty) ...[
                         const SizedBox(width: 8),
                         Icon(
                           Icons.person_outline,
@@ -141,7 +142,7 @@ class CompletedTaskCard extends StatelessWidget {
                         const SizedBox(width: 2),
                         Flexible(
                           child: Text(
-                            taskInstance.userName,
+                            taskInstance.userName!,
                             style: TextStyle(
                               color: colorScheme.onSurfaceVariant,
                               fontSize: isDesktop ? 11 : 12,

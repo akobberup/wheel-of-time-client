@@ -22,9 +22,10 @@ TaskInstanceResponse _$TaskInstanceResponseFromJson(Map<String, dynamic> json) {
 mixin _$TaskInstanceResponse {
   int get id => throw _privateConstructorUsedError;
   int get taskId => throw _privateConstructorUsedError;
-  String get taskName => throw _privateConstructorUsedError;
-  int get userId => throw _privateConstructorUsedError;
-  String get userName => throw _privateConstructorUsedError;
+  String get taskName =>
+      throw _privateConstructorUsedError; // userId og userName kan være null for EXPIRED instances der ikke blev completed af en bruger
+  int? get userId => throw _privateConstructorUsedError;
+  String? get userName => throw _privateConstructorUsedError;
   DateTime get completedDateTime => throw _privateConstructorUsedError;
   String? get optionalImagePath => throw _privateConstructorUsedError;
   String? get optionalComment => throw _privateConstructorUsedError;
@@ -53,8 +54,8 @@ abstract class $TaskInstanceResponseCopyWith<$Res> {
       {int id,
       int taskId,
       String taskName,
-      int userId,
-      String userName,
+      int? userId,
+      String? userName,
       DateTime completedDateTime,
       String? optionalImagePath,
       String? optionalComment,
@@ -82,8 +83,8 @@ class _$TaskInstanceResponseCopyWithImpl<$Res,
     Object? id = null,
     Object? taskId = null,
     Object? taskName = null,
-    Object? userId = null,
-    Object? userName = null,
+    Object? userId = freezed,
+    Object? userName = freezed,
     Object? completedDateTime = null,
     Object? optionalImagePath = freezed,
     Object? optionalComment = freezed,
@@ -104,14 +105,14 @@ class _$TaskInstanceResponseCopyWithImpl<$Res,
           ? _value.taskName
           : taskName // ignore: cast_nullable_to_non_nullable
               as String,
-      userId: null == userId
+      userId: freezed == userId
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
-              as int,
-      userName: null == userName
+              as int?,
+      userName: freezed == userName
           ? _value.userName
           : userName // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       completedDateTime: null == completedDateTime
           ? _value.completedDateTime
           : completedDateTime // ignore: cast_nullable_to_non_nullable
@@ -152,8 +153,8 @@ abstract class _$$TaskInstanceResponseImplCopyWith<$Res>
       {int id,
       int taskId,
       String taskName,
-      int userId,
-      String userName,
+      int? userId,
+      String? userName,
       DateTime completedDateTime,
       String? optionalImagePath,
       String? optionalComment,
@@ -178,8 +179,8 @@ class __$$TaskInstanceResponseImplCopyWithImpl<$Res>
     Object? id = null,
     Object? taskId = null,
     Object? taskName = null,
-    Object? userId = null,
-    Object? userName = null,
+    Object? userId = freezed,
+    Object? userName = freezed,
     Object? completedDateTime = null,
     Object? optionalImagePath = freezed,
     Object? optionalComment = freezed,
@@ -200,14 +201,14 @@ class __$$TaskInstanceResponseImplCopyWithImpl<$Res>
           ? _value.taskName
           : taskName // ignore: cast_nullable_to_non_nullable
               as String,
-      userId: null == userId
+      userId: freezed == userId
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
-              as int,
-      userName: null == userName
+              as int?,
+      userName: freezed == userName
           ? _value.userName
           : userName // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       completedDateTime: null == completedDateTime
           ? _value.completedDateTime
           : completedDateTime // ignore: cast_nullable_to_non_nullable
@@ -243,8 +244,8 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
       {required this.id,
       required this.taskId,
       required this.taskName,
-      required this.userId,
-      required this.userName,
+      this.userId,
+      this.userName,
       required this.completedDateTime,
       this.optionalImagePath,
       this.optionalComment,
@@ -261,10 +262,11 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
   final int taskId;
   @override
   final String taskName;
+// userId og userName kan være null for EXPIRED instances der ikke blev completed af en bruger
   @override
-  final int userId;
+  final int? userId;
   @override
-  final String userName;
+  final String? userName;
   @override
   final DateTime completedDateTime;
   @override
@@ -349,8 +351,8 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
       {required final int id,
       required final int taskId,
       required final String taskName,
-      required final int userId,
-      required final String userName,
+      final int? userId,
+      final String? userName,
       required final DateTime completedDateTime,
       final String? optionalImagePath,
       final String? optionalComment,
@@ -366,11 +368,12 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
   @override
   int get taskId;
   @override
-  String get taskName;
+  String
+      get taskName; // userId og userName kan være null for EXPIRED instances der ikke blev completed af en bruger
   @override
-  int get userId;
+  int? get userId;
   @override
-  String get userName;
+  String? get userName;
   @override
   DateTime get completedDateTime;
   @override

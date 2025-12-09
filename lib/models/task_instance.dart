@@ -17,8 +17,9 @@ class TaskInstanceResponse with _$TaskInstanceResponse {
     required int id,
     required int taskId,
     required String taskName,
-    required int userId,
-    required String userName,
+    // userId og userName kan være null for EXPIRED instances der ikke blev completed af en bruger
+    int? userId,
+    String? userName,
     required DateTime completedDateTime,
     String? optionalImagePath,
     String? optionalComment,

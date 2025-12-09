@@ -434,7 +434,8 @@ class _HistoryCard extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          instance.userName.isNotEmpty ? instance.userName[0].toUpperCase() : '?',
+          // Håndterer nullable userName - vis '?' for system/expired instances
+          (instance.userName?.isNotEmpty ?? false) ? instance.userName![0].toUpperCase() : '?',
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
@@ -455,7 +456,8 @@ class _HistoryCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          instance.userName,
+          // Fallback til 'System' for auto-expired instances uden bruger
+          instance.userName ?? 'System',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
