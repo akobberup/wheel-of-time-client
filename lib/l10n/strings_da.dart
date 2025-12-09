@@ -352,6 +352,9 @@ class StringsDa extends AppStrings {
   @override
   String get pending => 'Afventer';
 
+  @override
+  String get completed => 'Fuldført';
+
   // Confirmation messages
   @override
   String get confirmDeleteMessage => 'Denne handling kan ikke fortrydes.';

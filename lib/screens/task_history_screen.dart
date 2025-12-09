@@ -348,16 +348,46 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
 ///
 /// Viser bruger, dato/tid, serie-bidrag og eventuel kommentar/billede.
 /// Bruger organisk design med bløde hjørner og subtile skygger.
+/// Viser status-indikation (PENDING, COMPLETED, EXPIRED) med farver og badges.
 class _HistoryCard extends StatelessWidget {
   final TaskInstanceResponse instance;
   final Color seedColor;
   final bool isDark;
+
+  // Status farver
+  static const Color _pendingColor = Color(0xFF3B82F6);   // Blå
+  static const Color _completedColor = Color(0xFF22C55E); // Grøn
+  static const Color _expiredColor = Color(0xFFEF4444);   // Rød
 
   const _HistoryCard({
     required this.instance,
     required this.seedColor,
     required this.isDark,
   });
+
+  /// Returnerer status-farven baseret på instance status
+  Color get _statusColor {
+    switch (instance.status) {
+      case TaskInstanceStatus.pending:
+        return _pendingColor;
+      case TaskInstanceStatus.completed:
+        return _completedColor;
+      case TaskInstanceStatus.expired:
+        return _expiredColor;
+    }
+  }
+
+  /// Returnerer status-ikonet
+  IconData get _statusIcon {
+    switch (instance.status) {
+      case TaskInstanceStatus.pending:
+        return Icons.schedule_rounded;
+      case TaskInstanceStatus.completed:
+        return Icons.check_circle_rounded;
+      case TaskInstanceStatus.expired:
+        return Icons.cancel_rounded;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -368,33 +398,52 @@ class _HistoryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF222226) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark 
-              ? Colors.white.withOpacity(0.08)
-              : Colors.black.withOpacity(0.08),
-          width: 1,
+        // Status-farvet venstre kant
+        border: Border(
+          left: BorderSide(color: _statusColor, width: 4),
+          top: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.08),
+            width: 1,
+          ),
+          right: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.08),
+            width: 1,
+          ),
+          bottom: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.08),
+            width: 1,
+          ),
         ),
-        boxShadow: isDark 
+        boxShadow: isDark
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
               ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(context, strings),
-            const SizedBox(height: 16),
-            _buildBadges(strings),
-            if (_hasComment) _buildCommentSection(context, strings),
-            if (_hasImage) _buildImageSection(context),
-          ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(context, strings),
+              const SizedBox(height: 16),
+              _buildBadges(strings),
+              if (_hasComment) _buildCommentSection(context, strings),
+              if (_hasImage) _buildImageSection(context),
+            ],
+          ),
         ),
       ),
     );
@@ -411,14 +460,18 @@ class _HistoryCard extends StatelessWidget {
   }
 
   Widget _buildAvatar() {
+    // Brug status-farve for system entries, brugerens farve for completed
+    final bool isSystemEntry = instance.userName == null;
+    final avatarColor = isSystemEntry ? _statusColor : seedColor;
+
     return Container(
       width: 48,
       height: 48,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            seedColor,
-            seedColor.withOpacity(0.7),
+            avatarColor,
+            avatarColor.withValues(alpha: 0.7),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -426,22 +479,24 @@ class _HistoryCard extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: seedColor.withOpacity(0.3),
+            color: avatarColor.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Center(
-        child: Text(
-          // Håndterer nullable userName - vis '?' for system/expired instances
-          (instance.userName?.isNotEmpty ?? false) ? instance.userName![0].toUpperCase() : '?',
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-          ),
-        ),
+        // Vis status-ikon for system entries, initial for brugere
+        child: isSystemEntry
+            ? Icon(_statusIcon, color: Colors.white, size: 24)
+            : Text(
+                instance.userName![0].toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20,
+                ),
+              ),
       ),
     );
   }
@@ -477,11 +532,29 @@ class _HistoryCard extends StatelessWidget {
     );
   }
 
+  /// Returnerer status-teksten baseret på instance status
+  String _getStatusLabel(AppStrings strings) {
+    switch (instance.status) {
+      case TaskInstanceStatus.pending:
+        return strings.pending;
+      case TaskInstanceStatus.completed:
+        return strings.completed;
+      case TaskInstanceStatus.expired:
+        return strings.expired;
+    }
+  }
+
   Widget _buildBadges(AppStrings strings) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: [
+        // Status badge vises altid først
+        _buildBadge(
+          icon: _statusIcon,
+          label: _getStatusLabel(strings),
+          color: _statusColor,
+        ),
         if (instance.contributedToStreak)
           _buildBadge(
             icon: Icons.local_fire_department_rounded,

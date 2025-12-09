@@ -351,6 +351,9 @@ class StringsEn extends AppStrings {
   @override
   String get pending => 'Pending';
 
+  @override
+  String get completed => 'Completed';
+
   // Confirmation messages
   @override
   String get confirmDeleteMessage => 'This action cannot be undone.';
