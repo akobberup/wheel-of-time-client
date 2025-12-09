@@ -5,6 +5,8 @@ part 'task_instance.g.dart';
 
 /// Status for a task instance in the timeline
 enum TaskInstanceStatus {
+  @JsonValue('PENDING')
+  pending,
   @JsonValue('COMPLETED')
   completed,
   @JsonValue('EXPIRED')

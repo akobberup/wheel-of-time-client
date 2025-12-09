@@ -43,6 +43,7 @@ Map<String, dynamic> _$$TaskInstanceResponseImplToJson(
     };
 
 const _$TaskInstanceStatusEnumMap = {
+  TaskInstanceStatus.pending: 'PENDING',
   TaskInstanceStatus.completed: 'COMPLETED',
   TaskInstanceStatus.expired: 'EXPIRED',
 };
