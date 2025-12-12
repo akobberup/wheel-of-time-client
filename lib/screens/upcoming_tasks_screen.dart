@@ -224,22 +224,19 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
   }
 
   /// Beregner responsiv horisontal padding baseret på skærmbredde
+  /// Begrænser indholdsbredden til maxContentWidth for bedre læsbarhed
   double _getResponsivePadding(double width) {
-    if (width >= 1800) return 80.0;
-    if (width >= 1400) return 48.0;
-    if (width >= 1200) return 32.0;
-    if (width >= 900) return 24.0;
+    const maxContentWidth = 800.0;
+    if (width > maxContentWidth) {
+      // Centrer indholdet med lige meget padding på begge sider
+      return (width - maxContentWidth) / 2;
+    }
     return 16.0;
   }
 
-  /// Returnerer antal kolonner baseret på skærmbredde
-  /// Optimeret til at udnytte desktop-plads bedre
+  /// Returnerer antal kolonner - altid 1 for konsistens med andre skærme
   int _getColumnCount(double width) {
-    if (width >= 1800) return 4; // Meget bred skærm
-    if (width >= 1400) return 3; // Bred desktop
-    if (width >= 1000) return 3; // Standard desktop
-    if (width >= 700) return 2; // Tablet/smal desktop
-    return 1; // Mobil
+    return 1;
   }
 
   /// Bygger responsive widgets med sektioner og grid layouts

@@ -45,16 +45,21 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     final selectedIndex = ref.watch(selectedIndexProvider);
     final themeState = ref.watch(themeProvider);
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = themeState.isDarkMode;
+    // Brug neutrale baggrundsfarver for konsistens på tværs af skærme
+    final backgroundColor =
+        isDark ? const Color(0xFF121214) : const Color(0xFFFAFAF8);
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: _buildAppBar(context, strings, colorScheme),
+      backgroundColor: backgroundColor,
+      appBar: _buildAppBar(context, strings, colorScheme, backgroundColor),
       body: _buildBody(selectedIndex),
       bottomNavigationBar: _buildBottomNavigationBar(
         strings,
         selectedIndex,
         colorScheme,
         themeState.seedColor,
+        backgroundColor,
       ),
     );
   }
@@ -64,14 +69,15 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     BuildContext context,
     AppStrings strings,
     ColorScheme colorScheme,
+    Color backgroundColor,
   ) {
     final selectedIndex = ref.watch(selectedIndexProvider);
     final isUpcomingTasksTab = selectedIndex == 1;
 
     return AppBar(
       elevation: 0,
-      backgroundColor: colorScheme.surface,
-      surfaceTintColor: colorScheme.surfaceTint,
+      backgroundColor: backgroundColor,
+      surfaceTintColor: Colors.transparent,
       title: Text(
         strings.appTitle,
         style: TextStyle(
@@ -115,6 +121,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     int selectedIndex,
     ColorScheme colorScheme,
     Color seedColor,
+    Color backgroundColor,
   ) {
     return Container(
       decoration: BoxDecoration(
@@ -130,7 +137,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
         elevation: 0,
         selectedIndex: selectedIndex,
         onDestinationSelected: (index) => _handleNavigationChange(index),
-        backgroundColor: colorScheme.surface,
+        backgroundColor: backgroundColor,
         indicatorColor: seedColor.withOpacity(0.15),
         surfaceTintColor: Colors.transparent,
         height: 80,
