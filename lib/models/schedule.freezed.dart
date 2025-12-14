@@ -17,33 +17,36 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$TaskSchedule {
   String get description => throw _privateConstructorUsedError;
+
+  /// Active months for seasonal scheduling. Null or empty means year-round.
+  Set<Month>? get activeMonths => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(
-            RepeatUnit repeatUnit, int repeatDelta, String description)
+    required TResult Function(RepeatUnit repeatUnit, int repeatDelta,
+            String description, Set<Month>? activeMonths)
         interval,
-    required TResult Function(
-            int repeatWeeks, Set<DayOfWeek> daysOfWeek, String description)
+    required TResult Function(int repeatWeeks, Set<DayOfWeek> daysOfWeek,
+            String description, Set<Month>? activeMonths)
         weeklyPattern,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(
-            RepeatUnit repeatUnit, int repeatDelta, String description)?
+    TResult? Function(RepeatUnit repeatUnit, int repeatDelta,
+            String description, Set<Month>? activeMonths)?
         interval,
-    TResult? Function(
-            int repeatWeeks, Set<DayOfWeek> daysOfWeek, String description)?
+    TResult? Function(int repeatWeeks, Set<DayOfWeek> daysOfWeek,
+            String description, Set<Month>? activeMonths)?
         weeklyPattern,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(
-            RepeatUnit repeatUnit, int repeatDelta, String description)?
+    TResult Function(RepeatUnit repeatUnit, int repeatDelta, String description,
+            Set<Month>? activeMonths)?
         interval,
-    TResult Function(
-            int repeatWeeks, Set<DayOfWeek> daysOfWeek, String description)?
+    TResult Function(int repeatWeeks, Set<DayOfWeek> daysOfWeek,
+            String description, Set<Month>? activeMonths)?
         weeklyPattern,
     required TResult orElse(),
   }) =>
@@ -81,7 +84,7 @@ abstract class $TaskScheduleCopyWith<$Res> {
           TaskSchedule value, $Res Function(TaskSchedule) then) =
       _$TaskScheduleCopyWithImpl<$Res, TaskSchedule>;
   @useResult
-  $Res call({String description});
+  $Res call({String description, Set<Month>? activeMonths});
 }
 
 /// @nodoc
@@ -100,12 +103,17 @@ class _$TaskScheduleCopyWithImpl<$Res, $Val extends TaskSchedule>
   @override
   $Res call({
     Object? description = null,
+    Object? activeMonths = freezed,
   }) {
     return _then(_value.copyWith(
       description: null == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
+      activeMonths: freezed == activeMonths
+          ? _value.activeMonths
+          : activeMonths // ignore: cast_nullable_to_non_nullable
+              as Set<Month>?,
     ) as $Val);
   }
 }
@@ -118,7 +126,11 @@ abstract class _$$IntervalScheduleImplCopyWith<$Res>
       __$$IntervalScheduleImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({RepeatUnit repeatUnit, int repeatDelta, String description});
+  $Res call(
+      {RepeatUnit repeatUnit,
+      int repeatDelta,
+      String description,
+      Set<Month>? activeMonths});
 }
 
 /// @nodoc
@@ -137,6 +149,7 @@ class __$$IntervalScheduleImplCopyWithImpl<$Res>
     Object? repeatUnit = null,
     Object? repeatDelta = null,
     Object? description = null,
+    Object? activeMonths = freezed,
   }) {
     return _then(_$IntervalScheduleImpl(
       repeatUnit: null == repeatUnit
@@ -151,6 +164,10 @@ class __$$IntervalScheduleImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
+      activeMonths: freezed == activeMonths
+          ? _value._activeMonths
+          : activeMonths // ignore: cast_nullable_to_non_nullable
+              as Set<Month>?,
     ));
   }
 }
@@ -161,7 +178,9 @@ class _$IntervalScheduleImpl implements IntervalSchedule {
   const _$IntervalScheduleImpl(
       {required this.repeatUnit,
       required this.repeatDelta,
-      required this.description});
+      required this.description,
+      final Set<Month>? activeMonths})
+      : _activeMonths = activeMonths;
 
   @override
   final RepeatUnit repeatUnit;
@@ -170,9 +189,22 @@ class _$IntervalScheduleImpl implements IntervalSchedule {
   @override
   final String description;
 
+  /// Active months for seasonal scheduling. Null or empty means year-round.
+  final Set<Month>? _activeMonths;
+
+  /// Active months for seasonal scheduling. Null or empty means year-round.
+  @override
+  Set<Month>? get activeMonths {
+    final value = _activeMonths;
+    if (value == null) return null;
+    if (_activeMonths is EqualUnmodifiableSetView) return _activeMonths;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableSetView(value);
+  }
+
   @override
   String toString() {
-    return 'TaskSchedule.interval(repeatUnit: $repeatUnit, repeatDelta: $repeatDelta, description: $description)';
+    return 'TaskSchedule.interval(repeatUnit: $repeatUnit, repeatDelta: $repeatDelta, description: $description, activeMonths: $activeMonths)';
   }
 
   @override
@@ -185,12 +217,14 @@ class _$IntervalScheduleImpl implements IntervalSchedule {
             (identical(other.repeatDelta, repeatDelta) ||
                 other.repeatDelta == repeatDelta) &&
             (identical(other.description, description) ||
-                other.description == description));
+                other.description == description) &&
+            const DeepCollectionEquality()
+                .equals(other._activeMonths, _activeMonths));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, repeatUnit, repeatDelta, description);
+  int get hashCode => Object.hash(runtimeType, repeatUnit, repeatDelta,
+      description, const DeepCollectionEquality().hash(_activeMonths));
 
   /// Create a copy of TaskSchedule
   /// with the given fields replaced by the non-null parameter values.
@@ -204,42 +238,42 @@ class _$IntervalScheduleImpl implements IntervalSchedule {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(
-            RepeatUnit repeatUnit, int repeatDelta, String description)
+    required TResult Function(RepeatUnit repeatUnit, int repeatDelta,
+            String description, Set<Month>? activeMonths)
         interval,
-    required TResult Function(
-            int repeatWeeks, Set<DayOfWeek> daysOfWeek, String description)
+    required TResult Function(int repeatWeeks, Set<DayOfWeek> daysOfWeek,
+            String description, Set<Month>? activeMonths)
         weeklyPattern,
   }) {
-    return interval(repeatUnit, repeatDelta, description);
+    return interval(repeatUnit, repeatDelta, description, activeMonths);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(
-            RepeatUnit repeatUnit, int repeatDelta, String description)?
+    TResult? Function(RepeatUnit repeatUnit, int repeatDelta,
+            String description, Set<Month>? activeMonths)?
         interval,
-    TResult? Function(
-            int repeatWeeks, Set<DayOfWeek> daysOfWeek, String description)?
+    TResult? Function(int repeatWeeks, Set<DayOfWeek> daysOfWeek,
+            String description, Set<Month>? activeMonths)?
         weeklyPattern,
   }) {
-    return interval?.call(repeatUnit, repeatDelta, description);
+    return interval?.call(repeatUnit, repeatDelta, description, activeMonths);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(
-            RepeatUnit repeatUnit, int repeatDelta, String description)?
+    TResult Function(RepeatUnit repeatUnit, int repeatDelta, String description,
+            Set<Month>? activeMonths)?
         interval,
-    TResult Function(
-            int repeatWeeks, Set<DayOfWeek> daysOfWeek, String description)?
+    TResult Function(int repeatWeeks, Set<DayOfWeek> daysOfWeek,
+            String description, Set<Month>? activeMonths)?
         weeklyPattern,
     required TResult orElse(),
   }) {
     if (interval != null) {
-      return interval(repeatUnit, repeatDelta, description);
+      return interval(repeatUnit, repeatDelta, description, activeMonths);
     }
     return orElse();
   }
@@ -280,12 +314,17 @@ abstract class IntervalSchedule implements TaskSchedule {
   const factory IntervalSchedule(
       {required final RepeatUnit repeatUnit,
       required final int repeatDelta,
-      required final String description}) = _$IntervalScheduleImpl;
+      required final String description,
+      final Set<Month>? activeMonths}) = _$IntervalScheduleImpl;
 
   RepeatUnit get repeatUnit;
   int get repeatDelta;
   @override
   String get description;
+
+  /// Active months for seasonal scheduling. Null or empty means year-round.
+  @override
+  Set<Month>? get activeMonths;
 
   /// Create a copy of TaskSchedule
   /// with the given fields replaced by the non-null parameter values.
@@ -304,7 +343,11 @@ abstract class _$$WeeklyPatternScheduleImplCopyWith<$Res>
       __$$WeeklyPatternScheduleImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int repeatWeeks, Set<DayOfWeek> daysOfWeek, String description});
+  $Res call(
+      {int repeatWeeks,
+      Set<DayOfWeek> daysOfWeek,
+      String description,
+      Set<Month>? activeMonths});
 }
 
 /// @nodoc
@@ -323,6 +366,7 @@ class __$$WeeklyPatternScheduleImplCopyWithImpl<$Res>
     Object? repeatWeeks = null,
     Object? daysOfWeek = null,
     Object? description = null,
+    Object? activeMonths = freezed,
   }) {
     return _then(_$WeeklyPatternScheduleImpl(
       repeatWeeks: null == repeatWeeks
@@ -337,6 +381,10 @@ class __$$WeeklyPatternScheduleImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
+      activeMonths: freezed == activeMonths
+          ? _value._activeMonths
+          : activeMonths // ignore: cast_nullable_to_non_nullable
+              as Set<Month>?,
     ));
   }
 }
@@ -347,8 +395,10 @@ class _$WeeklyPatternScheduleImpl implements WeeklyPatternSchedule {
   const _$WeeklyPatternScheduleImpl(
       {required this.repeatWeeks,
       required final Set<DayOfWeek> daysOfWeek,
-      required this.description})
-      : _daysOfWeek = daysOfWeek;
+      required this.description,
+      final Set<Month>? activeMonths})
+      : _daysOfWeek = daysOfWeek,
+        _activeMonths = activeMonths;
 
   @override
   final int repeatWeeks;
@@ -363,9 +413,22 @@ class _$WeeklyPatternScheduleImpl implements WeeklyPatternSchedule {
   @override
   final String description;
 
+  /// Active months for seasonal scheduling. Null or empty means year-round.
+  final Set<Month>? _activeMonths;
+
+  /// Active months for seasonal scheduling. Null or empty means year-round.
+  @override
+  Set<Month>? get activeMonths {
+    final value = _activeMonths;
+    if (value == null) return null;
+    if (_activeMonths is EqualUnmodifiableSetView) return _activeMonths;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableSetView(value);
+  }
+
   @override
   String toString() {
-    return 'TaskSchedule.weeklyPattern(repeatWeeks: $repeatWeeks, daysOfWeek: $daysOfWeek, description: $description)';
+    return 'TaskSchedule.weeklyPattern(repeatWeeks: $repeatWeeks, daysOfWeek: $daysOfWeek, description: $description, activeMonths: $activeMonths)';
   }
 
   @override
@@ -378,12 +441,18 @@ class _$WeeklyPatternScheduleImpl implements WeeklyPatternSchedule {
             const DeepCollectionEquality()
                 .equals(other._daysOfWeek, _daysOfWeek) &&
             (identical(other.description, description) ||
-                other.description == description));
+                other.description == description) &&
+            const DeepCollectionEquality()
+                .equals(other._activeMonths, _activeMonths));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, repeatWeeks,
-      const DeepCollectionEquality().hash(_daysOfWeek), description);
+  int get hashCode => Object.hash(
+      runtimeType,
+      repeatWeeks,
+      const DeepCollectionEquality().hash(_daysOfWeek),
+      description,
+      const DeepCollectionEquality().hash(_activeMonths));
 
   /// Create a copy of TaskSchedule
   /// with the given fields replaced by the non-null parameter values.
@@ -397,42 +466,43 @@ class _$WeeklyPatternScheduleImpl implements WeeklyPatternSchedule {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(
-            RepeatUnit repeatUnit, int repeatDelta, String description)
+    required TResult Function(RepeatUnit repeatUnit, int repeatDelta,
+            String description, Set<Month>? activeMonths)
         interval,
-    required TResult Function(
-            int repeatWeeks, Set<DayOfWeek> daysOfWeek, String description)
+    required TResult Function(int repeatWeeks, Set<DayOfWeek> daysOfWeek,
+            String description, Set<Month>? activeMonths)
         weeklyPattern,
   }) {
-    return weeklyPattern(repeatWeeks, daysOfWeek, description);
+    return weeklyPattern(repeatWeeks, daysOfWeek, description, activeMonths);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(
-            RepeatUnit repeatUnit, int repeatDelta, String description)?
+    TResult? Function(RepeatUnit repeatUnit, int repeatDelta,
+            String description, Set<Month>? activeMonths)?
         interval,
-    TResult? Function(
-            int repeatWeeks, Set<DayOfWeek> daysOfWeek, String description)?
+    TResult? Function(int repeatWeeks, Set<DayOfWeek> daysOfWeek,
+            String description, Set<Month>? activeMonths)?
         weeklyPattern,
   }) {
-    return weeklyPattern?.call(repeatWeeks, daysOfWeek, description);
+    return weeklyPattern?.call(
+        repeatWeeks, daysOfWeek, description, activeMonths);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(
-            RepeatUnit repeatUnit, int repeatDelta, String description)?
+    TResult Function(RepeatUnit repeatUnit, int repeatDelta, String description,
+            Set<Month>? activeMonths)?
         interval,
-    TResult Function(
-            int repeatWeeks, Set<DayOfWeek> daysOfWeek, String description)?
+    TResult Function(int repeatWeeks, Set<DayOfWeek> daysOfWeek,
+            String description, Set<Month>? activeMonths)?
         weeklyPattern,
     required TResult orElse(),
   }) {
     if (weeklyPattern != null) {
-      return weeklyPattern(repeatWeeks, daysOfWeek, description);
+      return weeklyPattern(repeatWeeks, daysOfWeek, description, activeMonths);
     }
     return orElse();
   }
@@ -473,12 +543,17 @@ abstract class WeeklyPatternSchedule implements TaskSchedule {
   const factory WeeklyPatternSchedule(
       {required final int repeatWeeks,
       required final Set<DayOfWeek> daysOfWeek,
-      required final String description}) = _$WeeklyPatternScheduleImpl;
+      required final String description,
+      final Set<Month>? activeMonths}) = _$WeeklyPatternScheduleImpl;
 
   int get repeatWeeks;
   Set<DayOfWeek> get daysOfWeek;
   @override
   String get description;
+
+  /// Active months for seasonal scheduling. Null or empty means year-round.
+  @override
+  Set<Month>? get activeMonths;
 
   /// Create a copy of TaskSchedule
   /// with the given fields replaced by the non-null parameter values.

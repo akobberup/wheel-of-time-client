@@ -3,6 +3,7 @@ import '../../models/enums.dart';
 import '../../models/schedule.dart';
 import '../../l10n/app_strings.dart';
 import 'recurrence_interval_field.dart';
+import 'seasonal_scheduling_section.dart';
 import 'weekday_selector.dart';
 
 /// A comprehensive recurrence editor with clear mode selection for better UX.
@@ -70,6 +71,7 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
   late RepeatUnit _repeatUnit;
   late Set<DayOfWeek> _selectedDays;
   late _RecurrenceMode _mode;
+  Set<Month>? _activeMonths;
 
   @override
   void initState() {
@@ -88,18 +90,20 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
   /// Initializes state from a TaskSchedule and determines the appropriate mode
   void _initializeFromSchedule(TaskSchedule schedule) {
     schedule.when(
-      interval: (unit, delta, description) {
+      interval: (unit, delta, description, activeMonths) {
         _repeatDelta = delta;
         _repeatUnit = unit;
         _selectedDays = {};
         _mode = _RecurrenceMode.simpleInterval;
+        _activeMonths = activeMonths;
       },
-      weeklyPattern: (weeks, days, description) {
+      weeklyPattern: (weeks, days, description, activeMonths) {
         _repeatDelta = weeks;
         _repeatUnit = RepeatUnit.WEEKS;
         _selectedDays = days;
         // Weekly pattern always means specificDays mode, even with empty days
         _mode = _RecurrenceMode.specificDays;
+        _activeMonths = activeMonths;
       },
     );
   }
@@ -112,6 +116,7 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
         repeatWeeks: _repeatDelta,
         daysOfWeek: _selectedDays,
         description: _buildDescription(),
+        activeMonths: _activeMonths,
       );
     }
 
@@ -120,6 +125,7 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
       repeatUnit: _repeatUnit,
       repeatDelta: _repeatDelta,
       description: _buildDescription(),
+      activeMonths: _activeMonths,
     );
   }
 
@@ -231,6 +237,15 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
     widget.onScheduleChanged(_buildSchedule());
   }
 
+  /// Handles changes to active months for seasonal scheduling
+  void _handleActiveMonthsChanged(Set<Month>? months) {
+    setState(() {
+      _activeMonths = months;
+    });
+
+    widget.onScheduleChanged(_buildSchedule());
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -264,6 +279,14 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
           child: _mode == _RecurrenceMode.simpleInterval
               ? _buildSimpleIntervalMode(theme, colorScheme, strings)
               : _buildSpecificDaysMode(theme, colorScheme, strings),
+        ),
+
+        // Seasonal scheduling section (collapsed by default)
+        const SizedBox(height: 8),
+        SeasonalSchedulingSection(
+          selectedMonths: _activeMonths,
+          onChanged: _handleActiveMonthsChanged,
+          initiallyExpanded: _activeMonths != null && _activeMonths!.isNotEmpty,
         ),
 
         // Schedule description preview (always shown)
@@ -483,7 +506,7 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
 
           const SizedBox(width: 12),
           Text(
-            _repeatDelta == 1 ? 'week' : 'weeks',
+            strings.weekUnit(_repeatDelta),
             style: theme.textTheme.bodyLarge,
           ),
         ],

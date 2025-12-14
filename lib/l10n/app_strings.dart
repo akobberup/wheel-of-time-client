@@ -339,6 +339,7 @@ abstract class AppStrings {
   String get simpleIntervalDescription;
   String get specificDaysDescription;
   String get orCustomize;
+  String weekUnit(int count);
 
   // Timeline / Completed Tasks
   String get recentlyCompleted;
@@ -351,6 +352,46 @@ abstract class AppStrings {
   String expiredAgo(String timeAgo);
   String get taskExpired;
   String get recentActivity;
+
+  // Seasonal Scheduling
+  String get activeMonths;
+  String get yearRound;
+  String monthsSelected(int count);
+  String monthRange(String start, String end);
+  String get summer;
+  String get winter;
+  String get growingSeason;
+  String get allYear;
+  String get orSelectManually;
+  String get presets;
+
+  // Month names (full)
+  String get january;
+  String get february;
+  String get march;
+  String get april;
+  String get may;
+  String get june;
+  String get july;
+  String get august;
+  String get september;
+  String get october;
+  String get november;
+  String get december;
+
+  // Month names (short - 3 letters)
+  String get januaryShort;
+  String get februaryShort;
+  String get marchShort;
+  String get aprilShort;
+  String get mayShort;
+  String get juneShort;
+  String get julyShort;
+  String get augustShort;
+  String get septemberShort;
+  String get octoberShort;
+  String get novemberShort;
+  String get decemberShort;
 
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);

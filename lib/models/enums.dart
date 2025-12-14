@@ -57,3 +57,34 @@ enum DayOfWeek {
   String toJson() => name;
   static DayOfWeek fromJson(String value) => DayOfWeek.values.byName(value);
 }
+
+/// Months of the year (matches Java Month)
+/// Used for seasonal scheduling
+enum Month {
+  JANUARY,
+  FEBRUARY,
+  MARCH,
+  APRIL,
+  MAY,
+  JUNE,
+  JULY,
+  AUGUST,
+  SEPTEMBER,
+  OCTOBER,
+  NOVEMBER,
+  DECEMBER;
+
+  String toJson() => name;
+  static Month fromJson(String value) => Month.values.byName(value);
+
+  /// Returns the 1-based month number (January = 1, December = 12)
+  int get monthNumber => index + 1;
+
+  /// Creates a Month from a 1-based month number
+  static Month fromMonthNumber(int monthNumber) {
+    if (monthNumber < 1 || monthNumber > 12) {
+      throw ArgumentError('Month number must be between 1 and 12');
+    }
+    return Month.values[monthNumber - 1];
+  }
+}

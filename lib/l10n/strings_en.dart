@@ -877,6 +877,9 @@ class StringsEn extends AppStrings {
   @override
   String get orCustomize => 'or customize';
 
+  @override
+  String weekUnit(int count) => count == 1 ? 'week' : 'weeks';
+
   // Timeline / Completed Tasks
   @override
   String get recentlyCompleted => 'Recently Completed';
@@ -908,4 +911,109 @@ class StringsEn extends AppStrings {
 
   @override
   String get recentActivity => 'Recent Activity';
+
+  // Seasonal Scheduling
+  @override
+  String get activeMonths => 'Active months';
+
+  @override
+  String get yearRound => 'Year-round';
+
+  @override
+  String monthsSelected(int count) => '$count months selected';
+
+  @override
+  String monthRange(String start, String end) => '$start–$end';
+
+  @override
+  String get summer => 'Summer';
+
+  @override
+  String get winter => 'Winter';
+
+  @override
+  String get growingSeason => 'Growing season';
+
+  @override
+  String get allYear => 'All year';
+
+  @override
+  String get orSelectManually => 'Or select months';
+
+  @override
+  String get presets => 'Presets';
+
+  // Month names (full)
+  @override
+  String get january => 'January';
+
+  @override
+  String get february => 'February';
+
+  @override
+  String get march => 'March';
+
+  @override
+  String get april => 'April';
+
+  @override
+  String get may => 'May';
+
+  @override
+  String get june => 'June';
+
+  @override
+  String get july => 'July';
+
+  @override
+  String get august => 'August';
+
+  @override
+  String get september => 'September';
+
+  @override
+  String get october => 'October';
+
+  @override
+  String get november => 'November';
+
+  @override
+  String get december => 'December';
+
+  // Month names (short - 3 letters)
+  @override
+  String get januaryShort => 'Jan';
+
+  @override
+  String get februaryShort => 'Feb';
+
+  @override
+  String get marchShort => 'Mar';
+
+  @override
+  String get aprilShort => 'Apr';
+
+  @override
+  String get mayShort => 'May';
+
+  @override
+  String get juneShort => 'Jun';
+
+  @override
+  String get julyShort => 'Jul';
+
+  @override
+  String get augustShort => 'Aug';
+
+  @override
+  String get septemberShort => 'Sep';
+
+  @override
+  String get octoberShort => 'Oct';
+
+  @override
+  String get novemberShort => 'Nov';
+
+  @override
+  String get decemberShort => 'Dec';
 }

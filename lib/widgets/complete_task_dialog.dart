@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers/task_instance_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/theme_provider.dart';
 import '../models/task_instance.dart';
 import '../models/streak.dart';
 import '../l10n/app_strings.dart';
@@ -30,13 +31,13 @@ class CompleteTaskDialog extends ConsumerStatefulWidget {
 }
 
 class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   // Constants for consistent spacing and sizing
   static const double _verticalSpacing = 16.0;
-  static const double _headerPadding = 24.0;
+  static const double _headerPadding = 28.0;
   static const double _contentPadding = 20.0;
   static const double _borderRadius = 28.0;
-  static const double _iconSize = 48.0;
+  static const double _iconSize = 56.0;
   static const double _buttonIconSize = 20.0;
 
   // Controllers and state
@@ -48,34 +49,101 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
   bool _isTimeSelected = false;
   String? _completionMessage;
 
-  // Animation controller for entrance animation
+  // Animation controllers
   late AnimationController _scaleController;
+  late AnimationController _iconBounceController;
+  late AnimationController _successController;
   late Animation<double> _scaleAnimation;
+  late Animation<double> _iconBounceAnimation;
+  late Animation<double> _iconRotationAnimation;
+  late Animation<double> _successScaleAnimation;
+  late Animation<double> _successOpacityAnimation;
 
   @override
   void initState() {
     super.initState();
-    _setupEntranceAnimation();
+    _setupAnimations();
     _fetchCompletionMessage();
   }
 
-  /// Sets up the bouncy entrance animation for the dialog.
-  void _setupEntranceAnimation() {
+  /// Sets up all animations for the dialog.
+  void _setupAnimations() {
+    // Entrance animation
     _scaleController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 500),
     );
     _scaleAnimation = CurvedAnimation(
       parent: _scaleController,
-      curve: Curves.easeOutBack, // Bouncy entrance effect
+      curve: Curves.elasticOut,
     );
+
+    // Icon bounce animation
+    _iconBounceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+    _iconBounceAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 1.15)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 25,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.15, end: 1.0)
+            .chain(CurveTween(curve: Curves.bounceOut)),
+        weight: 75,
+      ),
+    ]).animate(_iconBounceController);
+
+    _iconRotationAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: -0.05, end: 0.05)
+            .chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.05, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+    ]).animate(_iconBounceController);
+
+    // Success animation
+    _successController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _successScaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: 1.3)
+            .chain(CurveTween(curve: Curves.easeOutBack)),
+        weight: 60,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.3, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 40,
+      ),
+    ]).animate(_successController);
+
+    _successOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _successController,
+        curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+      ),
+    );
+
+    // Start entrance animations
     _scaleController.forward();
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) {
+        _iconBounceController.forward();
+      }
+    });
   }
 
   /// Fetches the completion message from the API in the background.
-  ///
-  /// This is called when the dialog opens and runs asynchronously
-  /// so the message is ready when the user clicks "Complete".
   Future<void> _fetchCompletionMessage() async {
     try {
       final apiService = ref.read(apiServiceProvider);
@@ -88,7 +156,6 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
       }
     } catch (e) {
       // Silently fail - completion message is optional
-      // The animation will just show without a message if the API call fails
     }
   }
 
@@ -96,13 +163,12 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
   void dispose() {
     _commentController.dispose();
     _scaleController.dispose();
+    _iconBounceController.dispose();
+    _successController.dispose();
     super.dispose();
   }
 
   /// Opens time/date pickers and updates the completion timestamp.
-  ///
-  /// Shows date picker first, then time picker. If user cancels either,
-  /// the completion time remains unchanged. Provides haptic feedback on interaction.
   Future<void> _selectCompletionTime() async {
     HapticFeedback.selectionClick();
 
@@ -136,9 +202,6 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
   }
 
   /// Submits the task completion with success state animation.
-  ///
-  /// Shows loading state, creates task instance, displays brief success state
-  /// with haptic feedback, then dismisses the dialog.
   Future<void> _submit() async {
     HapticFeedback.heavyImpact();
     setState(() => _isLoading = true);
@@ -157,19 +220,17 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
 
     if (mounted) {
       if (result != null) {
-        // Show success state briefly
         setState(() {
           _isLoading = false;
           _isSuccess = true;
         });
 
         HapticFeedback.heavyImpact();
+        _successController.forward();
 
-        // Wait a moment to show the success state
-        await Future.delayed(const Duration(milliseconds: 500));
+        await Future.delayed(const Duration(milliseconds: 700));
 
         if (mounted) {
-          // Return both the result and the completion message
           Navigator.of(context).pop({
             'result': result,
             'message': _completionMessage,
@@ -191,6 +252,8 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final themeState = ref.watch(themeProvider);
+    final themeColor = themeState.seedColor;
 
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -199,70 +262,126 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
           borderRadius: BorderRadius.circular(_borderRadius),
         ),
         clipBehavior: Clip.antiAlias,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
           children: [
-            // Celebratory header with gradient
-            _buildCelebratoryHeader(colorScheme, textTheme),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Celebratory header with gradient
+                _buildCelebratoryHeader(colorScheme, textTheme, themeColor),
 
-            // Main content area
-            Padding(
-              padding: const EdgeInsets.all(_contentPadding),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Streak encouragement message (if applicable)
-                  if (_shouldShowStreakEncouragement())
-                    _buildStreakEncouragement(colorScheme),
+                // Main content area
+                Padding(
+                  padding: const EdgeInsets.all(_contentPadding),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Streak encouragement message (if applicable)
+                      if (_shouldShowStreakEncouragement())
+                        _buildStreakEncouragement(colorScheme),
 
-                  const SizedBox(height: _verticalSpacing),
+                      const SizedBox(height: _verticalSpacing),
 
-                  // Time selection with micro-interaction
-                  _buildTimeSelector(colorScheme),
+                      // Time selection with micro-interaction
+                      _buildTimeSelector(colorScheme),
 
-                  const SizedBox(height: _verticalSpacing),
+                      const SizedBox(height: _verticalSpacing),
 
-                  // Progressive disclosure: comment field or "add note" button
-                  _showCommentField
-                      ? _buildCommentField()
-                      : _buildAddNoteButton(),
+                      // Progressive disclosure: comment field or "add note" button
+                      _showCommentField
+                          ? _buildCommentField()
+                          : _buildAddNoteButton(),
 
-                  const SizedBox(height: _verticalSpacing * 1.5),
+                      const SizedBox(height: _verticalSpacing * 1.5),
 
-                  // Action buttons
-                  _buildActionButtons(colorScheme),
-                ],
-              ),
+                      // Action buttons
+                      _buildActionButtons(colorScheme, themeColor),
+                    ],
+                  ),
+                ),
+              ],
             ),
+
+            // Success overlay
+            if (_isSuccess) _buildSuccessOverlay(themeColor),
           ],
         ),
       ),
     );
   }
 
-  /// Builds the celebratory header with a clean background and icon.
+  /// Builds the celebratory header with gradient background and animated icon.
   Widget _buildCelebratoryHeader(
     ColorScheme colorScheme,
     TextTheme textTheme,
+    Color themeColor,
   ) {
     return Container(
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            themeColor.withValues(alpha: 0.15),
+            HSLColor.fromColor(themeColor)
+                .withHue((HSLColor.fromColor(themeColor).hue + 30) % 360)
+                .toColor()
+                .withValues(alpha: 0.1),
+          ],
+        ),
       ),
       padding: const EdgeInsets.all(_headerPadding),
       child: Column(
         children: [
-          Icon(
-            Icons.celebration,
-            size: _iconSize,
-            color: colorScheme.primary,
+          // Animated celebration icon
+          AnimatedBuilder(
+            animation: Listenable.merge([
+              _iconBounceAnimation,
+              _iconRotationAnimation,
+            ]),
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _iconBounceAnimation.value,
+                child: Transform.rotate(
+                  angle: _iconRotationAnimation.value,
+                  child: Container(
+                    width: _iconSize + 16,
+                    height: _iconSize + 16,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          themeColor.withValues(alpha: 0.2),
+                          themeColor.withValues(alpha: 0.1),
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: themeColor.withValues(alpha: 0.2),
+                          blurRadius: 20,
+                          spreadRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.celebration_rounded,
+                      size: _iconSize,
+                      color: themeColor,
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text(
             widget.taskName,
             style: textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
               color: colorScheme.onSurface,
+              letterSpacing: -0.5,
             ),
             textAlign: TextAlign.center,
           ),
@@ -278,38 +397,81 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
         widget.currentStreak!.streakCount > 0;
   }
 
-  /// Builds the streak encouragement message container.
+  /// Builds the streak encouragement message container with animation.
   Widget _buildStreakEncouragement(ColorScheme colorScheme) {
     final strings = AppStrings.of(context);
     final streakCount = widget.currentStreak!.streakCount;
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade200),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.local_fire_department,
-            color: Colors.orange.shade700,
-            size: 24,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              strings.keepStreakGoing(streakCount),
-              style: TextStyle(
-                color: Colors.orange.shade900,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 500),
+      tween: Tween(begin: 0.0, end: 1.0),
+      curve: Curves.elasticOut,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: value,
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.orange.shade50,
+                  Colors.amber.shade50,
+                ],
               ),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: Colors.orange.shade300,
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.orange.withValues(alpha: 0.15),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // Animated fire icon
+                TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 300),
+                  tween: Tween(begin: 0.8, end: 1.0),
+                  curve: Curves.elasticOut,
+                  builder: (context, scale, child) {
+                    return Transform.scale(
+                      scale: scale,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade100,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.local_fire_department,
+                          color: Colors.deepOrange.shade600,
+                          size: 22,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    strings.keepStreakGoing(streakCount),
+                    style: TextStyle(
+                      color: Colors.orange.shade900,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -318,17 +480,18 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
     final strings = AppStrings.of(context);
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
       decoration: BoxDecoration(
         color: _isTimeSelected
-            ? colorScheme.primaryContainer.withValues(alpha: 0.3)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
+            ? colorScheme.primaryContainer.withValues(alpha: 0.4)
+            : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: _isTimeSelected
-              ? colorScheme.primary.withValues(alpha: 0.5)
-              : colorScheme.outline.withValues(alpha: 0.3),
-          width: 1,
+              ? colorScheme.primary.withValues(alpha: 0.6)
+              : colorScheme.outline.withValues(alpha: 0.2),
+          width: _isTimeSelected ? 2 : 1,
         ),
       ),
       child: ListTile(
@@ -347,15 +510,26 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
             style: TextStyle(
               color: colorScheme.primary,
               fontWeight: FontWeight.w600,
+              fontSize: 15,
             ),
           ),
         ),
-        trailing: Icon(
-          Icons.access_time,
-          color: colorScheme.primary,
+        trailing: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: _isTimeSelected
+                ? colorScheme.primary.withValues(alpha: 0.1)
+                : Colors.transparent,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            _isTimeSelected ? Icons.check_circle : Icons.access_time,
+            color: colorScheme.primary,
+          ),
         ),
         onTap: _selectCompletionTime,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       ),
     );
   }
@@ -369,7 +543,10 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
       decoration: InputDecoration(
         labelText: strings.howDidItGo,
         hintText: strings.addNoteHint,
-        border: const OutlineInputBorder(),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        filled: true,
       ),
       maxLines: 3,
       textCapitalization: TextCapitalization.sentences,
@@ -394,7 +571,7 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
   }
 
   /// Builds the action buttons with success state handling.
-  Widget _buildActionButtons(ColorScheme colorScheme) {
+  Widget _buildActionButtons(ColorScheme colorScheme, Color themeColor) {
     final strings = AppStrings.of(context);
 
     return Row(
@@ -405,24 +582,35 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
           onPressed: _isLoading || _isSuccess
               ? null
               : () => Navigator.of(context).pop(),
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
           child: Text(strings.cancel),
         ),
         const SizedBox(width: 12),
 
-        // Complete button with success state
+        // Complete button with animated states
         AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 300),
           child: FilledButton.icon(
             onPressed: _isLoading || _isSuccess ? null : _submit,
             style: FilledButton.styleFrom(
               backgroundColor: _isSuccess
-                  ? Colors.green.shade700
-                  : Colors.green.shade600,
+                  ? Colors.green.shade600
+                  : Colors.green.shade500,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              elevation: _isSuccess ? 6 : 2,
+              shadowColor: Colors.green.withValues(alpha: 0.4),
             ),
             icon: _buildButtonIcon(),
-            label: Text(_getButtonLabel(strings)),
+            label: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: Text(
+                _getButtonLabel(strings),
+                key: ValueKey(_getButtonLabel(strings)),
+              ),
+            ),
           ),
         ),
       ],
@@ -456,5 +644,70 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
     } else {
       return strings.completeTaskButton;
     }
+  }
+
+  /// Builds the success overlay with animation.
+  Widget _buildSuccessOverlay(Color themeColor) {
+    return AnimatedBuilder(
+      animation: _successController,
+      builder: (context, child) {
+        return Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(
+                alpha: _successOpacityAnimation.value * 0.95,
+              ),
+              borderRadius: BorderRadius.circular(_borderRadius),
+            ),
+            child: Center(
+              child: Transform.scale(
+                scale: _successScaleAnimation.value,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.green.shade400,
+                            Colors.green.shade600,
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.green.withValues(alpha: 0.4),
+                            blurRadius: 20,
+                            spreadRadius: 5,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.check_rounded,
+                        color: Colors.white,
+                        size: 48,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      AppStrings.of(context).done,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }
