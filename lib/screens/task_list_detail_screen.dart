@@ -497,8 +497,8 @@ class _TaskCard extends ConsumerWidget {
 
   String _formatSchedule(TaskSchedule schedule) {
     return schedule.when(
-      interval: (unit, delta, description) => description,
-      weeklyPattern: (weeks, days, description) => description,
+      interval: (unit, delta, description, activeMonths) => description,
+      weeklyPattern: (weeks, days, description, activeMonths) => description,
     );
   }
 
