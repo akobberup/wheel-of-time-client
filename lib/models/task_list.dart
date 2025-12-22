@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'visual_theme.dart';
 
 part 'task_list.freezed.dart';
 part 'task_list.g.dart';
@@ -11,7 +12,7 @@ class TaskListResponse with _$TaskListResponse {
     String? description,
     required int ownerId,
     required String ownerName,
-    String? taskListImagePath,
+    required VisualThemeResponse visualTheme,
     @Default(0) int taskCount,
     @Default(0) int activeTaskCount,
     @Default(0) int memberCount,
@@ -26,7 +27,7 @@ class CreateTaskListRequest with _$CreateTaskListRequest {
   const factory CreateTaskListRequest({
     required String name,
     String? description,
-    int? taskListImageId,
+    int? visualThemeId,
   }) = _CreateTaskListRequest;
 
   factory CreateTaskListRequest.fromJson(Map<String, dynamic> json) =>
@@ -36,7 +37,7 @@ class CreateTaskListRequest with _$CreateTaskListRequest {
   Map<String, dynamic> toJson() => {
         'name': name,
         if (description != null) 'description': description,
-        if (taskListImageId != null) 'taskListImageId': taskListImageId,
+        if (visualThemeId != null) 'visualThemeId': visualThemeId,
       };
 }
 
@@ -45,7 +46,7 @@ class UpdateTaskListRequest with _$UpdateTaskListRequest {
   const factory UpdateTaskListRequest({
     String? name,
     String? description,
-    int? taskListImageId,
+    int? visualThemeId,
   }) = _UpdateTaskListRequest;
 
   factory UpdateTaskListRequest.fromJson(Map<String, dynamic> json) =>
@@ -55,6 +56,6 @@ class UpdateTaskListRequest with _$UpdateTaskListRequest {
   Map<String, dynamic> toJson() => {
         if (name != null) 'name': name,
         if (description != null) 'description': description,
-        if (taskListImageId != null) 'taskListImageId': taskListImageId,
+        if (visualThemeId != null) 'visualThemeId': visualThemeId,
       };
 }

@@ -14,7 +14,8 @@ _$TaskListResponseImpl _$$TaskListResponseImplFromJson(
       description: json['description'] as String?,
       ownerId: (json['ownerId'] as num).toInt(),
       ownerName: json['ownerName'] as String,
-      taskListImagePath: json['taskListImagePath'] as String?,
+      visualTheme: VisualThemeResponse.fromJson(
+          json['visualTheme'] as Map<String, dynamic>),
       taskCount: (json['taskCount'] as num?)?.toInt() ?? 0,
       activeTaskCount: (json['activeTaskCount'] as num?)?.toInt() ?? 0,
       memberCount: (json['memberCount'] as num?)?.toInt() ?? 0,
@@ -28,7 +29,7 @@ Map<String, dynamic> _$$TaskListResponseImplToJson(
       'description': instance.description,
       'ownerId': instance.ownerId,
       'ownerName': instance.ownerName,
-      'taskListImagePath': instance.taskListImagePath,
+      'visualTheme': instance.visualTheme,
       'taskCount': instance.taskCount,
       'activeTaskCount': instance.activeTaskCount,
       'memberCount': instance.memberCount,
@@ -39,7 +40,7 @@ _$CreateTaskListRequestImpl _$$CreateTaskListRequestImplFromJson(
     _$CreateTaskListRequestImpl(
       name: json['name'] as String,
       description: json['description'] as String?,
-      taskListImageId: (json['taskListImageId'] as num?)?.toInt(),
+      visualThemeId: (json['visualThemeId'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$CreateTaskListRequestImplToJson(
@@ -47,7 +48,7 @@ Map<String, dynamic> _$$CreateTaskListRequestImplToJson(
     <String, dynamic>{
       'name': instance.name,
       'description': instance.description,
-      'taskListImageId': instance.taskListImageId,
+      'visualThemeId': instance.visualThemeId,
     };
 
 _$UpdateTaskListRequestImpl _$$UpdateTaskListRequestImplFromJson(
@@ -55,7 +56,7 @@ _$UpdateTaskListRequestImpl _$$UpdateTaskListRequestImplFromJson(
     _$UpdateTaskListRequestImpl(
       name: json['name'] as String?,
       description: json['description'] as String?,
-      taskListImageId: (json['taskListImageId'] as num?)?.toInt(),
+      visualThemeId: (json['visualThemeId'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$UpdateTaskListRequestImplToJson(
@@ -63,5 +64,5 @@ Map<String, dynamic> _$$UpdateTaskListRequestImplToJson(
     <String, dynamic>{
       'name': instance.name,
       'description': instance.description,
-      'taskListImageId': instance.taskListImageId,
+      'visualThemeId': instance.visualThemeId,
     };

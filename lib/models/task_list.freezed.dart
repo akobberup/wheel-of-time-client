@@ -25,7 +25,7 @@ mixin _$TaskListResponse {
   String? get description => throw _privateConstructorUsedError;
   int get ownerId => throw _privateConstructorUsedError;
   String get ownerName => throw _privateConstructorUsedError;
-  String? get taskListImagePath => throw _privateConstructorUsedError;
+  VisualThemeResponse get visualTheme => throw _privateConstructorUsedError;
   int get taskCount => throw _privateConstructorUsedError;
   int get activeTaskCount => throw _privateConstructorUsedError;
   int get memberCount => throw _privateConstructorUsedError;
@@ -52,10 +52,12 @@ abstract class $TaskListResponseCopyWith<$Res> {
       String? description,
       int ownerId,
       String ownerName,
-      String? taskListImagePath,
+      VisualThemeResponse visualTheme,
       int taskCount,
       int activeTaskCount,
       int memberCount});
+
+  $VisualThemeResponseCopyWith<$Res> get visualTheme;
 }
 
 /// @nodoc
@@ -78,7 +80,7 @@ class _$TaskListResponseCopyWithImpl<$Res, $Val extends TaskListResponse>
     Object? description = freezed,
     Object? ownerId = null,
     Object? ownerName = null,
-    Object? taskListImagePath = freezed,
+    Object? visualTheme = null,
     Object? taskCount = null,
     Object? activeTaskCount = null,
     Object? memberCount = null,
@@ -104,10 +106,10 @@ class _$TaskListResponseCopyWithImpl<$Res, $Val extends TaskListResponse>
           ? _value.ownerName
           : ownerName // ignore: cast_nullable_to_non_nullable
               as String,
-      taskListImagePath: freezed == taskListImagePath
-          ? _value.taskListImagePath
-          : taskListImagePath // ignore: cast_nullable_to_non_nullable
-              as String?,
+      visualTheme: null == visualTheme
+          ? _value.visualTheme
+          : visualTheme // ignore: cast_nullable_to_non_nullable
+              as VisualThemeResponse,
       taskCount: null == taskCount
           ? _value.taskCount
           : taskCount // ignore: cast_nullable_to_non_nullable
@@ -121,6 +123,16 @@ class _$TaskListResponseCopyWithImpl<$Res, $Val extends TaskListResponse>
           : memberCount // ignore: cast_nullable_to_non_nullable
               as int,
     ) as $Val);
+  }
+
+  /// Create a copy of TaskListResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $VisualThemeResponseCopyWith<$Res> get visualTheme {
+    return $VisualThemeResponseCopyWith<$Res>(_value.visualTheme, (value) {
+      return _then(_value.copyWith(visualTheme: value) as $Val);
+    });
   }
 }
 
@@ -138,10 +150,13 @@ abstract class _$$TaskListResponseImplCopyWith<$Res>
       String? description,
       int ownerId,
       String ownerName,
-      String? taskListImagePath,
+      VisualThemeResponse visualTheme,
       int taskCount,
       int activeTaskCount,
       int memberCount});
+
+  @override
+  $VisualThemeResponseCopyWith<$Res> get visualTheme;
 }
 
 /// @nodoc
@@ -162,7 +177,7 @@ class __$$TaskListResponseImplCopyWithImpl<$Res>
     Object? description = freezed,
     Object? ownerId = null,
     Object? ownerName = null,
-    Object? taskListImagePath = freezed,
+    Object? visualTheme = null,
     Object? taskCount = null,
     Object? activeTaskCount = null,
     Object? memberCount = null,
@@ -188,10 +203,10 @@ class __$$TaskListResponseImplCopyWithImpl<$Res>
           ? _value.ownerName
           : ownerName // ignore: cast_nullable_to_non_nullable
               as String,
-      taskListImagePath: freezed == taskListImagePath
-          ? _value.taskListImagePath
-          : taskListImagePath // ignore: cast_nullable_to_non_nullable
-              as String?,
+      visualTheme: null == visualTheme
+          ? _value.visualTheme
+          : visualTheme // ignore: cast_nullable_to_non_nullable
+              as VisualThemeResponse,
       taskCount: null == taskCount
           ? _value.taskCount
           : taskCount // ignore: cast_nullable_to_non_nullable
@@ -217,7 +232,7 @@ class _$TaskListResponseImpl implements _TaskListResponse {
       this.description,
       required this.ownerId,
       required this.ownerName,
-      this.taskListImagePath,
+      required this.visualTheme,
       this.taskCount = 0,
       this.activeTaskCount = 0,
       this.memberCount = 0});
@@ -236,7 +251,7 @@ class _$TaskListResponseImpl implements _TaskListResponse {
   @override
   final String ownerName;
   @override
-  final String? taskListImagePath;
+  final VisualThemeResponse visualTheme;
   @override
   @JsonKey()
   final int taskCount;
@@ -249,7 +264,7 @@ class _$TaskListResponseImpl implements _TaskListResponse {
 
   @override
   String toString() {
-    return 'TaskListResponse(id: $id, name: $name, description: $description, ownerId: $ownerId, ownerName: $ownerName, taskListImagePath: $taskListImagePath, taskCount: $taskCount, activeTaskCount: $activeTaskCount, memberCount: $memberCount)';
+    return 'TaskListResponse(id: $id, name: $name, description: $description, ownerId: $ownerId, ownerName: $ownerName, visualTheme: $visualTheme, taskCount: $taskCount, activeTaskCount: $activeTaskCount, memberCount: $memberCount)';
   }
 
   @override
@@ -264,8 +279,8 @@ class _$TaskListResponseImpl implements _TaskListResponse {
             (identical(other.ownerId, ownerId) || other.ownerId == ownerId) &&
             (identical(other.ownerName, ownerName) ||
                 other.ownerName == ownerName) &&
-            (identical(other.taskListImagePath, taskListImagePath) ||
-                other.taskListImagePath == taskListImagePath) &&
+            (identical(other.visualTheme, visualTheme) ||
+                other.visualTheme == visualTheme) &&
             (identical(other.taskCount, taskCount) ||
                 other.taskCount == taskCount) &&
             (identical(other.activeTaskCount, activeTaskCount) ||
@@ -277,7 +292,7 @@ class _$TaskListResponseImpl implements _TaskListResponse {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, description, ownerId,
-      ownerName, taskListImagePath, taskCount, activeTaskCount, memberCount);
+      ownerName, visualTheme, taskCount, activeTaskCount, memberCount);
 
   /// Create a copy of TaskListResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -303,7 +318,7 @@ abstract class _TaskListResponse implements TaskListResponse {
       final String? description,
       required final int ownerId,
       required final String ownerName,
-      final String? taskListImagePath,
+      required final VisualThemeResponse visualTheme,
       final int taskCount,
       final int activeTaskCount,
       final int memberCount}) = _$TaskListResponseImpl;
@@ -322,7 +337,7 @@ abstract class _TaskListResponse implements TaskListResponse {
   @override
   String get ownerName;
   @override
-  String? get taskListImagePath;
+  VisualThemeResponse get visualTheme;
   @override
   int get taskCount;
   @override
@@ -347,7 +362,7 @@ CreateTaskListRequest _$CreateTaskListRequestFromJson(
 mixin _$CreateTaskListRequest {
   String get name => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
-  int? get taskListImageId => throw _privateConstructorUsedError;
+  int? get visualThemeId => throw _privateConstructorUsedError;
 
   /// Serializes this CreateTaskListRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -365,7 +380,7 @@ abstract class $CreateTaskListRequestCopyWith<$Res> {
           $Res Function(CreateTaskListRequest) then) =
       _$CreateTaskListRequestCopyWithImpl<$Res, CreateTaskListRequest>;
   @useResult
-  $Res call({String name, String? description, int? taskListImageId});
+  $Res call({String name, String? description, int? visualThemeId});
 }
 
 /// @nodoc
@@ -386,7 +401,7 @@ class _$CreateTaskListRequestCopyWithImpl<$Res,
   $Res call({
     Object? name = null,
     Object? description = freezed,
-    Object? taskListImageId = freezed,
+    Object? visualThemeId = freezed,
   }) {
     return _then(_value.copyWith(
       name: null == name
@@ -397,9 +412,9 @@ class _$CreateTaskListRequestCopyWithImpl<$Res,
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
-      taskListImageId: freezed == taskListImageId
-          ? _value.taskListImageId
-          : taskListImageId // ignore: cast_nullable_to_non_nullable
+      visualThemeId: freezed == visualThemeId
+          ? _value.visualThemeId
+          : visualThemeId // ignore: cast_nullable_to_non_nullable
               as int?,
     ) as $Val);
   }
@@ -414,7 +429,7 @@ abstract class _$$CreateTaskListRequestImplCopyWith<$Res>
       __$$CreateTaskListRequestImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String name, String? description, int? taskListImageId});
+  $Res call({String name, String? description, int? visualThemeId});
 }
 
 /// @nodoc
@@ -433,7 +448,7 @@ class __$$CreateTaskListRequestImplCopyWithImpl<$Res>
   $Res call({
     Object? name = null,
     Object? description = freezed,
-    Object? taskListImageId = freezed,
+    Object? visualThemeId = freezed,
   }) {
     return _then(_$CreateTaskListRequestImpl(
       name: null == name
@@ -444,9 +459,9 @@ class __$$CreateTaskListRequestImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
-      taskListImageId: freezed == taskListImageId
-          ? _value.taskListImageId
-          : taskListImageId // ignore: cast_nullable_to_non_nullable
+      visualThemeId: freezed == visualThemeId
+          ? _value.visualThemeId
+          : visualThemeId // ignore: cast_nullable_to_non_nullable
               as int?,
     ));
   }
@@ -456,7 +471,7 @@ class __$$CreateTaskListRequestImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CreateTaskListRequestImpl implements _CreateTaskListRequest {
   const _$CreateTaskListRequestImpl(
-      {required this.name, this.description, this.taskListImageId});
+      {required this.name, this.description, this.visualThemeId});
 
   factory _$CreateTaskListRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreateTaskListRequestImplFromJson(json);
@@ -466,11 +481,11 @@ class _$CreateTaskListRequestImpl implements _CreateTaskListRequest {
   @override
   final String? description;
   @override
-  final int? taskListImageId;
+  final int? visualThemeId;
 
   @override
   String toString() {
-    return 'CreateTaskListRequest(name: $name, description: $description, taskListImageId: $taskListImageId)';
+    return 'CreateTaskListRequest(name: $name, description: $description, visualThemeId: $visualThemeId)';
   }
 
   @override
@@ -481,14 +496,14 @@ class _$CreateTaskListRequestImpl implements _CreateTaskListRequest {
             (identical(other.name, name) || other.name == name) &&
             (identical(other.description, description) ||
                 other.description == description) &&
-            (identical(other.taskListImageId, taskListImageId) ||
-                other.taskListImageId == taskListImageId));
+            (identical(other.visualThemeId, visualThemeId) ||
+                other.visualThemeId == visualThemeId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, name, description, taskListImageId);
+      Object.hash(runtimeType, name, description, visualThemeId);
 
   /// Create a copy of CreateTaskListRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -511,7 +526,7 @@ abstract class _CreateTaskListRequest implements CreateTaskListRequest {
   const factory _CreateTaskListRequest(
       {required final String name,
       final String? description,
-      final int? taskListImageId}) = _$CreateTaskListRequestImpl;
+      final int? visualThemeId}) = _$CreateTaskListRequestImpl;
 
   factory _CreateTaskListRequest.fromJson(Map<String, dynamic> json) =
       _$CreateTaskListRequestImpl.fromJson;
@@ -521,7 +536,7 @@ abstract class _CreateTaskListRequest implements CreateTaskListRequest {
   @override
   String? get description;
   @override
-  int? get taskListImageId;
+  int? get visualThemeId;
 
   /// Create a copy of CreateTaskListRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -540,7 +555,7 @@ UpdateTaskListRequest _$UpdateTaskListRequestFromJson(
 mixin _$UpdateTaskListRequest {
   String? get name => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
-  int? get taskListImageId => throw _privateConstructorUsedError;
+  int? get visualThemeId => throw _privateConstructorUsedError;
 
   /// Serializes this UpdateTaskListRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -558,7 +573,7 @@ abstract class $UpdateTaskListRequestCopyWith<$Res> {
           $Res Function(UpdateTaskListRequest) then) =
       _$UpdateTaskListRequestCopyWithImpl<$Res, UpdateTaskListRequest>;
   @useResult
-  $Res call({String? name, String? description, int? taskListImageId});
+  $Res call({String? name, String? description, int? visualThemeId});
 }
 
 /// @nodoc
@@ -579,7 +594,7 @@ class _$UpdateTaskListRequestCopyWithImpl<$Res,
   $Res call({
     Object? name = freezed,
     Object? description = freezed,
-    Object? taskListImageId = freezed,
+    Object? visualThemeId = freezed,
   }) {
     return _then(_value.copyWith(
       name: freezed == name
@@ -590,9 +605,9 @@ class _$UpdateTaskListRequestCopyWithImpl<$Res,
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
-      taskListImageId: freezed == taskListImageId
-          ? _value.taskListImageId
-          : taskListImageId // ignore: cast_nullable_to_non_nullable
+      visualThemeId: freezed == visualThemeId
+          ? _value.visualThemeId
+          : visualThemeId // ignore: cast_nullable_to_non_nullable
               as int?,
     ) as $Val);
   }
@@ -607,7 +622,7 @@ abstract class _$$UpdateTaskListRequestImplCopyWith<$Res>
       __$$UpdateTaskListRequestImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String? name, String? description, int? taskListImageId});
+  $Res call({String? name, String? description, int? visualThemeId});
 }
 
 /// @nodoc
@@ -626,7 +641,7 @@ class __$$UpdateTaskListRequestImplCopyWithImpl<$Res>
   $Res call({
     Object? name = freezed,
     Object? description = freezed,
-    Object? taskListImageId = freezed,
+    Object? visualThemeId = freezed,
   }) {
     return _then(_$UpdateTaskListRequestImpl(
       name: freezed == name
@@ -637,9 +652,9 @@ class __$$UpdateTaskListRequestImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
-      taskListImageId: freezed == taskListImageId
-          ? _value.taskListImageId
-          : taskListImageId // ignore: cast_nullable_to_non_nullable
+      visualThemeId: freezed == visualThemeId
+          ? _value.visualThemeId
+          : visualThemeId // ignore: cast_nullable_to_non_nullable
               as int?,
     ));
   }
@@ -649,7 +664,7 @@ class __$$UpdateTaskListRequestImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$UpdateTaskListRequestImpl implements _UpdateTaskListRequest {
   const _$UpdateTaskListRequestImpl(
-      {this.name, this.description, this.taskListImageId});
+      {this.name, this.description, this.visualThemeId});
 
   factory _$UpdateTaskListRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$UpdateTaskListRequestImplFromJson(json);
@@ -659,11 +674,11 @@ class _$UpdateTaskListRequestImpl implements _UpdateTaskListRequest {
   @override
   final String? description;
   @override
-  final int? taskListImageId;
+  final int? visualThemeId;
 
   @override
   String toString() {
-    return 'UpdateTaskListRequest(name: $name, description: $description, taskListImageId: $taskListImageId)';
+    return 'UpdateTaskListRequest(name: $name, description: $description, visualThemeId: $visualThemeId)';
   }
 
   @override
@@ -674,14 +689,14 @@ class _$UpdateTaskListRequestImpl implements _UpdateTaskListRequest {
             (identical(other.name, name) || other.name == name) &&
             (identical(other.description, description) ||
                 other.description == description) &&
-            (identical(other.taskListImageId, taskListImageId) ||
-                other.taskListImageId == taskListImageId));
+            (identical(other.visualThemeId, visualThemeId) ||
+                other.visualThemeId == visualThemeId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, name, description, taskListImageId);
+      Object.hash(runtimeType, name, description, visualThemeId);
 
   /// Create a copy of UpdateTaskListRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -704,7 +719,7 @@ abstract class _UpdateTaskListRequest implements UpdateTaskListRequest {
   const factory _UpdateTaskListRequest(
       {final String? name,
       final String? description,
-      final int? taskListImageId}) = _$UpdateTaskListRequestImpl;
+      final int? visualThemeId}) = _$UpdateTaskListRequestImpl;
 
   factory _UpdateTaskListRequest.fromJson(Map<String, dynamic> json) =
       _$UpdateTaskListRequestImpl.fromJson;
@@ -714,7 +729,7 @@ abstract class _UpdateTaskListRequest implements UpdateTaskListRequest {
   @override
   String? get description;
   @override
-  int? get taskListImageId;
+  int? get visualThemeId;
 
   /// Create a copy of UpdateTaskListRequest
   /// with the given fields replaced by the non-null parameter values.

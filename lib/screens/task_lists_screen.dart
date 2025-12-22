@@ -2,23 +2,18 @@
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/task_list_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
 import '../l10n/app_strings.dart';
-import '../config/api_config.dart';
 import 'task_list_detail_screen.dart';
 import '../widgets/create_task_list_dialog.dart';
 import '../widgets/edit_task_list_dialog.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/error_state_widget.dart';
 import '../widgets/common/contextual_delete_dialog.dart';
-import '../widgets/common/animated_card.dart';
 import '../widgets/common/circular_progress_indicator_with_icon.dart';
-import '../widgets/common/gradient_background.dart';
 import '../widgets/common/stacked_avatars.dart';
-import '../constants/spacing.dart';
 
 /// Viser liste over brugerens opgavelister med mulighed for at oprette, redigere og slette
 class TaskListsScreen extends HookConsumerWidget {
@@ -224,7 +219,7 @@ class _TaskListCard extends HookConsumerWidget {
     );
   }
 
-  /// Bygger hero sektionen med billede eller gradient baggrund
+  /// Bygger hero sektionen med gradient baggrund baseret på tema farver
   Widget _buildHeroSection(BuildContext context) {
     const heroHeight = 100.0;
     const borderRadius = BorderRadius.only(
@@ -232,31 +227,20 @@ class _TaskListCard extends HookConsumerWidget {
       topRight: Radius.circular(16),
     );
 
-    if (taskList.taskListImagePath != null) {
-      return ClipRRect(
-        borderRadius: borderRadius,
-        child: SizedBox(
-          height: heroHeight,
-          width: double.infinity,
-          child: CachedNetworkImage(
-            imageUrl: ApiConfig.getImageUrl(taskList.taskListImagePath!),
-            fit: BoxFit.cover,
-            placeholder: (context, url) => _buildImagePlaceholder(context),
-            errorWidget: (context, url, error) => GradientBackground(
-              seed: taskList.name,
-              height: heroHeight,
-              showOverlay: false,
-            ),
-          ),
-        ),
-      );
-    }
+    // Parse hex farver fra tema
+    final primaryColor = _parseHexColor(taskList.visualTheme.primaryColor);
+    final secondaryColor = _parseHexColor(taskList.visualTheme.secondaryColor);
 
-    return GradientBackground(
-      seed: taskList.name,
+    return Container(
       height: heroHeight,
-      borderRadius: borderRadius,
-      showOverlay: false,
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+        gradient: LinearGradient(
+          colors: [primaryColor, secondaryColor],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
       child: Center(
         child: Icon(
           Icons.list_alt,
@@ -267,13 +251,19 @@ class _TaskListCard extends HookConsumerWidget {
     );
   }
 
-  Widget _buildImagePlaceholder(BuildContext context) {
-    return Container(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: const Center(
-        child: CircularProgressIndicator(strokeWidth: 2),
-      ),
-    );
+  /// Parser hex color string (f.eks. "#A8D5A2") til Color objekt
+  Color _parseHexColor(String hexString) {
+    final buffer = StringBuffer();
+    if (hexString.length == 7) {
+      buffer.write('FF'); // Tilføj alpha hvis ikke angivet
+      buffer.write(hexString.replaceFirst('#', ''));
+    } else if (hexString.length == 9) {
+      buffer.write(hexString.replaceFirst('#', ''));
+    } else {
+      // Fallback til grå hvis format er ugyldigt
+      return Colors.grey;
+    }
+    return Color(int.parse(buffer.toString(), radix: 16));
   }
 
   /// Bygger statistik række med fremskridtsindikator og medlemmer
