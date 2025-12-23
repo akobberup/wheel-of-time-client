@@ -69,11 +69,20 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
 
   /// Indlæser tema indstillinger fra backend ved app start.
   /// Falder tilbage til standard indstillinger hvis indlæsning fejler.
+  /// Tjekker først om brugeren er autentificeret for at undgå 401 fejl.
   Future<void> _loadThemeSettings() async {
     developer.log('🎨 Loading theme settings...', name: 'ThemeProvider');
     state = state.copyWith(isLoading: true);
 
     try {
+      // Tjek om brugeren er logget ind før API kald
+      final isAuthenticated = await _apiService.validateToken();
+      if (!isAuthenticated) {
+        developer.log('⏳ User not authenticated, skipping theme load from server', name: 'ThemeProvider');
+        state = state.copyWith(isLoading: false);
+        return;
+      }
+
       final settings = await _apiService.getUserSettings();
       developer.log('✅ Theme settings loaded: ${settings.mainThemeColor}, dark: ${settings.darkModeEnabled}', name: 'ThemeProvider');
 

@@ -156,6 +156,22 @@ class ApiService {
     return response;
   }
 
+  /// Logger for API-relaterede fejl - sender til remote og kaster ApiException
+  /// Bruges i catch blocks for at sikre alle fejl bliver logget
+  /// Stack trace giver info om hvilken metode fejlen skete i
+  Never _logAndThrowError(Object error, StackTrace stackTrace) {
+    _logger?.error(
+      'API error: $error',
+      category: 'api_error',
+      error: error,
+      stackTrace: stackTrace,
+      metadata: {
+        'errorType': error.runtimeType.toString(),
+      },
+    );
+    throw ApiException('Network error: $error');
+  }
+
   /// Wrapper for HTTP DELETE with logging
   Future<http.Response> _loggedDelete(String url, {Map<String, String>? headers}) async {
     developer.log('>>> DELETE $url', name: 'ApiService');
@@ -205,9 +221,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -233,9 +249,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -300,9 +316,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -317,9 +333,9 @@ class ApiService {
       );
 
       return response.statusCode == 200;
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -344,9 +360,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -372,9 +388,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -396,9 +412,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load task lists', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -416,9 +432,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load owned task lists', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -436,9 +452,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load shared task lists', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -455,9 +471,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load task list', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -479,9 +495,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -503,9 +519,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -524,9 +540,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -548,9 +564,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load tasks', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -567,9 +583,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load task', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -591,9 +607,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -615,9 +631,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -636,9 +652,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -656,9 +672,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load upcoming tasks', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -680,9 +696,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load upcoming task occurrences', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -704,9 +720,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load task instances', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -724,9 +740,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load task instances', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -743,9 +759,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load task instance', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -767,9 +783,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -791,9 +807,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load recently completed tasks', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -816,9 +832,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load current streak', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -837,9 +853,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load longest streak', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -857,9 +873,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load streaks', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -881,9 +897,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load pending invitations', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -901,9 +917,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load invitations', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -921,9 +937,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load task list invitations', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -940,9 +956,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load invitation', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -964,9 +980,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -987,9 +1003,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -1010,9 +1026,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -1031,9 +1047,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -1055,9 +1071,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load task list users', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -1082,9 +1098,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -1103,9 +1119,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -1138,9 +1154,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -1159,9 +1175,9 @@ class ApiService {
           response.statusCode,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -1200,9 +1216,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load completion message', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -1226,9 +1242,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load user settings', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -1251,9 +1267,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to update user settings', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -1276,9 +1292,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load visual themes', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 
@@ -1297,9 +1313,9 @@ class ApiService {
       } else {
         throw ApiException('Failed to load visual theme', response.statusCode);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
-      throw ApiException('Network error: $e');
+      _logAndThrowError(e, stackTrace);
     }
   }
 }
