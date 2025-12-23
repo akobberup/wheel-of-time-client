@@ -27,6 +27,8 @@ class UpcomingTaskOccurrenceResponse with _$UpcomingTaskOccurrenceResponse {
     @TaskScheduleConverter() required TaskSchedule schedule,
     @Default(1) int occurrenceNumber,
     @Default(false) bool isNextOccurrence,
+    String? taskListPrimaryColor,
+    String? taskListSecondaryColor,
   }) = _UpcomingTaskOccurrenceResponse;
 
   factory UpcomingTaskOccurrenceResponse.fromJson(

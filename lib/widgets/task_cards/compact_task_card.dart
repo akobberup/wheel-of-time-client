@@ -1,11 +1,11 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/task_occurrence.dart';
+import '../../config/api_config.dart';
 import '../common/animated_card.dart';
 import 'task_card_badges.dart';
 
-/// Kompakt kort til future opgaver - minimalistisk design med hjul-motiv
-/// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+/// Kompakt kort til future opgaver - minimalistisk design med tema-farver
 class CompactTaskCard extends StatelessWidget {
   final UpcomingTaskOccurrenceResponse occurrence;
   final bool isClickable;
@@ -20,56 +20,57 @@ class CompactTaskCard extends StatelessWidget {
     this.isDesktop = false,
   });
 
+  /// Parser hex color string til Color objekt
+  Color _parseHexColor(String? hexString, Color fallback) {
+    if (hexString == null || hexString.isEmpty) return fallback;
+
+    final buffer = StringBuffer();
+    if (hexString.length == 7) {
+      buffer.write('FF');
+      buffer.write(hexString.replaceFirst('#', ''));
+    } else if (hexString.length == 9) {
+      buffer.write(hexString.replaceFirst('#', ''));
+    } else {
+      return fallback;
+    }
+    return Color(int.parse(buffer.toString(), radix: 16));
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
+
+    // Brug task listens tema farve
+    final primaryColor = _parseHexColor(
+      occurrence.taskListPrimaryColor,
+      colorScheme.primary,
+    );
 
     // Responsive dimensioner
-    final wheelSize = isDesktop ? 32.0 : 38.0;
+    final avatarSize = isDesktop ? 36.0 : 42.0;
     final horizontalPadding = isDesktop ? 12.0 : 14.0;
-    final verticalPadding = isDesktop ? 8.0 : 10.0;
-
-    // Subtil gradient baggrund (varm tone)
-    final gradientColors = isDark
-        ? [
-            colorScheme.surfaceContainerLow,
-            colorScheme.surfaceContainerLow.withValues(alpha: 0.95),
-          ]
-        : [
-            colorScheme.surface,
-            colorScheme.primaryContainer.withValues(alpha: 0.05),
-          ];
+    final verticalPadding = isDesktop ? 10.0 : 12.0;
 
     return AnimatedCard(
       onTap: isClickable ? onTap : null,
       baseElevation: isDesktop ? 1 : 1,
       pressedElevation: isDesktop ? 3 : 2,
       margin: EdgeInsets.only(bottom: isDesktop ? 0 : 6),
-      color: Colors.transparent,
       borderRadius: isDesktop ? 12 : 14,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: gradientColors,
-          ),
-          borderRadius: BorderRadius.circular(isDesktop ? 12 : 14),
-        ),
+      borderSide: BorderSide(
+        color: primaryColor.withValues(alpha: 0.15),
+        width: 1,
+      ),
+      child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: horizontalPadding,
           vertical: verticalPadding,
         ),
         child: Row(
           children: [
-            // Cirkulær hjul-indikator
-            _WheelIndicator(
-              size: wheelSize,
-              color: colorScheme.primary,
-              isDesktop: isDesktop,
-            ),
+            // Cirkulær avatar med billede eller tema-farve
+            _buildAvatar(context, primaryColor, avatarSize),
             SizedBox(width: isDesktop ? 10 : 12),
             // Titel og liste
             Expanded(
@@ -77,134 +78,104 @@ class CompactTaskCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Titel - uppercase for konsistens
                   Text(
-                    occurrence.taskName,
+                    occurrence.taskName.toUpperCase(),
                     style: (isDesktop
-                            ? theme.textTheme.bodyMedium
-                            : theme.textTheme.bodyMedium)
+                            ? theme.textTheme.labelLarge
+                            : theme.textTheme.titleSmall)
                         ?.copyWith(
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
                       color: colorScheme.onSurface,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.folder_outlined,
-                        size: isDesktop ? 11 : 12,
-                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-                      ),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          occurrence.taskListName,
-                          style: TextStyle(
-                            color: colorScheme.onSurfaceVariant,
-                            fontSize: isDesktop ? 11 : 12,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
+                  const SizedBox(height: 3),
+                  // Task list label
+                  _buildTaskListLabel(context, primaryColor),
                 ],
               ),
             ),
+            SizedBox(width: isDesktop ? 8 : 10),
             // Dato badge
-            DueDateBadge(dueDate: occurrence.dueDate, compact: isDesktop),
+            DueDateBadge(dueDate: occurrence.dueDate, compact: true),
           ],
         ),
       ),
     );
   }
-}
 
-/// Cirkulær hjul-indikator med schedule-ikon
-/// Symboliserer opgavens position i tidens hjul
-class _WheelIndicator extends StatelessWidget {
-  final double size;
-  final Color color;
-  final bool isDesktop;
+  Widget _buildAvatar(BuildContext context, Color primaryColor, double size) {
+    final imagePath = occurrence.taskImagePath;
 
-  const _WheelIndicator({
-    required this.size,
-    required this.color,
-    required this.isDesktop,
-  });
+    // Lysere baggrund baseret på tema farve
+    final backgroundColor = Color.lerp(primaryColor, Colors.white, 0.75) ??
+        primaryColor.withValues(alpha: 0.2);
 
-  @override
-  Widget build(BuildContext context) {
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color.withValues(alpha: 0.15),
-            color.withValues(alpha: 0.08),
-          ],
-        ),
+        color: backgroundColor,
         border: Border.all(
-          color: color.withValues(alpha: 0.2),
+          color: primaryColor.withValues(alpha: 0.3),
           width: 1.5,
         ),
       ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Subtile hjul-spokes
-          CustomPaint(
-            size: Size(size * 0.6, size * 0.6),
-            painter: _WheelSpokesPainter(
-              color: color.withValues(alpha: 0.15),
-            ),
-          ),
-          // Schedule ikon i midten
-          Icon(
-            Icons.schedule,
-            color: color,
-            size: isDesktop ? 14 : 16,
-          ),
-        ],
+      clipBehavior: Clip.antiAlias,
+      child: imagePath != null && imagePath.isNotEmpty
+          ? CachedNetworkImage(
+              imageUrl: ApiConfig.getImageUrl(imagePath),
+              fit: BoxFit.cover,
+              placeholder: (context, url) => _buildAvatarPlaceholder(primaryColor),
+              errorWidget: (context, url, error) => _buildAvatarPlaceholder(primaryColor),
+            )
+          : _buildAvatarPlaceholder(primaryColor),
+    );
+  }
+
+  Widget _buildAvatarPlaceholder(Color color) {
+    return Center(
+      child: Icon(
+        Icons.task_alt_rounded,
+        color: color.withValues(alpha: 0.6),
+        size: isDesktop ? 18 : 22,
       ),
     );
   }
-}
 
-/// Custom painter til at tegne hjul-spokes
-class _WheelSpokesPainter extends CustomPainter {
-  final Color color;
+  Widget _buildTaskListLabel(BuildContext context, Color primaryColor) {
+    final theme = Theme.of(context);
 
-  _WheelSpokesPainter({required this.color});
+    // Brug tema farven til label
+    final labelTextColor = Color.lerp(primaryColor, Colors.black, 0.2) ??
+        theme.colorScheme.onSurfaceVariant;
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1.0
-      ..style = PaintingStyle.stroke;
-
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
-
-    // Tegn 8 spokes
-    for (int i = 0; i < 8; i++) {
-      final angle = (i * math.pi / 4);
-      final end = Offset(
-        center.dx + radius * math.cos(angle),
-        center.dy + radius * math.sin(angle),
-      );
-      canvas.drawLine(center, end, paint);
-    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.folder_outlined,
+          size: isDesktop ? 11 : 12,
+          color: labelTextColor.withValues(alpha: 0.7),
+        ),
+        const SizedBox(width: 4),
+        Flexible(
+          child: Text(
+            occurrence.taskListName,
+            style: TextStyle(
+              color: labelTextColor,
+              fontSize: isDesktop ? 11 : 12,
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

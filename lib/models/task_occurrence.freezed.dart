@@ -38,6 +38,8 @@ mixin _$UpcomingTaskOccurrenceResponse {
   TaskSchedule get schedule => throw _privateConstructorUsedError;
   int get occurrenceNumber => throw _privateConstructorUsedError;
   bool get isNextOccurrence => throw _privateConstructorUsedError;
+  String? get taskListPrimaryColor => throw _privateConstructorUsedError;
+  String? get taskListSecondaryColor => throw _privateConstructorUsedError;
 
   /// Serializes this UpcomingTaskOccurrenceResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -72,7 +74,9 @@ abstract class $UpcomingTaskOccurrenceResponseCopyWith<$Res> {
       StreakResponse? currentStreak,
       @TaskScheduleConverter() TaskSchedule schedule,
       int occurrenceNumber,
-      bool isNextOccurrence});
+      bool isNextOccurrence,
+      String? taskListPrimaryColor,
+      String? taskListSecondaryColor});
 
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
   $StreakResponseCopyWith<$Res>? get currentStreak;
@@ -110,6 +114,8 @@ class _$UpcomingTaskOccurrenceResponseCopyWithImpl<$Res,
     Object? schedule = null,
     Object? occurrenceNumber = null,
     Object? isNextOccurrence = null,
+    Object? taskListPrimaryColor = freezed,
+    Object? taskListSecondaryColor = freezed,
   }) {
     return _then(_value.copyWith(
       occurrenceId: null == occurrenceId
@@ -172,6 +178,14 @@ class _$UpcomingTaskOccurrenceResponseCopyWithImpl<$Res,
           ? _value.isNextOccurrence
           : isNextOccurrence // ignore: cast_nullable_to_non_nullable
               as bool,
+      taskListPrimaryColor: freezed == taskListPrimaryColor
+          ? _value.taskListPrimaryColor
+          : taskListPrimaryColor // ignore: cast_nullable_to_non_nullable
+              as String?,
+      taskListSecondaryColor: freezed == taskListSecondaryColor
+          ? _value.taskListSecondaryColor
+          : taskListSecondaryColor // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 
@@ -238,7 +252,9 @@ abstract class _$$UpcomingTaskOccurrenceResponseImplCopyWith<$Res>
       StreakResponse? currentStreak,
       @TaskScheduleConverter() TaskSchedule schedule,
       int occurrenceNumber,
-      bool isNextOccurrence});
+      bool isNextOccurrence,
+      String? taskListPrimaryColor,
+      String? taskListSecondaryColor});
 
   @override
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
@@ -278,6 +294,8 @@ class __$$UpcomingTaskOccurrenceResponseImplCopyWithImpl<$Res>
     Object? schedule = null,
     Object? occurrenceNumber = null,
     Object? isNextOccurrence = null,
+    Object? taskListPrimaryColor = freezed,
+    Object? taskListSecondaryColor = freezed,
   }) {
     return _then(_$UpcomingTaskOccurrenceResponseImpl(
       occurrenceId: null == occurrenceId
@@ -340,6 +358,14 @@ class __$$UpcomingTaskOccurrenceResponseImplCopyWithImpl<$Res>
           ? _value.isNextOccurrence
           : isNextOccurrence // ignore: cast_nullable_to_non_nullable
               as bool,
+      taskListPrimaryColor: freezed == taskListPrimaryColor
+          ? _value.taskListPrimaryColor
+          : taskListPrimaryColor // ignore: cast_nullable_to_non_nullable
+              as String?,
+      taskListSecondaryColor: freezed == taskListSecondaryColor
+          ? _value.taskListSecondaryColor
+          : taskListSecondaryColor // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -363,7 +389,9 @@ class _$UpcomingTaskOccurrenceResponseImpl
       this.currentStreak,
       @TaskScheduleConverter() required this.schedule,
       this.occurrenceNumber = 1,
-      this.isNextOccurrence = false});
+      this.isNextOccurrence = false,
+      this.taskListPrimaryColor,
+      this.taskListSecondaryColor});
 
   factory _$UpcomingTaskOccurrenceResponseImpl.fromJson(
           Map<String, dynamic> json) =>
@@ -404,10 +432,14 @@ class _$UpcomingTaskOccurrenceResponseImpl
   @override
   @JsonKey()
   final bool isNextOccurrence;
+  @override
+  final String? taskListPrimaryColor;
+  @override
+  final String? taskListSecondaryColor;
 
   @override
   String toString() {
-    return 'UpcomingTaskOccurrenceResponse(occurrenceId: $occurrenceId, taskId: $taskId, taskName: $taskName, description: $description, taskListId: $taskListId, taskListName: $taskListName, dueDate: $dueDate, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, taskImagePath: $taskImagePath, totalCompletions: $totalCompletions, currentStreak: $currentStreak, schedule: $schedule, occurrenceNumber: $occurrenceNumber, isNextOccurrence: $isNextOccurrence)';
+    return 'UpcomingTaskOccurrenceResponse(occurrenceId: $occurrenceId, taskId: $taskId, taskName: $taskName, description: $description, taskListId: $taskListId, taskListName: $taskListName, dueDate: $dueDate, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, taskImagePath: $taskImagePath, totalCompletions: $totalCompletions, currentStreak: $currentStreak, schedule: $schedule, occurrenceNumber: $occurrenceNumber, isNextOccurrence: $isNextOccurrence, taskListPrimaryColor: $taskListPrimaryColor, taskListSecondaryColor: $taskListSecondaryColor)';
   }
 
   @override
@@ -442,7 +474,11 @@ class _$UpcomingTaskOccurrenceResponseImpl
             (identical(other.occurrenceNumber, occurrenceNumber) ||
                 other.occurrenceNumber == occurrenceNumber) &&
             (identical(other.isNextOccurrence, isNextOccurrence) ||
-                other.isNextOccurrence == isNextOccurrence));
+                other.isNextOccurrence == isNextOccurrence) &&
+            (identical(other.taskListPrimaryColor, taskListPrimaryColor) ||
+                other.taskListPrimaryColor == taskListPrimaryColor) &&
+            (identical(other.taskListSecondaryColor, taskListSecondaryColor) ||
+                other.taskListSecondaryColor == taskListSecondaryColor));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -463,7 +499,9 @@ class _$UpcomingTaskOccurrenceResponseImpl
       currentStreak,
       schedule,
       occurrenceNumber,
-      isNextOccurrence);
+      isNextOccurrence,
+      taskListPrimaryColor,
+      taskListSecondaryColor);
 
   /// Create a copy of UpcomingTaskOccurrenceResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -486,21 +524,24 @@ class _$UpcomingTaskOccurrenceResponseImpl
 abstract class _UpcomingTaskOccurrenceResponse
     implements UpcomingTaskOccurrenceResponse {
   const factory _UpcomingTaskOccurrenceResponse(
-      {required final String occurrenceId,
-      required final int taskId,
-      required final String taskName,
-      final String? description,
-      required final int taskListId,
-      required final String taskListName,
-      required final DateTime dueDate,
-      @LocalTimeConverter() final LocalTime? alarmAtTimeOfDay,
-      final int? completionWindowHours,
-      final String? taskImagePath,
-      final int totalCompletions,
-      final StreakResponse? currentStreak,
-      @TaskScheduleConverter() required final TaskSchedule schedule,
-      final int occurrenceNumber,
-      final bool isNextOccurrence}) = _$UpcomingTaskOccurrenceResponseImpl;
+          {required final String occurrenceId,
+          required final int taskId,
+          required final String taskName,
+          final String? description,
+          required final int taskListId,
+          required final String taskListName,
+          required final DateTime dueDate,
+          @LocalTimeConverter() final LocalTime? alarmAtTimeOfDay,
+          final int? completionWindowHours,
+          final String? taskImagePath,
+          final int totalCompletions,
+          final StreakResponse? currentStreak,
+          @TaskScheduleConverter() required final TaskSchedule schedule,
+          final int occurrenceNumber,
+          final bool isNextOccurrence,
+          final String? taskListPrimaryColor,
+          final String? taskListSecondaryColor}) =
+      _$UpcomingTaskOccurrenceResponseImpl;
 
   factory _UpcomingTaskOccurrenceResponse.fromJson(Map<String, dynamic> json) =
       _$UpcomingTaskOccurrenceResponseImpl.fromJson;
@@ -537,6 +578,10 @@ abstract class _UpcomingTaskOccurrenceResponse
   int get occurrenceNumber;
   @override
   bool get isNextOccurrence;
+  @override
+  String? get taskListPrimaryColor;
+  @override
+  String? get taskListSecondaryColor;
 
   /// Create a copy of UpcomingTaskOccurrenceResponse
   /// with the given fields replaced by the non-null parameter values.

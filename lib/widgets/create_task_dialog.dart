@@ -44,6 +44,90 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
     super.dispose();
   }
 
+  /// Beregner den første gyldige forekomstdato baseret på den aktuelle schedule.
+  /// Tager højde for aktive måneder og ugedage (for weekly pattern).
+  DateTime _calculateFirstOccurrence(TaskSchedule schedule) {
+    DateTime date = DateTime.now();
+
+    // Hent aktive måneder fra schedule
+    final activeMonths = schedule.when(
+      interval: (_, __, ___, months) => months,
+      weeklyPattern: (_, __, ___, months) => months,
+    );
+
+    // For weekly pattern, find første gyldige ugedag
+    schedule.when(
+      interval: (_, __, ___, ____) {
+        // Interval schedule - bare find første gyldige måned
+      },
+      weeklyPattern: (_, daysOfWeek, __, ___) {
+        if (daysOfWeek.isNotEmpty) {
+          // Find næste dag der matcher en af de valgte ugedage
+          for (int i = 0; i < 7; i++) {
+            final checkDate = date.add(Duration(days: i));
+            // DateTime.weekday: Monday=1, Sunday=7
+            // DayOfWeek enum: MONDAY=0, SUNDAY=6
+            final dayOfWeek = DayOfWeek.values[checkDate.weekday - 1];
+            if (daysOfWeek.contains(dayOfWeek)) {
+              date = checkDate;
+              break;
+            }
+          }
+        }
+      },
+    );
+
+    // Hvis der er aktive måneder, find første dato i en aktiv måned
+    if (activeMonths != null && activeMonths.isNotEmpty) {
+      // Tjek op til 12 måneder frem
+      for (int i = 0; i < 12; i++) {
+        final checkMonth = Month.values[date.month - 1];
+        if (activeMonths.contains(checkMonth)) {
+          break; // Datoen er allerede i en aktiv måned
+        }
+        // Gå til første dag i næste måned
+        date = DateTime(date.year, date.month + 1, 1);
+      }
+
+      // For weekly pattern, juster til den korrekte ugedag i den nye måned
+      schedule.when(
+        interval: (_, __, ___, ____) {},
+        weeklyPattern: (_, daysOfWeek, __, ___) {
+          if (daysOfWeek.isNotEmpty) {
+            // Find næste gyldige ugedag fra den nye dato
+            for (int i = 0; i < 7; i++) {
+              final checkDate = date.add(Duration(days: i));
+              final dayOfWeek = DayOfWeek.values[checkDate.weekday - 1];
+              if (daysOfWeek.contains(dayOfWeek)) {
+                // Tjek at datoen stadig er i en aktiv måned
+                final checkMonth = Month.values[checkDate.month - 1];
+                if (activeMonths.contains(checkMonth)) {
+                  date = checkDate;
+                  break;
+                }
+              }
+            }
+          }
+        },
+      );
+    }
+
+    return date;
+  }
+
+  /// Opdaterer schedule og genberegner første forekomst.
+  /// Bruger addPostFrameCallback for at undgå setState() under build.
+  void _updateSchedule(TaskSchedule newSchedule) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _schedule = newSchedule;
+          _firstRunDate = _calculateFirstOccurrence(newSchedule);
+        });
+      }
+    });
+  }
+
   /// Checks if any optional fields have been filled by the user.
   /// Used to show a visual indicator on the expansion toggle.
   bool get _hasOptionalFieldsData {
@@ -55,27 +139,29 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
   /// Auto-fills form fields from a task suggestion.
   /// Includes subtle animation to highlight the auto-filled fields.
   void _autoFillFromSuggestion(TaskSuggestion suggestion) {
-    setState(() {
-      // Fill the name
-      _nameController.text = suggestion.name;
+    // Fill the name
+    _nameController.text = suggestion.name;
 
-      // Parse repeat unit and create schedule
-      try {
-        final repeatUnit = RepeatUnit.fromJson(suggestion.repeatUnit);
-        _schedule = TaskSchedule.interval(
-          repeatUnit: repeatUnit,
-          repeatDelta: suggestion.repeatDelta,
-          description: _buildIntervalDescription(repeatUnit, suggestion.repeatDelta),
-        );
-      } catch (e) {
-        // If parsing fails, keep default
-        _schedule = const TaskSchedule.interval(
-          repeatUnit: RepeatUnit.WEEKS,
-          repeatDelta: 1,
-          description: 'Weekly',
-        );
-      }
-    });
+    // Parse repeat unit and create schedule
+    TaskSchedule newSchedule;
+    try {
+      final repeatUnit = RepeatUnit.fromJson(suggestion.repeatUnit);
+      newSchedule = TaskSchedule.interval(
+        repeatUnit: repeatUnit,
+        repeatDelta: suggestion.repeatDelta,
+        description: _buildIntervalDescription(repeatUnit, suggestion.repeatDelta),
+      );
+    } catch (e) {
+      // If parsing fails, keep default
+      newSchedule = const TaskSchedule.interval(
+        repeatUnit: RepeatUnit.WEEKS,
+        repeatDelta: 1,
+        description: 'Weekly',
+      );
+    }
+
+    // Opdater schedule og genberegn første forekomst
+    _updateSchedule(newSchedule);
   }
 
   /// Builds a simple description for interval schedules
@@ -201,9 +287,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
               // Comprehensive recurrence editor with interval and weekly pattern support
               RecurrenceEditor(
                 initialSchedule: _schedule,
-                onScheduleChanged: (schedule) {
-                  setState(() => _schedule = schedule);
-                },
+                onScheduleChanged: _updateSchedule,
               ),
               const SizedBox(height: 16),
 

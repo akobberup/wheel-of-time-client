@@ -4,7 +4,6 @@ import '../../models/task_occurrence.dart';
 import '../../l10n/app_strings.dart';
 import '../../config/api_config.dart';
 import '../common/animated_card.dart';
-import '../common/gradient_background.dart';
 import 'task_urgency.dart';
 import 'task_card_badges.dart';
 
@@ -25,12 +24,34 @@ class HeroTaskCard extends StatelessWidget {
     this.isDesktop = false,
   });
 
+  /// Parser hex color string (f.eks. "#A8D5A2") til Color objekt
+  Color _parseHexColor(String? hexString, Color fallback) {
+    if (hexString == null || hexString.isEmpty) return fallback;
+    
+    final buffer = StringBuffer();
+    if (hexString.length == 7) {
+      buffer.write('FF'); // Tilføj alpha hvis ikke angivet
+      buffer.write(hexString.replaceFirst('#', ''));
+    } else if (hexString.length == 9) {
+      buffer.write(hexString.replaceFirst('#', ''));
+    } else {
+      return fallback;
+    }
+    return Color(int.parse(buffer.toString(), radix: 16));
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isOverdue = urgency == TaskUrgency.overdue;
-    final accentColor = isOverdue ? colorScheme.error : colorScheme.tertiary;
+    
+    // Brug task listens tema farve, eller fallback til standard farver
+    final primaryColor = _parseHexColor(
+      occurrence.taskListPrimaryColor,
+      isOverdue ? colorScheme.error : colorScheme.tertiary,
+    );
+    final accentColor = isOverdue ? colorScheme.error : primaryColor;
 
     // Giv kortet en fast aspect ratio for at undgå unbounded constraints
     return AspectRatio(
@@ -45,20 +66,74 @@ class HeroTaskCard extends StatelessWidget {
           width: 2,
         ),
         borderRadius: isDesktop ? 16 : 20,
-        child: Stack(
-          fit: StackFit.expand,
+        child: Column(
+          children: [
+            // Billede sektion - viser illustration centreret
+            Expanded(
+              flex: 3,
+              child: _buildImageSection(context, accentColor),
+            ),
+            // Titel sektion - store bogstaver, fed, centreret
+            _buildTitleSection(context),
+            // Beskrivelse sektion (hvis den findes)
+            if (occurrence.description != null && occurrence.description!.isNotEmpty)
+              _buildDescriptionSection(context),
+            // Kontroller/metadata sektion - fast højde, farvet baggrund
+            _buildControlsSection(context, accentColor),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Billede sektion med centreret illustration og badges
+  Widget _buildImageSection(BuildContext context, Color accentColor) {
+    final theme = Theme.of(context);
+    final isOverdue = urgency == TaskUrgency.overdue;
+    final imagePath = occurrence.taskImagePath;
+
+    // Baggrundsfarve: brug task listens tema farve (lysere variant) eller fallback
+    final themeColor = _parseHexColor(
+      occurrence.taskListPrimaryColor,
+      theme.colorScheme.tertiaryContainer,
+    );
+    // Lav en lysere version af farven til baggrunden
+    final backgroundColor = isOverdue
+        ? theme.colorScheme.errorContainer
+        : Color.lerp(themeColor, Colors.white, 0.7) ?? themeColor.withValues(alpha: 0.3);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(isDesktop ? 16 : 20),
+        topRight: Radius.circular(isDesktop ? 16 : 20),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          // Baggrund: billede eller gradient
-          _buildBackground(context, accentColor),
-          // Gradient overlay for læsbarhed
-          _buildGradientOverlay(accentColor),
-          // Indhold positioneret i bunden
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildContent(context, accentColor),
-          ),
+          // Ensfarvet baggrund
+          Container(color: backgroundColor),
+          
+          // Centreret billede
+          if (imagePath != null && imagePath.isNotEmpty)
+            Center(
+              child: Padding(
+                // Padding for at give billedet "åndehul"
+                padding: EdgeInsets.all(isDesktop ? 20.0 : 24.0),
+                child: CachedNetworkImage(
+                  imageUrl: ApiConfig.getImageUrl(imagePath),
+                  fit: BoxFit.contain, // Bevar billedets proportioner
+                  placeholder: (context, url) => const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                  errorWidget: (context, url, error) => Icon(
+                    Icons.image_not_supported_outlined,
+                    size: isDesktop ? 60 : 80,
+                    color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                  ),
+                ),
+              ),
+            ),
+          
           // Streak badge øverst til venstre
           if (occurrence.currentStreak != null && occurrence.currentStreak!.isActive)
             Positioned(
@@ -69,121 +144,95 @@ class HeroTaskCard extends StatelessWidget {
                 isAtRisk: _shouldShowStreakWarning(),
               ),
             ),
-          // Urgency indikator
-          if (isOverdue) _buildUrgencyBanner(context),
+          
+          // Urgency banner øverst til højre
+          if (isOverdue)
+            Positioned(
+              top: 0,
+              right: 0,
+              child: _buildUrgencyBanner(context),
+            ),
         ],
       ),
-    ));
-
-  }
-
-  Widget _buildBackground(BuildContext context, Color accentColor) {
-    final imagePath = occurrence.taskImagePath;
-
-    if (imagePath != null && imagePath.isNotEmpty) {
-      return CachedNetworkImage(
-        imageUrl: ApiConfig.getImageUrl(imagePath),
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-        placeholder: (context, url) => GradientBackground(
-          seed: occurrence.taskName,
-          height: double.infinity,
-        ),
-        errorWidget: (context, url, error) => GradientBackground(
-          seed: occurrence.taskName,
-          height: double.infinity,
-        ),
-      );
-    }
-
-    return GradientBackground(
-      seed: occurrence.taskName,
-      height: double.infinity,
     );
   }
 
-  Widget _buildGradientOverlay(Color accentColor) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.transparent,
-            Colors.black.withValues(alpha: 0.3),
-            Colors.black.withValues(alpha: 0.7),
-          ],
-          stops: const [0.0, 0.5, 1.0],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContent(BuildContext context, Color accentColor) {
+  /// Titel sektion - store bogstaver, fed, centreret, skalerer ned hvis nødvendigt
+  Widget _buildTitleSection(BuildContext context) {
     final theme = Theme.of(context);
-    final strings = AppStrings.of(context);
-
-    // Responsive padding og font-størrelser
-    final contentPadding = isDesktop ? 16.0 : 20.0;
+    
     final titleStyle = isDesktop
-        ? theme.textTheme.titleMedium?.copyWith(
-            color: Colors.white,
+        ? theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
-            shadows: [
-              Shadow(
-                color: Colors.black.withValues(alpha: 0.5),
-                blurRadius: 8,
-              ),
-            ],
+            letterSpacing: 1.2,
           )
-        : theme.textTheme.headlineSmall?.copyWith(
-            color: Colors.white,
+        : theme.textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            shadows: [
-              Shadow(
-                color: Colors.black.withValues(alpha: 0.5),
-                blurRadius: 8,
-              ),
-            ],
+            letterSpacing: 1.5,
           );
 
     return Padding(
-      padding: EdgeInsets.all(contentPadding),
+      padding: EdgeInsets.symmetric(
+        horizontal: isDesktop ? 16.0 : 20.0,
+        vertical: isDesktop ? 12.0 : 16.0,
+      ),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          occurrence.taskName.toUpperCase(),
+          style: titleStyle,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+        ),
+      ),
+    );
+  }
+
+  /// Beskrivelse sektion - centreret, subtil farve
+  Widget _buildDescriptionSection(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    final descriptionStyle = isDesktop
+        ? theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          )
+        : theme.textTheme.bodyLarge?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          );
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: isDesktop ? 16.0 : 20.0,
+      ),
+      child: Text(
+        occurrence.description!,
+        style: descriptionStyle,
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
+  /// Kontroller/metadata sektion - ingen baggrund, matcher resten af kortet
+  Widget _buildControlsSection(BuildContext context, Color accentColor) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: isDesktop ? 16.0 : 20.0,
+        right: isDesktop ? 16.0 : 20.0,
+        bottom: isDesktop ? 12.0 : 16.0,
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Opgave-liste label
+          // Opgave-liste og schedule info
           _buildTaskListLabel(context),
-          SizedBox(height: isDesktop ? 6 : 8),
-          // Titel
-          Text(
-            occurrence.taskName,
-            style: titleStyle,
-            maxLines: isDesktop ? 1 : 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: isDesktop ? 8 : 12),
-          // Metadata række
-          Row(
-            children: [
-              DueDateBadge(dueDate: occurrence.dueDate, compact: isDesktop),
-              SizedBox(width: isDesktop ? 8 : 12),
-              if (occurrence.totalCompletions > 0)
-                Flexible(
-                  child: MetadataChip(
-                    icon: Icons.check_circle_outline,
-                    label: strings.timesCompleted(occurrence.totalCompletions),
-                    small: isDesktop,
-                  ),
-                ),
-            ],
-          ),
+          
           // Streak advarsel hvis relevant
           if (_shouldShowStreakWarning())
             Padding(
-              padding: EdgeInsets.only(top: isDesktop ? 8 : 12),
+              padding: EdgeInsets.only(top: isDesktop ? 8 : 10),
               child: StreakWarningBanner(
                 streakCount: occurrence.currentStreak!.streakCount,
               ),
@@ -194,21 +243,27 @@ class HeroTaskCard extends StatelessWidget {
   }
 
   Widget _buildTaskListLabel(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
+        color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.list, size: 14, color: Colors.white70),
+          Icon(
+            Icons.list,
+            size: 14,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
           const SizedBox(width: 4),
           Text(
             occurrence.taskListName,
-            style: const TextStyle(
-              color: Colors.white70,
+            style: TextStyle(
+              color: theme.colorScheme.onSurfaceVariant,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -221,32 +276,28 @@ class HeroTaskCard extends StatelessWidget {
   Widget _buildUrgencyBanner(BuildContext context) {
     final strings = AppStrings.of(context);
 
-    return Positioned(
-      top: 0,
-      right: 0,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.error,
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(16),
-          ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.error,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(16),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.warning_amber, color: Colors.white, size: 16),
-            const SizedBox(width: 4),
-            Text(
-              strings.overdue,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.warning_amber, color: Colors.white, size: 16),
+          const SizedBox(width: 4),
+          Text(
+            strings.overdue,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

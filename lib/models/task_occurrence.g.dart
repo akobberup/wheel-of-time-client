@@ -30,6 +30,8 @@ _$UpcomingTaskOccurrenceResponseImpl
               .fromJson(json['schedule'] as Map<String, dynamic>),
           occurrenceNumber: (json['occurrenceNumber'] as num?)?.toInt() ?? 1,
           isNextOccurrence: json['isNextOccurrence'] as bool? ?? false,
+          taskListPrimaryColor: json['taskListPrimaryColor'] as String?,
+          taskListSecondaryColor: json['taskListSecondaryColor'] as String?,
         );
 
 Map<String, dynamic> _$$UpcomingTaskOccurrenceResponseImplToJson(
@@ -51,4 +53,6 @@ Map<String, dynamic> _$$UpcomingTaskOccurrenceResponseImplToJson(
       'schedule': const TaskScheduleConverter().toJson(instance.schedule),
       'occurrenceNumber': instance.occurrenceNumber,
       'isNextOccurrence': instance.isNextOccurrence,
+      'taskListPrimaryColor': instance.taskListPrimaryColor,
+      'taskListSecondaryColor': instance.taskListSecondaryColor,
     };
