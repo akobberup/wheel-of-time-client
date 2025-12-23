@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/task_instance_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
 import '../models/task_instance.dart';
 import '../models/streak.dart';
 import '../l10n/app_strings.dart';
+import '../config/api_config.dart';
 
 /// A celebratory dialog for completing tasks with animations and encouraging messages.
 ///
@@ -18,12 +20,18 @@ class CompleteTaskDialog extends ConsumerStatefulWidget {
   final int taskId;
   final String taskName;
   final StreakResponse? currentStreak;
+  final String? taskImagePath;
+  final String? taskListPrimaryColor;
+  final String? taskListSecondaryColor;
 
   const CompleteTaskDialog({
     super.key,
     required this.taskId,
     required this.taskName,
     this.currentStreak,
+    this.taskImagePath,
+    this.taskListPrimaryColor,
+    this.taskListSecondaryColor,
   });
 
   @override
@@ -143,6 +151,22 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
     });
   }
 
+  /// Parser hex color string (f.eks. "#A8D5A2") til Color objekt
+  Color _parseHexColor(String? hexString, Color fallback) {
+    if (hexString == null || hexString.isEmpty) return fallback;
+
+    final buffer = StringBuffer();
+    if (hexString.length == 7) {
+      buffer.write('FF'); // Tilføj alpha hvis ikke angivet
+      buffer.write(hexString.replaceFirst('#', ''));
+    } else if (hexString.length == 9) {
+      buffer.write(hexString.replaceFirst('#', ''));
+    } else {
+      return fallback;
+    }
+    return Color(int.parse(buffer.toString(), radix: 16));
+  }
+
   /// Fetches the completion message from the API in the background.
   Future<void> _fetchCompletionMessage() async {
     try {
@@ -255,20 +279,41 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
     final themeState = ref.watch(themeProvider);
     final themeColor = themeState.seedColor;
 
+    // Brug task listens tema farver
+    final primaryColor = _parseHexColor(
+      widget.taskListPrimaryColor,
+      themeColor,
+    );
+    final secondaryColor = _parseHexColor(
+      widget.taskListSecondaryColor,
+      primaryColor,
+    );
+
+    // Lys baggrund baseret på tema farve
+    final backgroundColor = Color.lerp(primaryColor, Colors.white, 0.85) ??
+        primaryColor.withValues(alpha: 0.15);
+    final borderColor = Color.lerp(primaryColor, Colors.black, 0.1) ??
+        primaryColor;
+
     return ScaleTransition(
       scale: _scaleAnimation,
       child: Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(_borderRadius),
+          side: BorderSide(
+            color: borderColor.withValues(alpha: 0.5),
+            width: 2,
+          ),
         ),
         clipBehavior: Clip.antiAlias,
+        backgroundColor: backgroundColor,
         child: Stack(
           children: [
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Celebratory header with gradient
-                _buildCelebratoryHeader(colorScheme, textTheme, themeColor),
+                // Celebratory header with task image
+                _buildCelebratoryHeader(colorScheme, textTheme, primaryColor, secondaryColor),
 
                 // Main content area
                 Padding(
@@ -310,30 +355,18 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
     );
   }
 
-  /// Builds the celebratory header with gradient background and animated icon.
+  /// Builds the celebratory header with task image - no separate background.
   Widget _buildCelebratoryHeader(
     ColorScheme colorScheme,
     TextTheme textTheme,
-    Color themeColor,
+    Color primaryColor,
+    Color secondaryColor,
   ) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            themeColor.withValues(alpha: 0.15),
-            HSLColor.fromColor(themeColor)
-                .withHue((HSLColor.fromColor(themeColor).hue + 30) % 360)
-                .toColor()
-                .withValues(alpha: 0.1),
-          ],
-        ),
-      ),
+    return Padding(
       padding: const EdgeInsets.all(_headerPadding),
       child: Column(
         children: [
-          // Animated celebration icon
+          // Animeret opgave billede eller celebration ikon
           AnimatedBuilder(
             animation: Listenable.merge([
               _iconBounceAnimation,
@@ -344,48 +377,78 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
                 scale: _iconBounceAnimation.value,
                 child: Transform.rotate(
                   angle: _iconRotationAnimation.value,
-                  child: Container(
-                    width: _iconSize + 16,
-                    height: _iconSize + 16,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          themeColor.withValues(alpha: 0.2),
-                          themeColor.withValues(alpha: 0.1),
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: themeColor.withValues(alpha: 0.2),
-                          blurRadius: 20,
-                          spreadRadius: 5,
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.celebration_rounded,
-                      size: _iconSize,
-                      color: themeColor,
-                    ),
-                  ),
+                  child: _buildHeaderImage(primaryColor),
                 ),
               );
             },
           ),
           const SizedBox(height: 16),
           Text(
-            widget.taskName,
-            style: textTheme.headlineSmall?.copyWith(
+            widget.taskName.toUpperCase(),
+            style: textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
               color: colorScheme.onSurface,
-              letterSpacing: -0.5,
+              letterSpacing: 1.0,
             ),
             textAlign: TextAlign.center,
           ),
         ],
+      ),
+    );
+  }
+
+  /// Bygger header billedet - enten opgave billede eller celebration ikon
+  Widget _buildHeaderImage(Color primaryColor) {
+    final imagePath = widget.taskImagePath;
+
+    if (imagePath != null && imagePath.isNotEmpty) {
+      // Vis opgavens faktiske billede
+      return SizedBox(
+        width: 120,
+        height: 120,
+        child: CachedNetworkImage(
+          imageUrl: ApiConfig.getImageUrl(imagePath),
+          fit: BoxFit.contain,
+          placeholder: (context, url) => const Center(
+            child: CircularProgressIndicator(),
+          ),
+          errorWidget: (context, url, error) =>
+              _buildFallbackIcon(primaryColor),
+        ),
+      );
+    } else {
+      // Fallback til celebration ikon
+      return _buildFallbackIcon(primaryColor);
+    }
+  }
+
+  /// Bygger fallback celebration ikon
+  Widget _buildFallbackIcon(Color primaryColor) {
+    return Container(
+      width: _iconSize + 16,
+      height: _iconSize + 16,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            primaryColor.withValues(alpha: 0.2),
+            primaryColor.withValues(alpha: 0.1),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withValues(alpha: 0.2),
+            blurRadius: 20,
+            spreadRadius: 5,
+          ),
+        ],
+      ),
+      child: Icon(
+        Icons.celebration_rounded,
+        size: _iconSize,
+        color: primaryColor,
       ),
     );
   }
@@ -595,9 +658,8 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
           child: FilledButton.icon(
             onPressed: _isLoading || _isSuccess ? null : _submit,
             style: FilledButton.styleFrom(
-              backgroundColor: _isSuccess
-                  ? Colors.green.shade600
-                  : Colors.green.shade500,
+              backgroundColor:
+                  _isSuccess ? Colors.green.shade600 : Colors.green.shade500,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               elevation: _isSuccess ? 6 : 2,

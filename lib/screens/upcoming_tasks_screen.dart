@@ -201,7 +201,9 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                     completedState: completedState,
                     isDesktop: isDesktop,
                     onToggleExpand: () {
-                      ref.read(completedTasksProvider.notifier).toggleExpanded();
+                      ref
+                          .read(completedTasksProvider.notifier)
+                          .toggleExpanded();
                     },
                     onLoadMore: () {
                       ref.read(completedTasksProvider.notifier).loadMore();
@@ -267,7 +269,8 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
         final tasksToShow = isLaterSection && !state.isLaterExpanded
             ? tasks.take(5).toList()
             : tasks;
-        final hasMoreToShow = isLaterSection && tasks.length > 5 && !state.isLaterExpanded;
+        final hasMoreToShow =
+            isLaterSection && tasks.length > 5 && !state.isLaterExpanded;
 
         // Sektionsoverskrift
         widgets.add(
@@ -328,7 +331,9 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
             _ExpandLaterButton(
               remainingCount: tasks.length - 5,
               isDesktop: isDesktop,
-              onTap: () => ref.read(upcomingTasksProvider.notifier).toggleLaterExpanded(),
+              onTap: () => ref
+                  .read(upcomingTasksProvider.notifier)
+                  .toggleLaterExpanded(),
             ),
           );
         }
@@ -338,7 +343,9 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
           widgets.add(
             _CollapseLaterButton(
               isDesktop: isDesktop,
-              onTap: () => ref.read(upcomingTasksProvider.notifier).toggleLaterExpanded(),
+              onTap: () => ref
+                  .read(upcomingTasksProvider.notifier)
+                  .toggleLaterExpanded(),
             ),
           );
         }
@@ -445,6 +452,9 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
         taskId: occurrence.taskId,
         taskName: occurrence.taskName,
         currentStreak: occurrence.currentStreak,
+        taskImagePath: occurrence.taskImagePath,
+        taskListPrimaryColor: occurrence.taskListPrimaryColor,
+        taskListSecondaryColor: occurrence.taskListSecondaryColor,
       ),
     );
 
