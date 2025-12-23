@@ -17,14 +17,23 @@ import 'dart:math';
 
 /// Skærm til administration af medlemmer i en opgaveliste.
 /// Viser aktuelle medlemmer, afventende invitationer og tillader tilføjelse/fjernelse af medlemmer.
+/// Bruger opgavelistens tema-farver for visuel konsistens.
 class TaskListMembersScreen extends ConsumerWidget {
   final int taskListId;
   final String taskListName;
+
+  /// Primær tema-farve fra opgavelisten
+  final Color? primaryColor;
+
+  /// Sekundær tema-farve fra opgavelisten
+  final Color? secondaryColor;
 
   const TaskListMembersScreen({
     super.key,
     required this.taskListId,
     required this.taskListName,
+    this.primaryColor,
+    this.secondaryColor,
   });
 
   @override
@@ -32,15 +41,26 @@ class TaskListMembersScreen extends ConsumerWidget {
     final strings = AppStrings.of(context);
     final membersAsync = ref.watch(taskListUserNotifierProvider(taskListId));
     final invitationsAsync = ref.watch(taskListInvitationsProvider(taskListId));
-    final themeColor = ref.watch(themeProvider).seedColor;
+
+    // Brug tema-farver fra opgavelisten, ellers fald tilbage til app tema
+    final fallbackColor = ref.watch(themeProvider).seedColor;
+    final themeColor = primaryColor ?? fallbackColor;
+    final secColor = secondaryColor ?? themeColor;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // Beregn baggrundstint baseret på tema-farven
+    final backgroundColor = isDark
+        ? const Color(0xFF121214)
+        : Color.lerp(const Color(0xFFFAFAF8), themeColor, 0.03)!;
+
     return Scaffold(
+      backgroundColor: backgroundColor,
       body: RefreshIndicator(
         onRefresh: () => _handleRefresh(ref),
+        color: themeColor,
         child: CustomScrollView(
           slivers: [
-            _buildSliverAppBar(context, strings, themeColor, isDark),
+            _buildSliverAppBar(context, strings, themeColor, secColor, isDark),
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               sliver: SliverList(
@@ -68,24 +88,64 @@ class TaskListMembersScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSliverAppBar(BuildContext context, AppStrings strings, Color themeColor, bool isDark) {
+  Widget _buildSliverAppBar(BuildContext context, AppStrings strings, Color themeColor, Color secColor, bool isDark) {
     return SliverAppBar(
-      expandedHeight: 100,
+      expandedHeight: 120,
       floating: false,
       pinned: true,
-      backgroundColor: isDark ? const Color(0xFF1A1A1C) : const Color(0xFFFAFAF8),
+      backgroundColor: themeColor,
+      foregroundColor: Colors.white,
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
           strings.membersIn(taskListName),
           style: const TextStyle(
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: FontWeight.w700,
             letterSpacing: -0.5,
+            color: Colors.white,
           ),
         ),
         centerTitle: false,
         titlePadding: const EdgeInsets.only(left: 56, bottom: 16),
+        background: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [themeColor, secColor],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          // Dekorative cirkulære elementer (wheel motiv)
+          child: Stack(
+            children: [
+              Positioned(
+                right: -30,
+                top: -30,
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.08),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 40,
+                bottom: -20,
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.05),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -140,6 +200,8 @@ class TaskListMembersScreen extends ConsumerWidget {
       builder: (context) => SendInvitationDialog(
         taskListId: taskListId,
         taskListName: taskListName,
+        themeColor: primaryColor,
+        secondaryThemeColor: secondaryColor,
       ),
     );
 
@@ -399,6 +461,17 @@ class _MemberCard extends HookConsumerWidget {
 
   Widget _buildMenu(BuildContext context, WidgetRef ref, AppStrings strings) {
     return PopupMenuButton<String>(
+      icon: Icon(
+        Icons.more_vert,
+        color: themeColor,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: themeColor.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
       itemBuilder: (context) => [
         _buildChangePermissionMenuItem(strings),
         _buildRemoveMemberMenuItem(strings),
@@ -412,7 +485,11 @@ class _MemberCard extends HookConsumerWidget {
       value: 'change_permission',
       child: Row(
         children: [
-          const Icon(Icons.edit, size: 20),
+          Icon(
+            Icons.edit,
+            size: 20,
+            color: themeColor,
+          ),
           const SizedBox(width: 12),
           Text(strings.changePermission),
         ],
@@ -484,55 +561,268 @@ class _MemberCard extends HookConsumerWidget {
     BuildContext context,
     AppStrings strings,
   ) {
+    AdminLevel? selectedLevel = member.userAdminLevel;
+
     return showDialog<AdminLevel>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(strings.changePermissionLevel),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(strings.changePermissionFor(member.userName)),
-            const SizedBox(height: 16),
-            _buildPermissionOption(
-              context,
-              strings.canEdit,
-              strings.canEditDescription,
-              AdminLevel.CAN_EDIT,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+            side: BorderSide(
+              color: themeColor.withOpacity(0.3),
+              width: 2,
             ),
-            _buildPermissionOption(
-              context,
-              strings.canView,
-              strings.canViewDescription,
-              AdminLevel.CAN_VIEW,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(strings.cancel),
           ),
-        ],
+          child: Container(
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+              color: isDark ? const Color(0xFF222226) : Colors.white,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Themed header icon
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        themeColor,
+                        themeColor.withOpacity(0.8),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: themeColor.withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.admin_panel_settings,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                
+                // Title
+                Text(
+                  strings.changePermissionLevel,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                
+                // Subtitle
+                Text(
+                  strings.changePermissionFor(member.userName),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                
+                // Permission options
+                _buildThemedPermissionOption(
+                  context,
+                  setState,
+                  selectedLevel,
+                  (value) => selectedLevel = value,
+                  strings.canEdit,
+                  strings.canEditDescription,
+                  AdminLevel.CAN_EDIT,
+                ),
+                const SizedBox(height: 12),
+                _buildThemedPermissionOption(
+                  context,
+                  setState,
+                  selectedLevel,
+                  (value) => selectedLevel = value,
+                  strings.canView,
+                  strings.canViewDescription,
+                  AdminLevel.CAN_VIEW,
+                ),
+                const SizedBox(height: 28),
+                
+                // Action buttons
+                Row(
+                  children: [
+                    // Cancel button (outlined)
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(
+                            color: themeColor.withOpacity(0.3),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: Text(
+                          strings.cancel,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: themeColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    
+                    // Confirm button (gradient)
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              themeColor,
+                              themeColor.withOpacity(0.8),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: themeColor.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: selectedLevel != null
+                              ? () => Navigator.of(context).pop(selectedLevel)
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          child: Text(
+                            strings.save,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildPermissionOption(
+  Widget _buildThemedPermissionOption(
     BuildContext context,
+    StateSetter setState,
+    AdminLevel? currentSelection,
+    Function(AdminLevel?) onChanged,
     String title,
     String description,
     AdminLevel level,
   ) {
-    return ListTile(
-      title: Text(title),
-      subtitle: Text(description),
-      leading: Radio<AdminLevel>(
-        value: level,
-        groupValue: member.userAdminLevel,
-        onChanged: (value) => Navigator.of(context).pop(value),
+    final isSelected = currentSelection == level;
+    
+    return InkWell(
+      onTap: () {
+        setState(() => onChanged(level));
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? (isDark ? themeColor.withOpacity(0.15) : themeColor.withOpacity(0.08))
+              : (isDark ? const Color(0xFF1A1A1C) : const Color(0xFFF5F4F2)),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? themeColor.withOpacity(0.5)
+                : (isDark ? const Color(0xFF333337) : const Color(0xFFE5E5E5)),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Themed radio button
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? themeColor : (isDark ? const Color(0xFF6B6B6B) : const Color(0xFFCCCCCC)),
+                  width: 2,
+                ),
+                color: isSelected ? themeColor : Colors.transparent,
+              ),
+              child: isSelected
+                  ? const Center(
+                      child: Icon(
+                        Icons.circle,
+                        size: 12,
+                        color: Colors.white,
+                      ),
+                    )
+                  : null,
+            ),
+            const SizedBox(width: 12),
+            
+            // Text content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: isSelected ? themeColor : null,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-      onTap: () => Navigator.of(context).pop(level),
     );
   }
 

@@ -1,3 +1,5 @@
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+
 import 'package:flutter/material.dart';
 import '../../models/enums.dart';
 import '../../models/schedule.dart';
@@ -46,11 +48,15 @@ class RecurrenceEditor extends StatefulWidget {
   /// Whether the editor is enabled
   final bool enabled;
 
+  /// Optional theme color from task list for visual consistency
+  final Color? themeColor;
+
   const RecurrenceEditor({
     super.key,
     required this.initialSchedule,
     required this.onScheduleChanged,
     this.enabled = true,
+    this.themeColor,
   });
 
   @override
@@ -252,12 +258,15 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
     final colorScheme = theme.colorScheme;
     final strings = AppStrings.of(context);
 
+    // Brug tema-farve hvis tilgængelig, ellers brug standard primary
+    final primaryColor = widget.themeColor ?? colorScheme.primary;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         // Mode selector: Segmented button
-        _buildModeSelector(theme, colorScheme, strings),
+        _buildModeSelector(theme, colorScheme, strings, primaryColor),
 
         const SizedBox(height: 20),
 
@@ -277,8 +286,8 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
             );
           },
           child: _mode == _RecurrenceMode.simpleInterval
-              ? _buildSimpleIntervalMode(theme, colorScheme, strings)
-              : _buildSpecificDaysMode(theme, colorScheme, strings),
+              ? _buildSimpleIntervalMode(theme, colorScheme, strings, primaryColor)
+              : _buildSpecificDaysMode(theme, colorScheme, strings, primaryColor),
         ),
 
         // Seasonal scheduling section (collapsed by default)
@@ -287,17 +296,18 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
           selectedMonths: _activeMonths,
           onChanged: _handleActiveMonthsChanged,
           initiallyExpanded: _activeMonths != null && _activeMonths!.isNotEmpty,
+          themeColor: primaryColor,
         ),
 
         // Schedule description preview (always shown)
         const SizedBox(height: 16),
-        _buildDescriptionPreview(theme, colorScheme),
+        _buildDescriptionPreview(theme, primaryColor),
       ],
     );
   }
 
   /// Builds the mode selector segmented button
-  Widget _buildModeSelector(ThemeData theme, ColorScheme colorScheme, AppStrings strings) {
+  Widget _buildModeSelector(ThemeData theme, ColorScheme colorScheme, AppStrings strings, Color primaryColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -313,7 +323,7 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
           ),
         ),
 
-        // Segmented button
+        // Segmented button med tema-farve
         SizedBox(
           width: double.infinity,
           child: SegmentedButton<_RecurrenceMode>(
@@ -336,9 +346,21 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
                   }
                 : null,
             showSelectedIcon: false,
-            style: const ButtonStyle(
+            style: ButtonStyle(
               visualDensity: VisualDensity.comfortable,
               tapTargetSize: MaterialTapTargetSize.padded,
+              backgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return primaryColor.withValues(alpha: 0.15);
+                }
+                return null;
+              }),
+              foregroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return primaryColor;
+                }
+                return null;
+              }),
             ),
           ),
         ),
@@ -347,7 +369,7 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
   }
 
   /// Builds the UI for simple interval mode
-  Widget _buildSimpleIntervalMode(ThemeData theme, ColorScheme colorScheme, AppStrings strings) {
+  Widget _buildSimpleIntervalMode(ThemeData theme, ColorScheme colorScheme, AppStrings strings, Color primaryColor) {
     return Column(
       key: const ValueKey('simple_interval'),
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -382,13 +404,14 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
           repeatUnit: _repeatUnit,
           onChanged: _handleIntervalChanged,
           enabled: widget.enabled,
+          themeColor: primaryColor,
         ),
       ],
     );
   }
 
   /// Builds the UI for specific days mode
-  Widget _buildSpecificDaysMode(ThemeData theme, ColorScheme colorScheme, AppStrings strings) {
+  Widget _buildSpecificDaysMode(ThemeData theme, ColorScheme colorScheme, AppStrings strings, Color primaryColor) {
     return Column(
       key: const ValueKey('specific_days'),
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,7 +441,7 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
         ),
 
         // Week interval selector (simplified - just a number input)
-        _buildWeekIntervalSelector(theme, colorScheme, strings),
+        _buildWeekIntervalSelector(theme, colorScheme, strings, primaryColor),
 
         const SizedBox(height: 16),
 
@@ -438,13 +461,14 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
           onChanged: _handleDaysChanged,
           enabled: widget.enabled,
           showPresets: false, // Presets are at the top level
+          themeColor: primaryColor,
         ),
       ],
     );
   }
 
   /// Builds a simplified week interval selector for specific days mode
-  Widget _buildWeekIntervalSelector(ThemeData theme, ColorScheme colorScheme, AppStrings strings) {
+  Widget _buildWeekIntervalSelector(ThemeData theme, ColorScheme colorScheme, AppStrings strings, Color primaryColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -462,14 +486,14 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
           // Number input with increment/decrement buttons
           Container(
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
+              color: primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.remove, size: 18),
+                  icon: Icon(Icons.remove, size: 18, color: primaryColor),
                   onPressed: widget.enabled && _repeatDelta > 1
                       ? () => _handleWeeksChanged(_repeatDelta - 1)
                       : null,
@@ -486,11 +510,12 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
                     '$_repeatDelta',
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
+                      color: primaryColor,
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.add, size: 18),
+                  icon: Icon(Icons.add, size: 18, color: primaryColor),
                   onPressed: widget.enabled
                       ? () => _handleWeeksChanged(_repeatDelta + 1)
                       : null,
@@ -515,14 +540,17 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
   }
 
   /// Builds the schedule description preview
-  Widget _buildDescriptionPreview(ThemeData theme, ColorScheme colorScheme) {
+  Widget _buildDescriptionPreview(ThemeData theme, Color primaryColor) {
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : primaryColor;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withValues(alpha: 0.5),
+        color: primaryColor.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: colorScheme.primary.withValues(alpha: 0.3),
+          color: primaryColor.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -531,14 +559,14 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
           Icon(
             Icons.schedule,
             size: 18,
-            color: colorScheme.onPrimaryContainer,
+            color: primaryColor,
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               _buildDescription(),
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onPrimaryContainer,
+                color: textColor,
                 fontWeight: FontWeight.w600,
               ),
             ),

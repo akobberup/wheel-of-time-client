@@ -12,7 +12,6 @@ import '../widgets/edit_task_list_dialog.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/error_state_widget.dart';
 import '../widgets/common/contextual_delete_dialog.dart';
-import '../widgets/common/circular_progress_indicator_with_icon.dart';
 import '../widgets/common/stacked_avatars.dart';
 
 /// Viser liste over brugerens opgavelister med mulighed for at oprette, redigere og slette
@@ -52,9 +51,6 @@ class TaskListsScreen extends HookConsumerWidget {
     if (taskLists.isEmpty) {
       return _buildEmptyState(strings, context, ref);
     }
-
-    final themeState = ref.watch(themeProvider);
-    final isDark = themeState.isDarkMode;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -164,9 +160,9 @@ class _TaskListCard extends HookConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Hero billede eller gradient baggrund
-              _buildHeroSection(context),
-              // Indhold under hero
+              // Subtil farvet top border som tema accent
+              _buildThemeAccent(context, isDark),
+              // Hovedindhold
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -191,9 +187,29 @@ class _TaskListCard extends HookConsumerWidget {
                         _buildMenuButton(context, ref, strings),
                       ],
                     ),
+                    // Tema display name med ikon
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.palette_outlined,
+                          size: 14,
+                          color: _parseHexColor(taskList.visualTheme.primaryColor),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          taskList.visualTheme.displayName,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: _parseHexColor(taskList.visualTheme.primaryColor),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                     // Beskrivelse
                     if (taskList.description != null) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Text(
                         taskList.description!,
                         maxLines: 2,
@@ -219,33 +235,25 @@ class _TaskListCard extends HookConsumerWidget {
     );
   }
 
-  /// Bygger hero sektionen med gradient baggrund baseret på tema farver
-  Widget _buildHeroSection(BuildContext context) {
-    const heroHeight = 100.0;
-    const borderRadius = BorderRadius.only(
-      topLeft: Radius.circular(16),
-      topRight: Radius.circular(16),
-    );
-
+  /// Bygger en subtil farvet border/accent baseret på tema farver
+  Widget _buildThemeAccent(BuildContext context, bool isDark) {
     // Parse hex farver fra tema
     final primaryColor = _parseHexColor(taskList.visualTheme.primaryColor);
-    final secondaryColor = _parseHexColor(taskList.visualTheme.secondaryColor);
-
+    
     return Container(
-      height: heroHeight,
+      height: 4,
       decoration: BoxDecoration(
-        borderRadius: borderRadius,
-        gradient: LinearGradient(
-          colors: [primaryColor, secondaryColor],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
         ),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.list_alt,
-          size: 40,
-          color: Colors.white.withValues(alpha: 0.8),
+        gradient: LinearGradient(
+          colors: [
+            primaryColor,
+            _parseHexColor(taskList.visualTheme.secondaryColor),
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
         ),
       ),
     );
@@ -274,18 +282,15 @@ class _TaskListCard extends HookConsumerWidget {
         isDark ? const Color(0xFFF5F5F5) : const Color(0xFF1A1A1A);
     final secondaryTextColor =
         isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B);
+    
+    // Brug tema farver til fremskridtsindikator
+    final themeColor = _parseHexColor(taskList.visualTheme.primaryColor);
 
     return Row(
       children: [
-        // Cirkulær fremskridtsindikator
-        CircularProgressIndicatorWithIcon(
-          completed: taskList.activeTaskCount as int,
-          total: taskList.taskCount as int,
-          icon: Icons.task_alt,
-          size: 40,
-          strokeWidth: 3,
-        ),
-        const SizedBox(width: 8),
+        // Cirkulær fremskridtsindikator med tema farve
+        _buildProgressIndicator(themeColor, isDark),
+        const SizedBox(width: 12),
         // Tekst med opgavestatus
         Expanded(
           child: Column(
@@ -317,6 +322,48 @@ class _TaskListCard extends HookConsumerWidget {
             maxVisible: 3,
           ),
       ],
+    );
+  }
+  
+  /// Bygger en cirkulær fremskridtsindikator med tema farve
+  Widget _buildProgressIndicator(Color themeColor, bool isDark) {
+    final total = taskList.taskCount as int;
+    final completed = taskList.activeTaskCount as int;
+    final progress = total > 0 ? completed / total : 0.0;
+    
+    return SizedBox(
+      width: 40,
+      height: 40,
+      child: Stack(
+        children: [
+          // Baggrundscirkel
+          CircularProgressIndicator(
+            value: 1.0,
+            strokeWidth: 3,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              isDark 
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.08),
+            ),
+          ),
+          // Fremskridt med tema farve
+          CircularProgressIndicator(
+            value: progress,
+            strokeWidth: 3,
+            valueColor: AlwaysStoppedAnimation<Color>(themeColor),
+          ),
+          // Ikon i midten
+          Center(
+            child: Icon(
+              Icons.task_alt,
+              size: 18,
+              color: progress == 1.0 
+                ? themeColor 
+                : (isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B)),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

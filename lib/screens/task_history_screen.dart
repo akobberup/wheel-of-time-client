@@ -398,27 +398,11 @@ class _HistoryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF222226) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        // Status-farvet venstre kant
-        border: Border(
-          left: BorderSide(color: _statusColor, width: 4),
-          top: BorderSide(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.08)
-                : Colors.black.withValues(alpha: 0.08),
-            width: 1,
-          ),
-          right: BorderSide(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.08)
-                : Colors.black.withValues(alpha: 0.08),
-            width: 1,
-          ),
-          bottom: BorderSide(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.08)
-                : Colors.black.withValues(alpha: 0.08),
-            width: 1,
-          ),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.08),
+          width: 1,
         ),
         boxShadow: isDark
             ? null
@@ -432,16 +416,37 @@ class _HistoryCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildHeader(context, strings),
-              const SizedBox(height: 16),
-              _buildBadges(strings),
-              if (_hasComment) _buildCommentSection(context, strings),
-              if (_hasImage) _buildImageSection(context),
+              // Status-farvet venstre kant
+              Container(
+                width: 4,
+                decoration: BoxDecoration(
+                  color: _statusColor,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    bottomLeft: Radius.circular(16),
+                  ),
+                ),
+              ),
+              // Indhold
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildHeader(context, strings),
+                      const SizedBox(height: 16),
+                      _buildBadges(strings),
+                      if (_hasComment) _buildCommentSection(context, strings),
+                      if (_hasImage) _buildImageSection(context),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),

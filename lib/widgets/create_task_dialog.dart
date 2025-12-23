@@ -1,7 +1,11 @@
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/task_provider.dart';
 import '../providers/suggestion_cache_provider.dart';
+import '../providers/theme_provider.dart';
 import '../services/ai_suggestion_service.dart';
 import '../models/task.dart';
 import '../models/enums.dart';
@@ -13,14 +17,22 @@ import 'common/recurrence_editor.dart';
 
 class CreateTaskDialog extends ConsumerStatefulWidget {
   final int taskListId;
+  final Color? themeColor;
+  final Color? secondaryThemeColor;
 
-  const CreateTaskDialog({super.key, required this.taskListId});
+  const CreateTaskDialog({
+    super.key,
+    required this.taskListId,
+    this.themeColor,
+    this.secondaryThemeColor,
+  });
 
   @override
   ConsumerState<CreateTaskDialog> createState() => _CreateTaskDialogState();
 }
 
-class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
+class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -37,10 +49,34 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
   // Progressive disclosure: controls whether optional fields are visible
   bool _showOptionalFields = false;
 
+  // Animation controller for entrance animation
+  late AnimationController _scaleController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _setupAnimations();
+  }
+
+  /// Setup entrance animation
+  void _setupAnimations() {
+    _scaleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _scaleAnimation = CurvedAnimation(
+      parent: _scaleController,
+      curve: Curves.easeOutCubic,
+    );
+    _scaleController.forward();
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
+    _scaleController.dispose();
     super.dispose();
   }
 
@@ -210,6 +246,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
+    HapticFeedback.mediumImpact();
     setState(() => _isLoading = true);
 
     final request = CreateTaskRequest(
@@ -229,8 +266,10 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
     if (mounted) {
       setState(() => _isLoading = false);
       if (result != null) {
+        HapticFeedback.lightImpact();
         Navigator.of(context).pop(true);
       } else {
+        HapticFeedback.vibrate();
         final strings = AppStrings.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(strings.failedToCreateTask)),
@@ -243,59 +282,177 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
   Widget build(BuildContext context) {
     final strings = AppStrings.of(context);
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final themeState = ref.watch(themeProvider);
+    
+    // Brug tema farver fra opgavelisten eller fallback til global tema
+    final primaryColor = widget.themeColor ?? themeState.seedColor;
+    final secondaryColor = widget.secondaryThemeColor ?? primaryColor;
 
-    return AlertDialog(
-      title: Text(strings.createTask),
-      content: SizedBox(
+    // Lys baggrund baseret på tema farve
+    final backgroundColor = Color.lerp(primaryColor, Colors.white, 0.85) ??
+        primaryColor.withValues(alpha: 0.15);
+    final borderColor = Color.lerp(primaryColor, Colors.black, 0.1) ??
+        primaryColor;
+
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28),
+          side: BorderSide(
+            color: borderColor.withValues(alpha: 0.5),
+            width: 2,
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        backgroundColor: backgroundColor,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Themed header with icon
+            _buildThemedHeader(strings, primaryColor, secondaryColor, isDark),
+            
+            // Content area
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: _buildForm(strings, theme, primaryColor, isDark),
+              ),
+            ),
+            
+            // Action buttons
+            _buildActionButtons(strings, primaryColor, isDark),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Bygger themed header med gradient og ikon
+  Widget _buildThemedHeader(
+    AppStrings strings,
+    Color primaryColor,
+    Color secondaryColor,
+    bool isDark,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [primaryColor, secondaryColor],
+        ),
+      ),
+      child: Column(
+        children: [
+          // Cirkulær ikon container
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: 0.25),
+            ),
+            child: const Icon(
+              Icons.add_task_rounded,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            strings.createTask.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.0,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Bygger form indhold
+  Widget _buildForm(
+    AppStrings strings,
+    ThemeData theme,
+    Color primaryColor,
+    bool isDark,
+  ) {
+    return Form(
+      key: _formKey,
+      child: SizedBox(
         width: 500, // Fixed width to prevent shrinking when content expands
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-              // === PRIMARY FIELDS (Always Visible) ===
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // === PRIMARY FIELDS (Always Visible) ===
 
-              // Task name field with AI button as suffix icon
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: strings.taskName,
-                  hintText: strings.enterTaskName,
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.task_alt),
-                  suffixIcon: IconButton(
-                    onPressed: _showAiSuggestions,
-                    icon: Icon(
-                      Icons.auto_awesome,
-                      color: colorScheme.primary,
-                    ),
-                    tooltip: strings.aiSuggestions,
+            // Task name field with AI button as suffix icon
+            TextFormField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                labelText: strings.taskName,
+                hintText: strings.enterTaskName,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: primaryColor, width: 2),
+                ),
+                prefixIcon: const Icon(Icons.task_alt),
+                suffixIcon: IconButton(
+                  onPressed: _showAiSuggestions,
+                  icon: Icon(
+                    Icons.auto_awesome,
+                    color: primaryColor,
+                  ),
+                  tooltip: strings.aiSuggestions,
+                ),
+              ),
+              textCapitalization: TextCapitalization.sentences,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return strings.pleaseEnterTaskName;
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Comprehensive recurrence editor with interval and weekly pattern support
+            RecurrenceEditor(
+              initialSchedule: _schedule,
+              onScheduleChanged: _updateSchedule,
+            ),
+            const SizedBox(height: 16),
+
+            // First run date picker
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.12)
+                      : Colors.black.withValues(alpha: 0.12),
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ListTile(
+                title: Text(strings.firstRunDate),
+                subtitle: Text(
+                  '${_firstRunDate.year}-${_firstRunDate.month.toString().padLeft(2, '0')}-${_firstRunDate.day.toString().padLeft(2, '0')}',
+                  style: TextStyle(
+                    color: primaryColor,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                textCapitalization: TextCapitalization.sentences,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return strings.pleaseEnterTaskName;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Comprehensive recurrence editor with interval and weekly pattern support
-              RecurrenceEditor(
-                initialSchedule: _schedule,
-                onScheduleChanged: _updateSchedule,
-              ),
-              const SizedBox(height: 16),
-
-              // First run date picker
-              ListTile(
-                title: Text(strings.firstRunDate),
-                subtitle: Text('${_firstRunDate.year}-${_firstRunDate.month.toString().padLeft(2, '0')}-${_firstRunDate.day.toString().padLeft(2, '0')}'),
-                trailing: const Icon(Icons.calendar_today),
+                trailing: Icon(Icons.calendar_today, color: primaryColor),
                 onTap: () async {
                   final date = await showDatePicker(
                     context: context,
@@ -308,81 +465,105 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
                   }
                 },
               ),
-              const SizedBox(height: 8),
+            ),
+            const SizedBox(height: 8),
 
-              // === PROGRESSIVE DISCLOSURE SECTION ===
+            // === PROGRESSIVE DISCLOSURE SECTION ===
 
-              // Divider to separate primary from optional fields
-              const Divider(),
+            // Divider to separate primary from optional fields
+            const Divider(),
 
-              // Expansion toggle button with Material 3 styling
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    _showOptionalFields = !_showOptionalFields;
-                  });
-                },
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  child: Row(
-                    children: [
-                      Icon(
-                        _showOptionalFields ? Icons.expand_less : Icons.expand_more,
-                        color: colorScheme.primary,
+            // Expansion toggle button with Material 3 styling
+            InkWell(
+              onTap: () {
+                setState(() {
+                  _showOptionalFields = !_showOptionalFields;
+                });
+              },
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                child: Row(
+                  children: [
+                    Icon(
+                      _showOptionalFields ? Icons.expand_less : Icons.expand_more,
+                      color: primaryColor,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      _showOptionalFields ? strings.hideOptionalDetails : strings.showOptionalDetails,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: primaryColor,
+                        fontWeight: FontWeight.w500,
                       ),
-                      const SizedBox(width: 12),
-                      Text(
-                        _showOptionalFields ? strings.hideOptionalDetails : strings.showOptionalDetails,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: colorScheme.primary,
-                          fontWeight: FontWeight.w500,
+                    ),
+                    // Visual indicator if optional fields have data
+                    if (_hasOptionalFieldsData && !_showOptionalFields) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: primaryColor,
+                          shape: BoxShape.circle,
                         ),
                       ),
-                      // Visual indicator if optional fields have data
-                      if (_hasOptionalFieldsData && !_showOptionalFields) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ],
                     ],
-                  ),
+                  ],
                 ),
               ),
+            ),
 
-              // === OPTIONAL FIELDS (Hidden by Default) ===
+            // === OPTIONAL FIELDS (Hidden by Default) ===
 
-              // AnimatedCrossFade provides smooth expansion/collapse animation
-              AnimatedCrossFade(
-                firstChild: const SizedBox.shrink(),
-                secondChild: Column(
-                  children: [
-                    const SizedBox(height: 8),
+            // AnimatedCrossFade provides smooth expansion/collapse animation
+            AnimatedCrossFade(
+              firstChild: const SizedBox.shrink(),
+              secondChild: Column(
+                children: [
+                  const SizedBox(height: 8),
 
-                    // Description field
-                    TextFormField(
-                      controller: _descriptionController,
-                      decoration: InputDecoration(
-                        labelText: strings.description,
-                        hintText: strings.addTaskDetails,
-                        border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.notes),
+                  // Description field
+                  TextFormField(
+                    controller: _descriptionController,
+                    decoration: InputDecoration(
+                      labelText: strings.description,
+                      hintText: strings.addTaskDetails,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      maxLines: 2,
-                      textCapitalization: TextCapitalization.sentences,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: primaryColor, width: 2),
+                      ),
+                      prefixIcon: const Icon(Icons.notes),
                     ),
-                    const SizedBox(height: 16),
+                    maxLines: 2,
+                    textCapitalization: TextCapitalization.sentences,
+                  ),
+                  const SizedBox(height: 16),
 
-                    // Alarm time picker
-                    ListTile(
+                  // Alarm time picker
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.12)
+                            : Colors.black.withValues(alpha: 0.12),
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ListTile(
                       title: Text(strings.alarmTime),
-                      subtitle: Text(_alarmTime != null ? _alarmTime!.toDisplayString() : strings.noAlarm),
+                      subtitle: Text(
+                        _alarmTime != null ? _alarmTime!.toDisplayString() : strings.noAlarm,
+                        style: _alarmTime != null
+                            ? TextStyle(
+                                color: primaryColor,
+                                fontWeight: FontWeight.w600,
+                              )
+                            : null,
+                      ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -392,7 +573,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
                               onPressed: () => setState(() => _alarmTime = null),
                               tooltip: strings.clearAlarm,
                             ),
-                          const Icon(Icons.alarm),
+                          Icon(Icons.alarm, color: primaryColor),
                         ],
                       ),
                       onTap: () async {
@@ -408,69 +589,129 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
                         }
                       },
                     ),
-                    const SizedBox(height: 16),
+                  ),
+                  const SizedBox(height: 16),
 
-                    // Completion window field
-                    TextFormField(
-                      initialValue: _completionWindowHours?.toString() ?? '',
-                      decoration: InputDecoration(
-                        labelText: strings.completionWindowHours,
-                        hintText: strings.completionWindowHint,
-                        border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.hourglass_empty),
-                        helperText: strings.hoursAfterAlarm,
+                  // Completion window field
+                  TextFormField(
+                    initialValue: _completionWindowHours?.toString() ?? '',
+                    decoration: InputDecoration(
+                      labelText: strings.completionWindowHours,
+                      hintText: strings.completionWindowHint,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value != null && value.isNotEmpty) {
-                          final n = int.tryParse(value);
-                          if (n == null || n < 1) {
-                            return strings.pleaseEnterValidNumber;
-                          }
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        if (value.isEmpty) {
-                          _completionWindowHours = null;
-                        } else {
-                          final n = int.tryParse(value);
-                          if (n != null && n > 0) {
-                            _completionWindowHours = n;
-                          }
-                        }
-                      },
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: primaryColor, width: 2),
+                      ),
+                      prefixIcon: const Icon(Icons.hourglass_empty),
+                      helperText: strings.hoursAfterAlarm,
                     ),
-                    const SizedBox(height: 8),
-                  ],
-                ),
-                crossFadeState: _showOptionalFields
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-                duration: const Duration(milliseconds: 300),
-                sizeCurve: Curves.easeInOut,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value != null && value.isNotEmpty) {
+                        final n = int.tryParse(value);
+                        if (n == null || n < 1) {
+                          return strings.pleaseEnterValidNumber;
+                        }
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      if (value.isEmpty) {
+                        _completionWindowHours = null;
+                      } else {
+                        final n = int.tryParse(value);
+                        if (n != null && n > 0) {
+                          _completionWindowHours = n;
+                        }
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                ],
               ),
-            ],
+              crossFadeState: _showOptionalFields
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 300),
+              sizeCurve: Curves.easeInOut,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Bygger action buttons med tema-farvet gradient knap
+  Widget _buildActionButtons(AppStrings strings, Color primaryColor, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.08),
           ),
         ),
-      ), // Closes SingleChildScrollView
-      ), // Closes SizedBox (content parameter)
-      actions: [
-        TextButton(
-          onPressed: _isLoading ? null : () => Navigator.of(context).pop(false),
-          child: Text(strings.cancel),
-        ),
-        ElevatedButton(
-          onPressed: _isLoading ? null : _submit,
-          child: _isLoading
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Text(strings.create),
-        ),
-      ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          // Cancel button
+          TextButton(
+            onPressed: _isLoading ? null : () => Navigator.of(context).pop(false),
+            child: Text(strings.cancel),
+          ),
+          const SizedBox(width: 12),
+
+          // Create button med gradient
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  primaryColor,
+                  Color.lerp(primaryColor, Colors.black, 0.15) ?? primaryColor,
+                ],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: primaryColor.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _submit,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                shadowColor: Colors.transparent,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Text(strings.create),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

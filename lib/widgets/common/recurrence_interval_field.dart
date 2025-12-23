@@ -1,3 +1,5 @@
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/enums.dart';
@@ -49,6 +51,9 @@ class RecurrenceIntervalField extends StatefulWidget {
   /// Optional label text (defaults to localized "Recurrence")
   final String? labelText;
 
+  /// Optional theme color from task list for visual consistency
+  final Color? themeColor;
+
   const RecurrenceIntervalField({
     super.key,
     required this.repeatDelta,
@@ -57,6 +62,7 @@ class RecurrenceIntervalField extends StatefulWidget {
     this.validator,
     this.enabled = true,
     this.labelText,
+    this.themeColor,
   });
 
   @override
@@ -133,6 +139,9 @@ class _RecurrenceIntervalFieldState extends State<RecurrenceIntervalField> {
     final Offset offset = renderBox.localToGlobal(Offset.zero);
     final Size size = renderBox.size;
 
+    // Brug tema-farve for checkmark
+    final primaryColor = widget.themeColor ?? Theme.of(context).colorScheme.primary;
+
     // Show menu anchored to the text field
     final selected = await showMenu<RepeatUnit>(
       context: context,
@@ -154,7 +163,7 @@ class _RecurrenceIntervalFieldState extends State<RecurrenceIntervalField> {
                     ? Icon(
                         Icons.check,
                         size: 20,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: primaryColor,
                       )
                     : null,
               ),
@@ -185,6 +194,9 @@ class _RecurrenceIntervalFieldState extends State<RecurrenceIntervalField> {
     final colorScheme = theme.colorScheme;
     final strings = AppStrings.of(context);
 
+    // Brug tema-farve hvis tilgængelig
+    final primaryColor = widget.themeColor ?? colorScheme.primary;
+
     return TextFormField(
       controller: _deltaController,
       enabled: widget.enabled,
@@ -196,6 +208,10 @@ class _RecurrenceIntervalFieldState extends State<RecurrenceIntervalField> {
       decoration: InputDecoration(
         labelText: widget.labelText ?? strings.recurrence,
         border: const OutlineInputBorder(),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: primaryColor, width: 2),
+        ),
+        floatingLabelStyle: TextStyle(color: primaryColor),
         // Prefix shows static "every" text in a muted color
         prefixIcon: Padding(
           padding: const EdgeInsets.only(left: 16, right: 8),
@@ -234,7 +250,7 @@ class _RecurrenceIntervalFieldState extends State<RecurrenceIntervalField> {
                 Icon(
                   Icons.arrow_drop_down,
                   color: widget.enabled
-                      ? colorScheme.onSurfaceVariant
+                      ? primaryColor
                       : colorScheme.onSurface.withValues(alpha: 0.38),
                 ),
               ],

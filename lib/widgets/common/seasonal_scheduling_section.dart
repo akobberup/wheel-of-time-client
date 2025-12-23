@@ -1,3 +1,5 @@
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+
 import 'package:flutter/material.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/enums.dart';
@@ -17,11 +19,15 @@ class SeasonalSchedulingSection extends StatelessWidget {
   /// Om sektionen skal være expanded som default.
   final bool initiallyExpanded;
 
+  /// Optional theme color from task list for visual consistency
+  final Color? themeColor;
+
   const SeasonalSchedulingSection({
     super.key,
     required this.selectedMonths,
     required this.onChanged,
     this.initiallyExpanded = false,
+    this.themeColor,
   });
 
   /// Preset definitioner for hurtig udvælgelse.
@@ -45,11 +51,16 @@ class SeasonalSchedulingSection extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // Brug tema-farve hvis tilgængelig
+    final primaryColor = themeColor ?? colorScheme.primary;
+
     return ExpansionTile(
       initiallyExpanded: initiallyExpanded,
+      iconColor: primaryColor,
+      collapsedIconColor: colorScheme.onSurfaceVariant,
       leading: Icon(
         Icons.calendar_month_outlined,
-        color: colorScheme.onSurfaceVariant,
+        color: primaryColor,
       ),
       title: Text(
         strings.activeMonths,
@@ -68,7 +79,7 @@ class SeasonalSchedulingSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Presets
-              _buildPresetChips(context, strings),
+              _buildPresetChips(context, strings, primaryColor),
               const SizedBox(height: 12),
 
               // Divider med tekst
@@ -90,7 +101,7 @@ class SeasonalSchedulingSection extends StatelessWidget {
               const SizedBox(height: 12),
 
               // Måneds-grid
-              _buildMonthGrid(context, strings),
+              _buildMonthGrid(context, strings, primaryColor),
             ],
           ),
         ),
@@ -99,7 +110,7 @@ class SeasonalSchedulingSection extends StatelessWidget {
   }
 
   /// Bygger preset chips rækken.
-  Widget _buildPresetChips(BuildContext context, AppStrings strings) {
+  Widget _buildPresetChips(BuildContext context, AppStrings strings, Color primaryColor) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -108,21 +119,25 @@ class SeasonalSchedulingSection extends StatelessWidget {
           context,
           label: strings.summer,
           presetKey: 'summer',
+          primaryColor: primaryColor,
         ),
         _buildPresetChip(
           context,
           label: strings.winter,
           presetKey: 'winter',
+          primaryColor: primaryColor,
         ),
         _buildPresetChip(
           context,
           label: strings.growingSeason,
           presetKey: 'growingSeason',
+          primaryColor: primaryColor,
         ),
         _buildPresetChip(
           context,
           label: strings.allYear,
           presetKey: null, // null = hele året
+          primaryColor: primaryColor,
         ),
       ],
     );
@@ -133,6 +148,7 @@ class SeasonalSchedulingSection extends StatelessWidget {
     BuildContext context, {
     required String label,
     required String? presetKey,
+    required Color primaryColor,
   }) {
     final isSelected = _isPresetSelected(presetKey);
 
@@ -140,6 +156,8 @@ class SeasonalSchedulingSection extends StatelessWidget {
       label: Text(label),
       selected: isSelected,
       onSelected: (_) => _selectPreset(presetKey),
+      selectedColor: primaryColor.withValues(alpha: 0.2),
+      checkmarkColor: primaryColor,
     );
   }
 
@@ -172,7 +190,7 @@ class SeasonalSchedulingSection extends StatelessWidget {
   }
 
   /// Bygger 4x3 måneds-grid.
-  Widget _buildMonthGrid(BuildContext context, AppStrings strings) {
+  Widget _buildMonthGrid(BuildContext context, AppStrings strings, Color primaryColor) {
     final monthNames = _getMonthNames(strings);
 
     return Wrap(
@@ -187,6 +205,8 @@ class SeasonalSchedulingSection extends StatelessWidget {
           selected: isSelected,
           onSelected: (_) => _toggleMonth(month),
           visualDensity: VisualDensity.compact,
+          selectedColor: primaryColor.withValues(alpha: 0.2),
+          checkmarkColor: primaryColor,
         );
       }).toList(),
     );

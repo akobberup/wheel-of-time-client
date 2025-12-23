@@ -1,3 +1,5 @@
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/ai_suggestion_service.dart';
@@ -50,12 +52,16 @@ class AiSuggestionsBottomSheet extends ConsumerStatefulWidget {
   /// Initial cached suggestions to show immediately
   final List<TaskSuggestion>? initialSuggestions;
 
+  /// Optional theme color to use for accents (from task list)
+  final Color? themeColor;
+
   const AiSuggestionsBottomSheet({
     super.key,
     required this.taskListId,
     required this.currentInput,
     required this.onSuggestionSelected,
     this.initialSuggestions,
+    this.themeColor,
   });
 
   @override
@@ -144,6 +150,7 @@ class _AiSuggestionsBottomSheetState
   Widget _buildSuggestionCard(TaskSuggestion suggestion) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final effectiveThemeColor = widget.themeColor ?? colorScheme.primary;
 
     // Format repeat description
     String repeatDescription;
@@ -178,13 +185,13 @@ class _AiSuggestionsBottomSheetState
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
+                  color: effectiveThemeColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   Icons.auto_awesome,
                   size: 20,
-                  color: colorScheme.onPrimaryContainer,
+                  color: effectiveThemeColor,
                 ),
               ),
               const SizedBox(width: 16),
@@ -289,6 +296,9 @@ class _AiSuggestionsBottomSheetState
 
   /// Builds the loading state
   Widget _buildLoadingState() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final effectiveThemeColor = widget.themeColor ?? colorScheme.primary;
+    
     if (_showLoadingIndicator) {
       // Show loading indicator after threshold
       return Center(
@@ -297,7 +307,9 @@ class _AiSuggestionsBottomSheetState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircularProgressIndicator(),
+              CircularProgressIndicator(
+                color: effectiveThemeColor,
+              ),
               const SizedBox(height: 16),
               Text(
                 AppStrings.of(context).loadingSuggestions,
@@ -365,6 +377,7 @@ class _AiSuggestionsBottomSheetState
   Widget _buildErrorState() {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final effectiveThemeColor = widget.themeColor ?? colorScheme.primary;
 
     return Center(
       child: Padding(
@@ -394,10 +407,39 @@ class _AiSuggestionsBottomSheetState
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            FilledButton.tonalIcon(
-              onPressed: _fetchSuggestions,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    effectiveThemeColor,
+                    effectiveThemeColor.withValues(alpha: 0.8),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: effectiveThemeColor.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ElevatedButton.icon(
+                onPressed: _fetchSuggestions,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  shadowColor: Colors.transparent,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -409,6 +451,7 @@ class _AiSuggestionsBottomSheetState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final effectiveThemeColor = widget.themeColor ?? colorScheme.primary;
 
     return Container(
       decoration: BoxDecoration(
@@ -434,7 +477,7 @@ class _AiSuggestionsBottomSheetState
                 Icon(
                   Icons.auto_awesome,
                   size: 24,
-                  color: colorScheme.primary,
+                  color: effectiveThemeColor,
                 ),
                 const SizedBox(width: 12),
                 Text(

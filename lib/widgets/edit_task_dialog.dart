@@ -1,3 +1,5 @@
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/task_provider.dart';
@@ -10,12 +12,21 @@ import 'common/recurrence_editor.dart';
 /// Dialog for editing an existing task.
 /// Allows users to update task name, description, repeat settings, alarm time,
 /// completion window, and active status.
+/// Supports optional theme colors from the task list for visual consistency.
 class EditTaskDialog extends ConsumerStatefulWidget {
   final TaskResponse task;
+
+  /// Optional primary theme color from task list
+  final Color? themeColor;
+
+  /// Optional secondary theme color from task list
+  final Color? secondaryThemeColor;
 
   const EditTaskDialog({
     super.key,
     required this.task,
+    this.themeColor,
+    this.secondaryThemeColor,
   });
 
   @override
@@ -110,6 +121,10 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // Brug task list tema farver hvis tilgængelige
+    final primaryColor = widget.themeColor ?? colorScheme.primary;
+    final secondaryColor = widget.secondaryThemeColor ?? primaryColor;
+
     return AlertDialog(
       title: Text(strings.editTask),
       content: SizedBox(
@@ -129,7 +144,11 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                   labelText: strings.taskName,
                   hintText: strings.enterTaskName,
                   border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.task_alt),
+                  prefixIcon: Icon(Icons.task_alt, color: primaryColor),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: primaryColor, width: 2),
+                  ),
+                  floatingLabelStyle: TextStyle(color: primaryColor),
                 ),
                 textCapitalization: TextCapitalization.sentences,
                 validator: (value) {
@@ -147,14 +166,16 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                 onScheduleChanged: (schedule) {
                   setState(() => _schedule = schedule);
                 },
+                themeColor: primaryColor,
               ),
               const SizedBox(height: 16),
 
-              // Active status toggle - important for task management
+              // Active status toggle - themed
               SwitchListTile(
                 title: Text(strings.active),
                 subtitle: Text(strings.inactiveTasksWontShow),
                 value: _isActive,
+                activeColor: primaryColor,
                 onChanged: (value) {
                   setState(() => _isActive = value);
                 },
@@ -166,7 +187,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
               // Divider to separate primary from optional fields
               const Divider(),
 
-              // Expansion toggle button with Material 3 styling
+              // Expansion toggle button with theme color
               InkWell(
                 onTap: () {
                   setState(() {
@@ -180,13 +201,13 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                     children: [
                       Icon(
                         _showOptionalFields ? Icons.expand_less : Icons.expand_more,
-                        color: colorScheme.primary,
+                        color: primaryColor,
                       ),
                       const SizedBox(width: 12),
                       Text(
                         _showOptionalFields ? strings.hideOptionalDetails : strings.showOptionalDetails,
                         style: theme.textTheme.bodyLarge?.copyWith(
-                          color: colorScheme.primary,
+                          color: primaryColor,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -197,7 +218,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: colorScheme.primary,
+                            color: primaryColor,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -223,7 +244,11 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                         labelText: strings.description,
                         hintText: strings.addTaskDetails,
                         border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.notes),
+                        prefixIcon: Icon(Icons.notes, color: primaryColor),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: primaryColor, width: 2),
+                        ),
+                        floatingLabelStyle: TextStyle(color: primaryColor),
                       ),
                       maxLines: 2,
                       textCapitalization: TextCapitalization.sentences,
@@ -243,7 +268,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                               onPressed: () => setState(() => _alarmTime = null),
                               tooltip: strings.clearAlarm,
                             ),
-                          const Icon(Icons.alarm),
+                          Icon(Icons.alarm, color: primaryColor),
                         ],
                       ),
                       onTap: () async {
@@ -253,6 +278,16 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                             hour: _alarmTime?.hour ?? 9,
                             minute: _alarmTime?.minute ?? 0,
                           ),
+                          builder: (context, child) {
+                            return Theme(
+                              data: Theme.of(context).copyWith(
+                                colorScheme: colorScheme.copyWith(
+                                  primary: primaryColor,
+                                ),
+                              ),
+                              child: child!,
+                            );
+                          },
                         );
                         if (time != null) {
                           setState(() => _alarmTime = LocalTime.fromTimeOfDay(time.hour, time.minute));
@@ -268,8 +303,12 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                         labelText: strings.completionWindowHours,
                         hintText: strings.completionWindowHint,
                         border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.hourglass_empty),
+                        prefixIcon: Icon(Icons.hourglass_empty, color: primaryColor),
                         helperText: strings.hoursAfterAlarm,
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: primaryColor, width: 2),
+                        ),
+                        floatingLabelStyle: TextStyle(color: primaryColor),
                       ),
                       keyboardType: TextInputType.number,
                       validator: (value) {
@@ -313,11 +352,18 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _submit,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primaryColor,
+            foregroundColor: Colors.white,
+          ),
           child: _isLoading
               ? const SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
                 )
               : Text(strings.save),
         ),

@@ -239,6 +239,36 @@ Sporing af hvilke komponenter der er blevet implementeret i henhold til design g
 |-----------|-----|--------|------|
 | Task Completion Animation | `lib/widgets/common/task_completion_animation.dart` | ✅ Implementeret | Dec 2025 |
 | Complete Task Dialog | `lib/widgets/complete_task_dialog.dart` | ✅ Implementeret | Dec 2025 |
+| Theme Selector | `lib/widgets/theme_selector.dart` | ✅ Implementeret | Dec 2025 |
+| Edit Task List Dialog | `lib/widgets/edit_task_list_dialog.dart` | ✅ Redesignet | Dec 2025 |
+| Task List Card | `lib/screens/task_lists_screen.dart` | ✅ Redesignet | Dec 2025 |
+| Task List Detail Screen | `lib/screens/task_list_detail_screen.dart` | ✅ Redesignet | Dec 2025 |
+
+### Task List Detail Screen Redesign Features
+- Hele skærmen farvet af opgavelistens tema (primary/secondary colors)
+- AppBar med gradient baggrund og dekorative cirkulære elementer (wheel motiv)
+- Baggrund med subtil tema-tint
+- Kompakte opgavekort med:
+  - 4px gradient accent border i toppen
+  - Cirkulær thumbnail med billede eller tema-farvet ikon
+  - Uppercase titel med tema-farvede metadata chips
+  - Skygger farvet med tema-farve
+- FAB med tema-farve og glow effekt
+- RefreshIndicator bruger tema-farve
+
+### Theme Selector Features
+- Grid-baseret tema-vælger med farve-forhåndsvisning (gradient fra primary til secondary)
+- CompactThemeSelector til brug i dialogs med modal bottom sheet
+- Checkmark-ikon på valgt tema
+- Full dark mode support
+- Tema display name med palette-ikon
+
+### Task List Card Redesign Features
+- Fjernet stort hero billede-sektion
+- Subtil 4px gradient border i toppen med tema-farver
+- Tema display badge med palette-ikon og tema-navn
+- Progress indikator bruger tema-farverne
+- Mere kompakt og indholdscentreret design
 
 ### Task Completion Celebration Features
 - Custom confetti animation med 50 partikler i brugerens tema-farve

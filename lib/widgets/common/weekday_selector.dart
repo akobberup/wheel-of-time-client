@@ -1,3 +1,5 @@
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+
 import 'package:flutter/material.dart';
 import '../../models/enums.dart';
 import '../../l10n/app_strings.dart';
@@ -35,12 +37,16 @@ class WeekdaySelector extends StatelessWidget {
   /// Whether to show preset buttons (weekdays, weekends)
   final bool showPresets;
 
+  /// Optional theme color from task list for visual consistency
+  final Color? themeColor;
+
   const WeekdaySelector({
     super.key,
     required this.selectedDays,
     required this.onChanged,
     this.enabled = true,
     this.showPresets = false,
+    this.themeColor,
   });
 
   /// Returns localized short name for a day of week
@@ -125,6 +131,9 @@ class WeekdaySelector extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final strings = AppStrings.of(context);
 
+    // Brug tema-farve hvis tilgængelig
+    final primaryColor = themeColor ?? colorScheme.primary;
+
     // Days ordered Monday through Sunday (ISO 8601 week standard)
     final orderedDays = [
       DayOfWeek.MONDAY,
@@ -160,12 +169,12 @@ class WeekdaySelector extends StatelessWidget {
                 onSelected: enabled ? (_) => _toggleDay(day) : null,
                 // Ensure minimum 48dp touch target height
                 materialTapTargetSize: MaterialTapTargetSize.padded,
-                // Material 3 styling
-                selectedColor: colorScheme.primaryContainer,
-                checkmarkColor: colorScheme.onPrimaryContainer,
+                // Tema-farvede styling
+                selectedColor: primaryColor.withValues(alpha: 0.2),
+                checkmarkColor: primaryColor,
                 labelStyle: TextStyle(
                   color: isSelected
-                      ? colorScheme.onPrimaryContainer
+                      ? primaryColor
                       : colorScheme.onSurface,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
@@ -189,10 +198,11 @@ class WeekdaySelector extends StatelessWidget {
                 onPressed: enabled
                     ? () => _applyPreset(weekdaysPreset)
                     : null,
-                icon: const Icon(Icons.work_outline, size: 18),
+                icon: Icon(Icons.work_outline, size: 18, color: primaryColor),
                 label: Text(strings.weekdays),
                 style: OutlinedButton.styleFrom(
                   visualDensity: VisualDensity.compact,
+                  foregroundColor: primaryColor,
                 ),
               ),
 
@@ -201,10 +211,11 @@ class WeekdaySelector extends StatelessWidget {
                 onPressed: enabled
                     ? () => _applyPreset(weekendsPreset)
                     : null,
-                icon: const Icon(Icons.weekend_outlined, size: 18),
+                icon: Icon(Icons.weekend_outlined, size: 18, color: primaryColor),
                 label: Text(strings.weekends),
                 style: OutlinedButton.styleFrom(
                   visualDensity: VisualDensity.compact,
+                  foregroundColor: primaryColor,
                 ),
               ),
 

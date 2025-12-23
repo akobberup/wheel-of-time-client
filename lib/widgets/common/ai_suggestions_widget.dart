@@ -1,3 +1,5 @@
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../l10n/app_strings.dart';
@@ -86,6 +88,9 @@ class AiSuggestionsWidget<T> extends StatefulWidget {
   /// Whether to show sparkle icon when showing initial suggestions (before user types)
   final bool showSparkleWhenEmpty;
 
+  /// Optional theme color to use for accents (from task list)
+  final Color? themeColor;
+
   const AiSuggestionsWidget({
     super.key,
     required this.fetchSuggestions,
@@ -97,6 +102,7 @@ class AiSuggestionsWidget<T> extends StatefulWidget {
     this.debounceDuration = const Duration(milliseconds: 500),
     this.loadingThreshold = const Duration(milliseconds: 800),
     this.showSparkleWhenEmpty = true,
+    this.themeColor,
   });
 
   @override
@@ -241,6 +247,9 @@ class _AiSuggestionsWidgetState<T> extends State<AiSuggestionsWidget<T>> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final effectiveThemeColor = widget.themeColor ?? colorScheme.primary;
+    
     // Check if we should show the container
     final bool hasContent = _suggestions.isNotEmpty || _showLoading || _errorMessage != null;
 
@@ -278,7 +287,7 @@ class _AiSuggestionsWidgetState<T> extends State<AiSuggestionsWidget<T>> {
                     Icon(
                       Icons.auto_awesome,
                       size: 16,
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                      color: effectiveThemeColor.withOpacity(0.7),
                     ),
                     const SizedBox(width: 6),
                   ],
@@ -313,7 +322,7 @@ class _AiSuggestionsWidgetState<T> extends State<AiSuggestionsWidget<T>> {
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(context).colorScheme.primary,
+                        effectiveThemeColor,
                       ),
                     ),
                   ),

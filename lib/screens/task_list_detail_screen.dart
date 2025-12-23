@@ -4,14 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/task_provider.dart';
+import '../providers/task_list_provider.dart';
 import '../providers/task_history_provider.dart';
 import '../providers/suggestion_cache_provider.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/create_task_dialog.dart';
 import '../widgets/edit_task_dialog.dart';
 import '../widgets/common/contextual_delete_dialog.dart';
-import '../widgets/common/animated_card.dart';
-import '../widgets/common/gradient_background.dart';
 import '../config/api_config.dart';
 import 'task_list_members_screen.dart';
 import 'task_history_screen.dart';
@@ -22,6 +21,7 @@ import '../models/schedule.dart';
 import '../models/task.dart' show TaskResponse;
 
 /// Viser detaljer for en opgaveliste med alle dens opgaver
+/// Hele skærmen er farvet af opgavelistens tema (primary/secondary colors)
 class TaskListDetailScreen extends ConsumerStatefulWidget {
   final int taskListId;
   final String? taskListName;
@@ -53,45 +53,95 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
     });
   }
 
+  /// Parser hex color string til Color objekt
+  Color _parseHexColor(String? hexString, Color fallback) {
+    if (hexString == null || hexString.isEmpty) return fallback;
+
+    final buffer = StringBuffer();
+    if (hexString.length == 7) {
+      buffer.write('FF');
+      buffer.write(hexString.replaceFirst('#', ''));
+    } else if (hexString.length == 9) {
+      buffer.write(hexString.replaceFirst('#', ''));
+    } else {
+      return fallback;
+    }
+    return Color(int.parse(buffer.toString(), radix: 16));
+  }
+
   @override
   Widget build(BuildContext context) {
     final strings = AppStrings.of(context);
     final tasksAsync = ref.watch(tasksProvider(widget.taskListId));
-    final themeColor = ref.watch(themeProvider).seedColor;
+    final taskListAsync = ref.watch(taskListDetailProvider(widget.taskListId));
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fallbackColor = ref.watch(themeProvider).seedColor;
+
+    // Hent tema farver fra opgavelisten
+    final primaryColor = taskListAsync.whenOrNull(
+          data: (taskList) =>
+              _parseHexColor(taskList.visualTheme.primaryColor, fallbackColor),
+        ) ??
+        fallbackColor;
+
+    final secondaryColor = taskListAsync.whenOrNull(
+          data: (taskList) =>
+              _parseHexColor(taskList.visualTheme.secondaryColor, fallbackColor),
+        ) ??
+        fallbackColor;
+
+    // Baggrund med subtil tema-tint
+    final backgroundColor = isDark
+        ? Color.lerp(const Color(0xFF121214), primaryColor, 0.03)!
+        : Color.lerp(const Color(0xFFFAFAF8), primaryColor, 0.05)!;
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       body: CustomScrollView(
         slivers: [
-          _buildSliverAppBar(strings, themeColor, isDark),
+          _buildSliverAppBar(
+              strings, primaryColor, secondaryColor, isDark),
           SliverToBoxAdapter(
-            child: _buildBody(tasksAsync, strings),
+            child: _buildBody(
+                tasksAsync, strings, primaryColor, secondaryColor, isDark),
           ),
         ],
       ),
       floatingActionButton:
-          _buildFloatingActionButton(strings, themeColor, isDark),
+          _buildFloatingActionButton(strings, primaryColor, isDark),
     );
   }
 
-  /// Bygger custom SliverAppBar med varm, organisk æstetik
-  Widget _buildSliverAppBar(AppStrings strings, Color themeColor, bool isDark) {
+  /// Bygger custom SliverAppBar med opgavelistens tema-gradient
+  Widget _buildSliverAppBar(
+    AppStrings strings,
+    Color primaryColor,
+    Color secondaryColor,
+    bool isDark,
+  ) {
     return SliverAppBar(
-      expandedHeight: 100,
+      expandedHeight: 120,
       floating: false,
       pinned: true,
       elevation: 0,
-      backgroundColor:
-          isDark ? const Color(0xFF1A1A1C) : const Color(0xFFFAFAF8),
+      backgroundColor: primaryColor,
+      foregroundColor: Colors.white,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
           widget.taskListName != null
               ? strings.tasksIn(widget.taskListName!)
               : strings.tasks,
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.w700,
             letterSpacing: -0.5,
-            color: isDark ? const Color(0xFFF5F5F5) : const Color(0xFF1A1A1A),
+            color: Colors.white,
+            shadows: [
+              Shadow(
+                color: Colors.black26,
+                blurRadius: 4,
+                offset: Offset(0, 1),
+              ),
+            ],
           ),
         ),
         titlePadding: const EdgeInsets.only(left: 56, bottom: 16),
@@ -100,51 +150,90 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                themeColor.withValues(alpha: 0.05),
-                themeColor.withValues(alpha: 0.02),
-              ],
+              colors: [primaryColor, secondaryColor],
             ),
+          ),
+          // Subtilt mønster overlay
+          child: Stack(
+            children: [
+              // Dekorativt cirkulært element (wheel motiv)
+              Positioned(
+                right: -30,
+                top: -30,
+                child: Container(
+                  width: 150,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.08),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 40,
+                bottom: -20,
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.05),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
-      actions: [_buildMembersButton(strings)],
+      actions: [_buildMembersButton(strings, primaryColor, secondaryColor)],
     );
   }
 
-  Widget _buildMembersButton(AppStrings strings) {
+  Widget _buildMembersButton(AppStrings strings, Color primaryColor, Color secondaryColor) {
     return Semantics(
       label: strings.members,
       button: true,
       child: IconButton(
         icon: const Icon(Icons.people),
         tooltip: strings.members,
-        onPressed: () => _navigateToMembers(strings),
+        onPressed: () => _navigateToMembers(strings, primaryColor, secondaryColor),
       ),
     );
   }
 
   Widget _buildBody(
-      AsyncValue<List<TaskResponse>> tasksAsync, AppStrings strings) {
+    AsyncValue<List<TaskResponse>> tasksAsync,
+    AppStrings strings,
+    Color primaryColor,
+    Color secondaryColor,
+    bool isDark,
+  ) {
     return RefreshIndicator(
+      color: primaryColor,
       onRefresh: () =>
           ref.read(tasksProvider(widget.taskListId).notifier).loadTasks(),
       child: tasksAsync.when(
-        data: (tasks) => _buildTasksList(tasks, strings),
+        data: (tasks) =>
+            _buildTasksList(tasks, strings, primaryColor, secondaryColor, isDark),
         loading: () => const SkeletonListLoader(),
         error: (error, stack) => _buildErrorState(error, strings),
       ),
     );
   }
 
-  Widget _buildTasksList(List<TaskResponse> tasks, AppStrings strings) {
+  Widget _buildTasksList(
+    List<TaskResponse> tasks,
+    AppStrings strings,
+    Color primaryColor,
+    Color secondaryColor,
+    bool isDark,
+  ) {
     if (tasks.isEmpty) {
-      return _buildEmptyState(strings);
+      return _buildEmptyState(strings, primaryColor);
     }
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Begrans bredden pa desktop for bedre laesbarhed og proportioner
         const maxContentWidth = 700.0;
         final isWideScreen = constraints.maxWidth > maxContentWidth;
         final horizontalPadding =
@@ -158,22 +247,29 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
             vertical: 16,
           ),
           itemCount: tasks.length,
-          itemBuilder: (context, index) => _TaskCard(
+          itemBuilder: (context, index) => _ThemedTaskCard(
             task: tasks[index],
             taskListId: widget.taskListId,
+            primaryColor: primaryColor,
+            secondaryColor: secondaryColor,
+            isDark: isDark,
           ),
         );
       },
     );
   }
 
-  Widget _buildEmptyState(AppStrings strings) {
+  Widget _buildEmptyState(AppStrings strings, Color primaryColor) {
     return EmptyState(
       title: strings.noTasks,
       subtitle: strings.addFirstTask,
       action: ElevatedButton.icon(
         icon: const Icon(Icons.add),
         label: Text(strings.createTask),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColor,
+          foregroundColor: Colors.white,
+        ),
         onPressed: () => _handleCreateTask(),
       ),
     );
@@ -185,16 +281,15 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
     );
   }
 
-  /// Bygger FAB med tema-farve og glow effekt (Design 1.0.0)
+  /// Bygger FAB med tema-farve og glow effekt
   Widget _buildFloatingActionButton(
-      AppStrings strings, Color themeColor, bool isDark) {
+      AppStrings strings, Color primaryColor, bool isDark) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          // Glow effekt med tema-farven
           BoxShadow(
-            color: themeColor.withValues(alpha: 0.3),
+            color: primaryColor.withValues(alpha: 0.4),
             blurRadius: 16,
             spreadRadius: 0,
             offset: const Offset(0, 4),
@@ -203,7 +298,7 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
       ),
       child: FloatingActionButton(
         onPressed: () => _handleCreateTask(),
-        backgroundColor: themeColor,
+        backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -214,21 +309,44 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
     );
   }
 
-  void _navigateToMembers(AppStrings strings) {
+  void _navigateToMembers(AppStrings strings, Color primaryColor, Color secondaryColor) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => TaskListMembersScreen(
           taskListId: widget.taskListId,
           taskListName: widget.taskListName ?? strings.taskLists,
+          primaryColor: primaryColor,
+          secondaryColor: secondaryColor,
         ),
       ),
     );
   }
 
   Future<void> _handleCreateTask() async {
+    final taskListAsync = ref.read(taskListDetailProvider(widget.taskListId));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fallbackColor = ref.read(themeProvider).seedColor;
+
+    // Hent tema farver fra opgavelisten
+    final primaryColor = taskListAsync.whenOrNull(
+          data: (taskList) =>
+              _parseHexColor(taskList.visualTheme.primaryColor, fallbackColor),
+        ) ??
+        fallbackColor;
+
+    final secondaryColor = taskListAsync.whenOrNull(
+          data: (taskList) =>
+              _parseHexColor(taskList.visualTheme.secondaryColor, fallbackColor),
+        ) ??
+        fallbackColor;
+
     final result = await showDialog(
       context: context,
-      builder: (context) => CreateTaskDialog(taskListId: widget.taskListId),
+      builder: (context) => CreateTaskDialog(
+        taskListId: widget.taskListId,
+        themeColor: primaryColor,
+        secondaryThemeColor: secondaryColor,
+      ),
     );
     if (result == true && mounted) {
       ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
@@ -236,34 +354,38 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
   }
 }
 
-/// Kort der viser en enkelt opgave med hero-billede, detaljer og handlinger (Design 1.0.0)
-class _TaskCard extends ConsumerWidget {
+/// Tema-farvet opgavekort - kompakt design med gradient-accent
+class _ThemedTaskCard extends ConsumerWidget {
   final TaskResponse task;
   final int taskListId;
+  final Color primaryColor;
+  final Color secondaryColor;
+  final bool isDark;
 
-  const _TaskCard({
+  const _ThemedTaskCard({
     required this.task,
     required this.taskListId,
+    required this.primaryColor,
+    required this.secondaryColor,
+    required this.isDark,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark
+        ? const Color(0xFF222226)
+        : const Color(0xFFFFFFFF);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        // Bløde kort med borderRadius: 16 (Design 1.0.0)
         borderRadius: BorderRadius.circular(16),
-        color: isDark
-            ? const Color(0xFF222226) // Overflade (cards) mørk
-            : const Color(0xFFFFFFFF), // Overflade (cards) lys
-        // Subtile skygger (Niveau 2: cards)
+        color: cardColor,
         boxShadow: isDark
-            ? [] // I mørk tilstand: Brug lysere baggrunde i stedet for shadows
+            ? []
             : [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
+                  color: primaryColor.withValues(alpha: 0.08),
                   blurRadius: 16,
                   offset: const Offset(0, 4),
                 ),
@@ -278,51 +400,64 @@ class _TaskCard extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Hero billede eller gradient
-              _buildHeroSection(context),
-              // Indhold
+              // Gradient accent border i toppen
+              _buildThemeAccent(),
+              // Kompakt indhold
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Column(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Titel og menu
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            task.name,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 18,
+                    // Cirkulær thumbnail med billede eller ikon
+                    _buildThumbnail(context),
+                    const SizedBox(width: 14),
+                    // Titel, beskrivelse og metadata
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Titel og menu
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  task.name.toUpperCase(),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 15,
+                                    letterSpacing: 0.5,
+                                    color: isDark
+                                        ? const Color(0xFFF5F5F5)
+                                        : const Color(0xFF1A1A1A),
+                                  ),
                                 ),
+                              ),
+                              _buildPopupMenu(context, ref),
+                            ],
                           ),
-                        ),
-                        _buildPopupMenu(context, ref),
-                      ],
-                    ),
-                    // Beskrivelse
-                    if (task.description != null) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        task.description!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: isDark
-                              ? const Color(0xFFA0A0A0) // Tekst sekundær mørk
-                              : const Color(0xFF6B6B6B), // Tekst sekundær lys
-                          fontSize: 14,
-                        ),
+                          // Beskrivelse
+                          if (task.description != null &&
+                              task.description!.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              task.description!,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: isDark
+                                    ? const Color(0xFFA0A0A0)
+                                    : const Color(0xFF6B6B6B),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 10),
+                          // Metadata chips
+                          _buildMetadataRow(context),
+                        ],
                       ),
-                    ],
-                    const SizedBox(height: 16),
-                    // Metadata række
-                    _buildMetadataRow(context),
+                    ),
                   ],
                 ),
               ),
@@ -333,123 +468,127 @@ class _TaskCard extends ConsumerWidget {
     );
   }
 
-  /// Bygger hero sektionen med billede eller gradient
-  Widget _buildHeroSection(BuildContext context) {
-    const heroHeight = 80.0;
-    const borderRadius = BorderRadius.only(
-      topLeft: Radius.circular(16),
-      topRight: Radius.circular(16),
+  /// Bygger gradient accent i toppen af kortet
+  Widget _buildThemeAccent() {
+    return Container(
+      height: 4,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+        gradient: LinearGradient(
+          colors: [primaryColor, secondaryColor],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+      ),
     );
+  }
 
+  /// Bygger cirkulær thumbnail med billede eller tema-farvet ikon
+  Widget _buildThumbnail(BuildContext context) {
     final hasImage =
         task.taskImagePath != null && task.taskImagePath!.isNotEmpty;
-    if (hasImage) {
-      return HeroImageContainer(
-        height: heroHeight,
-        borderRadius: borderRadius,
-        image: CachedNetworkImage(
-          imageUrl: ApiConfig.getImageUrl(task.taskImagePath!),
-          fit: BoxFit.cover,
-          placeholder: (context, url) => _buildImagePlaceholder(context),
-          errorWidget: (context, url, error) => GradientBackground(
-            seed: task.name,
-            height: heroHeight,
-            showOverlay: false,
-          ),
-        ),
-      );
-    }
+    final size = 52.0;
 
-    return GradientBackground(
-      seed: task.name,
-      height: heroHeight,
-      borderRadius: borderRadius,
-      showOverlay: false,
-      child: Center(
-        child: Icon(
-          Icons.check_circle_outline,
-          size: 32,
-          color: Colors.white.withValues(alpha: 0.8),
-        ),
-      ),
-    );
-  }
+    // Lysere baggrund baseret på tema farve
+    final backgroundColor = Color.lerp(primaryColor, Colors.white, 0.85) ??
+        primaryColor.withValues(alpha: 0.15);
 
-  Widget _buildImagePlaceholder(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: const Center(
-        child: SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: backgroundColor,
+        border: Border.all(
+          color: primaryColor.withValues(alpha: 0.25),
+          width: 2,
         ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: hasImage
+          ? CachedNetworkImage(
+              imageUrl: ApiConfig.getImageUrl(task.taskImagePath!),
+              fit: BoxFit.cover,
+              placeholder: (context, url) => _buildThumbnailPlaceholder(),
+              errorWidget: (context, url, error) => _buildThumbnailPlaceholder(),
+            )
+          : _buildThumbnailPlaceholder(),
+    );
+  }
+
+  Widget _buildThumbnailPlaceholder() {
+    return Center(
+      child: Icon(
+        Icons.check_circle_outline,
+        color: primaryColor.withValues(alpha: 0.6),
+        size: 26,
       ),
     );
   }
 
-  /// Bygger metadata række med schedule og streak (Design 1.0.0)
+  /// Bygger metadata række med tema-farvede chips
   Widget _buildMetadataRow(BuildContext context) {
     final strings = AppStrings.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Wrap(
-      spacing: 12,
-      runSpacing: 8,
+      spacing: 8,
+      runSpacing: 6,
       children: [
         // Schedule chip
-        _buildChip(
-          context,
+        _buildThemedChip(
           icon: Icons.repeat_rounded,
           label: _formatSchedule(task.schedule),
-          color: colorScheme.primary,
         ),
-        // Streak chip hvis aktiv (brug ikon fra design guidelines)
+        // Streak chip hvis aktiv
         if (task.currentStreak != null && task.currentStreak!.streakCount > 0)
-          _buildChip(
-            context,
+          _buildThemedChip(
             icon: Icons.local_fire_department,
             label: strings.streakCount(task.currentStreak!.streakCount),
-            color: colorScheme.tertiary,
+            isHighlight: true,
           ),
-        // Completions chip (brug check_circle_outline fra guidelines)
+        // Completions chip
         if (task.totalCompletions > 0)
-          _buildChip(
-            context,
+          _buildThemedChip(
             icon: Icons.check_circle_outline,
             label: '${task.totalCompletions}x',
-            color: colorScheme.secondary,
           ),
       ],
     );
   }
 
-  /// Bygger chip med bløde kanter (borderRadius: 8px for små elementer - Design 1.0.0)
-  Widget _buildChip(
-    BuildContext context, {
+  /// Bygger tema-farvet chip
+  Widget _buildThemedChip({
     required IconData icon,
     required String label,
-    required Color color,
+    bool isHighlight = false,
   }) {
+    final chipColor = isHighlight ? secondaryColor : primaryColor;
+    final bgAlpha = isDark ? 0.20 : 0.12;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius:
-            BorderRadius.circular(8), // Små elementer (badges, chips): 8px
+        color: chipColor.withValues(alpha: bgAlpha),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: chipColor.withValues(alpha: 0.2),
+          width: 1,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 6),
+          Icon(icon, size: 14, color: chipColor),
+          const SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(
-              color: color,
-              fontSize: 12,
+              color: chipColor,
+              fontSize: 11,
               fontWeight: FontWeight.w600,
-              letterSpacing: 0.2,
             ),
           ),
         ],
@@ -461,6 +600,11 @@ class _TaskCard extends ConsumerWidget {
     final strings = AppStrings.of(context);
 
     return PopupMenuButton<String>(
+      icon: Icon(
+        Icons.more_vert,
+        color: isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B),
+        size: 20,
+      ),
       itemBuilder: (context) => [
         _buildEditMenuItem(strings),
         _buildDeleteMenuItem(strings),
@@ -528,7 +672,11 @@ class _TaskCard extends ConsumerWidget {
   Future<void> _handleEdit(BuildContext context, WidgetRef ref) async {
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => EditTaskDialog(task: task),
+      builder: (context) => EditTaskDialog(
+        task: task,
+        themeColor: primaryColor,
+        secondaryThemeColor: secondaryColor,
+      ),
     );
     if (result == true) {
       ref.read(tasksProvider(taskListId).notifier).loadTasks();
@@ -549,7 +697,6 @@ class _TaskCard extends ConsumerWidget {
     }
   }
 
-  /// Viser bekræftelsesdialog med kontekstuel information om sletning
   Future<bool> _showDeleteConfirmation(
     BuildContext context,
     WidgetRef ref,
@@ -566,7 +713,6 @@ class _TaskCard extends ConsumerWidget {
     );
   }
 
-  /// Henter kontekst for sletning (antal completions og streak-info)
   Future<DeletionContext> _fetchDeletionContext(WidgetRef ref) async {
     try {
       final taskHistoryNotifier =

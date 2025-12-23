@@ -1,3 +1,5 @@
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/ai_suggestion_provider.dart';
@@ -18,10 +20,14 @@ class TaskListSuggestionsBottomSheet extends ConsumerStatefulWidget {
   /// Callback when a suggestion is selected
   final OnTaskListSuggestionSelected onSuggestionSelected;
 
+  /// Optional theme color to use for accents (from task list)
+  final Color? themeColor;
+
   const TaskListSuggestionsBottomSheet({
     super.key,
     required this.currentInput,
     required this.onSuggestionSelected,
+    this.themeColor,
   });
 
   @override
@@ -93,6 +99,7 @@ class _TaskListSuggestionsBottomSheetState
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final strings = AppStrings.of(context);
+    final effectiveThemeColor = widget.themeColor ?? colorScheme.primary;
 
     return Container(
       constraints: BoxConstraints(
@@ -123,7 +130,7 @@ class _TaskListSuggestionsBottomSheetState
               children: [
                 Icon(
                   Icons.auto_awesome,
-                  color: colorScheme.primary,
+                  color: effectiveThemeColor,
                   size: 24,
                 ),
                 const SizedBox(width: 12),
@@ -161,6 +168,7 @@ class _TaskListSuggestionsBottomSheetState
     ColorScheme colorScheme,
     AppStrings strings,
   ) {
+    final effectiveThemeColor = widget.themeColor ?? colorScheme.primary;
     // Loading state with shimmer placeholders
     if (_isLoading && _suggestions.isEmpty) {
       if (_showLoadingIndicator) {
@@ -171,7 +179,7 @@ class _TaskListSuggestionsBottomSheetState
               mainAxisSize: MainAxisSize.min,
               children: [
                 CircularProgressIndicator(
-                  color: colorScheme.primary,
+                  color: effectiveThemeColor,
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -225,10 +233,39 @@ class _TaskListSuggestionsBottomSheetState
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: _fetchSuggestions,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      effectiveThemeColor,
+                      effectiveThemeColor.withValues(alpha: 0.8),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: effectiveThemeColor.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: _fetchSuggestions,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    shadowColor: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -294,6 +331,7 @@ class _TaskListSuggestionsBottomSheetState
     ColorScheme colorScheme,
     String suggestion,
   ) {
+    final effectiveThemeColor = widget.themeColor ?? colorScheme.primary;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 0,
@@ -309,12 +347,12 @@ class _TaskListSuggestionsBottomSheetState
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
+                  color: effectiveThemeColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   Icons.list_alt,
-                  color: colorScheme.onPrimaryContainer,
+                  color: effectiveThemeColor,
                   size: 20,
                 ),
               ),

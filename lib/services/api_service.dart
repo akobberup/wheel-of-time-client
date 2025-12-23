@@ -14,6 +14,7 @@ import '../models/task_list_user.dart';
 import '../models/streak.dart';
 import '../models/image.dart';
 import '../models/user_settings.dart';
+import '../models/visual_theme.dart';
 import '../models/enums.dart';
 import '../config/api_config.dart';
 import 'remote_logger_service.dart';
@@ -1249,6 +1250,52 @@ class ApiService {
         );
       } else {
         throw ApiException('Failed to update user settings', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  // ===================== Visual Themes =====================
+
+  /// Henter alle tilgængelige visuelle temaer
+  /// Bruges til at vise tema-vælger i UI
+  Future<List<VisualThemeResponse>> getAllVisualThemes() async {
+    try {
+      final response = await _loggedGet(
+        '$baseUrl/api/visual-themes',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = jsonDecode(response.body);
+        return jsonList
+            .map((json) => VisualThemeResponse.fromJson(json as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw ApiException('Failed to load visual themes', response.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Network error: $e');
+    }
+  }
+
+  /// Henter et specifikt visuelt tema baseret på ID
+  Future<VisualThemeResponse> getVisualThemeById(int id) async {
+    try {
+      final response = await _loggedGet(
+        '$baseUrl/api/visual-themes/$id',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        return VisualThemeResponse.fromJson(
+          jsonDecode(response.body) as Map<String, dynamic>,
+        );
+      } else {
+        throw ApiException('Failed to load visual theme', response.statusCode);
       }
     } catch (e) {
       if (e is ApiException) rethrow;

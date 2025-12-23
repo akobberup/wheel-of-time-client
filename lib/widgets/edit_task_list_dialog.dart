@@ -1,8 +1,14 @@
+// Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/task_list_provider.dart';
+import '../providers/theme_provider.dart';
+import '../providers/auth_provider.dart';
 import '../models/task_list.dart';
+import '../models/visual_theme.dart';
 import '../l10n/app_strings.dart';
+import 'theme_selector.dart';
 
 /// Dialog for editing an existing task list.
 /// Allows users to update the name and description of a task list.
@@ -23,6 +29,9 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
   late final TextEditingController _nameController;
   late final TextEditingController _descriptionController;
   bool _isLoading = false;
+  List<VisualThemeResponse>? _availableThemes;
+  VisualThemeResponse? _selectedTheme;
+  bool _isLoadingThemes = false;
 
   @override
   void initState() {
@@ -32,6 +41,30 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
     _descriptionController = TextEditingController(
       text: widget.taskList.description ?? '',
     );
+    _selectedTheme = widget.taskList.visualTheme;
+    _loadAvailableThemes();
+  }
+
+  /// Indlæser alle tilgængelige temaer fra serveren
+  Future<void> _loadAvailableThemes() async {
+    setState(() => _isLoadingThemes = true);
+    try {
+      final apiService = ref.read(apiServiceProvider);
+      final themes = await apiService.getAllVisualThemes();
+      if (mounted) {
+        setState(() {
+          _availableThemes = themes;
+          _isLoadingThemes = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoadingThemes = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load themes: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -52,6 +85,7 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
       description: _descriptionController.text.trim().isEmpty
           ? null
           : _descriptionController.text.trim(),
+      visualThemeId: _selectedTheme?.id,
     );
 
     final result = await ref.read(taskListProvider.notifier).updateTaskList(
@@ -74,37 +108,85 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
   @override
   Widget build(BuildContext context) {
     final strings = AppStrings.of(context);
+    final themeState = ref.watch(themeProvider);
+    final isDark = themeState.isDarkMode;
 
     return AlertDialog(
       title: const Text('Edit Task List'),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: strings.name,
-                border: const OutlineInputBorder(),
+      content: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Navn felt
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: strings.name,
+                  border: const OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter a name';
+                  }
+                  return null;
+                },
               ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a name';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description (optional)',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 16),
+
+              // Beskrivelse felt
+              TextFormField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Description (optional)',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
               ),
-              maxLines: 3,
-            ),
-          ],
+              const SizedBox(height: 20),
+
+              // Tema vælger
+              Text(
+                'Visual Theme',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: isDark
+                      ? const Color(0xFFF5F5F5)
+                      : const Color(0xFF1A1A1A),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              if (_isLoadingThemes)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              else if (_availableThemes != null)
+                CompactThemeSelector(
+                  currentTheme: _selectedTheme,
+                  availableThemes: _availableThemes!,
+                  onThemeSelected: (theme) {
+                    setState(() => _selectedTheme = theme);
+                  },
+                  isDarkMode: isDark,
+                )
+              else
+                Text(
+                  'Failed to load themes',
+                  style: TextStyle(
+                    color: isDark
+                        ? const Color(0xFFA0A0A0)
+                        : const Color(0xFF6B6B6B),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
       actions: [
