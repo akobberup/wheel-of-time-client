@@ -6,10 +6,10 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
 import '../l10n/app_strings.dart';
 import '../config/version_config.dart';
-import 'main_navigation_screen.dart';
 
 /// Brand-farve til login-skærme (teal/grøn - symboliserer cyklus og natur)
 const Color kBrandColor = Color(0xFF00897B);
@@ -235,8 +235,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   Align(
                                     alignment: Alignment.centerRight,
                                     child: TextButton(
-                                      onPressed: () => Navigator.of(context)
-                                          .pushNamed('/forgot-password'),
+                                      onPressed: () => context.push('/forgot-password'),
                                       style: TextButton.styleFrom(
                                         foregroundColor: seedColor,
                                         padding: const EdgeInsets.symmetric(
@@ -334,9 +333,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     if (!mounted) return;
     final authState = ref.read(authProvider);
     if (authState.isAuthenticated) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-      );
+      context.go('/');
     }
   }
 

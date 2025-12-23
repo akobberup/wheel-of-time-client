@@ -2,11 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/task_list_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
 import '../l10n/app_strings.dart';
-import 'task_list_detail_screen.dart';
 import '../widgets/create_task_list_dialog.dart';
 import '../widgets/edit_task_list_dialog.dart';
 import '../widgets/common/empty_state.dart';
@@ -545,13 +545,8 @@ class _TaskListCard extends HookConsumerWidget {
   }
 
   void _handleNavigateToDetail(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => TaskListDetailScreen(
-          taskListId: taskList.id,
-          taskListName: taskList.name,
-        ),
-      ),
+    context.push(
+      '/lists/${taskList.id}?name=${Uri.encodeComponent(taskList.name)}',
     );
   }
 }

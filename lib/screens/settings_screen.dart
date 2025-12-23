@@ -5,12 +5,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/theme_provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/settings/color_picker_grid.dart';
 import '../config/version_config.dart';
-import 'profile_screen.dart';
-import 'login_screen.dart';
 
 /// Indstillings-skærm med varm, organisk æstetik.
 ///
@@ -99,9 +98,7 @@ class SettingsScreen extends ConsumerWidget {
                 _SettingsCard(
                   isDark: isDark,
                   seedColor: seedColor,
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
-                  ),
+                  onTap: () => context.push('/profile'),
                   child: _NavigationRow(
                     icon: Icons.person_outline_rounded,
                     title: 'Profil',
@@ -212,10 +209,7 @@ class SettingsScreen extends ConsumerWidget {
     if (confirmed == true && context.mounted) {
       await ref.read(authProvider.notifier).logout();
       if (context.mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-          (route) => false,
-        );
+        context.go('/login');
       }
     }
   }

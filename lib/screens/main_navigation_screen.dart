@@ -2,12 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'task_lists_screen.dart';
 import 'invitations_screen.dart';
 import 'upcoming_tasks_screen.dart';
-import 'login_screen.dart';
-import 'notifications_screen.dart';
-import 'settings_screen.dart';
 import '../providers/invitation_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
@@ -290,33 +288,9 @@ class _NotificationButton extends ConsumerWidget {
     );
   }
 
-  /// Håndterer tryk på notification button med smooth animation
+  /// Håndterer tryk på notification button - bruger GoRouter for browser historik
   void _handleNotificationPressed(BuildContext context) {
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const NotificationsScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          // Smooth fade + slight slide transition (350ms som per design guidelines)
-          const begin = Offset(0.0, 0.02);
-          const end = Offset.zero;
-          const curve = Curves.easeInOutCubic;
-
-          final tween = Tween(begin: begin, end: end)
-              .chain(CurveTween(curve: curve));
-          final offsetAnimation = animation.drive(tween);
-
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: offsetAnimation,
-              child: child,
-            ),
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 350),
-      ),
-    );
+    context.push('/notifications');
   }
 }
 
@@ -345,32 +319,9 @@ class _SettingsButton extends ConsumerWidget {
     );
   }
 
-  /// Håndterer tryk på settings button med smooth animation
+  /// Håndterer tryk på settings button - bruger GoRouter for browser historik
   void _handleSettingsPressed(BuildContext context) {
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const SettingsScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 0.02);
-          const end = Offset.zero;
-          const curve = Curves.easeInOutCubic;
-
-          final tween = Tween(begin: begin, end: end)
-              .chain(CurveTween(curve: curve));
-          final offsetAnimation = animation.drive(tween);
-
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: offsetAnimation,
-              child: child,
-            ),
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 350),
-      ),
-    );
+    context.push('/settings');
   }
 }
 
@@ -404,9 +355,7 @@ class _LogoutButton extends ConsumerWidget {
     await ref.read(authProvider.notifier).logout();
 
     if (context.mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      context.go('/login');
     }
   }
 }

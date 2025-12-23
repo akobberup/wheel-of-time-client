@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/task_provider.dart';
 import '../providers/task_list_provider.dart';
 import '../providers/task_history_provider.dart';
@@ -12,8 +13,6 @@ import '../widgets/create_task_dialog.dart';
 import '../widgets/edit_task_dialog.dart';
 import '../widgets/common/contextual_delete_dialog.dart';
 import '../config/api_config.dart';
-import 'task_list_members_screen.dart';
-import 'task_history_screen.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/skeleton_loader.dart';
@@ -310,15 +309,12 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
   }
 
   void _navigateToMembers(AppStrings strings, Color primaryColor, Color secondaryColor) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => TaskListMembersScreen(
-          taskListId: widget.taskListId,
-          taskListName: widget.taskListName ?? strings.taskLists,
-          primaryColor: primaryColor,
-          secondaryColor: secondaryColor,
-        ),
-      ),
+    final listName = widget.taskListName ?? strings.taskLists;
+    final primaryHex = '#${primaryColor.value.toRadixString(16).substring(2)}';
+    final secondaryHex = '#${secondaryColor.value.toRadixString(16).substring(2)}';
+    
+    context.push(
+      '/lists/${widget.taskListId}/members?name=${Uri.encodeComponent(listName)}&primaryColor=${Uri.encodeComponent(primaryHex)}&secondaryColor=${Uri.encodeComponent(secondaryHex)}',
     );
   }
 
@@ -647,13 +643,8 @@ class _ThemedTaskCard extends ConsumerWidget {
   }
 
   void _navigateToTaskHistory(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => TaskHistoryScreen(
-          taskId: task.id,
-          taskName: task.name,
-        ),
-      ),
+    context.push(
+      '/lists/$taskListId/tasks/${task.id}?name=${Uri.encodeComponent(task.name)}',
     );
   }
 

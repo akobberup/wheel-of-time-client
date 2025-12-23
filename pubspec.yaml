@@ -60,6 +60,9 @@ dependencies:
   # Cross-platform HTML API (for URL manipulation on web)
   universal_html: ^2.2.4
 
+  # Deklarativ routing med browser historik support
+  go_router: ^14.6.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

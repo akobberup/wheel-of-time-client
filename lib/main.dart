@@ -3,14 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
-import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/remote_logger_provider.dart';
-import 'screens/main_navigation_screen.dart';
-import 'screens/login_screen.dart';
-import 'screens/forgot_password_screen.dart';
-import 'screens/reset_password_screen.dart';
+import 'router/app_router.dart';
 import 'services/background_task_service.dart';
 
 void main() async {
@@ -69,8 +65,9 @@ class WheelOfTimeApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     final themeState = ref.watch(themeProvider);
+    final router = ref.watch(routerProvider);
 
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Wheel of Time',
       debugShowCheckedModeBanner: false,
       locale: locale,
@@ -87,69 +84,8 @@ class WheelOfTimeApp extends ConsumerWidget {
       theme: themeState.lightTheme,
       darkTheme: themeState.darkTheme,
       themeMode: themeState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      initialRoute: '/',
-      onGenerateRoute: (settings) {
-        // Debug logging to see what route is received
-        print('Route requested: ${settings.name}');
-
-        // Handle reset password route with token parameter
-        if (settings.name?.contains('reset-password') ?? false) {
-          print('Reset password route detected');
-          try {
-            // Parse the full URL or just the path
-            final uri = Uri.parse(settings.name!);
-            final token = uri.queryParameters['token'];
-            print('Parsed token: $token');
-
-            if (token != null && token.isNotEmpty) {
-              print('Showing ResetPasswordScreen with token');
-              return MaterialPageRoute(
-                builder: (context) => ResetPasswordScreen(token: token),
-              );
-            } else {
-              print('No token found in URL');
-            }
-          } catch (e) {
-            print('Error parsing reset password URL: $e');
-          }
-        }
-
-        // Handle other routes
-        switch (settings.name) {
-          case '/':
-            return MaterialPageRoute(
-              builder: (context) => const AuthWrapper(),
-            );
-          case '/forgot-password':
-            return MaterialPageRoute(
-              builder: (context) => const ForgotPasswordScreen(),
-            );
-          default:
-            print('No route matched, falling back to AuthWrapper');
-            return MaterialPageRoute(
-              builder: (context) => const AuthWrapper(),
-            );
-        }
-      },
+      // GoRouter til korrekt browser historik-håndtering
+      routerConfig: router,
     );
-  }
-}
-
-class AuthWrapper extends ConsumerWidget {
-  const AuthWrapper({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider);
-
-    if (authState.isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    return authState.isAuthenticated ? const MainNavigationScreen() : const LoginScreen();
   }
 }
