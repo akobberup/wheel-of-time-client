@@ -132,7 +132,9 @@ class _ContextualDeleteDialogState extends State<_ContextualDeleteDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 500),
+      child: AlertDialog(
       title: Row(
         children: [
           Icon(
@@ -200,6 +202,7 @@ class _ContextualDeleteDialogState extends State<_ContextualDeleteDialog> {
           },
         ),
       ],
+    ),
     );
   }
 

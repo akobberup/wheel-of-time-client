@@ -159,7 +159,9 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog>
 
     return ScaleTransition(
       scale: _scaleAnimation,
-      child: Dialog(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 500),
+        child: Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(_borderRadius),
           side: BorderSide(
@@ -202,6 +204,7 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog>
               ],
             ),
           ),
+        ),
         ),
       ),
     );

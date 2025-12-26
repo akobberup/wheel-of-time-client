@@ -113,7 +113,9 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
 
     return AlertDialog(
       title: const Text('Edit Task List'),
-      content: SingleChildScrollView(
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 500),
+        child: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Column(
@@ -188,7 +190,7 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
             ],
           ),
         ),
-      ),
+      )),
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.of(context).pop(false),

@@ -307,7 +307,9 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog>
         ),
         clipBehavior: Clip.antiAlias,
         backgroundColor: backgroundColor,
-        child: Column(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             // Themed header with icon
@@ -324,6 +326,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog>
             // Action buttons
             _buildActionButtons(strings, primaryColor, isDark),
           ],
+        ),
         ),
       ),
     );

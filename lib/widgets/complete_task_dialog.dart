@@ -307,7 +307,9 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
         ),
         clipBehavior: Clip.antiAlias,
         backgroundColor: backgroundColor,
-        child: Stack(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: Stack(
           children: [
             Column(
               mainAxisSize: MainAxisSize.min,
@@ -350,6 +352,7 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
             // Success overlay
             if (_isSuccess) _buildSuccessOverlay(themeColor),
           ],
+        ),
         ),
       ),
     );

@@ -127,8 +127,8 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
 
     return AlertDialog(
       title: Text(strings.editTask),
-      content: SizedBox(
-        width: 500, // Fixed width to prevent shrinking when content expands
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 500),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -344,7 +344,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
           ),
         ),
       ), // Closes SingleChildScrollView
-      ), // Closes SizedBox (content parameter)
+      ), // Closes ConstrainedBox (content parameter)
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.of(context).pop(false),
