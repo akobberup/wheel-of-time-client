@@ -53,13 +53,13 @@ void main() async {
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: const WheelOfTimeApp(),
+      child: const AarshjuletApp(),
     ),
   );
 }
 
-class WheelOfTimeApp extends ConsumerWidget {
-  const WheelOfTimeApp({super.key});
+class AarshjuletApp extends ConsumerWidget {
+  const AarshjuletApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -68,7 +68,7 @@ class WheelOfTimeApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'Wheel of Time',
+      title: 'Årshjulet',
       debugShowCheckedModeBanner: false,
       locale: locale,
       supportedLocales: const [

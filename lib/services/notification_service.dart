@@ -90,8 +90,8 @@ class NotificationService {
     final id = notification.id.hashCode;
 
     const androidDetails = AndroidNotificationDetails(
-      'wheel_of_time_notifications',
-      'Wheel of Time Notifications',
+      'aarshjulet_notifications',
+      'Årshjulet Notifikationer',
       channelDescription: 'Notifications for task lists, invitations, and tasks',
       importance: Importance.high,
       priority: Priority.high,

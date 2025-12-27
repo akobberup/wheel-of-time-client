@@ -2,7 +2,7 @@ import 'app_strings.dart';
 
 class StringsEn extends AppStrings {
   @override
-  String get appTitle => 'Wheel of Time';
+  String get appTitle => 'Aarshjulet';
 
   @override
   String get welcomeBack => 'Welcome back';

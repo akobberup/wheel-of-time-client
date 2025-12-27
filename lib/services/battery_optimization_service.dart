@@ -59,7 +59,7 @@ class BatteryOptimizationService {
         'For at modtage notifikationer når appen ikke er åben, skal du tillade '
             'appen at køre i baggrunden.\n\n'
             'Tryk "OK" for at åbne indstillinger, find derefter '
-            '"Wheel of Time" og vælg "Ingen begrænsninger" eller '
+            '"Årshjulet" og vælg "Ingen begrænsninger" eller '
             '"Tillad baggrundsaktivitet".',
       );
       return result ?? false;

@@ -1,5 +1,5 @@
-name: wheel_of_time_app
-description: Wheel of Time mobile application
+name: aarshjulet
+description: Årshjulet - Hold styr på tilbagevendende opgaver
 publish_to: 'none'
 version: 0.1.4+1
 

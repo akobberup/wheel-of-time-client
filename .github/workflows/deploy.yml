@@ -12,7 +12,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: akobberup/wheel-of-time-frontend
+  IMAGE_NAME: akobberup/aarshjulet-frontend
 
 jobs:
   build-and-deploy:
@@ -116,7 +116,7 @@ jobs:
           echo "Venter 30 sekunder på at container starter..."
           sleep 30
           echo "Tjekker frontend health..."
-          curl -f https://t16software.dev/wheel-of-time/ || exit 1
+          curl -f https://t16software.dev/aarshjulet/ || exit 1
           echo "✅ Frontend er healthy!"
 
       - name: Deployment success
@@ -124,4 +124,4 @@ jobs:
         run: |
           echo "🚀 Frontend deployment gennemført!"
           echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
-          echo "URL: https://t16software.dev/wheel-of-time"
+          echo "URL: https://t16software.dev/aarshjulet"

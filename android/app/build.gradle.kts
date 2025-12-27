@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.wheeloftime.app"
+    namespace = "com.aarshjulet.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.wheeloftime.app"
+        applicationId = "com.aarshjulet.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

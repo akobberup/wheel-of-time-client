@@ -1,6 +1,6 @@
 {
-    "name": "wheel_of_time_app",
-    "short_name": "wheel_of_time_app",
+    "name": "Årshjulet",
+    "short_name": "Årshjulet",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

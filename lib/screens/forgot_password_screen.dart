@@ -586,6 +586,7 @@ class _WarmTextFieldState extends State<_WarmTextField> {
             : Colors.black45;
 
     return Focus(
+      skipTraversal: true,
       onFocusChange: (focused) => setState(() => _isFocused = focused),
       child: TextFormField(
         controller: widget.controller,

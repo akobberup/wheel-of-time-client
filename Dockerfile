@@ -39,7 +39,7 @@ ARG BUILD_VERSION=unknown
 ARG BUILD_TIME=unknown
 
 # Build web app til production med version info og korrekt base href
-RUN flutter build web --release --base-href /wheel-of-time/ --dart-define=BUILD_VERSION=${BUILD_VERSION} --dart-define=BUILD_TIME="${BUILD_TIME}"
+RUN flutter build web --release --base-href /aarshjulet/ --dart-define=BUILD_VERSION=${BUILD_VERSION} --dart-define=BUILD_TIME="${BUILD_TIME}"
 
 # Production stage - Nginx
 FROM nginx:alpine
