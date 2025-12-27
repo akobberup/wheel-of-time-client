@@ -37,6 +37,9 @@ class TaskListDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
+  // Flag til at spore om vi allerede har vist create-task dialogen (onboarding)
+  bool _hasShownCreateTaskDialog = false;
+
   @override
   void initState() {
     super.initState();
@@ -227,6 +230,14 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
     Color secondaryColor,
     bool isDark,
   ) {
+    // Onboarding: Åbn create-task dialog automatisk hvis ingen opgaver findes
+    if (tasks.isEmpty && !_hasShownCreateTaskDialog) {
+      _hasShownCreateTaskDialog = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showOnboardingCreateTaskDialog(primaryColor, secondaryColor);
+      });
+    }
+
     if (tasks.isEmpty) {
       return _buildEmptyState(strings, primaryColor);
     }
@@ -316,6 +327,25 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
     context.push(
       '/lists/${widget.taskListId}/members?name=${Uri.encodeComponent(listName)}&primaryColor=${Uri.encodeComponent(primaryHex)}&secondaryColor=${Uri.encodeComponent(secondaryHex)}',
     );
+  }
+
+  /// Viser onboarding create-task dialog (bruges kun første gang)
+  Future<void> _showOnboardingCreateTaskDialog(
+    Color primaryColor,
+    Color secondaryColor,
+  ) async {
+    final result = await showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => CreateTaskDialog(
+        taskListId: widget.taskListId,
+        themeColor: primaryColor,
+        secondaryThemeColor: secondaryColor,
+      ),
+    );
+    if (result == true && mounted) {
+      ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
+    }
   }
 
   Future<void> _handleCreateTask() async {

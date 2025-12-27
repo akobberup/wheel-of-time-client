@@ -1,12 +1,13 @@
 // Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
 
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/task_list_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
 import '../l10n/app_strings.dart';
+import '../models/task_list.dart';
 import '../widgets/create_task_list_dialog.dart';
 import '../widgets/edit_task_list_dialog.dart';
 import '../widgets/common/empty_state.dart';
@@ -15,11 +16,19 @@ import '../widgets/common/contextual_delete_dialog.dart';
 import '../widgets/common/stacked_avatars.dart';
 
 /// Viser liste over brugerens opgavelister med mulighed for at oprette, redigere og slette
-class TaskListsScreen extends HookConsumerWidget {
+class TaskListsScreen extends ConsumerStatefulWidget {
   const TaskListsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TaskListsScreen> createState() => _TaskListsScreenState();
+}
+
+class _TaskListsScreenState extends ConsumerState<TaskListsScreen> {
+  // Flag til at spore om vi allerede har vist create-dialogen
+  bool _hasShownCreateDialog = false;
+
+  @override
+  Widget build(BuildContext context) {
     final strings = AppStrings.of(context);
     final taskListsAsync = ref.watch(taskListProvider);
     final themeState = ref.watch(themeProvider);
@@ -48,6 +57,14 @@ class TaskListsScreen extends HookConsumerWidget {
     BuildContext context,
     WidgetRef ref,
   ) {
+    // Onboarding: Åbn create-dialog automatisk hvis ingen lister findes
+    if (taskLists.isEmpty && !_hasShownCreateDialog) {
+      _hasShownCreateDialog = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showOnboardingCreateDialog(context, ref);
+      });
+    }
+
     if (taskLists.isEmpty) {
       return _buildEmptyState(strings, context, ref);
     }
@@ -109,20 +126,37 @@ class TaskListsScreen extends HookConsumerWidget {
     );
   }
 
+  /// Viser onboarding create-dialog og navigerer til den nye liste
+  Future<void> _showOnboardingCreateDialog(
+      BuildContext context, WidgetRef ref) async {
+    final result = await showDialog<TaskListResponse>(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => const CreateTaskListDialog(),
+    );
+    
+    if (result != null && mounted) {
+      // Naviger direkte til den nye opgaveliste - listen genindlæses når vi vender tilbage
+      context.push(
+        '/lists/${result.id}?name=${Uri.encodeComponent(result.name)}',
+      );
+    }
+  }
+
   Future<void> _handleCreateTaskList(
       BuildContext context, WidgetRef ref) async {
-    final result = await showDialog<bool>(
+    final result = await showDialog<TaskListResponse>(
       context: context,
       builder: (context) => const CreateTaskListDialog(),
     );
-    if (result == true) {
+    if (result != null) {
       ref.read(taskListProvider.notifier).loadAllTaskLists();
     }
   }
 }
 
 /// Kort der viser en enkelt opgaveliste med hero-billede, fremskridtsindikator og medlemmer
-class _TaskListCard extends HookConsumerWidget {
+class _TaskListCard extends ConsumerWidget {
   final dynamic taskList;
 
   const _TaskListCard({required this.taskList});

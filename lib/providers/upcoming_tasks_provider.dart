@@ -66,6 +66,7 @@ class UpcomingTasksNotifier extends StateNotifier<UpcomingTasksState> {
 
   /// Loads the initial page of task occurrences
   Future<void> loadInitial() async {
+    if (!mounted) return;
     state = state.copyWith(isLoading: true, error: null);
 
     try {
@@ -74,12 +75,14 @@ class UpcomingTasksNotifier extends StateNotifier<UpcomingTasksState> {
         offset: 0,
       );
 
+      if (!mounted) return;
       state = state.copyWith(
         occurrences: occurrences,
         isLoading: false,
         hasMore: occurrences.length >= _pageSize,
       );
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),
@@ -90,7 +93,7 @@ class UpcomingTasksNotifier extends StateNotifier<UpcomingTasksState> {
   /// Loads the next page of task occurrences
   Future<void> loadMore() async {
     // Don't load if already loading or no more items
-    if (state.isLoadingMore || !state.hasMore || state.isLoading) {
+    if (!mounted || state.isLoadingMore || !state.hasMore || state.isLoading) {
       return;
     }
 
@@ -102,12 +105,14 @@ class UpcomingTasksNotifier extends StateNotifier<UpcomingTasksState> {
         offset: state.occurrences.length,
       );
 
+      if (!mounted) return;
       state = state.copyWith(
         occurrences: [...state.occurrences, ...newOccurrences],
         isLoadingMore: false,
         hasMore: newOccurrences.length >= _pageSize,
       );
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         isLoadingMore: false,
         error: e.toString(),

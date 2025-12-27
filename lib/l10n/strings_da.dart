@@ -133,6 +133,9 @@ class StringsDa extends AppStrings {
   String get createTaskList => 'Opret opgaveliste';
 
   @override
+  String get taskListDescription => 'En opgaveliste samler relaterede opgaver, f.eks. "Havearbejde" eller "Bilvedligeholdelse". Du kan dele lister med familie eller venner.';
+
+  @override
   String get editTaskList => 'Rediger opgaveliste';
 
   @override

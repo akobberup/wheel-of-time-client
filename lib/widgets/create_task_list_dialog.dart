@@ -121,7 +121,7 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog>
         await Future.delayed(const Duration(milliseconds: 600));
         
         if (mounted) {
-          Navigator.of(context).pop(true);
+          Navigator.of(context).pop(result);
         }
       } else {
         setState(() => _isLoading = false);
@@ -255,6 +255,14 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog>
           ),
           textAlign: TextAlign.center,
         ),
+        const SizedBox(height: 12),
+        Text(
+          strings.taskListDescription,
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
+          textAlign: TextAlign.center,
+        ),
       ],
     );
   }
@@ -362,7 +370,7 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog>
               ? null
               : () {
                   HapticFeedback.selectionClick();
-                  Navigator.of(context).pop(false);
+                  Navigator.of(context).pop(null);
                 },
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),

@@ -23,13 +23,17 @@ class InvitationNotifier extends StateNotifier<AsyncValue<List<InvitationRespons
   }
 
   Future<void> loadPendingInvitations() async {
+    if (!mounted) return;
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _apiService.getMyPendingInvitations());
+    final result = await AsyncValue.guard(() => _apiService.getMyPendingInvitations());
+    if (mounted) state = result;
   }
 
   Future<void> loadAllInvitations() async {
+    if (!mounted) return;
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _apiService.getMyInvitations());
+    final result = await AsyncValue.guard(() => _apiService.getMyInvitations());
+    if (mounted) state = result;
   }
 
   Future<InvitationResponse?> createInvitation(CreateInvitationRequest request) async {
@@ -37,7 +41,7 @@ class InvitationNotifier extends StateNotifier<AsyncValue<List<InvitationRespons
       final invitation = await _apiService.createInvitation(request);
       return invitation;
     } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+      if (mounted) state = AsyncValue.error(e, StackTrace.current);
       return null;
     }
   }
@@ -48,7 +52,7 @@ class InvitationNotifier extends StateNotifier<AsyncValue<List<InvitationRespons
       await loadPendingInvitations(); // Refresh the list
       return true;
     } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+      if (mounted) state = AsyncValue.error(e, StackTrace.current);
       return false;
     }
   }
@@ -59,7 +63,7 @@ class InvitationNotifier extends StateNotifier<AsyncValue<List<InvitationRespons
       await loadPendingInvitations(); // Refresh the list
       return true;
     } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+      if (mounted) state = AsyncValue.error(e, StackTrace.current);
       return false;
     }
   }
@@ -69,7 +73,7 @@ class InvitationNotifier extends StateNotifier<AsyncValue<List<InvitationRespons
       await _apiService.cancelInvitation(id);
       return true;
     } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+      if (mounted) state = AsyncValue.error(e, StackTrace.current);
       return false;
     }
   }

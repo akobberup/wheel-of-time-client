@@ -54,6 +54,7 @@ class NotificationNotifier extends StateNotifier<AsyncValue<List<AppNotification
 
   /// Loads all notifications from various sources
   Future<void> loadNotifications() async {
+    if (!mounted) return;
     state = const AsyncValue.loading();
 
     try {
@@ -133,9 +134,14 @@ class NotificationNotifier extends StateNotifier<AsyncValue<List<AppNotification
       _seenNotificationIds.clear();
       _seenNotificationIds.addAll(notifications.map((n) => n.id));
 
-      state = AsyncValue.data(notifications);
+      // Tjek om notifier stadig er mounted før state opdateres
+      if (mounted) {
+        state = AsyncValue.data(notifications);
+      }
     } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
+      if (mounted) {
+        state = AsyncValue.error(e, stack);
+      }
     }
   }
 

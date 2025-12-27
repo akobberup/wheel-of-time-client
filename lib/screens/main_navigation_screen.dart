@@ -10,6 +10,7 @@ import '../providers/invitation_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
 import '../providers/upcoming_tasks_provider.dart';
+import '../providers/task_list_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/background_task_service.dart';
 import '../l10n/app_strings.dart';
@@ -27,6 +28,8 @@ class MainNavigationScreen extends ConsumerStatefulWidget {
 }
 
 class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
+  bool _hasCheckedInitialTab = false;
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +37,26 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     // Dette sikrer at dialogen vises efter UI'en er klar
     WidgetsBinding.instance.addPostFrameCallback((_) {
       BackgroundTaskService.requestBatteryOptimizationExemption();
+    });
+  }
+
+  /// Tjekker om brugeren har opgavelister og skifter til Lists tab hvis ikke
+  /// Dette sikrer at nye brugere guides til at oprette deres første opgaveliste
+  void _checkInitialTabForNewUser(AsyncValue<List<dynamic>> taskListsAsync) {
+    if (_hasCheckedInitialTab) return;
+
+    taskListsAsync.whenData((taskLists) {
+      if (_hasCheckedInitialTab) return;
+      _hasCheckedInitialTab = true;
+
+      if (taskLists.isEmpty) {
+        // Ny bruger uden opgavelister - skift til Lists tab
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            ref.read(selectedIndexProvider.notifier).state = 0;
+          }
+        });
+      }
     });
   }
 
@@ -47,6 +70,10 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     // Brug neutrale baggrundsfarver for konsistens på tværs af skærme
     final backgroundColor =
         isDark ? const Color(0xFF121214) : const Color(0xFFFAFAF8);
+
+    // Tjek om ny bruger skal startes på Lists tab (kun første gang data er loaded)
+    final taskListsAsync = ref.watch(taskListProvider);
+    _checkInitialTabForNewUser(taskListsAsync);
 
     return Scaffold(
       backgroundColor: backgroundColor,

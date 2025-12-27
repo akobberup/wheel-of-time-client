@@ -58,6 +58,7 @@ abstract class AppStrings {
   // Task Lists
   String get taskLists;
   String get createTaskList;
+  String get taskListDescription;
   String get editTaskList;
   String get deleteTaskList;
   String get noTaskLists;

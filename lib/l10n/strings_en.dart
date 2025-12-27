@@ -132,6 +132,9 @@ class StringsEn extends AppStrings {
   String get createTaskList => 'Create Task List';
 
   @override
+  String get taskListDescription => 'A task list groups related tasks together, e.g. "Gardening" or "Car Maintenance". You can share lists with family or friends.';
+
+  @override
   String get editTaskList => 'Edit Task List';
 
   @override
