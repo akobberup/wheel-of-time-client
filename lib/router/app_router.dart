@@ -15,6 +15,7 @@ import '../screens/task_history_screen.dart';
 import '../screens/notifications_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/profile_screen.dart';
+import '../screens/legal_info_screen.dart';
 
 /// Provider til GoRouter instansen
 /// Lytter på auth state for at håndtere redirects
@@ -161,6 +162,42 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const ProfileScreen(),
+          transitionsBuilder: _fadeSlideTransition,
+          transitionDuration: const Duration(milliseconds: 350),
+        ),
+      ),
+
+      // Privatlivspolitik
+      GoRoute(
+        path: '/privacy-policy',
+        name: 'privacy-policy',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const LegalInfoScreen(type: LegalInfoType.privacyPolicy),
+          transitionsBuilder: _fadeSlideTransition,
+          transitionDuration: const Duration(milliseconds: 350),
+        ),
+      ),
+
+      // Sikkerhed
+      GoRoute(
+        path: '/security',
+        name: 'security',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const LegalInfoScreen(type: LegalInfoType.security),
+          transitionsBuilder: _fadeSlideTransition,
+          transitionDuration: const Duration(milliseconds: 350),
+        ),
+      ),
+
+      // Support
+      GoRoute(
+        path: '/support',
+        name: 'support',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const LegalInfoScreen(type: LegalInfoType.support),
           transitionsBuilder: _fadeSlideTransition,
           transitionDuration: const Duration(milliseconds: 350),
         ),

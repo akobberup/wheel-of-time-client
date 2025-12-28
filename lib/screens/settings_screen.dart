@@ -128,6 +128,55 @@ class SettingsScreen extends ConsumerWidget {
 
                 const SizedBox(height: 28),
 
+                // Support & Juridisk sektion
+                _SectionHeader(title: 'Support & juridisk', seedColor: seedColor),
+                const SizedBox(height: 12),
+
+                _SettingsCard(
+                  isDark: isDark,
+                  seedColor: seedColor,
+                  onTap: () => context.push('/support'),
+                  child: _NavigationRow(
+                    icon: Icons.help_outline_rounded,
+                    title: 'Support',
+                    subtitle: 'Hjælp, fejlrapporter og forslag',
+                    seedColor: seedColor,
+                    isDark: isDark,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                _SettingsCard(
+                  isDark: isDark,
+                  seedColor: seedColor,
+                  onTap: () => context.push('/privacy-policy'),
+                  child: _NavigationRow(
+                    icon: Icons.privacy_tip_outlined,
+                    title: 'Privatlivspolitik',
+                    subtitle: 'Sådan håndterer vi dine data',
+                    seedColor: seedColor,
+                    isDark: isDark,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                _SettingsCard(
+                  isDark: isDark,
+                  seedColor: seedColor,
+                  onTap: () => context.push('/security'),
+                  child: _NavigationRow(
+                    icon: Icons.security_outlined,
+                    title: 'Sikkerhed',
+                    subtitle: 'Rapporter sikkerhedsproblemer',
+                    seedColor: seedColor,
+                    isDark: isDark,
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
                 // Om sektion
                 _SectionHeader(title: strings.about, seedColor: seedColor),
                 const SizedBox(height: 12),
