@@ -63,6 +63,9 @@ dependencies:
   # Deklarativ routing med browser historik support
   go_router: ^14.6.2
 
+  # URL Launcher (åbn links, emails, telefonnumre)
+  url_launcher: ^6.2.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
