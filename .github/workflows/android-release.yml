@@ -19,7 +19,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.7'
+          flutter-version: '3.27.2'
           channel: 'stable'
           cache: true
 
@@ -30,11 +30,26 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
+      # Decode keystore fra base64 secret
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/keystore/upload-keystore.jks
+        shell: bash
+
+      # Opret key.properties fra secrets
+      - name: Create key.properties
+        run: |
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=keystore/upload-keystore.jks" >> android/key.properties
+        shell: bash
+
       - name: Install dependencies
         run: flutter pub get
 
       - name: Run code generation
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Run tests
         run: flutter test
@@ -60,7 +75,7 @@ jobs:
             build/app/outputs/flutter-apk/app-release.apk
             build/app/outputs/bundle/release/app-release.aab
           body: |
-            ## Wheel of Time Android Release ${{ steps.get_version.outputs.VERSION }}
+            ## Årshjulet Android Release ${{ steps.get_version.outputs.VERSION }}
 
             ### Downloads:
             - **APK**: Direct install on Android devices (download `app-release.apk`)

@@ -47,3 +47,9 @@ app.*.map.json
 
 # Additional
 # pubspec.lock should be committed for application projects
+
+# Signing
+android/key.properties
+android/app/keystore/
+*.jks
+*.keystore
