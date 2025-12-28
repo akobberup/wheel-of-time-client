@@ -1,0 +1,56 @@
+name: "Fejlrapport"
+description: "Rapporter en fejl i appen"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tak fordi du tager dig tid til at rapportere en fejl!
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Beskrivelse
+      description: En klar beskrivelse af fejlen
+      placeholder: Hvad gik galt?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Trin til at genskabe fejlen
+      description: Hvordan kan vi genskabe fejlen?
+      placeholder: |
+        1. Gå til '...'
+        2. Klik på '...'
+        3. Se fejlen
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Forventet opførsel
+      description: Hvad forventede du ville ske?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Web (browser)
+        - Android
+        - iOS
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Yderligere information
+      description: Screenshots, fejlbeskeder, eller anden relevant info
+    validations:
+      required: false

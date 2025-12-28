@@ -1,0 +1,34 @@
+name: "Forslag til ny funktion"
+description: "Foreslå en ny funktion eller forbedring"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Har du en idé til at gøre appen bedre? Vi vil gerne høre fra dig!
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Beskrivelse
+      description: En klar beskrivelse af den ønskede funktion
+      placeholder: Hvad vil du gerne se i appen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Hvilket problem løser denne funktion?
+      placeholder: Jeg er frustreret over...
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativer
+      description: Har du overvejet andre løsninger?
+    validations:
+      required: false
