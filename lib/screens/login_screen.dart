@@ -89,13 +89,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     return Scaffold(
       body: Stack(
         children: [
-          // Varm gradient baggrund med cirkulære orber
-          if (_orbController != null)
-            _WarmBackground(
-              controller: _orbController!,
-              seedColor: seedColor,
-              isDark: isDark,
-            ),
+          // Baggrundsbillede med årstider
+          _SeasonalBackground(isDark: isDark),
 
           // Hovedindhold
           SafeArea(
@@ -345,121 +340,52 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }
 }
 
-/// Varm baggrund med bløde cirkulære former
-class _WarmBackground extends StatelessWidget {
-  final AnimationController controller;
-  final Color seedColor;
+/// Baggrund med årstids-landskabsbillede
+class _SeasonalBackground extends StatelessWidget {
   final bool isDark;
 
-  const _WarmBackground({
-    required this.controller,
-    required this.seedColor,
-    required this.isDark,
-  });
+  const _SeasonalBackground({required this.isDark});
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, _) {
-        return CustomPaint(
-          painter: _OrbBackgroundPainter(
-            progress: controller.value,
-            seedColor: seedColor,
-            isDark: isDark,
-          ),
-          size: Size.infinite,
-        );
-      },
-    );
-  }
-}
+    final screenWidth = MediaQuery.of(context).size.width;
+    // Brug desktop-billede på brede skærme, telefon-billede på smalle
+    final isWideScreen = screenWidth > 600;
+    final imagePath = isWideScreen
+        ? 'assets/images/login_background_desktop.png'
+        : 'assets/images/login_background_phone.png';
 
-/// Maler baggrunden med gradient og flydende orber
-class _OrbBackgroundPainter extends CustomPainter {
-  final double progress;
-  final Color seedColor;
-  final bool isDark;
-
-  _OrbBackgroundPainter({
-    required this.progress,
-    required this.seedColor,
-    required this.isDark,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Varm basis gradient
-    final baseGradient = LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: isDark
-          ? [
-              const Color(0xFF121214),
-              Color.lerp(const Color(0xFF121214), seedColor, 0.03)!,
-              const Color(0xFF0E0E10),
-            ]
-          : [
-              const Color(0xFFFAFAF8),
-              Color.lerp(const Color(0xFFF8F7F5), seedColor, 0.04)!,
-              const Color(0xFFF5F4F2),
-            ],
-    );
-
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..shader = baseGradient.createShader(Offset.zero & size),
-    );
-
-    // Flydende orber med tema-farve
-    final orbs = [
-      _Orb(0.15, 0.2, 180, 0.0),
-      _Orb(0.85, 0.15, 140, 0.3),
-      _Orb(0.7, 0.75, 200, 0.5),
-      _Orb(0.2, 0.8, 160, 0.7),
-    ];
-
-    for (final orb in orbs) {
-      final phase = progress * 2 * math.pi + orb.phase * math.pi;
-      final wobbleX = math.sin(phase * 0.7) * 30;
-      final wobbleY = math.cos(phase * 0.5) * 25;
-
-      final x = size.width * orb.xRatio + wobbleX;
-      final y = size.height * orb.yRatio + wobbleY;
-      final radius = orb.baseRadius + math.sin(phase) * 20;
-
-      final opacity = isDark ? 0.08 : 0.05;
-      final gradient = RadialGradient(
-        colors: [
-          seedColor.withOpacity(opacity),
-          seedColor.withOpacity(0),
-        ],
-      );
-
-      canvas.drawCircle(
-        Offset(x, y),
-        radius,
-        Paint()..shader = gradient.createShader(
-          Rect.fromCircle(center: Offset(x, y), radius: radius),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Baggrundsbillede
+        Image.asset(
+          imagePath,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
         ),
-      );
-    }
+        // Semi-transparent overlay for bedre læsbarhed
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: isDark
+                  ? [
+                      Colors.black.withOpacity(0.4),
+                      Colors.black.withOpacity(0.6),
+                    ]
+                  : [
+                      Colors.white.withOpacity(0.3),
+                      Colors.white.withOpacity(0.5),
+                    ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
-
-  @override
-  bool shouldRepaint(covariant _OrbBackgroundPainter old) =>
-      progress != old.progress ||
-      seedColor != old.seedColor ||
-      isDark != old.isDark;
-}
-
-class _Orb {
-  final double xRatio;
-  final double yRatio;
-  final double baseRadius;
-  final double phase;
-
-  const _Orb(this.xRatio, this.yRatio, this.baseRadius, this.phase);
 }
 
 /// Cirkulært logo der symboliserer gentagelse/cyklus
@@ -527,7 +453,7 @@ class _WelcomeHeader extends StatelessWidget {
         // Tagline eller login/register tekst
         Text(
           isLoginMode
-              ? 'Hold styr på tilbagevendende opgaver – sammen'
+              ? strings.tagline
               : strings.createAccount,
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -550,6 +476,7 @@ class _FeatureHighlights extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     final textColor = isDark ? Colors.white70 : const Color(0xFF555555);
 
     return Row(
@@ -557,43 +484,43 @@ class _FeatureHighlights extends StatelessWidget {
       children: [
         _FeatureChip(
           icon: Icons.event_repeat_rounded,
-          label: 'Gentagende',
+          label: strings.featureRepeating,
           isDark: isDark,
           textColor: textColor,
           onTap: () => _showFeatureInfo(
             context,
             isDark,
             Icons.event_repeat_rounded,
-            'Gentagende opgaver',
-            'Opret opgaver der gentager sig automatisk – dagligt, ugentligt eller efter dit eget mønster. Aldrig glem at vande planterne eller tage medicin igen.',
+            strings.featureRepeatingTitle,
+            strings.featureRepeatingDescription,
           ),
         ),
         _FeatureDot(isDark: isDark),
         _FeatureChip(
           icon: Icons.group_outlined,
-          label: 'Delt',
+          label: strings.featureShared,
           isDark: isDark,
           textColor: textColor,
           onTap: () => _showFeatureInfo(
             context,
             isDark,
             Icons.group_outlined,
-            'Del med andre',
-            'Inviter familie, venner eller roommates til dine lister. Se hvem der har udført hvilke opgaver, og koordiner nemt hverdagens gøremål.',
+            strings.featureSharedTitle,
+            strings.featureSharedDescription,
           ),
         ),
         _FeatureDot(isDark: isDark),
         _FeatureChip(
           icon: Icons.local_fire_department_rounded,
-          label: 'Streaks',
+          label: strings.featureStreaks,
           isDark: isDark,
           textColor: textColor,
           onTap: () => _showFeatureInfo(
             context,
             isDark,
             Icons.local_fire_department_rounded,
-            'Hold din streak',
-            'Bliv motiveret af at se hvor mange gange i træk du har udført en opgave. Byg gode vaner og fejr dine fremskridt!',
+            strings.featureStreaksTitle,
+            strings.featureStreaksDescription,
           ),
         ),
       ],
@@ -793,6 +720,7 @@ class _RegistrationIntroState extends State<_RegistrationIntro> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     final cardColor = widget.isDark
         ? Colors.white.withOpacity(0.04)
         : kBrandColor.withOpacity(0.04);
@@ -819,7 +747,7 @@ class _RegistrationIntroState extends State<_RegistrationIntro> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Hvad er Årshjulet?',
+                  strings.whatIsAarshjulet,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -856,7 +784,7 @@ class _RegistrationIntroState extends State<_RegistrationIntro> {
               duration: const Duration(milliseconds: 200),
               opacity: _isExpanded ? 0 : 0.6,
               child: Text(
-                'Tryk for at læse mere',
+                strings.tapToReadMore,
                 style: TextStyle(
                   fontSize: 11,
                   fontStyle: FontStyle.italic,
@@ -879,11 +807,11 @@ class _ShortDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     return Column(
       children: [
         Text(
-          'En app til at holde styr på tilbagevendende opgaver. '
-          'Perfekt til daglige rutiner, huslige pligter, eller alt andet der skal gøres regelmæssigt.',
+          strings.appShortDescription,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 13,
@@ -897,19 +825,19 @@ class _ShortDescription extends StatelessWidget {
           children: [
             _MiniFeature(
               icon: Icons.event_repeat_rounded,
-              label: 'Automatisk',
+              label: strings.featureAutomatic,
               textColor: textColor,
             ),
             const SizedBox(width: 16),
             _MiniFeature(
               icon: Icons.group_outlined,
-              label: 'Sammen',
+              label: strings.featureTogether,
               textColor: textColor,
             ),
             const SizedBox(width: 16),
             _MiniFeature(
               icon: Icons.emoji_events_outlined,
-              label: 'Motiverende',
+              label: strings.featureMotivating,
               textColor: textColor,
             ),
           ],
@@ -931,34 +859,29 @@ class _LongDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     return Column(
       children: [
         _FeatureDetail(
           icon: Icons.event_repeat_rounded,
-          title: 'Automatisk gentagelse',
-          description:
-              'Opret opgaver der gentager sig dagligt, ugentligt, eller efter dit eget mønster. '
-              'Appen holder styr på hvornår opgaven skal udføres næste gang.',
+          title: strings.featureAutomaticTitle,
+          description: strings.featureAutomaticDescription,
           textColor: textColor,
           isDark: isDark,
         ),
         const SizedBox(height: 12),
         _FeatureDetail(
           icon: Icons.group_outlined,
-          title: 'Del med andre',
-          description:
-              'Inviter familie, venner eller roommates til dine opgavelister. '
-              'Se hvem der har gjort hvad, og fordel ansvar nemt.',
+          title: strings.featureTogetherTitle,
+          description: strings.featureTogetherDescription,
           textColor: textColor,
           isDark: isDark,
         ),
         const SizedBox(height: 12),
         _FeatureDetail(
           icon: Icons.local_fire_department_rounded,
-          title: 'Streak-tracking',
-          description:
-              'Hold øje med hvor mange gange i træk du udfører en opgave. '
-              'Byg gode vaner og bliv motiveret af dine fremskridt!',
+          title: strings.featureStreakTrackingTitle,
+          description: strings.featureStreakTrackingDescription,
           textColor: textColor,
           isDark: isDark,
         ),
@@ -1364,7 +1287,7 @@ class _ModeToggle extends StatelessWidget {
           style: TextStyle(fontSize: 14, color: textColor),
           children: [
             TextSpan(
-              text: isLoginMode ? 'Ingen konto? ' : 'Har du en konto? ',
+              text: isLoginMode ? '${strings.noAccount} ' : '${strings.haveAccount} ',
             ),
             TextSpan(
               text: isLoginMode ? strings.signUp : strings.signIn,

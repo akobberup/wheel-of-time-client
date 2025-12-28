@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
+import '../l10n/app_strings.dart';
 
 /// Profil skærm med varm, organisk æstetik.
 ///
@@ -17,6 +18,7 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppStrings.of(context);
     final authState = ref.watch(authProvider);
     final themeState = ref.watch(themeProvider);
     final seedColor = themeState.seedColor;
@@ -32,7 +34,7 @@ class ProfileScreen extends ConsumerWidget {
             SliverFillRemaining(
               child: Center(
                 child: Text(
-                  'Ingen bruger data tilgængelig',
+                  strings.noUserData,
                   style: TextStyle(
                     color: isDark ? Colors.white54 : Colors.black45,
                   ),
@@ -65,7 +67,7 @@ class ProfileScreen extends ConsumerWidget {
                     onCameraTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: const Text('Billede upload kommer snart'),
+                          content: Text(strings.imageUploadComingSoon),
                           backgroundColor: seedColor,
                           behavior: SnackBarBehavior.floating,
                           shape: RoundedRectangleBorder(
@@ -107,7 +109,7 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 32),
 
                 // Personlig information sektion
-                _SectionHeader(title: 'Personlig information', seedColor: seedColor),
+                _SectionHeader(title: strings.personalInformation, seedColor: seedColor),
                 const SizedBox(height: 12),
 
                 _ProfileCard(
@@ -117,7 +119,7 @@ class ProfileScreen extends ConsumerWidget {
                     children: [
                       _ProfileInfoRow(
                         icon: Icons.person_outline_rounded,
-                        label: 'Navn',
+                        label: strings.name,
                         value: user.name,
                         seedColor: seedColor,
                         isDark: isDark,
@@ -128,11 +130,11 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       _ProfileInfoRow(
                         icon: Icons.email_outlined,
-                        label: 'Email',
+                        label: strings.email,
                         value: user.email,
                         seedColor: seedColor,
                         isDark: isDark,
-                        subtitle: 'Kan ikke ændres',
+                        subtitle: strings.cannotBeChanged,
                       ),
                     ],
                   ),
@@ -141,7 +143,7 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 28),
 
                 // Rediger profil sektion
-                _SectionHeader(title: 'Handlinger', seedColor: seedColor),
+                _SectionHeader(title: strings.actions, seedColor: seedColor),
                 const SizedBox(height: 12),
 
                 _ProfileCard(
@@ -150,7 +152,7 @@ class ProfileScreen extends ConsumerWidget {
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: const Text('Profil redigering kommer snart'),
+                        content: Text(strings.editProfileComingSoon),
                         backgroundColor: seedColor,
                         behavior: SnackBarBehavior.floating,
                         shape: RoundedRectangleBorder(
@@ -161,8 +163,8 @@ class ProfileScreen extends ConsumerWidget {
                   },
                   child: _ActionRow(
                     icon: Icons.edit_outlined,
-                    title: 'Rediger profil',
-                    subtitle: 'Opdater dit navn og profil billede',
+                    title: strings.editProfile,
+                    subtitle: strings.editProfileDescription,
                     seedColor: seedColor,
                     isDark: isDark,
                   ),
@@ -178,8 +180,8 @@ class ProfileScreen extends ConsumerWidget {
                   },
                   child: _ActionRow(
                     icon: Icons.lock_outline_rounded,
-                    title: 'Skift adgangskode',
-                    subtitle: 'Opdater din adgangskode',
+                    title: strings.changePassword,
+                    subtitle: strings.changePasswordDescription,
                     seedColor: seedColor,
                     isDark: isDark,
                   ),
@@ -212,6 +214,7 @@ class _ProfileAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     final textColor = isDark ? Colors.white : const Color(0xFF1A1A1A);
 
     return SliverAppBar(
@@ -227,7 +230,7 @@ class _ProfileAppBar extends StatelessWidget {
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 52, bottom: 16),
         title: Text(
-          'Profil',
+          strings.profile,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,

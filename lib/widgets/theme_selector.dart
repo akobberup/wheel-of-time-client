@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../models/visual_theme.dart';
+import '../l10n/app_strings.dart';
 
 /// Widget til valg af visuelt tema med farveforhåndsvisning
 /// Viser en grid af tema-kort med farver og navn
@@ -218,7 +219,7 @@ class CompactThemeSelector extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Tema',
+                        AppStrings.of(context).theme,
                         style: TextStyle(
                           fontSize: 11,
                           color: isDarkMode
@@ -242,7 +243,7 @@ class CompactThemeSelector extends StatelessWidget {
               ] else ...[
                 Expanded(
                   child: Text(
-                    'Vælg tema',
+                    AppStrings.of(context).selectTheme,
                     style: TextStyle(
                       fontSize: 14,
                       color: isDarkMode
@@ -347,7 +348,7 @@ class _ThemeSelectorBottomSheet extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  'Vælg tema',
+                  AppStrings.of(context).selectTheme,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,

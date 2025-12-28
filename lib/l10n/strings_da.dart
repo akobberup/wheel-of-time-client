@@ -5,6 +5,90 @@ class StringsDa extends AppStrings {
   String get appTitle => 'Årshjulet';
 
   @override
+  String get tagline => 'Hold styr på tilbagevendende opgaver – sammen';
+
+  @override
+  String get appShortDescription =>
+      'En app til at holde styr på tilbagevendende opgaver. '
+      'Perfekt til daglige rutiner, huslige pligter, eller alt andet der skal gøres regelmæssigt.';
+
+  // Login Screen Features
+  @override
+  String get featureRepeating => 'Gentagende';
+
+  @override
+  String get featureShared => 'Delt';
+
+  @override
+  String get featureStreaks => 'Streaks';
+
+  @override
+  String get featureRepeatingTitle => 'Gentagende opgaver';
+
+  @override
+  String get featureRepeatingDescription =>
+      'Opret opgaver der gentager sig automatisk – dagligt, ugentligt eller efter dit eget mønster. Aldrig glem at vande planterne eller tage medicin igen.';
+
+  @override
+  String get featureSharedTitle => 'Del med andre';
+
+  @override
+  String get featureSharedDescription =>
+      'Inviter familie, venner eller roommates til dine lister. Se hvem der har udført hvilke opgaver, og koordiner nemt hverdagens gøremål.';
+
+  @override
+  String get featureStreaksTitle => 'Hold din streak';
+
+  @override
+  String get featureStreaksDescription =>
+      'Bliv motiveret af at se hvor mange gange i træk du har udført en opgave. Byg gode vaner og fejr dine fremskridt!';
+
+  @override
+  String get whatIsAarshjulet => 'Hvad er Årshjulet?';
+
+  @override
+  String get tapToReadMore => 'Tryk for at læse mere';
+
+  @override
+  String get featureAutomatic => 'Automatisk';
+
+  @override
+  String get featureTogether => 'Sammen';
+
+  @override
+  String get featureMotivating => 'Motiverende';
+
+  @override
+  String get featureAutomaticTitle => 'Automatisk gentagelse';
+
+  @override
+  String get featureAutomaticDescription =>
+      'Opret opgaver der gentager sig dagligt, ugentligt, eller efter dit eget mønster. '
+      'Appen holder styr på hvornår opgaven skal udføres næste gang.';
+
+  @override
+  String get featureTogetherTitle => 'Del med andre';
+
+  @override
+  String get featureTogetherDescription =>
+      'Inviter familie, venner eller roommates til dine opgavelister. '
+      'Se hvem der har gjort hvad, og fordel ansvar nemt.';
+
+  @override
+  String get featureStreakTrackingTitle => 'Streak-tracking';
+
+  @override
+  String get featureStreakTrackingDescription =>
+      'Hold øje med hvor mange gange i træk du udfører en opgave. '
+      'Byg gode vaner og bliv motiveret af dine fremskridt!';
+
+  @override
+  String get noAccount => 'Ingen konto?';
+
+  @override
+  String get haveAccount => 'Har du en konto?';
+
+  @override
   String get welcomeBack => 'Velkommen tilbage';
 
   @override
@@ -165,6 +249,9 @@ class StringsDa extends AppStrings {
 
   @override
   String get createTask => 'Opret opgave';
+
+  @override
+  String get taskDescription => 'En opgave er noget der skal gøres regelmæssigt, f.eks. "Vand planterne" eller "Skift olie". Appen minder dig om hvornår det er tid.';
 
   @override
   String get editTask => 'Rediger opgave';
@@ -332,6 +419,9 @@ class StringsDa extends AppStrings {
   String get moreOptions => 'Flere muligheder';
 
   @override
+  String get settings => 'Indstillinger';
+
+  @override
   String get lists => 'Lister';
 
   @override
@@ -396,6 +486,39 @@ class StringsDa extends AppStrings {
 
   @override
   String get taskListDeletedSuccess => 'Opgaveliste slettet';
+
+  // Deletion context messages
+  @override
+  String get taskSafeToDelete => 'Denne opgave har ingen fuldførelsesposter og kan slettes sikkert.';
+
+  @override
+  String taskDeletionWithStreak(int streakCount, int completionCount) =>
+      'Dette vil permanent slette:\n\n'
+      '• Din ${streakCount}x streak\n'
+      '• $completionCount fuldførelses${completionCount == 1 ? 'post' : 'poster'}';
+
+  @override
+  String taskDeletionWithCompletions(int completionCount) =>
+      'Dette vil permanent slette $completionCount fuldførelses${completionCount == 1 ? 'post' : 'poster'}.';
+
+  @override
+  String get taskWillBeDeleted => 'Denne opgave vil blive permanent slettet.';
+
+  @override
+  String get taskListSafeToDelete => 'Denne liste er tom og kan slettes sikkert.';
+
+  @override
+  String taskListDeletionSummary(int taskCount, int completionCount, int streakCount) {
+    final parts = <String>['Dette vil permanent slette:'];
+    parts.add('\n\n• $taskCount ${taskCount == 1 ? 'opgave' : 'opgaver'}');
+    if (completionCount > 0) {
+      parts.add('\n• $completionCount fuldførelses${completionCount == 1 ? 'post' : 'poster'}');
+    }
+    if (streakCount > 0) {
+      parts.add('\n• $streakCount aktiv${streakCount == 1 ? '' : 'e'} streak${streakCount == 1 ? '' : 's'}');
+    }
+    return parts.join('');
+  }
 
   @override
   String get memberRemovedSuccess => 'Medlem fjernet';
@@ -800,6 +923,36 @@ class StringsDa extends AppStrings {
   @override
   String get clear => 'Ryd';
 
+  @override
+  String get close => 'Luk';
+
+  @override
+  String get generatingSuggestions => 'Genererer forslag...';
+
+  @override
+  String get pleaseTryAgain => 'Prøv venligst igen';
+
+  @override
+  String get noSuggestionsAvailable => 'Ingen forslag tilgængelige';
+
+  @override
+  String get tryEnteringText => 'Prøv at indtaste noget tekst først';
+
+  @override
+  String get tryTypingForSuggestions => 'Prøv at skrive et par tegn for at få forslag';
+
+  @override
+  String get closeSuggestions => 'Luk forslag';
+
+  @override
+  String get unexpectedError => 'En uventet fejl opstod';
+
+  @override
+  String repeatsEvery(String unit) => 'Gentages hver $unit';
+
+  @override
+  String repeatsEveryN(int delta, String units) => 'Gentages hver $delta. $units';
+
   // Weekdays (full names)
   @override
   String get monday => 'Mandag';
@@ -911,6 +1064,12 @@ class StringsDa extends AppStrings {
   String expiredAgo(String timeAgo) => 'Udløbet $timeAgo';
 
   @override
+  String get system => 'System';
+
+  @override
+  String percentComplete(int percent) => '$percent% fuldført';
+
+  @override
   String get taskExpired => 'Opgave udløbet';
 
   @override
@@ -1020,4 +1179,541 @@ class StringsDa extends AppStrings {
 
   @override
   String get decemberShort => 'Dec';
+
+  // Settings Screen
+  @override
+  String get appearance => 'Udseende';
+
+  @override
+  String get themeColor => 'Tema farve';
+
+  @override
+  String get chooseThemeColor => 'Vælg en farve til at tilpasse dit tema';
+
+  @override
+  String get darkMode => 'Mørk tilstand';
+
+  @override
+  String get darkModeDescription => 'Skift mellem lys og mørk tema';
+
+  @override
+  String get account => 'Konto';
+
+  @override
+  String get profile => 'Profil';
+
+  @override
+  String get editProfileInfo => 'Rediger din profil information';
+
+  @override
+  String get logoutDescription => 'Log ud af din konto';
+
+  @override
+  String get about => 'Om';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get development => 'Development';
+
+  @override
+  String get build => 'Build';
+
+  @override
+  String get language => 'Sprog';
+
+  @override
+  String get danish => 'Dansk';
+
+  @override
+  String get logoutConfirmTitle => 'Log ud';
+
+  @override
+  String get logoutConfirmMessage => 'Er du sikker på at du vil logge ud?';
+
+  // Push notification body text (bruges af NotificationService)
+  @override
+  String notificationInvitationReceived(String fromUser, String taskListName) =>
+      '$fromUser har inviteret dig til "$taskListName"';
+
+  @override
+  String notificationInvitationAcceptedBody(String email, String taskListName) =>
+      '$email accepterede din invitation til "$taskListName"';
+
+  @override
+  String notificationInvitationDeclinedBody(String email, String taskListName) =>
+      '$email afviste din invitation til "$taskListName"';
+
+  @override
+  String notificationTaskDue(String taskName, String taskListName) =>
+      '"$taskName" i "$taskListName" skal udføres';
+
+  // Theme and Visual Settings
+  @override
+  String get theme => 'Tema';
+
+  @override
+  String get selectTheme => 'Vælg tema';
+
+  @override
+  String get visualTheme => 'Visuelt tema';
+
+  @override
+  String get failedToLoadThemes => 'Kunne ikke indlæse temaer';
+
+  @override
+  String get failedToUpdateTaskList => 'Kunne ikke opdatere opgaveliste';
+
+  // Yderligere API-fejlmeddelelser (til ApiErrorKey oversættelse)
+  @override
+  String get failedToLoadOwnedTaskLists => 'Kunne ikke indlæse dine opgavelister';
+
+  @override
+  String get failedToLoadSharedTaskLists => 'Kunne ikke indlæse delte opgavelister';
+
+  @override
+  String get failedToLoadTaskList => 'Kunne ikke indlæse opgaveliste';
+
+  @override
+  String get failedToLoadTask => 'Kunne ikke indlæse opgave';
+
+  @override
+  String get failedToLoadUpcomingTasks => 'Kunne ikke indlæse kommende opgaver';
+
+  @override
+  String get failedToLoadUpcomingOccurrences => 'Kunne ikke indlæse kommende opgaveforekomster';
+
+  @override
+  String get failedToLoadTaskInstances => 'Kunne ikke indlæse opgavefuldførelser';
+
+  @override
+  String get failedToLoadTaskInstance => 'Kunne ikke indlæse opgavefuldførelse';
+
+  @override
+  String get failedToCreateTaskInstance => 'Kunne ikke fuldføre opgave';
+
+  @override
+  String get failedToLoadRecentlyCompleted => 'Kunne ikke indlæse nyligt fuldførte opgaver';
+
+  @override
+  String get failedToLoadCurrentStreak => 'Kunne ikke indlæse nuværende serie';
+
+  @override
+  String get failedToLoadLongestStreak => 'Kunne ikke indlæse længste serie';
+
+  @override
+  String get failedToLoadStreaks => 'Kunne ikke indlæse serier';
+
+  @override
+  String get failedToLoadPendingInvitations => 'Kunne ikke indlæse afventende invitationer';
+
+  @override
+  String get failedToLoadTaskListInvitations => 'Kunne ikke indlæse opgaveliste-invitationer';
+
+  @override
+  String get failedToLoadInvitation => 'Kunne ikke indlæse invitation';
+
+  @override
+  String get failedToCreateInvitation => 'Kunne ikke sende invitation';
+
+  @override
+  String get failedToLoadTaskListUsers => 'Kunne ikke indlæse opgavelistemedlemmer';
+
+  @override
+  String get failedToUpdateUserAdminLevel => 'Kunne ikke opdatere tilladelsesniveau';
+
+  @override
+  String get failedToUploadImage => 'Kunne ikke uploade billede';
+
+  @override
+  String get failedToDeleteImage => 'Kunne ikke slette billede';
+
+  @override
+  String get failedToLoadCompletionMessage => 'Kunne ikke indlæse fuldførelsesbesked';
+
+  @override
+  String get failedToLoadUserSettings => 'Kunne ikke indlæse brugerindstillinger';
+
+  @override
+  String get failedToUpdateUserSettings => 'Kunne ikke opdatere brugerindstillinger';
+
+  @override
+  String get failedToLoadVisualThemes => 'Kunne ikke indlæse visuelle temaer';
+
+  @override
+  String get failedToLoadVisualTheme => 'Kunne ikke indlæse visuelt tema';
+
+  @override
+  String get failedToRefreshToken => 'Session udløbet. Log venligst ind igen';
+
+  // Delete Dialog Strings
+  @override
+  String get checkingDeletionDetails => 'Tjekker hvad der vil blive slettet...';
+
+  @override
+  String get unableToLoadDeletionDetails => 'Kunne ikke indlæse sletningsdetaljer';
+
+  @override
+  String get actionCannotBeUndone => 'Denne handling kan ikke fortrydes';
+
+  @override
+  String get proceedWithCaution => 'Denne handling kan ikke fortrydes. Fortsæt med forsigtighed.';
+
+  // Accessibility
+  @override
+  String get decrease => 'Formindsk';
+
+  @override
+  String get increase => 'Forøg';
+
+  // Task Swipe Actions
+  @override
+  String get taskCompletedSwipe => 'Fuldført!';
+
+  // Profile Screen
+  @override
+  String get noUserData => 'Ingen bruger data tilgængelig';
+
+  @override
+  String get imageUploadComingSoon => 'Billede upload kommer snart';
+
+  @override
+  String get personalInformation => 'Personlig information';
+
+  @override
+  String get cannotBeChanged => 'Kan ikke ændres';
+
+  @override
+  String get actions => 'Handlinger';
+
+  @override
+  String get editProfileComingSoon => 'Profil redigering kommer snart';
+
+  @override
+  String get editProfile => 'Rediger profil';
+
+  @override
+  String get editProfileDescription => 'Opdater dit navn og profil billede';
+
+  @override
+  String get updateProfile => 'Opdater profil';
+
+  @override
+  String get profileUpdated => 'Profil opdateret';
+
+  @override
+  String get failedToUpdateProfile => 'Kunne ikke opdatere profil';
+
+  @override
+  String get changePassword => 'Skift adgangskode';
+
+  @override
+  String get changePasswordDescription => 'Opdater din adgangskode';
+
+  @override
+  String get currentPassword => 'Nuværende adgangskode';
+
+  @override
+  String get pleaseEnterCurrentPassword => 'Indtast venligst din nuværende adgangskode';
+
+  @override
+  String get passwordChanged => 'Adgangskode ændret';
+
+  @override
+  String get failedToChangePassword => 'Kunne ikke ændre adgangskode';
+
+  @override
+  String get memberSince => 'Medlem siden';
+
+  @override
+  String get tasksCompleted => 'Opgaver fuldført';
+
+  @override
+  String get currentStreak => 'Nuværende streak';
+
+  @override
+  String get longestStreak => 'Længste streak';
+
+  @override
+  String get sharedLists => 'Delte lister';
+
+  // Login Screen Features (additional)
+  @override
+  String get getStarted => 'Kom i gang';
+
+  @override
+  String get continueWithEmail => 'Fortsæt med e-mail';
+
+  @override
+  String get orContinueWith => 'Eller fortsæt med';
+
+  // Settings Screen (additional)
+  @override
+  String get notificationSettings => 'Notifikationsindstillinger';
+
+  @override
+  String get enableNotifications => 'Aktiver notifikationer';
+
+  @override
+  String get soundEnabled => 'Lyd aktiveret';
+
+  @override
+  String get vibrationEnabled => 'Vibration aktiveret';
+
+  @override
+  String get privacyPolicy => 'Privatlivspolitik';
+
+  @override
+  String get termsOfService => 'Servicevilkår';
+
+  @override
+  String get helpAndSupport => 'Hjælp og support';
+
+  @override
+  String get contactUs => 'Kontakt os';
+
+  @override
+  String get rateApp => 'Bedøm app';
+
+  @override
+  String get shareApp => 'Del app';
+
+  @override
+  String get deleteAccount => 'Slet konto';
+
+  @override
+  String get deleteAccountConfirmMessage =>
+      'Er du sikker på at du vil slette din konto? Alle dine data vil blive permanent slettet.';
+
+  @override
+  String get deleteAccountConfirmTitle => 'Slet konto';
+
+  @override
+  String get accountDeleted => 'Konto slettet';
+
+  @override
+  String get failedToDeleteAccount => 'Kunne ikke slette konto';
+
+  // Widget Strings
+  @override
+  String get widgetTitle => 'Årshjulet Widget';
+
+  @override
+  String get widgetDescription => 'Se dine kommende opgaver på startskærmen';
+
+  @override
+  String get widgetNoTasks => 'Ingen opgaver';
+
+  @override
+  String get widgetLoading => 'Indlæser...';
+
+  @override
+  String get widgetError => 'Fejl ved indlæsning';
+
+  @override
+  String get widgetTapToRefresh => 'Tryk for at genindlæse';
+
+  @override
+  String get widgetConfigureInApp => 'Konfigurer i appen';
+
+  @override
+  String get widgetUpcoming => 'Kommende';
+
+  @override
+  String get widgetOverdue => 'Forsinket';
+
+  @override
+  String get widgetDueToday => 'Forfalder i dag';
+
+  // API Errors
+  @override
+  String get failedToLoadTaskLists => 'Kunne ikke indlæse opgavelister';
+
+  @override
+  String get failedToLoadTasks => 'Kunne ikke indlæse opgaver';
+
+  @override
+  String get failedToLoadNotifications => 'Kunne ikke indlæse notifikationer';
+
+  @override
+  String get failedToLoadProfile => 'Kunne ikke indlæse profil';
+
+  @override
+  String get failedToLoadInvitations => 'Kunne ikke indlæse invitationer';
+
+  @override
+  String get sessionExpired => 'Session udløbet';
+
+  @override
+  String get pleaseLoginAgain => 'Log venligst ind igen';
+
+  @override
+  String get serverError => 'Serverfejl';
+
+  @override
+  String get connectionError => 'Forbindelsesfejl';
+
+  @override
+  String get timeoutError => 'Timeout fejl';
+
+  @override
+  String get unknownError => 'Ukendt fejl';
+
+  @override
+  String get noInternetConnection => 'Ingen internetforbindelse';
+
+  @override
+  String get tryAgainLater => 'Prøv igen senere';
+
+  // Notification Strings
+  @override
+  String get notificationTaskReminder => 'Opgavepåmindelse';
+
+  @override
+  String get notificationTaskOverdue => 'Opgave forsinket';
+
+  @override
+  String get notificationNewInvitation => 'Ny invitation';
+
+  @override
+  String get notificationInvitationAccepted => 'Invitation accepteret';
+
+  @override
+  String get notificationInvitationDeclined => 'Invitation afvist';
+
+  @override
+  String get notificationStreakAtRisk => 'Streak i fare';
+
+  @override
+  String get notificationStreakLost => 'Streak tabt';
+
+  @override
+  String get notificationTaskCompleted => 'Opgave fuldført';
+
+  @override
+  String notificationTaskDueIn(String time) => 'Opgave forfalder om $time';
+
+  @override
+  String notificationStreakDays(int days) => '$days dages streak';
+
+  // Additional Common Strings
+  @override
+  String get yes => 'Ja';
+
+  @override
+  String get no => 'Nej';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get confirm => 'Bekræft';
+
+  @override
+  String get next => 'Næste';
+
+  @override
+  String get previous => 'Forrige';
+
+  @override
+  String get skip => 'Spring over';
+
+  @override
+  String get finish => 'Afslut';
+
+  @override
+  String get submit => 'Indsend';
+
+  @override
+  String get update => 'Opdater';
+
+  @override
+  String get add => 'Tilføj';
+
+  @override
+  String get search => 'Søg';
+
+  @override
+  String get noResults => 'Ingen resultater';
+
+  @override
+  String get searchHint => 'Søg...';
+
+  @override
+  String get selectAll => 'Vælg alle';
+
+  @override
+  String get deselectAll => 'Fravælg alle';
+
+  @override
+  String get sortBy => 'Sorter efter';
+
+  @override
+  String get filterBy => 'Filtrer efter';
+
+  @override
+  String get ascending => 'Stigende';
+
+  @override
+  String get descending => 'Faldende';
+
+  @override
+  String get newest => 'Nyeste';
+
+  @override
+  String get oldest => 'Ældste';
+
+  // Repeat unit names (singular/plural for recurrence fields)
+  @override
+  String get daySingular => 'dag';
+
+  @override
+  String get dayPlural => 'dage';
+
+  @override
+  String get weekSingular => 'uge';
+
+  @override
+  String get weekPlural => 'uger';
+
+  @override
+  String get monthSingular => 'måned';
+
+  @override
+  String get monthPlural => 'måneder';
+
+  @override
+  String get yearSingular => 'år';
+
+  @override
+  String get yearPlural => 'år';
+
+  @override
+  String get daysUnit => 'Dage';
+
+  @override
+  String get weeksUnit => 'Uger';
+
+  @override
+  String get monthsUnit => 'Måneder';
+
+  @override
+  String get yearsUnit => 'År';
+
+  // Delete dialog
+  @override
+  String deleteItemQuestion(String itemName) => 'Slet "$itemName"?';
+
+  // Battery Optimization Dialog (Android)
+  @override
+  String get batteryOptimizationTitle => 'Tillad notifikationer i baggrunden';
+
+  @override
+  String get batteryOptimizationMessage =>
+      'For at modtage notifikationer når appen ikke er åben, skal du tillade '
+      'appen at køre i baggrunden.\n\n'
+      'Tryk "OK" for at åbne indstillinger, find derefter '
+      '"Årshjulet" og vælg "Ingen begrænsninger" eller '
+      '"Tillad baggrundsaktivitet".';
 }

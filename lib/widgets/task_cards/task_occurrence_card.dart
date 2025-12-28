@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../../models/task_occurrence.dart';
+import '../../l10n/app_strings.dart';
 import 'task_urgency.dart';
 import 'hero_task_card.dart';
 import 'medium_task_card.dart';
@@ -37,13 +38,14 @@ class TaskOccurrenceCard extends StatelessWidget {
         await onQuickComplete(occurrence);
         return false;
       },
-      background: _buildDismissBackground(urgency),
+      background: _buildDismissBackground(context, urgency),
       child: _buildCardContent(context, isClickable, urgency),
     );
   }
 
-  Widget _buildDismissBackground(TaskUrgency urgency) {
+  Widget _buildDismissBackground(BuildContext context, TaskUrgency urgency) {
     final isUrgent = urgency == TaskUrgency.overdue || urgency == TaskUrgency.today;
+    final strings = AppStrings.of(context);
 
     return Container(
       alignment: Alignment.centerRight,
@@ -62,14 +64,14 @@ class TaskOccurrenceCard extends StatelessWidget {
           ),
         ],
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check_circle, color: Colors.white, size: 28),
-          SizedBox(width: 8),
+          const Icon(Icons.check_circle, color: Colors.white, size: 28),
+          const SizedBox(width: 8),
           Text(
-            'Fuldført!',
-            style: TextStyle(
+            strings.taskCompletedSwipe,
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 16,

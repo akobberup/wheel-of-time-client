@@ -153,13 +153,13 @@ class _AiSuggestionsBottomSheetState
     final effectiveThemeColor = widget.themeColor ?? colorScheme.primary;
 
     // Format repeat description
+    final strings = AppStrings.of(context);
+    final unitFormatted = suggestion.repeatUnit.toLowerCase().replaceAll('_', ' ');
     String repeatDescription;
     if (suggestion.repeatDelta == 1) {
-      repeatDescription =
-          'Repeats every ${suggestion.repeatUnit.toLowerCase().replaceAll('_', ' ')}';
+      repeatDescription = strings.repeatsEvery(unitFormatted);
     } else {
-      repeatDescription =
-          'Repeats every ${suggestion.repeatDelta} ${suggestion.repeatUnit.toLowerCase().replaceAll('_', ' ')}';
+      repeatDescription = strings.repeatsEveryN(suggestion.repeatDelta, unitFormatted);
     }
 
     return Card(
@@ -361,7 +361,7 @@ class _AiSuggestionsBottomSheetState
             ),
             const SizedBox(height: 8),
             Text(
-              'Try typing a few characters to get suggestions',
+              AppStrings.of(context).tryTypingForSuggestions,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),
@@ -400,7 +400,7 @@ class _AiSuggestionsBottomSheetState
             ),
             const SizedBox(height: 8),
             Text(
-              _errorMessage ?? 'An unexpected error occurred',
+              _errorMessage ?? AppStrings.of(context).unexpectedError,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -429,7 +429,7 @@ class _AiSuggestionsBottomSheetState
               child: ElevatedButton.icon(
                 onPressed: _fetchSuggestions,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(AppStrings.of(context).retry),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   foregroundColor: Colors.white,
@@ -491,7 +491,7 @@ class _AiSuggestionsBottomSheetState
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () => Navigator.of(context).pop(),
-                  tooltip: 'Close suggestions',
+                  tooltip: AppStrings.of(context).closeSuggestions,
                 ),
               ],
             ),

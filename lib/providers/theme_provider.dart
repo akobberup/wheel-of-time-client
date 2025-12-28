@@ -5,19 +5,27 @@ import '../models/user_settings.dart';
 import '../services/api_service.dart';
 import 'auth_provider.dart';
 
+/// Fejlkoder for tema-relaterede fejl.
+/// UI-laget kan bruge disse til at vise lokaliserede fejlbeskeder.
+enum ThemeErrorCode {
+  loadSettings,
+  saveColor,
+  saveDarkMode,
+}
+
 /// Repræsenterer appens tema tilstand med farve og mørk tilstand præferencer.
 /// Håndterer både Material 3 ColorScheme generation og synkronisering med backend.
 class ThemeState {
   final Color seedColor;
   final bool isDarkMode;
   final bool isLoading;
-  final String? error;
+  final ThemeErrorCode? errorCode;
 
   ThemeState({
     this.seedColor = const Color(0xFF6750A4), // Standard lilla
     this.isDarkMode = false,
     this.isLoading = false,
-    this.error,
+    this.errorCode,
   });
 
   /// Genererer Material 3 lyst tema fra seed color
@@ -45,13 +53,13 @@ class ThemeState {
     Color? seedColor,
     bool? isDarkMode,
     bool? isLoading,
-    String? error,
+    ThemeErrorCode? errorCode,
   }) {
     return ThemeState(
       seedColor: seedColor ?? this.seedColor,
       isDarkMode: isDarkMode ?? this.isDarkMode,
       isLoading: isLoading ?? this.isLoading,
-      error: error,
+      errorCode: errorCode,
     );
   }
 }
@@ -96,7 +104,7 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
       // Brug standard værdier hvis indlæsning fejler
       state = state.copyWith(
         isLoading: false,
-        error: 'Failed to load theme settings',
+        errorCode: ThemeErrorCode.loadSettings,
       );
     }
   }
@@ -118,7 +126,7 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
       developer.log('✅ Theme color synced to backend', name: 'ThemeProvider');
     } catch (e) {
       developer.log('⚠️ Failed to sync theme color: $e', name: 'ThemeProvider');
-      state = state.copyWith(error: 'Failed to save theme color');
+      state = state.copyWith(errorCode: ThemeErrorCode.saveColor);
     }
   }
 
@@ -139,7 +147,7 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
       developer.log('✅ Dark mode synced to backend', name: 'ThemeProvider');
     } catch (e) {
       developer.log('⚠️ Failed to sync dark mode: $e', name: 'ThemeProvider');
-      state = state.copyWith(error: 'Failed to save dark mode');
+      state = state.copyWith(errorCode: ThemeErrorCode.saveDarkMode);
     }
   }
 

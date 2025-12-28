@@ -61,7 +61,7 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
       if (mounted) {
         setState(() => _isLoadingThemes = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load themes: $e')),
+          SnackBar(content: Text(AppStrings.of(context).failedToLoadThemes)),
         );
       }
     }
@@ -99,7 +99,7 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
         Navigator.of(context).pop(true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update task list')),
+          SnackBar(content: Text(AppStrings.of(context).failedToUpdateTaskList)),
         );
       }
     }
@@ -112,7 +112,7 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
     final isDark = themeState.isDarkMode;
 
     return AlertDialog(
-      title: const Text('Edit Task List'),
+      title: Text(strings.editTaskList),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 500),
         child: SingleChildScrollView(
@@ -131,7 +131,7 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a name';
+                    return strings.pleaseEnterName;
                   }
                   return null;
                 },
@@ -141,9 +141,9 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
               // Beskrivelse felt
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description (optional)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: strings.descriptionOptional,
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 3,
               ),
@@ -151,7 +151,7 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
 
               // Tema vælger
               Text(
-                'Visual Theme',
+                strings.visualTheme,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -180,7 +180,7 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
                 )
               else
                 Text(
-                  'Failed to load themes',
+                  strings.failedToLoadThemes,
                   style: TextStyle(
                     color: isDark
                         ? const Color(0xFFA0A0A0)
@@ -194,7 +194,7 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.of(context).pop(false),
-          child: const Text('Cancel'),
+          child: Text(strings.cancel),
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _submit,
@@ -204,7 +204,7 @@ class _EditTaskListDialogState extends ConsumerState<EditTaskListDialog> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Save'),
+              : Text(strings.save),
         ),
       ],
     );

@@ -182,15 +182,16 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
 
   /// Returns plural unit name
   String _getUnitName(RepeatUnit unit) {
+    final strings = AppStrings.of(context);
     switch (unit) {
       case RepeatUnit.DAYS:
-        return 'days';
+        return strings.dayPlural;
       case RepeatUnit.WEEKS:
-        return 'weeks';
+        return strings.weekPlural;
       case RepeatUnit.MONTHS:
-        return 'months';
+        return strings.monthPlural;
       case RepeatUnit.YEARS:
-        return 'years';
+        return strings.yearPlural;
     }
   }
 
@@ -497,7 +498,7 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
                   onPressed: widget.enabled && _repeatDelta > 1
                       ? () => _handleWeeksChanged(_repeatDelta - 1)
                       : null,
-                  tooltip: 'Decrease',
+                  tooltip: strings.decrease,
                   constraints: const BoxConstraints(
                     minWidth: 40,
                     minHeight: 40,
@@ -519,7 +520,7 @@ class _RecurrenceEditorState extends State<RecurrenceEditor> {
                   onPressed: widget.enabled
                       ? () => _handleWeeksChanged(_repeatDelta + 1)
                       : null,
-                  tooltip: 'Increase',
+                  tooltip: strings.increase,
                   constraints: const BoxConstraints(
                     minWidth: 40,
                     minHeight: 40,

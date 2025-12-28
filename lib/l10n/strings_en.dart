@@ -5,6 +5,90 @@ class StringsEn extends AppStrings {
   String get appTitle => 'Aarshjulet';
 
   @override
+  String get tagline => 'Keep track of recurring tasks – together';
+
+  @override
+  String get appShortDescription =>
+      'An app to keep track of recurring tasks. '
+          'Perfect for daily routines, household chores, or anything else that needs to be done regularly.';
+
+  // Login Screen Features
+  @override
+  String get featureRepeating => 'Repeating';
+
+  @override
+  String get featureShared => 'Shared';
+
+  @override
+  String get featureStreaks => 'Streaks';
+
+  @override
+  String get featureRepeatingTitle => 'Repeating tasks';
+
+  @override
+  String get featureRepeatingDescription =>
+      'Create tasks that repeat automatically – daily, weekly, or on your own schedule. Never forget to water the plants or take your medication again.';
+
+  @override
+  String get featureSharedTitle => 'Share with others';
+
+  @override
+  String get featureSharedDescription =>
+      'Invite family, friends, or roommates to your lists. See who has completed which tasks and easily coordinate everyday chores.';
+
+  @override
+  String get featureStreaksTitle => 'Keep your streak';
+
+  @override
+  String get featureStreaksDescription =>
+      'Stay motivated by seeing how many times in a row you have completed a task. Build good habits and celebrate your progress!';
+
+  @override
+  String get whatIsAarshjulet => 'What is Aarshjulet?';
+
+  @override
+  String get tapToReadMore => 'Tap to read more';
+
+  @override
+  String get featureAutomatic => 'Automatic';
+
+  @override
+  String get featureTogether => 'Together';
+
+  @override
+  String get featureMotivating => 'Motivating';
+
+  @override
+  String get featureAutomaticTitle => 'Automatic repetition';
+
+  @override
+  String get featureAutomaticDescription =>
+      'Create tasks that repeat daily, weekly, or on your own schedule. '
+          'The app keeps track of when the task needs to be done next.';
+
+  @override
+  String get featureTogetherTitle => 'Share with others';
+
+  @override
+  String get featureTogetherDescription =>
+      'Invite family, friends, or roommates to your task lists. '
+          'See who has done what and distribute responsibility easily.';
+
+  @override
+  String get featureStreakTrackingTitle => 'Streak tracking';
+
+  @override
+  String get featureStreakTrackingDescription =>
+      'Keep track of how many times in a row you complete a task. '
+          'Build good habits and stay motivated by your progress!';
+
+  @override
+  String get noAccount => 'No account?';
+
+  @override
+  String get haveAccount => 'Have an account?';
+
+  @override
   String get welcomeBack => 'Welcome back';
 
   @override
@@ -132,7 +216,8 @@ class StringsEn extends AppStrings {
   String get createTaskList => 'Create Task List';
 
   @override
-  String get taskListDescription => 'A task list groups related tasks together, e.g. "Gardening" or "Car Maintenance". You can share lists with family or friends.';
+  String get taskListDescription =>
+      'A task list groups related tasks together, e.g. "Gardening" or "Car Maintenance". You can share lists with family or friends.';
 
   @override
   String get editTaskList => 'Edit Task List';
@@ -147,7 +232,8 @@ class StringsEn extends AppStrings {
   String get noTaskListsYet => 'No task lists yet';
 
   @override
-  String get createFirstTaskList => 'Create your first task list to get started';
+  String get createFirstTaskList =>
+      'Create your first task list to get started';
 
   @override
   String get taskListCreated => 'Task list created';
@@ -164,6 +250,10 @@ class StringsEn extends AppStrings {
 
   @override
   String get createTask => 'Create Task';
+
+  @override
+  String get taskDescription =>
+      'A task is something that needs to be done regularly, e.g. "Water the plants" or "Change oil". The app reminds you when it\'s time.';
 
   @override
   String get editTask => 'Edit Task';
@@ -331,6 +421,9 @@ class StringsEn extends AppStrings {
   String get moreOptions => 'More Options';
 
   @override
+  String get settings => 'Settings';
+
+  @override
   String get lists => 'Lists';
 
   @override
@@ -374,12 +467,15 @@ class StringsEn extends AppStrings {
       'This list is empty and can be safely deleted.';
 
   @override
-  String confirmDeleteTaskWithStreak(String name, int streakCount, int completions) =>
-      'Delete "$name"? This will permanently delete your ${streakCount}x streak and $completions completion ${completions == 1 ? 'record' : 'records'}.';
+  String confirmDeleteTaskWithStreak(String name, int streakCount,
+      int completions) =>
+      'Delete "$name"? This will permanently delete your ${streakCount}x streak and $completions completion ${completions ==
+          1 ? 'record' : 'records'}.';
 
   @override
   String confirmDeleteTaskNoStreak(String name, int completions) =>
-      'Delete "$name"? This will permanently delete $completions completion ${completions == 1 ? 'record' : 'records'}.';
+      'Delete "$name"? This will permanently delete $completions completion ${completions ==
+          1 ? 'record' : 'records'}.';
 
   @override
   String confirmRemoveMember(String name) =>
@@ -396,6 +492,48 @@ class StringsEn extends AppStrings {
   @override
   String get taskListDeletedSuccess => 'Task list deleted successfully';
 
+  // Deletion context messages
+  @override
+  String get taskSafeToDelete =>
+      'This task has no completion records and can be safely deleted.';
+
+  @override
+  String taskDeletionWithStreak(int streakCount, int completionCount) =>
+      'This will permanently delete:\n\n'
+          '• Your ${streakCount}x streak\n'
+          '• $completionCount completion ${completionCount == 1
+          ? 'record'
+          : 'records'}';
+
+  @override
+  String taskDeletionWithCompletions(int completionCount) =>
+      'This will permanently delete $completionCount completion ${completionCount ==
+          1 ? 'record' : 'records'}.';
+
+  @override
+  String get taskWillBeDeleted => 'This task will be permanently deleted.';
+
+  @override
+  String get taskListSafeToDelete =>
+      'This list is empty and can be safely deleted.';
+
+  @override
+  String taskListDeletionSummary(int taskCount, int completionCount,
+      int streakCount) {
+    final parts = <String>['This will permanently delete:'];
+    parts.add('\n\n• $taskCount ${taskCount == 1 ? 'task' : 'tasks'}');
+    if (completionCount > 0) {
+      parts.add('\n• $completionCount completion ${completionCount == 1
+          ? 'record'
+          : 'records'}');
+    }
+    if (streakCount > 0) {
+      parts.add(
+          '\n• $streakCount active ${streakCount == 1 ? 'streak' : 'streaks'}');
+    }
+    return parts.join('');
+  }
+
   @override
   String get memberRemovedSuccess => 'Member removed successfully';
 
@@ -403,7 +541,8 @@ class StringsEn extends AppStrings {
   String get invitationCancelledSuccess => 'Invitation cancelled successfully';
 
   @override
-  String get permissionUpdatedSuccess => 'Permission level updated successfully';
+  String get permissionUpdatedSuccess =>
+      'Permission level updated successfully';
 
   @override
   String invitationSentTo(String email) => 'Invitation sent to $email';
@@ -440,7 +579,8 @@ class StringsEn extends AppStrings {
   String get pleaseEnterNumber => 'Please enter a number';
 
   @override
-  String get pleaseEnterValidNumber => 'Please enter a valid number (1 or more)';
+  String get pleaseEnterValidNumber =>
+      'Please enter a valid number (1 or more)';
 
   @override
   String get pleaseEnterEmailAddress => 'Please enter an email address';
@@ -504,14 +644,16 @@ class StringsEn extends AppStrings {
   String get completionWindowHelper => 'How many hours after alarm to complete';
 
   @override
-  String get inactiveTasksHidden => 'Inactive tasks won\'t show up for completion';
+  String get inactiveTasksHidden =>
+      'Inactive tasks won\'t show up for completion';
 
   @override
   String streakCount(int count) => '${count}x streak';
 
   // Send invitation
   @override
-  String inviteSomeoneTo(String taskListName) => 'Invite someone to "$taskListName"';
+  String inviteSomeoneTo(String taskListName) =>
+      'Invite someone to "$taskListName"';
 
   @override
   String get emailAddress => 'Email Address';
@@ -552,7 +694,8 @@ class StringsEn extends AppStrings {
   String get notificationDismissed => 'Notification dismissed';
 
   @override
-  String get confirmDismissNotification => 'Are you sure you want to dismiss this notification?';
+  String get confirmDismissNotification =>
+      'Are you sure you want to dismiss this notification?';
 
   @override
   String get newInvitation => 'New Invitation';
@@ -608,7 +751,8 @@ class StringsEn extends AppStrings {
   String get noUpcomingTasks => 'No upcoming tasks';
 
   @override
-  String get allCaughtUpWithTasks => 'You\'re all caught up! No tasks due in the next 2 weeks.';
+  String get allCaughtUpWithTasks =>
+      'You\'re all caught up! No tasks due in the next 2 weeks.';
 
   @override
   String get dueToday => 'Due today';
@@ -763,7 +907,8 @@ class StringsEn extends AppStrings {
   String get hoursAfterAlarm => 'Hours after alarm to complete';
 
   @override
-  String get inactiveTasksWontShow => 'Inactive tasks won\'t show up for completion';
+  String get inactiveTasksWontShow =>
+      'Inactive tasks won\'t show up for completion';
 
   @override
   String get enterTaskListName => 'Enter task list name';
@@ -798,6 +943,37 @@ class StringsEn extends AppStrings {
 
   @override
   String get clear => 'Clear';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get generatingSuggestions => 'Generating suggestions...';
+
+  @override
+  String get pleaseTryAgain => 'Please try again';
+
+  @override
+  String get noSuggestionsAvailable => 'No suggestions available';
+
+  @override
+  String get tryEnteringText => 'Try entering some text first';
+
+  @override
+  String get tryTypingForSuggestions =>
+      'Try typing a few characters to get suggestions';
+
+  @override
+  String get closeSuggestions => 'Close suggestions';
+
+  @override
+  String get unexpectedError => 'An unexpected error occurred';
+
+  @override
+  String repeatsEvery(String unit) => 'Repeats every $unit';
+
+  @override
+  String repeatsEveryN(int delta, String units) => 'Repeats every $delta $units';
 
   // Weekdays (full names)
   @override
@@ -910,6 +1086,12 @@ class StringsEn extends AppStrings {
   String expiredAgo(String timeAgo) => 'Expired $timeAgo';
 
   @override
+  String get system => 'System';
+
+  @override
+  String percentComplete(int percent) => '$percent% complete';
+
+  @override
   String get taskExpired => 'Task expired';
 
   @override
@@ -1019,4 +1201,545 @@ class StringsEn extends AppStrings {
 
   @override
   String get decemberShort => 'Dec';
+
+  // Settings Screen
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get themeColor => 'Theme Color';
+
+  @override
+  String get chooseThemeColor => 'Choose a color to customize your theme';
+
+  @override
+  String get darkMode => 'Dark Mode';
+
+  @override
+  String get darkModeDescription => 'Switch between light and dark theme';
+
+  @override
+  String get account => 'Account';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get editProfileInfo => 'Edit your profile information';
+
+  @override
+  String get logoutDescription => 'Log out of your account';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get development => 'Development';
+
+  @override
+  String get build => 'Build';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get danish => 'Danish';
+
+  @override
+  String get logoutConfirmTitle => 'Log out';
+
+  @override
+  String get logoutConfirmMessage => 'Are you sure you want to log out?';
+
+  // Push notification body text (bruges af NotificationService)
+  @override
+  String notificationInvitationReceived(String fromUser, String taskListName) =>
+      '$fromUser invited you to "$taskListName"';
+
+  @override
+  String notificationInvitationAcceptedBody(String email,
+      String taskListName) =>
+      '$email accepted your invitation to "$taskListName"';
+
+  @override
+  String notificationInvitationDeclinedBody(String email,
+      String taskListName) =>
+      '$email declined your invitation to "$taskListName"';
+
+  @override
+  String notificationTaskDue(String taskName, String taskListName) =>
+      '"$taskName" in "$taskListName" is due';
+
+  // Theme and Visual Settings
+  @override
+  String get theme => 'Theme';
+
+  @override
+  String get selectTheme => 'Select theme';
+
+  @override
+  String get visualTheme => 'Visual Theme';
+
+  @override
+  String get failedToLoadThemes => 'Failed to load themes';
+
+  @override
+  String get failedToUpdateTaskList => 'Failed to update task list';
+
+  // Additional API Error Strings (for ApiErrorKey translation)
+  @override
+  String get failedToLoadOwnedTaskLists => 'Failed to load owned task lists';
+
+  @override
+  String get failedToLoadSharedTaskLists => 'Failed to load shared task lists';
+
+  @override
+  String get failedToLoadTaskList => 'Failed to load task list';
+
+  @override
+  String get failedToLoadTask => 'Failed to load task';
+
+  @override
+  String get failedToLoadUpcomingTasks => 'Failed to load upcoming tasks';
+
+  @override
+  String get failedToLoadUpcomingOccurrences => 'Failed to load upcoming task occurrences';
+
+  @override
+  String get failedToLoadTaskInstances => 'Failed to load task instances';
+
+  @override
+  String get failedToLoadTaskInstance => 'Failed to load task instance';
+
+  @override
+  String get failedToCreateTaskInstance => 'Failed to complete task';
+
+  @override
+  String get failedToLoadRecentlyCompleted => 'Failed to load recently completed tasks';
+
+  @override
+  String get failedToLoadCurrentStreak => 'Failed to load current streak';
+
+  @override
+  String get failedToLoadLongestStreak => 'Failed to load longest streak';
+
+  @override
+  String get failedToLoadStreaks => 'Failed to load streaks';
+
+  @override
+  String get failedToLoadPendingInvitations => 'Failed to load pending invitations';
+
+  @override
+  String get failedToLoadTaskListInvitations => 'Failed to load task list invitations';
+
+  @override
+  String get failedToLoadInvitation => 'Failed to load invitation';
+
+  @override
+  String get failedToCreateInvitation => 'Failed to send invitation';
+
+  @override
+  String get failedToLoadTaskListUsers => 'Failed to load task list members';
+
+  @override
+  String get failedToUpdateUserAdminLevel => 'Failed to update permission level';
+
+  @override
+  String get failedToUploadImage => 'Failed to upload image';
+
+  @override
+  String get failedToDeleteImage => 'Failed to delete image';
+
+  @override
+  String get failedToLoadCompletionMessage => 'Failed to load completion message';
+
+  @override
+  String get failedToLoadUserSettings => 'Failed to load user settings';
+
+  @override
+  String get failedToUpdateUserSettings => 'Failed to update user settings';
+
+  @override
+  String get failedToLoadVisualThemes => 'Failed to load visual themes';
+
+  @override
+  String get failedToLoadVisualTheme => 'Failed to load visual theme';
+
+  @override
+  String get failedToRefreshToken => 'Session expired. Please log in again';
+
+  // Delete Dialog Strings
+  @override
+  String get checkingDeletionDetails => 'Checking what will be deleted...';
+
+  @override
+  String get unableToLoadDeletionDetails => 'Unable to load deletion details';
+
+  @override
+  String get actionCannotBeUndone => 'This action cannot be undone';
+
+  @override
+  String get proceedWithCaution =>
+      'This action cannot be undone. Proceed with caution.';
+
+  // Accessibility
+  @override
+  String get decrease => 'Decrease';
+
+  @override
+  String get increase => 'Increase';
+
+  // Task Swipe Actions
+  @override
+  String get taskCompletedSwipe => 'Completed!';
+
+  // Profile Screen
+  @override
+  String get noUserData => 'No user data available';
+
+  @override
+  String get imageUploadComingSoon => 'Image upload coming soon';
+
+  @override
+  String get personalInformation => 'Personal information';
+
+  @override
+  String get cannotBeChanged => 'Cannot be changed';
+
+  @override
+  String get actions => 'Actions';
+
+  @override
+  String get editProfileComingSoon => 'Profile editing coming soon';
+
+  @override
+  String get editProfile => 'Edit profile';
+
+  @override
+  String get editProfileDescription => 'Update your name and profile picture';
+
+  @override
+  String get updateProfile => 'Update profile';
+
+  @override
+  String get profileUpdated => 'Profile updated';
+
+  @override
+  String get failedToUpdateProfile => 'Failed to update profile';
+
+  @override
+  String get changePassword => 'Change password';
+
+  @override
+  String get changePasswordDescription => 'Update your password';
+
+  @override
+  String get currentPassword => 'Current password';
+
+  @override
+  String get pleaseEnterCurrentPassword => 'Please enter your current password';
+
+  @override
+  String get passwordChanged => 'Password changed';
+
+  @override
+  String get failedToChangePassword => 'Failed to change password';
+
+  @override
+  String get memberSince => 'Member since';
+
+  @override
+  String get tasksCompleted => 'Tasks completed';
+
+  @override
+  String get currentStreak => 'Current streak';
+
+  @override
+  String get longestStreak => 'Longest streak';
+
+  @override
+  String get sharedLists => 'Shared lists';
+
+  // Additional Login Screen Features
+  @override
+  String get getStarted => 'Get Started';
+
+  @override
+  String get continueWithEmail => 'Continue with Email';
+
+  @override
+  String get orContinueWith => 'or continue with';
+
+  // Settings Screen - Additional
+  @override
+  String get notificationSettings => 'Notification Settings';
+
+  @override
+  String get enableNotifications => 'Enable Notifications';
+
+  @override
+  String get soundEnabled => 'Sound';
+
+  @override
+  String get vibrationEnabled => 'Vibration';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get termsOfService => 'Terms of Service';
+
+  @override
+  String get helpAndSupport => 'Help & Support';
+
+  @override
+  String get contactUs => 'Contact Us';
+
+  @override
+  String get rateApp => 'Rate App';
+
+  @override
+  String get shareApp => 'Share App';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmMessage =>
+      'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently lost.';
+
+  @override
+  String get deleteAccountConfirmTitle => 'Delete Account';
+
+  @override
+  String get accountDeleted => 'Account deleted successfully';
+
+  @override
+  String get failedToDeleteAccount => 'Failed to delete account';
+
+  // Widget Strings
+  @override
+  String get widgetTitle => 'Aarshjulet';
+
+  @override
+  String get widgetDescription => 'Your upcoming tasks at a glance';
+
+  @override
+  String get widgetNoTasks => 'No upcoming tasks';
+
+  @override
+  String get widgetLoading => 'Loading...';
+
+  @override
+  String get widgetError => 'Could not load tasks';
+
+  @override
+  String get widgetTapToRefresh => 'Tap to refresh';
+
+  @override
+  String get widgetConfigureInApp => 'Open app to configure';
+
+  @override
+  String get widgetUpcoming => 'Upcoming';
+
+  @override
+  String get widgetOverdue => 'Overdue';
+
+  @override
+  String get widgetDueToday => 'Due today';
+
+  // API Errors
+  @override
+  String get failedToLoadTaskLists => 'Failed to load task lists';
+
+  @override
+  String get failedToLoadTasks => 'Failed to load tasks';
+
+  @override
+  String get failedToLoadNotifications => 'Failed to load notifications';
+
+  @override
+  String get failedToLoadProfile => 'Failed to load profile';
+
+  @override
+  String get failedToLoadInvitations => 'Failed to load invitations';
+
+  @override
+  String get sessionExpired => 'Session expired';
+
+  @override
+  String get pleaseLoginAgain => 'Please log in again';
+
+  @override
+  String get serverError => 'Server error';
+
+  @override
+  String get connectionError => 'Connection error';
+
+  @override
+  String get timeoutError => 'Request timed out';
+
+  @override
+  String get unknownError => 'An unknown error occurred';
+
+  @override
+  String get noInternetConnection => 'No internet connection';
+
+  @override
+  String get tryAgainLater => 'Please try again later';
+
+  // Notification Strings
+  @override
+  String get notificationTaskReminder => 'Task Reminder';
+
+  @override
+  String get notificationTaskOverdue => 'Task Overdue';
+
+  @override
+  String get notificationNewInvitation => 'New Invitation';
+
+  @override
+  String get notificationInvitationAccepted => 'Invitation Accepted';
+
+  @override
+  String get notificationInvitationDeclined => 'Invitation Declined';
+
+  @override
+  String get notificationStreakAtRisk => 'Streak at Risk';
+
+  @override
+  String get notificationStreakLost => 'Streak Lost';
+
+  @override
+  String get notificationTaskCompleted => 'Task Completed';
+
+  @override
+  String notificationTaskDueIn(String time) => 'Task due in $time';
+
+  @override
+  String notificationStreakDays(int days) =>
+      '$days ${days == 1 ? 'day' : 'days'} streak';
+
+  // Additional Common Strings
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get previous => 'Previous';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get finish => 'Finish';
+
+  @override
+  String get submit => 'Submit';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get noResults => 'No results found';
+
+  @override
+  String get searchHint => 'Search...';
+
+  @override
+  String get selectAll => 'Select All';
+
+  @override
+  String get deselectAll => 'Deselect All';
+
+  @override
+  String get sortBy => 'Sort by';
+
+  @override
+  String get filterBy => 'Filter by';
+
+  @override
+  String get ascending => 'Ascending';
+
+  @override
+  String get descending => 'Descending';
+
+  @override
+  String get newest => 'Newest';
+
+  @override
+  String get oldest => 'Oldest';
+
+  // Repeat unit names (singular/plural for recurrence fields)
+  @override
+  String get daySingular => 'day';
+
+  @override
+  String get dayPlural => 'days';
+
+  @override
+  String get weekSingular => 'week';
+
+  @override
+  String get weekPlural => 'weeks';
+
+  @override
+  String get monthSingular => 'month';
+
+  @override
+  String get monthPlural => 'months';
+
+  @override
+  String get yearSingular => 'year';
+
+  @override
+  String get yearPlural => 'years';
+
+  @override
+  String get daysUnit => 'Days';
+
+  @override
+  String get weeksUnit => 'Weeks';
+
+  @override
+  String get monthsUnit => 'Months';
+
+  @override
+  String get yearsUnit => 'Years';
+
+  // Delete dialog
+  @override
+  String deleteItemQuestion(String itemName) => 'Delete "$itemName"?';
+
+  // Battery Optimization Dialog (Android)
+  @override
+  String get batteryOptimizationTitle => 'Allow background notifications';
+
+  @override
+  String get batteryOptimizationMessage =>
+      'To receive notifications when the app is not open, you need to allow '
+      'the app to run in the background.\n\n'
+      'Tap "OK" to open settings, then find '
+      '"Aarshjulet" and select "No restrictions" or '
+      '"Allow background activity".';
 }

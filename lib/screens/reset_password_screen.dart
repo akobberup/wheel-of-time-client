@@ -3,7 +3,6 @@
 // Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
 // =============================================================================
 
-import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -32,8 +31,8 @@ class ResetPasswordScreen extends HookConsumerWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // Varm gradient baggrund med cirkulære orber
-          _WarmBackground(isDark: isDark),
+          // Baggrundsbillede med årstider
+          _SeasonalBackground(isDark: isDark),
 
           // Hovedindhold
           SafeArea(
@@ -76,125 +75,49 @@ class ResetPasswordScreen extends HookConsumerWidget {
   }
 }
 
-/// Varm baggrund med bløde cirkulære former
-class _WarmBackground extends HookWidget {
+/// Baggrund med årstids-landskabsbillede
+class _SeasonalBackground extends StatelessWidget {
   final bool isDark;
 
-  const _WarmBackground({required this.isDark});
+  const _SeasonalBackground({required this.isDark});
 
   @override
   Widget build(BuildContext context) {
-    final controller = useAnimationController(
-      duration: const Duration(seconds: 25),
-    );
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWideScreen = screenWidth > 600;
+    final imagePath = isWideScreen
+        ? 'assets/images/login_background_desktop.png'
+        : 'assets/images/login_background_phone.png';
 
-    useEffect(() {
-      controller.repeat();
-      return null;
-    }, []);
-
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, _) {
-        return CustomPaint(
-          painter: _OrbBackgroundPainter(
-            progress: controller.value,
-            seedColor: kBrandColor,
-            isDark: isDark,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.asset(
+          imagePath,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+        ),
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: isDark
+                  ? [
+                      Colors.black.withOpacity(0.4),
+                      Colors.black.withOpacity(0.6),
+                    ]
+                  : [
+                      Colors.white.withOpacity(0.3),
+                      Colors.white.withOpacity(0.5),
+                    ],
+            ),
           ),
-          size: Size.infinite,
-        );
-      },
+        ),
+      ],
     );
   }
-}
-
-/// Maler baggrunden med gradient og flydende orber
-class _OrbBackgroundPainter extends CustomPainter {
-  final double progress;
-  final Color seedColor;
-  final bool isDark;
-
-  _OrbBackgroundPainter({
-    required this.progress,
-    required this.seedColor,
-    required this.isDark,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Varm basis gradient
-    final baseGradient = LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: isDark
-          ? [
-              const Color(0xFF121214),
-              Color.lerp(const Color(0xFF121214), seedColor, 0.03)!,
-              const Color(0xFF0E0E10),
-            ]
-          : [
-              const Color(0xFFFAFAF8),
-              Color.lerp(const Color(0xFFF8F7F5), seedColor, 0.04)!,
-              const Color(0xFFF5F4F2),
-            ],
-    );
-
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..shader = baseGradient.createShader(Offset.zero & size),
-    );
-
-    // Flydende orber med tema-farve
-    final orbs = [
-      _Orb(0.15, 0.2, 180, 0.0),
-      _Orb(0.85, 0.15, 140, 0.3),
-      _Orb(0.7, 0.75, 200, 0.5),
-      _Orb(0.2, 0.8, 160, 0.7),
-    ];
-
-    for (final orb in orbs) {
-      final phase = progress * 2 * math.pi + orb.phase * math.pi;
-      final wobbleX = math.sin(phase * 0.7) * 30;
-      final wobbleY = math.cos(phase * 0.5) * 25;
-
-      final x = size.width * orb.xRatio + wobbleX;
-      final y = size.height * orb.yRatio + wobbleY;
-      final radius = orb.baseRadius + math.sin(phase) * 20;
-
-      final opacity = isDark ? 0.08 : 0.05;
-      final gradient = RadialGradient(
-        colors: [
-          seedColor.withOpacity(opacity),
-          seedColor.withOpacity(0),
-        ],
-      );
-
-      canvas.drawCircle(
-        Offset(x, y),
-        radius,
-        Paint()
-          ..shader = gradient.createShader(
-            Rect.fromCircle(center: Offset(x, y), radius: radius),
-          ),
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _OrbBackgroundPainter old) =>
-      progress != old.progress ||
-      seedColor != old.seedColor ||
-      isDark != old.isDark;
-}
-
-class _Orb {
-  final double xRatio;
-  final double yRatio;
-  final double baseRadius;
-  final double phase;
-
-  const _Orb(this.xRatio, this.yRatio, this.baseRadius, this.phase);
 }
 
 /// Tilbage-knap med moderne styling

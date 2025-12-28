@@ -145,7 +145,7 @@ class _TaskListSuggestionsBottomSheetState
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.close),
-                  tooltip: 'Close',
+                  tooltip: strings.close,
                 ),
               ],
             ),
@@ -183,7 +183,7 @@ class _TaskListSuggestionsBottomSheetState
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Generating suggestions...',
+                  strings.generatingSuggestions,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -226,7 +226,7 @@ class _TaskListSuggestionsBottomSheetState
               ),
               const SizedBox(height: 8),
               Text(
-                'Please try again',
+                strings.pleaseTryAgain,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -255,7 +255,7 @@ class _TaskListSuggestionsBottomSheetState
                 child: ElevatedButton.icon(
                   onPressed: _fetchSuggestions,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Retry'),
+                  label: Text(strings.retry),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     foregroundColor: Colors.white,
@@ -288,7 +288,7 @@ class _TaskListSuggestionsBottomSheetState
               ),
               const SizedBox(height: 16),
               Text(
-                'No suggestions available',
+                strings.noSuggestionsAvailable,
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: colorScheme.onSurface,
                 ),
@@ -296,7 +296,7 @@ class _TaskListSuggestionsBottomSheetState
               ),
               const SizedBox(height: 8),
               Text(
-                'Try entering some text first',
+                strings.tryEnteringText,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),

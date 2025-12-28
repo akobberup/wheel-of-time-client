@@ -409,7 +409,7 @@ class _TaskListCard extends ConsumerWidget {
     if (total == 0) return strings.noTasks;
 
     final percent = total > 0 ? ((completed / total) * 100).round() : 0;
-    return '$percent% fuldført';
+    return strings.percentComplete(percent);
   }
 
   Widget _buildMenuButton(
@@ -541,25 +541,14 @@ class _TaskListCard extends ConsumerWidget {
 
   String _buildDeleteMessage(DeletionContext context, AppStrings strings) {
     if (context.isSafe) {
-      return strings.confirmDeleteTaskListEmpty;
+      return strings.taskListSafeToDelete;
     }
 
-    final parts = <String>[];
-    parts.add('This will permanently delete:');
-    parts.add(
-        '\n\n• ${context.primaryCount} ${context.primaryCount == 1 ? 'task' : 'tasks'}');
-
-    if (context.secondaryCount != null && context.secondaryCount! > 0) {
-      parts.add(
-          '\n• ${context.secondaryCount} completion ${context.secondaryCount == 1 ? 'record' : 'records'}');
-    }
-
-    if (context.tertiaryCount != null && context.tertiaryCount! > 0) {
-      parts.add(
-          '\n• ${context.tertiaryCount} active ${context.tertiaryCount == 1 ? 'streak' : 'streaks'}');
-    }
-
-    return parts.join('');
+    return strings.taskListDeletionSummary(
+      context.primaryCount,
+      context.secondaryCount ?? 0,
+      context.tertiaryCount ?? 0,
+    );
   }
 
   void _showDeleteResultSnackBar(

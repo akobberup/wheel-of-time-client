@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_strings.dart';
 
 /// Data returned from async context fetcher to build contextual warning messages.
 /// Contains counts and other relevant information about what will be deleted.
@@ -170,7 +171,7 @@ class _ContextualDeleteDialogState extends State<_ContextualDeleteDialog> {
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
           child: Text(
-            widget.cancelButtonLabel ?? 'Cancel',
+            widget.cancelButtonLabel ?? AppStrings.of(context).cancel,
             style: TextStyle(
               fontWeight: FontWeight.w600,
               color: Theme.of(context).colorScheme.primary,
@@ -195,7 +196,7 @@ class _ContextualDeleteDialogState extends State<_ContextualDeleteDialog> {
                     Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
               child: Text(
-                widget.deleteButtonLabel ?? 'Delete',
+                widget.deleteButtonLabel ?? AppStrings.of(context).delete,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             );
@@ -218,7 +219,7 @@ class _ContextualDeleteDialogState extends State<_ContextualDeleteDialog> {
         ),
         const SizedBox(height: 16),
         Text(
-          'Checking what will be deleted...',
+          AppStrings.of(context).checkingDeletionDetails,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -249,7 +250,7 @@ class _ContextualDeleteDialogState extends State<_ContextualDeleteDialog> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Unable to load deletion details',
+                  AppStrings.of(context).unableToLoadDeletionDetails,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onErrorContainer,
                     fontWeight: FontWeight.w600,
@@ -261,14 +262,14 @@ class _ContextualDeleteDialogState extends State<_ContextualDeleteDialog> {
         ),
         const SizedBox(height: 12),
         Text(
-          'Delete "${widget.itemName}"?',
+          AppStrings.of(context).deleteItemQuestion(widget.itemName),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
         ),
         const SizedBox(height: 8),
         Text(
-          'This action cannot be undone. Proceed with caution.',
+          AppStrings.of(context).proceedWithCaution,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -357,7 +358,7 @@ class _ContextualDeleteDialogState extends State<_ContextualDeleteDialog> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'This action cannot be undone',
+                    AppStrings.of(context).actionCannotBeUndone,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.error,
                           fontWeight: FontWeight.w600,

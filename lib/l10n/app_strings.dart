@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'strings_en.dart';
 import 'strings_da.dart';
+import '../services/api_service.dart';
 
 abstract class AppStrings {
   // App
@@ -71,6 +72,7 @@ abstract class AppStrings {
   // Tasks
   String get tasks;
   String get createTask;
+  String get taskDescription;
   String get editTask;
   String get deleteTask;
   String get noTasks;
@@ -134,6 +136,7 @@ abstract class AppStrings {
   String get commentOptional;
   String get logout;
   String get moreOptions;
+  String get settings;
   String get lists;
   String get complete;
   String get more;
@@ -157,6 +160,14 @@ abstract class AppStrings {
   // Success messages
   String get taskDeletedSuccess;
   String get taskListDeletedSuccess;
+
+  // Deletion context messages
+  String get taskSafeToDelete;
+  String taskDeletionWithStreak(int streakCount, int completionCount);
+  String taskDeletionWithCompletions(int completionCount);
+  String get taskWillBeDeleted;
+  String get taskListSafeToDelete;
+  String taskListDeletionSummary(int taskCount, int completionCount, int streakCount);
   String get memberRemovedSuccess;
   String get invitationCancelledSuccess;
   String get permissionUpdatedSuccess;
@@ -308,6 +319,16 @@ abstract class AppStrings {
   String get noSuggestions;
   String get back;
   String get clear;
+  String get close;
+  String get generatingSuggestions;
+  String get pleaseTryAgain;
+  String get noSuggestionsAvailable;
+  String get tryEnteringText;
+  String get tryTypingForSuggestions;
+  String get closeSuggestions;
+  String get unexpectedError;
+  String repeatsEvery(String unit);
+  String repeatsEveryN(int delta, String units);
 
   // Weekdays (full names)
   String get monday;
@@ -351,6 +372,8 @@ abstract class AppStrings {
   String completedAgo(String timeAgo);
   String get expired;
   String expiredAgo(String timeAgo);
+  String get system;
+  String percentComplete(int percent);
   String get taskExpired;
   String get recentActivity;
 
@@ -394,6 +417,232 @@ abstract class AppStrings {
   String get novemberShort;
   String get decemberShort;
 
+  // Login Screen Features
+  String get tagline;
+  String get featureRepeating;
+  String get featureShared;
+  String get featureStreaks;
+  String get whatIsAarshjulet;
+  String get tapToReadMore;
+  String get appShortDescription;
+  String get featureRepeatingDescription;
+  String get featureSharedDescription;
+  String get featureStreaksDescription;
+  String get getStarted;
+  String get continueWithEmail;
+  String get orContinueWith;
+  String get noAccount;
+  String get haveAccount;
+  String get featureRepeatingTitle;
+  String get featureSharedTitle;
+  String get featureStreaksTitle;
+  String get featureAutomatic;
+  String get featureTogether;
+  String get featureMotivating;
+  String get featureAutomaticTitle;
+  String get featureAutomaticDescription;
+  String get featureTogetherTitle;
+  String get featureTogetherDescription;
+  String get featureStreakTrackingTitle;
+  String get featureStreakTrackingDescription;
+
+  // Settings Screen
+  String get appearance;
+  String get themeColor;
+  String get darkMode;
+  String get chooseThemeColor;
+  String get darkModeDescription;
+  String get about;
+  String get version;
+  String get development;
+  String get build;
+  String get logoutConfirmMessage;
+  String get logoutConfirmTitle;
+  String get account;
+  String get language;
+  String get danish;
+  String get editProfileInfo;
+  String get logoutDescription;
+  String get notificationSettings;
+  String get enableNotifications;
+  String get soundEnabled;
+  String get vibrationEnabled;
+  String get privacyPolicy;
+  String get termsOfService;
+  String get helpAndSupport;
+  String get contactUs;
+  String get rateApp;
+  String get shareApp;
+  String get deleteAccount;
+  String get deleteAccountConfirmMessage;
+  String get deleteAccountConfirmTitle;
+  String get accountDeleted;
+  String get failedToDeleteAccount;
+
+  // Profile Screen
+  String get profile;
+  String get noUserData;
+  String get imageUploadComingSoon;
+  String get personalInformation;
+  String get cannotBeChanged;
+  String get actions;
+  String get editProfileComingSoon;
+  String get editProfile;
+  String get editProfileDescription;
+  String get updateProfile;
+  String get profileUpdated;
+  String get failedToUpdateProfile;
+  String get changePassword;
+  String get changePasswordDescription;
+  String get currentPassword;
+  String get pleaseEnterCurrentPassword;
+  String get passwordChanged;
+  String get failedToChangePassword;
+  String get memberSince;
+  String get tasksCompleted;
+  String get currentStreak;
+  String get longestStreak;
+  String get sharedLists;
+
+  // Widget Strings
+  String get widgetTitle;
+  String get widgetDescription;
+  String get widgetNoTasks;
+  String get widgetLoading;
+  String get widgetError;
+  String get widgetTapToRefresh;
+  String get widgetConfigureInApp;
+  String get widgetUpcoming;
+  String get widgetOverdue;
+  String get widgetDueToday;
+
+  // API Errors
+  String get failedToLoadTaskLists;
+  String get failedToLoadTasks;
+  String get failedToLoadNotifications;
+  String get failedToLoadProfile;
+  String get failedToLoadInvitations;
+  String get sessionExpired;
+  String get pleaseLoginAgain;
+  String get serverError;
+  String get connectionError;
+  String get timeoutError;
+  String get unknownError;
+  String get noInternetConnection;
+  String get tryAgainLater;
+
+  // Notification Strings
+  String get notificationTaskReminder;
+  String get notificationTaskOverdue;
+  String get notificationNewInvitation;
+  String get notificationInvitationAccepted;
+  String get notificationInvitationDeclined;
+  String get notificationStreakAtRisk;
+  String get notificationStreakLost;
+  String get notificationTaskCompleted;
+  String notificationTaskDueIn(String time);
+  String notificationStreakDays(int days);
+
+  // Push notification body text (bruges af NotificationService)
+  String notificationInvitationReceived(String fromUser, String taskListName);
+  String notificationInvitationAcceptedBody(String email, String taskListName);
+  String notificationInvitationDeclinedBody(String email, String taskListName);
+  String notificationTaskDue(String taskName, String taskListName);
+
+  // Additional Common Strings
+  String get yes;
+  String get no;
+  String get ok;
+  String get confirm;
+  String get next;
+  String get previous;
+  String get skip;
+  String get finish;
+  String get submit;
+  String get update;
+  String get add;
+  String get search;
+  String get noResults;
+  String get searchHint;
+  String get selectAll;
+  String get deselectAll;
+  String get sortBy;
+  String get filterBy;
+  String get ascending;
+  String get descending;
+  String get newest;
+  String get oldest;
+
+  // Theme and Visual Settings
+  String get theme;
+  String get selectTheme;
+  String get visualTheme;
+  String get failedToLoadThemes;
+  String get failedToUpdateTaskList;
+
+  // Delete Dialog Strings
+  String get checkingDeletionDetails;
+  String get unableToLoadDeletionDetails;
+  String get actionCannotBeUndone;
+  String get proceedWithCaution;
+
+  // Accessibility
+  String get decrease;
+  String get increase;
+
+  // Repeat unit names (singular/plural for recurrence fields)
+  String get daySingular;
+  String get dayPlural;
+  String get weekSingular;
+  String get weekPlural;
+  String get monthSingular;
+  String get monthPlural;
+  String get yearSingular;
+  String get yearPlural;
+  String get daysUnit;
+  String get weeksUnit;
+  String get monthsUnit;
+  String get yearsUnit;
+
+  // Delete dialog
+  String deleteItemQuestion(String itemName);
+
+  // Task Swipe Actions
+  String get taskCompletedSwipe;
+
+  // Additional API Error Strings (for ApiErrorKey translation)
+  String get failedToLoadOwnedTaskLists;
+  String get failedToLoadSharedTaskLists;
+  String get failedToLoadTaskList;
+  String get failedToLoadTask;
+  String get failedToLoadUpcomingTasks;
+  String get failedToLoadUpcomingOccurrences;
+  String get failedToLoadTaskInstances;
+  String get failedToLoadTaskInstance;
+  String get failedToCreateTaskInstance;
+  String get failedToLoadRecentlyCompleted;
+  String get failedToLoadCurrentStreak;
+  String get failedToLoadLongestStreak;
+  String get failedToLoadStreaks;
+  String get failedToLoadPendingInvitations;
+  String get failedToLoadTaskListInvitations;
+  String get failedToLoadInvitation;
+  String get failedToCreateInvitation;
+  String get failedToLoadTaskListUsers;
+  String get failedToUpdateUserAdminLevel;
+  String get failedToUploadImage;
+  String get failedToDeleteImage;
+  String get failedToLoadCompletionMessage;
+  String get failedToLoadUserSettings;
+  String get failedToUpdateUserSettings;
+  String get failedToLoadVisualThemes;
+  String get failedToLoadVisualTheme;
+  String get failedToRefreshToken;
+
+  // Battery Optimization Dialog (Android)
+  String get batteryOptimizationTitle;
+  String get batteryOptimizationMessage;
+
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);
 
@@ -404,5 +653,141 @@ abstract class AppStrings {
       default:
         return StringsEn();
     }
+  }
+
+  /// Oversætter en ApiErrorKey til en lokaliseret fejlmeddelelse.
+  /// Bruges til at vise lokaliserede fejlmeddelelser fra API-kald.
+  String translateApiError(ApiErrorKey? errorKey, [String? fallbackMessage]) {
+    if (errorKey == null) {
+      return fallbackMessage ?? unknownError;
+    }
+
+    switch (errorKey) {
+      // Auth
+      case ApiErrorKey.registrationFailed:
+        return registrationFailed;
+      case ApiErrorKey.loginFailed:
+        return loginFailed;
+      case ApiErrorKey.failedToSendResetEmail:
+        return failedToSendResetEmail;
+      case ApiErrorKey.failedToResetPassword:
+        return failedToResetPassword;
+      case ApiErrorKey.failedToRefreshToken:
+        return failedToRefreshToken;
+      case ApiErrorKey.sessionExpired:
+        return sessionExpired;
+
+      // Task Lists
+      case ApiErrorKey.failedToLoadTaskLists:
+        return failedToLoadTaskLists;
+      case ApiErrorKey.failedToLoadOwnedTaskLists:
+        return failedToLoadOwnedTaskLists;
+      case ApiErrorKey.failedToLoadSharedTaskLists:
+        return failedToLoadSharedTaskLists;
+      case ApiErrorKey.failedToLoadTaskList:
+        return failedToLoadTaskList;
+      case ApiErrorKey.failedToCreateTaskList:
+        return failedToCreateTaskList;
+      case ApiErrorKey.failedToUpdateTaskList:
+        return failedToUpdateTaskList;
+      case ApiErrorKey.failedToDeleteTaskList:
+        return failedToDeleteTaskList;
+
+      // Tasks
+      case ApiErrorKey.failedToLoadTasks:
+        return failedToLoadTasks;
+      case ApiErrorKey.failedToLoadTask:
+        return failedToLoadTask;
+      case ApiErrorKey.failedToCreateTask:
+        return failedToCreateTask;
+      case ApiErrorKey.failedToUpdateTask:
+        return failedToUpdateTask;
+      case ApiErrorKey.failedToDeleteTask:
+        return failedToDeleteTask;
+      case ApiErrorKey.failedToLoadUpcomingTasks:
+        return failedToLoadUpcomingTasks;
+      case ApiErrorKey.failedToLoadUpcomingOccurrences:
+        return failedToLoadUpcomingOccurrences;
+      case ApiErrorKey.failedToCompleteTask:
+        return failedToCompleteTask;
+
+      // Task Instances
+      case ApiErrorKey.failedToLoadTaskInstances:
+        return failedToLoadTaskInstances;
+      case ApiErrorKey.failedToLoadTaskInstance:
+        return failedToLoadTaskInstance;
+      case ApiErrorKey.failedToCreateTaskInstance:
+        return failedToCreateTaskInstance;
+      case ApiErrorKey.failedToLoadRecentlyCompleted:
+        return failedToLoadRecentlyCompleted;
+
+      // Streaks
+      case ApiErrorKey.failedToLoadCurrentStreak:
+        return failedToLoadCurrentStreak;
+      case ApiErrorKey.failedToLoadLongestStreak:
+        return failedToLoadLongestStreak;
+      case ApiErrorKey.failedToLoadStreaks:
+        return failedToLoadStreaks;
+
+      // Invitations
+      case ApiErrorKey.failedToLoadPendingInvitations:
+        return failedToLoadPendingInvitations;
+      case ApiErrorKey.failedToLoadInvitations:
+        return failedToLoadInvitations;
+      case ApiErrorKey.failedToLoadTaskListInvitations:
+        return failedToLoadTaskListInvitations;
+      case ApiErrorKey.failedToLoadInvitation:
+        return failedToLoadInvitation;
+      case ApiErrorKey.failedToCreateInvitation:
+        return failedToCreateInvitation;
+      case ApiErrorKey.failedToAcceptInvitation:
+        return failedToAcceptInvitation;
+      case ApiErrorKey.failedToDeclineInvitation:
+        return failedToDeclineInvitation;
+      case ApiErrorKey.failedToCancelInvitation:
+        return failedToCancelInvitation;
+
+      // Task List Users
+      case ApiErrorKey.failedToLoadTaskListUsers:
+        return failedToLoadTaskListUsers;
+      case ApiErrorKey.failedToUpdateUserAdminLevel:
+        return failedToUpdateUserAdminLevel;
+      case ApiErrorKey.failedToRemoveUser:
+        return failedToRemoveMember;
+
+      // Images
+      case ApiErrorKey.failedToUploadImage:
+        return failedToUploadImage;
+      case ApiErrorKey.failedToDeleteImage:
+        return failedToDeleteImage;
+
+      // Completion Message
+      case ApiErrorKey.failedToLoadCompletionMessage:
+        return failedToLoadCompletionMessage;
+
+      // User Settings
+      case ApiErrorKey.failedToLoadUserSettings:
+        return failedToLoadUserSettings;
+      case ApiErrorKey.failedToUpdateUserSettings:
+        return failedToUpdateUserSettings;
+
+      // Visual Themes
+      case ApiErrorKey.failedToLoadVisualThemes:
+        return failedToLoadVisualThemes;
+      case ApiErrorKey.failedToLoadVisualTheme:
+        return failedToLoadVisualTheme;
+
+      // Generic
+      case ApiErrorKey.networkError:
+        return connectionError;
+      case ApiErrorKey.unknownError:
+        return unknownError;
+    }
+  }
+
+  /// Oversætter en ApiException til en lokaliseret fejlmeddelelse.
+  /// Bruges til at vise lokaliserede fejlmeddelelser fra API-kald.
+  String translateApiException(ApiException exception) {
+    return translateApiError(exception.errorKey, exception.message);
   }
 }

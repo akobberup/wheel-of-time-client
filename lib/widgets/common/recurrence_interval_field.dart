@@ -105,29 +105,46 @@ class _RecurrenceIntervalFieldState extends State<RecurrenceIntervalField> {
 
   /// Converts RepeatUnit enum to singular display format
   String _getUnitDisplayName(RepeatUnit unit) {
+    final strings = AppStrings.of(context);
     switch (unit) {
       case RepeatUnit.DAYS:
-        return 'day';
+        return strings.daySingular;
       case RepeatUnit.WEEKS:
-        return 'week';
+        return strings.weekSingular;
       case RepeatUnit.MONTHS:
-        return 'month';
+        return strings.monthSingular;
       case RepeatUnit.YEARS:
-        return 'year';
+        return strings.yearSingular;
     }
   }
 
-  /// Converts RepeatUnit enum to plural display format for menu items
-  String _getUnitMenuLabel(RepeatUnit unit) {
+  /// Converts RepeatUnit enum to plural display format
+  String _getUnitPluralName(RepeatUnit unit) {
+    final strings = AppStrings.of(context);
     switch (unit) {
       case RepeatUnit.DAYS:
-        return 'Days';
+        return strings.dayPlural;
       case RepeatUnit.WEEKS:
-        return 'Weeks';
+        return strings.weekPlural;
       case RepeatUnit.MONTHS:
-        return 'Months';
+        return strings.monthPlural;
       case RepeatUnit.YEARS:
-        return 'Years';
+        return strings.yearPlural;
+    }
+  }
+
+  /// Converts RepeatUnit enum to capitalized plural display format for menu items
+  String _getUnitMenuLabel(RepeatUnit unit) {
+    final strings = AppStrings.of(context);
+    switch (unit) {
+      case RepeatUnit.DAYS:
+        return strings.daysUnit;
+      case RepeatUnit.WEEKS:
+        return strings.weeksUnit;
+      case RepeatUnit.MONTHS:
+        return strings.monthsUnit;
+      case RepeatUnit.YEARS:
+        return strings.yearsUnit;
     }
   }
 
@@ -239,7 +256,7 @@ class _RecurrenceIntervalFieldState extends State<RecurrenceIntervalField> {
                 Text(
                   int.tryParse(_deltaController.text) == 1
                       ? _getUnitDisplayName(_currentUnit)
-                      : '${_getUnitDisplayName(_currentUnit)}s',
+                      : _getUnitPluralName(_currentUnit),
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: widget.enabled
                         ? colorScheme.onSurface
@@ -262,11 +279,11 @@ class _RecurrenceIntervalFieldState extends State<RecurrenceIntervalField> {
       validator: widget.validator ??
           (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter a number';
+              return strings.pleaseEnterNumber;
             }
             final n = int.tryParse(value);
             if (n == null || n < 1) {
-              return 'Please enter a valid number (1 or more)';
+              return strings.pleaseEnterValidNumber;
             }
             return null;
           },

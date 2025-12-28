@@ -333,14 +333,14 @@ class _SettingsButton extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Semantics(
-      label: 'Indstillinger',
+      label: strings.settings,
       button: true,
       child: IconButton(
         icon: Icon(
           Icons.settings_outlined,
           color: colorScheme.onSurfaceVariant,
         ),
-        tooltip: 'Indstillinger',
+        tooltip: strings.settings,
         onPressed: () => _handleSettingsPressed(context),
       ),
     );

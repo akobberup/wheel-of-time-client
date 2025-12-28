@@ -19,13 +19,96 @@ import '../models/enums.dart';
 import '../config/api_config.dart';
 import 'remote_logger_service.dart';
 
+/// Nøgler til lokaliserede fejlmeddelelser.
+/// Disse matcher getters i AppStrings klassen.
+enum ApiErrorKey {
+  // Auth
+  registrationFailed,
+  loginFailed,
+  failedToSendResetEmail,
+  failedToResetPassword,
+  failedToRefreshToken,
+  sessionExpired,
+
+  // Task Lists
+  failedToLoadTaskLists,
+  failedToLoadOwnedTaskLists,
+  failedToLoadSharedTaskLists,
+  failedToLoadTaskList,
+  failedToCreateTaskList,
+  failedToUpdateTaskList,
+  failedToDeleteTaskList,
+
+  // Tasks
+  failedToLoadTasks,
+  failedToLoadTask,
+  failedToCreateTask,
+  failedToUpdateTask,
+  failedToDeleteTask,
+  failedToLoadUpcomingTasks,
+  failedToLoadUpcomingOccurrences,
+  failedToCompleteTask,
+
+  // Task Instances
+  failedToLoadTaskInstances,
+  failedToLoadTaskInstance,
+  failedToCreateTaskInstance,
+  failedToLoadRecentlyCompleted,
+
+  // Streaks
+  failedToLoadCurrentStreak,
+  failedToLoadLongestStreak,
+  failedToLoadStreaks,
+
+  // Invitations
+  failedToLoadPendingInvitations,
+  failedToLoadInvitations,
+  failedToLoadTaskListInvitations,
+  failedToLoadInvitation,
+  failedToCreateInvitation,
+  failedToAcceptInvitation,
+  failedToDeclineInvitation,
+  failedToCancelInvitation,
+
+  // Task List Users
+  failedToLoadTaskListUsers,
+  failedToUpdateUserAdminLevel,
+  failedToRemoveUser,
+
+  // Images
+  failedToUploadImage,
+  failedToDeleteImage,
+
+  // Completion Message
+  failedToLoadCompletionMessage,
+
+  // User Settings
+  failedToLoadUserSettings,
+  failedToUpdateUserSettings,
+
+  // Visual Themes
+  failedToLoadVisualThemes,
+  failedToLoadVisualTheme,
+
+  // Generic
+  networkError,
+  unknownError,
+}
+
 /// Custom exception class for API-related errors.
-/// Includes the error message and optional HTTP status code for better error handling.
+/// Includes the error message, optional HTTP status code, and a localization key
+/// for better error handling and translation support.
 class ApiException implements Exception {
   final String message;
   final int? statusCode;
+  final ApiErrorKey? errorKey;
 
-  ApiException(this.message, [this.statusCode]);
+  ApiException(this.message, [this.statusCode, this.errorKey]);
+
+  /// Factory constructor med errorKey for lokalisering
+  factory ApiException.withKey(ApiErrorKey key, String fallbackMessage, [int? statusCode]) {
+    return ApiException(fallbackMessage, statusCode, key);
+  }
 
   @override
   String toString() => message;
@@ -169,7 +252,7 @@ class ApiService {
         'errorType': error.runtimeType.toString(),
       },
     );
-    throw ApiException('Network error: $error');
+    throw ApiException.withKey(ApiErrorKey.networkError, 'Network error: $error');
   }
 
   /// Wrapper for HTTP DELETE with logging
@@ -216,7 +299,8 @@ class ApiService {
       } else {
         // Extract error message from response body if available, otherwise use default message.
         final errorData = jsonDecode(response.body) as Map<String, dynamic>;
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.registrationFailed,
           errorData['message'] ?? 'Registration failed',
           response.statusCode,
         );
@@ -244,7 +328,8 @@ class ApiService {
       } else {
         // Extract error message from response body if available, otherwise use default message.
         final errorData = jsonDecode(response.body) as Map<String, dynamic>;
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.loginFailed,
           errorData['message'] ?? 'Login failed',
           response.statusCode,
         );
@@ -311,7 +396,8 @@ class ApiService {
 
       if (response.statusCode != 200) {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>;
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToSendResetEmail,
           errorData['message'] ?? 'Failed to send password reset email',
           response.statusCode,
         );
@@ -355,7 +441,8 @@ class ApiService {
 
       if (response.statusCode != 200) {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>;
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToResetPassword,
           errorData['message'] ?? 'Failed to reset password',
           response.statusCode,
         );
@@ -383,7 +470,8 @@ class ApiService {
         return AuthResponse.fromJson(data);
       } else {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>;
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToRefreshToken,
           errorData['message'] ?? 'Failed to refresh token',
           response.statusCode,
         );
@@ -410,7 +498,7 @@ class ApiService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => TaskListResponse.fromJson(json)).toList();
       } else {
-        throw ApiException('Failed to load task lists', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadTaskLists, 'Failed to load task lists', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -430,7 +518,7 @@ class ApiService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => TaskListResponse.fromJson(json)).toList();
       } else {
-        throw ApiException('Failed to load owned task lists', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadOwnedTaskLists, 'Failed to load owned task lists', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -450,7 +538,7 @@ class ApiService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => TaskListResponse.fromJson(json)).toList();
       } else {
-        throw ApiException('Failed to load shared task lists', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadSharedTaskLists, 'Failed to load shared task lists', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -469,7 +557,7 @@ class ApiService {
       if (response.statusCode == 200) {
         return TaskListResponse.fromJson(jsonDecode(response.body));
       } else {
-        throw ApiException('Failed to load task list', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadTaskList, 'Failed to load task list', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -490,7 +578,8 @@ class ApiService {
         return TaskListResponse.fromJson(jsonDecode(response.body));
       } else {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToCreateTaskList,
           errorData['message'] ?? 'Failed to create task list',
           response.statusCode,
         );
@@ -514,7 +603,8 @@ class ApiService {
         return TaskListResponse.fromJson(jsonDecode(response.body));
       } else {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToUpdateTaskList,
           errorData['message'] ?? 'Failed to update task list',
           response.statusCode,
         );
@@ -535,7 +625,8 @@ class ApiService {
 
       if (response.statusCode != 204 && response.statusCode != 200) {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToDeleteTaskList,
           errorData['message'] ?? 'Failed to delete task list',
           response.statusCode,
         );
@@ -562,7 +653,7 @@ class ApiService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => TaskResponse.fromJson(json)).toList();
       } else {
-        throw ApiException('Failed to load tasks', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadTasks, 'Failed to load tasks', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -581,7 +672,7 @@ class ApiService {
       if (response.statusCode == 200) {
         return TaskResponse.fromJson(jsonDecode(response.body));
       } else {
-        throw ApiException('Failed to load task', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadTask, 'Failed to load task', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -602,7 +693,8 @@ class ApiService {
         return TaskResponse.fromJson(jsonDecode(response.body));
       } else {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToCreateTask,
           errorData['message'] ?? 'Failed to create task',
           response.statusCode,
         );
@@ -626,7 +718,8 @@ class ApiService {
         return TaskResponse.fromJson(jsonDecode(response.body));
       } else {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToUpdateTask,
           errorData['message'] ?? 'Failed to update task',
           response.statusCode,
         );
@@ -647,7 +740,8 @@ class ApiService {
 
       if (response.statusCode != 200 && response.statusCode != 204) {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToDeleteTask,
           errorData['message'] ?? 'Failed to delete task',
           response.statusCode,
         );
@@ -670,7 +764,7 @@ class ApiService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => TaskResponse.fromJson(json)).toList();
       } else {
-        throw ApiException('Failed to load upcoming tasks', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadUpcomingTasks, 'Failed to load upcoming tasks', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -694,7 +788,7 @@ class ApiService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => UpcomingTaskOccurrenceResponse.fromJson(json)).toList();
       } else {
-        throw ApiException('Failed to load upcoming task occurrences', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadUpcomingOccurrences, 'Failed to load upcoming task occurrences', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -718,7 +812,7 @@ class ApiService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => TaskInstanceResponse.fromJson(json)).toList();
       } else {
-        throw ApiException('Failed to load task instances', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadTaskInstances, 'Failed to load task instances', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -738,7 +832,7 @@ class ApiService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => TaskInstanceResponse.fromJson(json)).toList();
       } else {
-        throw ApiException('Failed to load task instances', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadTaskInstances, 'Failed to load task instances', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -757,7 +851,7 @@ class ApiService {
       if (response.statusCode == 200) {
         return TaskInstanceResponse.fromJson(jsonDecode(response.body));
       } else {
-        throw ApiException('Failed to load task instance', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadTaskInstance, 'Failed to load task instance', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -778,7 +872,8 @@ class ApiService {
         return TaskInstanceResponse.fromJson(jsonDecode(response.body));
       } else {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToCreateTaskInstance,
           errorData['message'] ?? 'Failed to create task instance',
           response.statusCode,
         );
@@ -805,7 +900,7 @@ class ApiService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => TaskInstanceResponse.fromJson(json)).toList();
       } else {
-        throw ApiException('Failed to load recently completed tasks', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadRecentlyCompleted, 'Failed to load recently completed tasks', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -830,7 +925,7 @@ class ApiService {
         if (body.isEmpty) return null;
         return StreakResponse.fromJson(jsonDecode(body));
       } else {
-        throw ApiException('Failed to load current streak', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadCurrentStreak, 'Failed to load current streak', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -851,7 +946,7 @@ class ApiService {
         if (body.isEmpty) return null;
         return StreakResponse.fromJson(jsonDecode(body));
       } else {
-        throw ApiException('Failed to load longest streak', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadLongestStreak, 'Failed to load longest streak', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -871,7 +966,7 @@ class ApiService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => StreakResponse.fromJson(json)).toList();
       } else {
-        throw ApiException('Failed to load streaks', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadStreaks, 'Failed to load streaks', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -895,7 +990,7 @@ class ApiService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => InvitationResponse.fromJson(json)).toList();
       } else {
-        throw ApiException('Failed to load pending invitations', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadPendingInvitations, 'Failed to load pending invitations', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -915,7 +1010,7 @@ class ApiService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => InvitationResponse.fromJson(json)).toList();
       } else {
-        throw ApiException('Failed to load invitations', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadInvitations, 'Failed to load invitations', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -935,7 +1030,7 @@ class ApiService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => InvitationResponse.fromJson(json)).toList();
       } else {
-        throw ApiException('Failed to load task list invitations', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadTaskListInvitations, 'Failed to load task list invitations', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -954,7 +1049,7 @@ class ApiService {
       if (response.statusCode == 200) {
         return InvitationResponse.fromJson(jsonDecode(response.body));
       } else {
-        throw ApiException('Failed to load invitation', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadInvitation, 'Failed to load invitation', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -975,7 +1070,8 @@ class ApiService {
         return InvitationResponse.fromJson(jsonDecode(response.body));
       } else {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToCreateInvitation,
           errorData['message'] ?? 'Failed to create invitation',
           response.statusCode,
         );
@@ -998,7 +1094,8 @@ class ApiService {
         return InvitationResponse.fromJson(jsonDecode(response.body));
       } else {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToAcceptInvitation,
           errorData['message'] ?? 'Failed to accept invitation',
           response.statusCode,
         );
@@ -1021,7 +1118,8 @@ class ApiService {
         return InvitationResponse.fromJson(jsonDecode(response.body));
       } else {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToDeclineInvitation,
           errorData['message'] ?? 'Failed to decline invitation',
           response.statusCode,
         );
@@ -1042,7 +1140,8 @@ class ApiService {
 
       if (response.statusCode != 200 && response.statusCode != 204) {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToCancelInvitation,
           errorData['message'] ?? 'Failed to cancel invitation',
           response.statusCode,
         );
@@ -1069,7 +1168,7 @@ class ApiService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => TaskListUserResponse.fromJson(json)).toList();
       } else {
-        throw ApiException('Failed to load task list users', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadTaskListUsers, 'Failed to load task list users', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -1093,7 +1192,8 @@ class ApiService {
         return TaskListUserResponse.fromJson(jsonDecode(response.body));
       } else {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToUpdateUserAdminLevel,
           errorData['message'] ?? 'Failed to update user admin level',
           response.statusCode,
         );
@@ -1114,7 +1214,8 @@ class ApiService {
 
       if (response.statusCode != 200 && response.statusCode != 204) {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToRemoveUser,
           errorData['message'] ?? 'Failed to remove user',
           response.statusCode,
         );
@@ -1149,7 +1250,8 @@ class ApiService {
         return ImageUploadResponse.fromJson(jsonDecode(response.body));
       } else {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToUploadImage,
           errorData['message'] ?? 'Failed to upload image',
           response.statusCode,
         );
@@ -1170,7 +1272,8 @@ class ApiService {
 
       if (response.statusCode != 200 && response.statusCode != 204) {
         final errorData = jsonDecode(response.body);
-        throw ApiException(
+        throw ApiException.withKey(
+          ApiErrorKey.failedToDeleteImage,
           errorData['message'] ?? 'Failed to delete image',
           response.statusCode,
         );
@@ -1214,7 +1317,7 @@ class ApiService {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
         return data['message'] as String;
       } else {
-        throw ApiException('Failed to load completion message', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadCompletionMessage, 'Failed to load completion message', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -1240,7 +1343,7 @@ class ApiService {
           jsonDecode(response.body) as Map<String, dynamic>,
         );
       } else {
-        throw ApiException('Failed to load user settings', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadUserSettings, 'Failed to load user settings', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -1265,7 +1368,7 @@ class ApiService {
           jsonDecode(response.body) as Map<String, dynamic>,
         );
       } else {
-        throw ApiException('Failed to update user settings', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToUpdateUserSettings, 'Failed to update user settings', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -1290,7 +1393,7 @@ class ApiService {
             .map((json) => VisualThemeResponse.fromJson(json as Map<String, dynamic>))
             .toList();
       } else {
-        throw ApiException('Failed to load visual themes', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadVisualThemes, 'Failed to load visual themes', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
@@ -1311,7 +1414,7 @@ class ApiService {
           jsonDecode(response.body) as Map<String, dynamic>,
         );
       } else {
-        throw ApiException('Failed to load visual theme', response.statusCode);
+        throw ApiException.withKey(ApiErrorKey.failedToLoadVisualTheme, 'Failed to load visual theme', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;

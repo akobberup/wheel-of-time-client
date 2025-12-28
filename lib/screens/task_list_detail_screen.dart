@@ -728,7 +728,7 @@ class _ThemedTaskCard extends ConsumerWidget {
       title: strings.deleteTask,
       itemName: task.name,
       fetchContext: () => _fetchDeletionContext(ref),
-      buildMessage: _buildDeletionMessage,
+      buildMessage: (deletionContext) => _buildDeletionMessage(deletionContext, strings),
       deleteButtonLabel: strings.delete,
       cancelButtonLabel: strings.cancel,
     );
@@ -761,22 +761,20 @@ class _ThemedTaskCard extends ConsumerWidget {
     }
   }
 
-  String _buildDeletionMessage(DeletionContext context) {
-    if (context.isSafe) {
-      return 'This task has no completion records and can be safely deleted.';
+  String _buildDeletionMessage(DeletionContext deletionContext, AppStrings strings) {
+    if (deletionContext.isSafe) {
+      return strings.taskSafeToDelete;
     }
 
-    if (context.hasActiveStreak && context.streakCount != null) {
-      return 'This will permanently delete:\n\n'
-          '• Your ${context.streakCount}x streak\n'
-          '• ${context.primaryCount} completion ${context.primaryCount == 1 ? 'record' : 'records'}';
+    if (deletionContext.hasActiveStreak && deletionContext.streakCount != null) {
+      return strings.taskDeletionWithStreak(deletionContext.streakCount!, deletionContext.primaryCount);
     }
 
-    if (context.primaryCount > 0) {
-      return 'This will permanently delete ${context.primaryCount} completion ${context.primaryCount == 1 ? 'record' : 'records'}.';
+    if (deletionContext.primaryCount > 0) {
+      return strings.taskDeletionWithCompletions(deletionContext.primaryCount);
     }
 
-    return 'This task will be permanently deleted.';
+    return strings.taskWillBeDeleted;
   }
 
   void _showDeleteResult(

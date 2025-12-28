@@ -10,6 +10,7 @@ import '../providers/theme_provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/settings/color_picker_grid.dart';
 import '../config/version_config.dart';
+import '../l10n/app_strings.dart';
 
 /// Indstillings-skærm med varm, organisk æstetik.
 ///
@@ -20,6 +21,7 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppStrings.of(context);
     final themeState = ref.watch(themeProvider);
     final themeNotifier = ref.read(themeProvider.notifier);
     final seedColor = themeState.seedColor;
@@ -37,7 +39,7 @@ class SettingsScreen extends ConsumerWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Udseende sektion
-                _SectionHeader(title: 'Udseende', seedColor: seedColor),
+                _SectionHeader(title: strings.appearance, seedColor: seedColor),
                 const SizedBox(height: 12),
 
                 // Tema farve
@@ -49,13 +51,13 @@ class SettingsScreen extends ConsumerWidget {
                     children: [
                       _CardTitle(
                         icon: Icons.palette_outlined,
-                        title: 'Tema farve',
+                        title: strings.themeColor,
                         seedColor: seedColor,
                         isDark: isDark,
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Vælg en farve til at tilpasse dit tema',
+                        strings.chooseThemeColor,
                         style: TextStyle(
                           fontSize: 13,
                           color: isDark ? Colors.white54 : Colors.black45,
@@ -80,8 +82,8 @@ class SettingsScreen extends ConsumerWidget {
                   seedColor: seedColor,
                   child: _ToggleRow(
                     icon: Icons.dark_mode_outlined,
-                    title: 'Mørk tilstand',
-                    subtitle: 'Skift mellem lys og mørk tema',
+                    title: strings.darkMode,
+                    subtitle: strings.darkModeDescription,
                     value: themeState.isDarkMode,
                     seedColor: seedColor,
                     isDark: isDark,
@@ -92,7 +94,7 @@ class SettingsScreen extends ConsumerWidget {
                 const SizedBox(height: 28),
 
                 // Konto sektion
-                _SectionHeader(title: 'Konto', seedColor: seedColor),
+                _SectionHeader(title: strings.account, seedColor: seedColor),
                 const SizedBox(height: 12),
 
                 _SettingsCard(
@@ -101,8 +103,8 @@ class SettingsScreen extends ConsumerWidget {
                   onTap: () => context.push('/profile'),
                   child: _NavigationRow(
                     icon: Icons.person_outline_rounded,
-                    title: 'Profil',
-                    subtitle: 'Rediger din profil information',
+                    title: strings.profile,
+                    subtitle: strings.editProfileInfo,
                     seedColor: seedColor,
                     isDark: isDark,
                   ),
@@ -116,8 +118,8 @@ class SettingsScreen extends ConsumerWidget {
                   onTap: () => _showLogoutDialog(context, ref),
                   child: _NavigationRow(
                     icon: Icons.logout_rounded,
-                    title: 'Log ud',
-                    subtitle: 'Log ud af din konto',
+                    title: strings.logout,
+                    subtitle: strings.logoutDescription,
                     seedColor: Colors.red,
                     isDark: isDark,
                     showChevron: false,
@@ -127,7 +129,7 @@ class SettingsScreen extends ConsumerWidget {
                 const SizedBox(height: 28),
 
                 // Om sektion
-                _SectionHeader(title: 'Om', seedColor: seedColor),
+                _SectionHeader(title: strings.about, seedColor: seedColor),
                 const SizedBox(height: 12),
 
                 _SettingsCard(
@@ -137,7 +139,7 @@ class SettingsScreen extends ConsumerWidget {
                     children: [
                       _InfoRow(
                         icon: Icons.info_outline_rounded,
-                        title: 'Version',
+                        title: strings.version,
                         value: VersionConfig.version,
                         isDark: isDark,
                       ),
@@ -147,10 +149,10 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                       _InfoRow(
                         icon: Icons.calendar_today_outlined,
-                        title: 'Build',
+                        title: strings.build,
                         value: VersionConfig.buildTime.isNotEmpty 
                             ? VersionConfig.buildTime 
-                            : 'Development',
+                            : strings.development,
                         isDark: isDark,
                       ),
                       Divider(
@@ -159,8 +161,8 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                       _InfoRow(
                         icon: Icons.language_rounded,
-                        title: 'Sprog',
-                        value: 'Dansk',
+                        title: strings.language,
+                        value: strings.danish,
                         isDark: isDark,
                       ),
                     ],
@@ -177,33 +179,37 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Future<void> _showLogoutDialog(BuildContext context, WidgetRef ref) async {
+    final strings = AppStrings.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Log ud'),
-        content: const Text('Er du sikker på at du vil logge ud?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(
-              'Annuller',
-              style: TextStyle(
-                color: isDark ? Colors.white70 : Colors.black54,
+      builder: (context) {
+        final dialogStrings = AppStrings.of(context);
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(dialogStrings.logoutConfirmTitle),
+          content: Text(dialogStrings.logoutConfirmMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                dialogStrings.cancel,
+                style: TextStyle(
+                  color: isDark ? Colors.white70 : Colors.black54,
+                ),
               ),
             ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(
-              'Log ud',
-              style: TextStyle(color: Colors.red),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                dialogStrings.logout,
+                style: const TextStyle(color: Colors.red),
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
 
     if (confirmed == true && context.mounted) {
@@ -224,6 +230,7 @@ class _SettingsAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     final textColor = isDark ? Colors.white : const Color(0xFF1A1A1A);
 
     return SliverAppBar(
@@ -239,7 +246,7 @@ class _SettingsAppBar extends StatelessWidget {
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 52, bottom: 16),
         title: Text(
-          'Indstillinger',
+          strings.settings,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,

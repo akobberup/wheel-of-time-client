@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_strings.dart';
 
 /// A form-compatible field that looks like a search trigger rather than a text input.
 ///
@@ -136,7 +137,7 @@ class SearchAnchorField extends FormField<String> {
                                       minHeight: 32,
                                     ),
                                     padding: EdgeInsets.zero,
-                                    tooltip: 'Clear',
+                                    tooltip: AppStrings.of(state.context).clear,
                                   )
                                 : Icon(
                                     Icons.arrow_forward_ios,

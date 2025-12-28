@@ -517,7 +517,7 @@ class _HistoryCard extends StatelessWidget {
       children: [
         Text(
           // Fallback til 'System' for auto-expired instances uden bruger
-          instance.userName ?? 'System',
+          instance.userName ?? strings.system,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,

@@ -411,9 +411,9 @@ class _InvitationCard extends HookConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(
-              'Afvis',
-              style: TextStyle(color: Colors.red),
+            child: Text(
+              strings.declineInvitation,
+              style: const TextStyle(color: Colors.red),
             ),
           ),
         ],

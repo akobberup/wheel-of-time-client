@@ -181,6 +181,7 @@ class _NotificationsAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     final textColor = isDark ? Colors.white : const Color(0xFF1A1A1A);
 
     return SliverAppBar(
@@ -203,7 +204,7 @@ class _NotificationsAppBar extends StatelessWidget {
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 52, bottom: 16),
         title: Text(
-          'Notifikationer',
+          strings.notifications,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,

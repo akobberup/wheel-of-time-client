@@ -3,6 +3,9 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:disable_battery_optimization/disable_battery_optimization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_strings.dart';
+import '../l10n/strings_da.dart';
+import '../l10n/strings_en.dart';
 
 /// Service til håndtering af batterioptimering på Android.
 ///
@@ -11,6 +14,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// appen fra batterioptimering for at sikre pålidelige notifikationer.
 class BatteryOptimizationService {
   static const String _hasAskedKey = 'has_asked_battery_optimization';
+
+  /// Henter AppStrings baseret på gemt sprogpræference.
+  ///
+  /// Læser sprogkode fra SharedPreferences og returnerer den tilsvarende
+  /// strings-implementation. Fallback til dansk hvis ingen præference er gemt.
+  static Future<AppStrings> _getLocalizedStrings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final languageCode = prefs.getString('locale_language_code') ?? 'da';
+
+      switch (languageCode) {
+        case 'en':
+          return StringsEn();
+        case 'da':
+        default:
+          return StringsDa();
+      }
+    } catch (e) {
+      developer.log('Error getting locale preference: $e', name: 'BatteryOptimizationService');
+      return StringsDa();
+    }
+  }
 
   /// Tjekker om batterioptimering er deaktiveret for appen.
   ///
@@ -48,19 +73,17 @@ class BatteryOptimizationService {
 
   /// Viser en custom dialog der forklarer hvorfor batterioptimering skal deaktiveres.
   ///
-  /// Bruger pakken's built-in dialog med custom tekst.
+  /// Bruger pakken's built-in dialog med lokaliseret tekst baseret på
+  /// brugerens sprogpræference fra SharedPreferences.
   /// Returnerer true hvis brugeren accepterede at gå til indstillinger.
   static Future<bool> showExplanationDialog() async {
     if (!_isAndroid()) return true;
 
     try {
+      final strings = await _getLocalizedStrings();
       final result = await DisableBatteryOptimization.showDisableManufacturerBatteryOptimizationSettings(
-        'Tillad notifikationer i baggrunden',
-        'For at modtage notifikationer når appen ikke er åben, skal du tillade '
-            'appen at køre i baggrunden.\n\n'
-            'Tryk "OK" for at åbne indstillinger, find derefter '
-            '"Årshjulet" og vælg "Ingen begrænsninger" eller '
-            '"Tillad baggrundsaktivitet".',
+        strings.batteryOptimizationTitle,
+        strings.batteryOptimizationMessage,
       );
       return result ?? false;
     } catch (e) {

@@ -159,9 +159,7 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog>
 
     return ScaleTransition(
       scale: _scaleAnimation,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 500),
-        child: Dialog(
+      child: Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(_borderRadius),
           side: BorderSide(
@@ -173,38 +171,40 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog>
         backgroundColor: backgroundColor,
         elevation: 4,
         shadowColor: primaryColor.withValues(alpha: 0.15),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(_contentPadding),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header med ikon
-                _buildHeader(colorScheme, textTheme, primaryColor, strings),
-                
-                const SizedBox(height: _verticalSpacing),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(_contentPadding),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header med ikon
+                  _buildHeader(colorScheme, textTheme, primaryColor, strings),
 
-                // Form indhold
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildNameField(colorScheme, primaryColor, strings),
-                      const SizedBox(height: 16),
-                      _buildDescriptionField(colorScheme, primaryColor, strings),
-                    ],
+                  const SizedBox(height: _verticalSpacing),
+
+                  // Form indhold
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildNameField(colorScheme, primaryColor, strings),
+                        const SizedBox(height: 16),
+                        _buildDescriptionField(colorScheme, primaryColor, strings),
+                      ],
+                    ),
                   ),
-                ),
 
-                const SizedBox(height: _verticalSpacing),
+                  const SizedBox(height: _verticalSpacing),
 
-                // Action buttons
-                _buildActionButtons(colorScheme, primaryColor, strings),
-              ],
+                  // Action buttons
+                  _buildActionButtons(colorScheme, primaryColor, strings),
+                ],
+              ),
             ),
           ),
-        ),
         ),
       ),
     );
@@ -320,7 +320,7 @@ class _CreateTaskListDialogState extends ConsumerState<CreateTaskListDialog>
       textCapitalization: TextCapitalization.sentences,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Please enter a name';
+          return strings.pleaseEnterName;
         }
         return null;
       },
