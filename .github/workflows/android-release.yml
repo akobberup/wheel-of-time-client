@@ -33,6 +33,7 @@ jobs:
       # Decode keystore fra base64 secret
       - name: Decode Keystore
         run: |
+          mkdir -p android/app/keystore
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/keystore/upload-keystore.jks
         shell: bash
 
