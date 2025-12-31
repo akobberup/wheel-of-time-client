@@ -177,6 +177,26 @@ class SettingsScreen extends ConsumerWidget {
 
                 const SizedBox(height: 28),
 
+                // Farezone sektion
+                _SectionHeader(title: strings.dangerZone, seedColor: Colors.red),
+                const SizedBox(height: 12),
+
+                _SettingsCard(
+                  isDark: isDark,
+                  seedColor: Colors.red,
+                  onTap: () => _showDeleteAccountDialog(context, ref),
+                  child: _NavigationRow(
+                    icon: Icons.delete_forever_rounded,
+                    title: strings.deleteAccount,
+                    subtitle: strings.deleteAccountWarning,
+                    seedColor: Colors.red,
+                    isDark: isDark,
+                    showChevron: false,
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
                 // Om sektion
                 _SectionHeader(title: strings.about, seedColor: seedColor),
                 const SizedBox(height: 12),
@@ -265,6 +285,104 @@ class SettingsScreen extends ConsumerWidget {
       await ref.read(authProvider.notifier).logout();
       if (context.mounted) {
         context.go('/login');
+      }
+    }
+  }
+
+  /// Viser dialog til bekræftelse af kontosletning
+  Future<void> _showDeleteAccountDialog(BuildContext context, WidgetRef ref) async {
+    final strings = AppStrings.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        final dialogStrings = AppStrings.of(context);
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(dialogStrings.deleteAccountTitle),
+          content: Text(dialogStrings.deleteAccountWarning),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                dialogStrings.cancel,
+                style: TextStyle(
+                  color: isDark ? Colors.white70 : Colors.black54,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                dialogStrings.deleteAccountConfirm,
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && context.mounted) {
+      await _requestAccountDeletion(context, ref);
+    }
+  }
+
+  /// Sender anmodning om kontosletning via API
+  Future<void> _requestAccountDeletion(BuildContext context, WidgetRef ref) async {
+    final strings = AppStrings.of(context);
+    final apiService = ref.read(apiServiceProvider);
+    final authState = ref.read(authProvider);
+
+    try {
+      // Kald API for at anmode om kontosletning
+      await apiService.requestAccountDeletion();
+
+      // Vis success dialog med brugerens email
+      if (context.mounted) {
+        final userEmail = authState.user?.email ?? '';
+        await showDialog(
+          context: context,
+          builder: (context) {
+            final dialogStrings = AppStrings.of(context);
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: const Icon(Icons.mail_outline, size: 48, color: Colors.green),
+              content: Text(
+                dialogStrings.deleteAccountEmailSent(userEmail),
+                textAlign: TextAlign.center,
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(dialogStrings.ok),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      // Vis fejl dialog
+      if (context.mounted) {
+        await showDialog(
+          context: context,
+          builder: (context) {
+            final dialogStrings = AppStrings.of(context);
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Text(dialogStrings.error),
+              content: Text(dialogStrings.deleteAccountError),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(dialogStrings.ok),
+                ),
+              ],
+            );
+          },
+        );
       }
     }
   }

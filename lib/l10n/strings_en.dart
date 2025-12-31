@@ -1520,6 +1520,27 @@ class StringsEn extends AppStrings {
   @override
   String get failedToDeleteAccount => 'Failed to delete account';
 
+  @override
+  String get dangerZone => 'Danger Zone';
+
+  @override
+  String get deleteAccountTitle => 'Delete account?';
+
+  @override
+  String get deleteAccountWarning => 'This will permanently delete your account and all your data. You will receive an email with a confirmation link.';
+
+  @override
+  String get deleteAccountConfirm => 'Send deletion email';
+
+  @override
+  String deleteAccountEmailSent(String email) => 'We have sent a confirmation email to $email. Check your inbox and click the link to complete the deletion of your account.';
+
+  @override
+  String get deleteAccountError => 'An error occurred while requesting account deletion. Please try again later.';
+
+  @override
+  String get failedToRequestAccountDeletion => 'Failed to request account deletion';
+
   // Widget Strings
   @override
   String get widgetTitle => 'Aarshjulet';

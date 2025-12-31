@@ -1495,6 +1495,27 @@ class StringsDa extends AppStrings {
   @override
   String get failedToDeleteAccount => 'Kunne ikke slette konto';
 
+  @override
+  String get dangerZone => 'Farezone';
+
+  @override
+  String get deleteAccountTitle => 'Slet konto?';
+
+  @override
+  String get deleteAccountWarning => 'Dette vil permanent slette din konto og alle dine data. Du vil modtage en email med et bekræftelseslink.';
+
+  @override
+  String get deleteAccountConfirm => 'Send sletningsmail';
+
+  @override
+  String deleteAccountEmailSent(String email) => 'Vi har sendt en bekræftelses-email til $email. Tjek din indbakke og klik på linket for at fuldføre sletningen af din konto.';
+
+  @override
+  String get deleteAccountError => 'Der opstod en fejl ved anmodning om kontosletning. Prøv venligst igen senere.';
+
+  @override
+  String get failedToRequestAccountDeletion => 'Kunne ikke anmode om kontosletning';
+
   // Widget Strings
   @override
   String get widgetTitle => 'Årshjulet Widget';

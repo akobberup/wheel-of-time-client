@@ -29,6 +29,7 @@ enum ApiErrorKey {
   failedToResetPassword,
   failedToRefreshToken,
   sessionExpired,
+  failedToRequestAccountDeletion,
 
   // Task Lists
   failedToLoadTaskLists,
@@ -444,6 +445,31 @@ class ApiService {
         throw ApiException.withKey(
           ApiErrorKey.failedToResetPassword,
           errorData['message'] ?? 'Failed to reset password',
+          response.statusCode,
+        );
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  /// Anmoder om sletning af brugerens konto.
+  /// Sender en bekræftelses-email til brugerens registrerede email.
+  /// Kontoen vil først blive slettet når brugeren klikker på linket i emailen.
+  /// Kræver autentificering.
+  Future<void> requestAccountDeletion() async {
+    try {
+      final response = await _loggedPost(
+        '$baseUrl/api/account/request-deletion',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode != 200) {
+        final errorData = jsonDecode(response.body) as Map<String, dynamic>;
+        throw ApiException.withKey(
+          ApiErrorKey.failedToRequestAccountDeletion,
+          errorData['message'] ?? 'Failed to request account deletion',
           response.statusCode,
         );
       }

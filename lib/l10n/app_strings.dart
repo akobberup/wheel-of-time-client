@@ -478,6 +478,13 @@ abstract class AppStrings {
   String get deleteAccountConfirmTitle;
   String get accountDeleted;
   String get failedToDeleteAccount;
+  String get dangerZone;
+  String get deleteAccountTitle;
+  String get deleteAccountWarning;
+  String get deleteAccountConfirm;
+  String deleteAccountEmailSent(String email);
+  String get deleteAccountError;
+  String get failedToRequestAccountDeletion;
 
   // Profile Screen
   String get profile;
@@ -776,6 +783,10 @@ abstract class AppStrings {
         return failedToLoadVisualThemes;
       case ApiErrorKey.failedToLoadVisualTheme:
         return failedToLoadVisualTheme;
+
+      // Account
+      case ApiErrorKey.failedToRequestAccountDeletion:
+        return failedToRequestAccountDeletion;
 
       // Generic
       case ApiErrorKey.networkError:

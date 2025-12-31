@@ -10,7 +10,7 @@ Implementer funktionalitet så brugere kan slette deres konto og tilhørende dat
 2. Bekræftelsesdialog vises med advarsel om konsekvenser
 3. Ved bekræftelse sendes en email til brugerens email-adresse
 4. Email indeholder et unikt link med sletnings-token
-5. Bruger klikker på linket og kommer til en webside
+5. Bruger klikker på linket og kommer til/claudeen webside
 6. På websiden kan brugeren endeligt bekræfte sletningen
 7. Konto og alle tilhørende data slettes permanent
 
