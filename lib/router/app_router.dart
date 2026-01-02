@@ -36,7 +36,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (isLoading) return null;
 
       // Offentlige ruter der ikke kræver auth
-      final publicRoutes = ['/login', '/forgot-password', '/reset-password'];
+      final publicRoutes = [
+        '/login',
+        '/forgot-password',
+        '/reset-password',
+        '/privacy-policy',
+        '/security',
+        '/support',
+        '/account-deletion',
+      ];
       final isPublicRoute = publicRoutes.any((r) => currentPath.startsWith(r));
 
       // Redirect til login hvis ikke autentificeret og ikke på offentlig rute
@@ -198,6 +206,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const LegalInfoScreen(type: LegalInfoType.support),
+          transitionsBuilder: _fadeSlideTransition,
+          transitionDuration: const Duration(milliseconds: 350),
+        ),
+      ),
+
+      // Sletning af konto
+      GoRoute(
+        path: '/account-deletion',
+        name: 'account-deletion',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const LegalInfoScreen(type: LegalInfoType.accountDeletion),
           transitionsBuilder: _fadeSlideTransition,
           transitionDuration: const Duration(milliseconds: 350),
         ),

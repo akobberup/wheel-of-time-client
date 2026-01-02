@@ -11,6 +11,7 @@ enum LegalInfoType {
   privacyPolicy,
   security,
   support,
+  accountDeletion,
 }
 
 /// Skærm til visning af juridisk information og support.
@@ -55,6 +56,8 @@ class LegalInfoScreen extends StatelessWidget {
         return 'Sikkerhed';
       case LegalInfoType.support:
         return 'Support';
+      case LegalInfoType.accountDeletion:
+        return 'Sletning af konto';
     }
   }
 
@@ -66,6 +69,8 @@ class LegalInfoScreen extends StatelessWidget {
         return _buildSecurity(context, isDark, seedColor);
       case LegalInfoType.support:
         return _buildSupport(context, isDark, seedColor);
+      case LegalInfoType.accountDeletion:
+        return _buildAccountDeletion(context, isDark, seedColor);
     }
   }
 
@@ -212,6 +217,47 @@ class LegalInfoScreen extends StatelessWidget {
         text: 'Opdater appen til nyeste version og se om problemet stadig eksisterer',
         isDark: isDark,
       ),
+    ];
+  }
+
+  List<Widget> _buildAccountDeletion(BuildContext context, bool isDark, Color seedColor) {
+    return [
+      _SectionTitle(title: 'Sådan sletter du din konto', isDark: isDark),
+      _Paragraph(
+        text: 'For at slette din konto og alle tilhørende data, følg disse trin:',
+        isDark: isDark,
+      ),
+      _NumberedItem(number: 1, text: 'Åbn Årshjulet appen', isDark: isDark),
+      _NumberedItem(number: 2, text: 'Gå til Indstillinger (tandhjul-ikon)', isDark: isDark),
+      _NumberedItem(number: 3, text: 'Scroll ned og tryk på "Slet konto"', isDark: isDark),
+      _NumberedItem(number: 4, text: 'Bekræft at du ønsker at slette din konto', isDark: isDark),
+      _NumberedItem(number: 5, text: 'Du modtager en email med et bekræftelseslink', isDark: isDark),
+      _NumberedItem(number: 6, text: 'Klik på linket i emailen for at slette din konto permanent', isDark: isDark),
+      const SizedBox(height: 20),
+      _SectionTitle(title: 'Hvilke data slettes?', isDark: isDark),
+      _Paragraph(
+        text: 'Når du sletter din konto, fjernes følgende data permanent:',
+        isDark: isDark,
+      ),
+      _BulletPoint(text: 'Din profil og login-oplysninger', isDark: isDark),
+      _BulletPoint(text: 'Alle opgaver du har oprettet', isDark: isDark),
+      _BulletPoint(text: 'Alle opgavelister hvor du er eneste medlem', isDark: isDark),
+      _BulletPoint(text: 'Dit medlemskab af delte opgavelister', isDark: isDark),
+      _BulletPoint(text: 'Alle invitationer sendt til eller fra dig', isDark: isDark),
+      _BulletPoint(text: 'Alle notifikationer', isDark: isDark),
+      const SizedBox(height: 16),
+      _Footnote(
+        text: 'Bemærk: Delte opgavelister med andre medlemmer forbliver tilgængelige for disse medlemmer.',
+        isDark: isDark,
+      ),
+      const SizedBox(height: 20),
+      _SectionTitle(title: 'Brug for hjælp?', isDark: isDark),
+      _Paragraph(
+        text: 'Hvis du har problemer med at slette din konto eller har spørgsmål, kontakt os på:',
+        isDark: isDark,
+      ),
+      const SizedBox(height: 8),
+      _EmailLink(email: 'privacy@t16software.dev', isDark: isDark, seedColor: seedColor),
     ];
   }
 }
@@ -370,6 +416,52 @@ class _BulletPoint extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               color: isDark ? Colors.white70 : Colors.black87,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 15,
+                height: 1.4,
+                color: isDark ? Colors.white70 : Colors.black87,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Nummereret punkt
+class _NumberedItem extends StatelessWidget {
+  final int number;
+  final String text;
+  final bool isDark;
+
+  const _NumberedItem({
+    required this.number,
+    required this.text,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8, left: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 24,
+            child: Text(
+              '$number.',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white70 : Colors.black87,
+              ),
             ),
           ),
           Expanded(
