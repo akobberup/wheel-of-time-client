@@ -461,6 +461,8 @@ abstract class AppStrings {
   String get account;
   String get language;
   String get danish;
+  String get english;
+  String get chooseLanguage;
   String get editProfileInfo;
   String get logoutDescription;
   String get notificationSettings;

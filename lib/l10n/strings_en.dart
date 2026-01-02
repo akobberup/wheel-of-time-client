@@ -1249,6 +1249,12 @@ class StringsEn extends AppStrings {
   String get danish => 'Danish';
 
   @override
+  String get english => 'English';
+
+  @override
+  String get chooseLanguage => 'Choose app language';
+
+  @override
   String get logoutConfirmTitle => 'Log out';
 
   @override

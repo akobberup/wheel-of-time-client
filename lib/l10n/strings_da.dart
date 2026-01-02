@@ -1227,6 +1227,12 @@ class StringsDa extends AppStrings {
   String get danish => 'Dansk';
 
   @override
+  String get english => 'Engelsk';
+
+  @override
+  String get chooseLanguage => 'Vælg appens sprog';
+
+  @override
   String get logoutConfirmTitle => 'Log ud';
 
   @override
