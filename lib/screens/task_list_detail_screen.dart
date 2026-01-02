@@ -380,7 +380,7 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
   }
 }
 
-/// Tema-farvet opgavekort - kompakt design med gradient-accent
+/// Tema-farvet opgavekort - horisontalt layout med stort billede
 class _ThemedTaskCard extends ConsumerWidget {
   final TaskResponse task;
   final int taskListId;
@@ -404,6 +404,7 @@ class _ThemedTaskCard extends ConsumerWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
+      height: 160, // Fast højde for konsistent layout
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color: cardColor,
@@ -417,9 +418,9 @@ class _ThemedTaskCard extends ConsumerWidget {
                 ),
               ],
       ),
+      clipBehavior: Clip.antiAlias, // Klip indhold til afrundede hjørner
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
         child: InkWell(
           onTap: () => _navigateToTaskHistory(context),
           borderRadius: BorderRadius.circular(16),
@@ -428,60 +429,66 @@ class _ThemedTaskCard extends ConsumerWidget {
             children: [
               // Gradient accent border i toppen
               _buildThemeAccent(),
-              // Kompakt indhold
-              Padding(
-                padding: const EdgeInsets.all(16),
+              // Horisontalt layout: billede til venstre, indhold til højre
+              Expanded(
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Cirkulær thumbnail med billede eller ikon
-                    _buildThumbnail(context),
-                    const SizedBox(width: 14),
-                    // Titel, beskrivelse og metadata
+                    // Stort billede til venstre (ca 1/3 af bredden)
+                    _buildLargeImage(context),
+                    // Indhold til højre (ca 2/3 af bredden)
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Titel og menu
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Titel og menu
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    task.name.toUpperCase(),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 15,
+                                      letterSpacing: 0.5,
+                                      color: isDark
+                                          ? const Color(0xFFF5F5F5)
+                                          : const Color(0xFF1A1A1A),
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                _buildPopupMenu(context, ref),
+                              ],
+                            ),
+                            // Beskrivelse
+                            if (task.description != null &&
+                                task.description!.isNotEmpty) ...[
+                              const SizedBox(height: 6),
                               Expanded(
                                 child: Text(
-                                  task.name.toUpperCase(),
+                                  task.description!,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 15,
-                                    letterSpacing: 0.5,
                                     color: isDark
-                                        ? const Color(0xFFF5F5F5)
-                                        : const Color(0xFF1A1A1A),
+                                        ? const Color(0xFFA0A0A0)
+                                        : const Color(0xFF6B6B6B),
+                                    fontSize: 13,
                                   ),
                                 ),
                               ),
-                              _buildPopupMenu(context, ref),
-                            ],
-                          ),
-                          // Beskrivelse
-                          if (task.description != null &&
-                              task.description!.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              task.description!,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: isDark
-                                    ? const Color(0xFFA0A0A0)
-                                    : const Color(0xFF6B6B6B),
-                                fontSize: 13,
-                              ),
-                            ),
+                            ] else
+                              const Spacer(),
+                            // Metadata chips
+                            const SizedBox(height: 8),
+                            _buildMetadataRow(context),
                           ],
-                          const SizedBox(height: 10),
-                          // Metadata chips
-                          _buildMetadataRow(context),
-                        ],
+                        ),
                       ),
                     ),
                   ],
@@ -512,45 +519,54 @@ class _ThemedTaskCard extends ConsumerWidget {
     );
   }
 
-  /// Bygger cirkulær thumbnail med billede eller tema-farvet ikon
-  Widget _buildThumbnail(BuildContext context) {
+  /// Bygger stort billede til venstre side af kortet (ligner hero cards)
+  Widget _buildLargeImage(BuildContext context) {
     final hasImage =
         task.taskImagePath != null && task.taskImagePath!.isNotEmpty;
-    final size = 52.0;
 
-    // Lysere baggrund baseret på tema farve
-    final backgroundColor = Color.lerp(primaryColor, Colors.white, 0.85) ??
-        primaryColor.withValues(alpha: 0.15);
+    // Lysere baggrund baseret på tema farve (ligner hero cards)
+    final backgroundColor = Color.lerp(primaryColor, Colors.white, 0.7) ??
+        primaryColor.withValues(alpha: 0.3);
 
     return Container(
-      width: size,
-      height: size,
+      width: 140, // Fast bredde for billedsektionen
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
         color: backgroundColor,
-        border: Border.all(
-          color: primaryColor.withValues(alpha: 0.25),
-          width: 2,
-        ),
+        // Ingen afrunding her - kortet håndterer det via clipBehavior
       ),
-      clipBehavior: Clip.antiAlias,
       child: hasImage
-          ? CachedNetworkImage(
-              imageUrl: ApiConfig.getImageUrl(task.taskImagePath!),
-              fit: BoxFit.cover,
-              placeholder: (context, url) => _buildThumbnailPlaceholder(),
-              errorWidget: (context, url, error) => _buildThumbnailPlaceholder(),
+          ? Padding(
+              // Padding omkring billedet for "åndehul" (som hero cards)
+              padding: const EdgeInsets.all(12),
+              child: Container(
+                // Kun én container med afrunding og border
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: primaryColor.withValues(alpha: 0.1),
+                    width: 1,
+                  ),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: CachedNetworkImage(
+                  imageUrl: ApiConfig.getImageUrl(task.taskImagePath!),
+                  fit: BoxFit.contain, // Bevar billedets proportioner
+                  placeholder: (context, url) => _buildImagePlaceholder(),
+                  errorWidget: (context, url, error) => _buildImagePlaceholder(),
+                ),
+              ),
             )
-          : _buildThumbnailPlaceholder(),
+          : _buildImagePlaceholder(),
     );
   }
 
-  Widget _buildThumbnailPlaceholder() {
+  /// Placeholder når der ikke er noget billede
+  Widget _buildImagePlaceholder() {
     return Center(
       child: Icon(
         Icons.check_circle_outline,
-        color: primaryColor.withValues(alpha: 0.6),
-        size: 26,
+        color: primaryColor.withValues(alpha: 0.4),
+        size: 48,
       ),
     );
   }
