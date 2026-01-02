@@ -1377,6 +1377,11 @@ class StringsEn extends AppStrings {
   @override
   String get failedToRefreshToken => 'Session expired. Please log in again';
 
+  // Content Moderation
+  @override
+  String get contentModerationViolation =>
+      'The content contains inappropriate material and cannot be saved.';
+
   // Delete Dialog Strings
   @override
   String get checkingDeletionDetails => 'Checking what will be deleted...';

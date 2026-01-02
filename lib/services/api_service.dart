@@ -91,6 +91,9 @@ enum ApiErrorKey {
   failedToLoadVisualThemes,
   failedToLoadVisualTheme,
 
+  // Content Moderation
+  contentModerationViolation,
+
   // Generic
   networkError,
   unknownError,
@@ -120,6 +123,9 @@ class ApiException implements Exception {
 class ApiService {
   // Use ApiConfig for environment-aware base URL
   static String get baseUrl => ApiConfig.baseUrl;
+  
+  // HTTP status codes
+  static const int _statusUnprocessableEntity = 422;
 
   final http.Client _client;
   final RemoteLoggerService? _logger;
@@ -254,6 +260,29 @@ class ApiService {
       },
     );
     throw ApiException.withKey(ApiErrorKey.networkError, 'Network error: $error');
+  }
+
+  /// Parser en errorKey string fra API response til ApiErrorKey enum.
+  /// Returnerer null hvis key er null eller ukendt.
+  ApiErrorKey? _parseErrorKey(String? key) {
+    if (key == 'CONTENT_MODERATION_VIOLATION') {
+      return ApiErrorKey.contentModerationViolation;
+    }
+    return null;
+  }
+  
+  /// Håndterer HTTP 422 (Unprocessable Entity) responses med content moderation fejl.
+  /// Parser errorKey fra response og kaster ApiException med korrekt fejlnøgle.
+  /// 
+  /// Bruges når backend blokerer indhold via OpenAI Moderation API.
+  Never _handleContentModerationError(http.Response response, ApiErrorKey defaultErrorKey) {
+    final errorData = jsonDecode(response.body);
+    final errorKey = _parseErrorKey(errorData['errorKey']);
+    throw ApiException.withKey(
+      errorKey ?? defaultErrorKey,
+      errorData['message'] ?? 'Content blocked',
+      response.statusCode,
+    );
   }
 
   /// Wrapper for HTTP DELETE with logging
@@ -602,6 +631,8 @@ class ApiService {
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         return TaskListResponse.fromJson(jsonDecode(response.body));
+      } else if (response.statusCode == _statusUnprocessableEntity) {
+        _handleContentModerationError(response, ApiErrorKey.failedToCreateTaskList);
       } else {
         final errorData = jsonDecode(response.body);
         throw ApiException.withKey(
@@ -627,6 +658,8 @@ class ApiService {
 
       if (response.statusCode == 200) {
         return TaskListResponse.fromJson(jsonDecode(response.body));
+      } else if (response.statusCode == _statusUnprocessableEntity) {
+        _handleContentModerationError(response, ApiErrorKey.failedToUpdateTaskList);
       } else {
         final errorData = jsonDecode(response.body);
         throw ApiException.withKey(
@@ -717,6 +750,8 @@ class ApiService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return TaskResponse.fromJson(jsonDecode(response.body));
+      } else if (response.statusCode == _statusUnprocessableEntity) {
+        _handleContentModerationError(response, ApiErrorKey.failedToCreateTask);
       } else {
         final errorData = jsonDecode(response.body);
         throw ApiException.withKey(
@@ -742,6 +777,8 @@ class ApiService {
 
       if (response.statusCode == 200) {
         return TaskResponse.fromJson(jsonDecode(response.body));
+      } else if (response.statusCode == _statusUnprocessableEntity) {
+        _handleContentModerationError(response, ApiErrorKey.failedToUpdateTask);
       } else {
         final errorData = jsonDecode(response.body);
         throw ApiException.withKey(

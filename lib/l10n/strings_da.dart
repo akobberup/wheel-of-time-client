@@ -1353,6 +1353,11 @@ class StringsDa extends AppStrings {
   @override
   String get failedToRefreshToken => 'Session udløbet. Log venligst ind igen';
 
+  // Content Moderation
+  @override
+  String get contentModerationViolation =>
+      'Indholdet indeholder upassende materiale og kan ikke gemmes.';
+
   // Delete Dialog Strings
   @override
   String get checkingDeletionDetails => 'Tjekker hvad der vil blive slettet...';

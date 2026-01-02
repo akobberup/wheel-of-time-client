@@ -648,6 +648,9 @@ abstract class AppStrings {
   String get failedToLoadVisualTheme;
   String get failedToRefreshToken;
 
+  // Content Moderation
+  String get contentModerationViolation;
+
   // Battery Optimization Dialog (Android)
   String get batteryOptimizationTitle;
   String get batteryOptimizationMessage;
@@ -789,6 +792,10 @@ abstract class AppStrings {
       // Account
       case ApiErrorKey.failedToRequestAccountDeletion:
         return failedToRequestAccountDeletion;
+
+      // Content Moderation
+      case ApiErrorKey.contentModerationViolation:
+        return contentModerationViolation;
 
       // Generic
       case ApiErrorKey.networkError:
