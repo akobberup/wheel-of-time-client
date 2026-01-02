@@ -115,22 +115,39 @@ class HeroTaskCard extends StatelessWidget {
           // Ensfarvet baggrund
           Container(color: backgroundColor),
           
-          // Centreret billede
+          // Centreret billede med afrundede hjørner
           if (imagePath != null && imagePath.isNotEmpty)
             Center(
               child: Padding(
                 // Padding for at give billedet "åndehul"
                 padding: EdgeInsets.all(isDesktop ? 20.0 : 24.0),
-                child: CachedNetworkImage(
-                  imageUrl: ApiConfig.getImageUrl(imagePath),
-                  fit: BoxFit.contain, // Bevar billedets proportioner
-                  placeholder: (context, url) => const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                  errorWidget: (context, url, error) => Icon(
-                    Icons.image_not_supported_outlined,
-                    size: isDesktop ? 60 : 80,
-                    color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                child: ClipRRect(
+                  // Afrundet hjørner der matcher kortets design-sprog
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    // Subtil ramme omkring billedet
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: accentColor.withValues(alpha: 0.1),
+                        width: 1,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(11), // 1px mindre for border
+                      child: CachedNetworkImage(
+                        imageUrl: ApiConfig.getImageUrl(imagePath),
+                        fit: BoxFit.contain, // Bevar billedets proportioner
+                        placeholder: (context, url) => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                        errorWidget: (context, url, error) => Icon(
+                          Icons.image_not_supported_outlined,
+                          size: isDesktop ? 60 : 80,
+                          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),

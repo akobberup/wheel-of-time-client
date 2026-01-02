@@ -129,11 +129,15 @@ class CompactTaskCard extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: imagePath != null && imagePath.isNotEmpty
-          ? CachedNetworkImage(
-              imageUrl: ApiConfig.getImageUrl(imagePath),
-              fit: BoxFit.cover,
-              placeholder: (context, url) => _buildAvatarPlaceholder(primaryColor),
-              errorWidget: (context, url, error) => _buildAvatarPlaceholder(primaryColor),
+          ? Padding(
+              // Lille padding inde i cirklen for bedre visning
+              padding: const EdgeInsets.all(4),
+              child: CachedNetworkImage(
+                imageUrl: ApiConfig.getImageUrl(imagePath),
+                fit: BoxFit.contain, // Vis hele billedet uden beskæring
+                placeholder: (context, url) => _buildAvatarPlaceholder(primaryColor),
+                errorWidget: (context, url, error) => _buildAvatarPlaceholder(primaryColor),
+              ),
             )
           : _buildAvatarPlaceholder(primaryColor),
     );

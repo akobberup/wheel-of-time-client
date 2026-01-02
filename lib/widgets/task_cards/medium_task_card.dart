@@ -106,16 +106,33 @@ class MediumTaskCard extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            // Centreret billede
+            // Centreret billede med afrundede hjørner
             if (imagePath != null && imagePath.isNotEmpty)
               Center(
                 child: Padding(
                   padding: EdgeInsets.all(isDesktop ? 12.0 : 16.0),
-                  child: CachedNetworkImage(
-                    imageUrl: ApiConfig.getImageUrl(imagePath),
-                    fit: BoxFit.contain,
-                    placeholder: (context, url) => _buildPlaceholder(primaryColor),
-                    errorWidget: (context, url, error) => _buildPlaceholder(primaryColor),
+                  child: ClipRRect(
+                    // Afrundet hjørner der matcher kortets design-sprog
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      // Subtil ramme omkring billedet
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: primaryColor.withValues(alpha: 0.15),
+                          width: 1,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(9), // 1px mindre for border
+                        child: CachedNetworkImage(
+                          imageUrl: ApiConfig.getImageUrl(imagePath),
+                          fit: BoxFit.contain,
+                          placeholder: (context, url) => _buildPlaceholder(primaryColor),
+                          errorWidget: (context, url, error) => _buildPlaceholder(primaryColor),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               )
