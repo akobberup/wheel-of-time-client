@@ -271,23 +271,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     ),
                                   ),
                                 ),
+
+                                const SizedBox(height: 16),
+
+                                // Toggle login/register
+                                _ModeToggle(
+                                  isLoginMode: _isLoginMode,
+                                  isLoading: authState.isLoading,
+                                  seedColor: seedColor,
+                                  isDark: isDark,
+                                  onToggle: _handleModeToggle,
+                                ),
                               ],
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 20),
-
-                        // Toggle login/register
-                        _ModeToggle(
-                          isLoginMode: _isLoginMode,
-                          isLoading: authState.isLoading,
-                          seedColor: seedColor,
-                          isDark: isDark,
-                          onToggle: _handleModeToggle,
-                        ),
-
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 24),
 
                         // Version
                         _VersionInfo(isDark: isDark),
@@ -335,6 +335,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   void _handleModeToggle() {
     setState(() {
       _isLoginMode = !_isLoginMode;
+    });
+    // Nulstil formularen efter build-fasen er færdig
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _formKey.currentState?.reset();
     });
   }
