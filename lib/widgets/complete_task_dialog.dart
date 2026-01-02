@@ -644,36 +644,40 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         // Cancel button
-        OutlinedButton(
-          onPressed: _isLoading || _isSuccess
-              ? null
-              : () => Navigator.of(context).pop(),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        Flexible(
+          child: OutlinedButton(
+            onPressed: _isLoading || _isSuccess
+                ? null
+                : () => Navigator.of(context).pop(),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            child: Text(strings.cancel),
           ),
-          child: Text(strings.cancel),
         ),
         const SizedBox(width: 12),
 
         // Complete button with animated states
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          child: FilledButton.icon(
-            onPressed: _isLoading || _isSuccess ? null : _submit,
-            style: FilledButton.styleFrom(
-              backgroundColor:
-                  _isSuccess ? Colors.green.shade600 : Colors.green.shade500,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-              elevation: _isSuccess ? 6 : 2,
-              shadowColor: Colors.green.withValues(alpha: 0.4),
-            ),
-            icon: _buildButtonIcon(),
-            label: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: Text(
-                _getButtonLabel(strings),
-                key: ValueKey(_getButtonLabel(strings)),
+        Flexible(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            child: FilledButton.icon(
+              onPressed: _isLoading || _isSuccess ? null : _submit,
+              style: FilledButton.styleFrom(
+                backgroundColor:
+                    _isSuccess ? Colors.green.shade600 : Colors.green.shade500,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                elevation: _isSuccess ? 6 : 2,
+                shadowColor: Colors.green.withValues(alpha: 0.4),
+              ),
+              icon: _buildButtonIcon(),
+              label: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Text(
+                  _getButtonLabel(strings),
+                  key: ValueKey(_getButtonLabel(strings)),
+                ),
               ),
             ),
           ),

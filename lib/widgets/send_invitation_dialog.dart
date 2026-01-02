@@ -310,63 +310,67 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog>
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         // Cancel button
-        OutlinedButton(
-          onPressed: _isLoading || _isSuccess
-              ? null
-              : () {
-                  HapticFeedback.selectionClick();
-                  Navigator.of(context).pop(false);
-                },
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            side: BorderSide(
-              color: colorScheme.outline.withValues(alpha: 0.3),
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-          child: Text(strings.cancel),
-        ),
-        const SizedBox(width: 12),
-
-        // Send button med gradient
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                primaryColor,
-                Color.lerp(primaryColor, Colors.black, 0.15) ?? primaryColor,
-              ],
-            ),
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: primaryColor.withValues(alpha: 0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
+        Flexible(
+          child: OutlinedButton(
+            onPressed: _isLoading || _isSuccess
+                ? null
+                : () {
+                    HapticFeedback.selectionClick();
+                    Navigator.of(context).pop(false);
+                  },
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              side: BorderSide(
+                color: colorScheme.outline.withValues(alpha: 0.3),
               ),
-            ],
-          ),
-          child: ElevatedButton.icon(
-            onPressed: _isLoading || _isSuccess ? null : _submit,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
-            icon: _buildButtonIcon(),
-            label: Text(
-              _isSuccess ? strings.done : strings.sendInvite,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
+            child: Text(strings.cancel),
+          ),
+        ),
+        const SizedBox(width: 12),
+
+        // Send button med gradient
+        Flexible(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  primaryColor,
+                  Color.lerp(primaryColor, Colors.black, 0.15) ?? primaryColor,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: primaryColor.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ElevatedButton.icon(
+              onPressed: _isLoading || _isSuccess ? null : _submit,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              icon: _buildButtonIcon(),
+              label: Text(
+                _isSuccess ? strings.done : strings.sendInvite,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
