@@ -33,21 +33,17 @@ class TasksNotifier extends StateNotifier<AsyncValue<List<TaskResponse>>> {
     state = await AsyncValue.guard(() => _apiService.getTasksByTaskList(taskListId, activeOnly: activeOnly));
   }
 
-  Future<TaskResponse?> createTask(CreateTaskRequest request) async {
-    try {
-      final task = await _apiService.createTask(request);
-      await loadTasks(); // Refresh the list
+  /// Opretter en ny task. Kaster exception ved fejl så UI kan vise specifik fejlbesked.
+  Future<TaskResponse> createTask(CreateTaskRequest request) async {
+    final task = await _apiService.createTask(request);
+    await loadTasks(); // Refresh the list
 
-      // Start polling for billede-generering hvis ingen billede endnu
-      if (task.taskImagePath == null || task.taskImagePath!.isEmpty) {
-        _ref.read(imagePollingProvider).pollForTaskImage(task.id, taskListId);
-      }
-
-      return task;
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
-      return null;
+    // Start polling for billede-generering hvis ingen billede endnu
+    if (task.taskImagePath == null || task.taskImagePath!.isEmpty) {
+      _ref.read(imagePollingProvider).pollForTaskImage(task.id, taskListId);
     }
+
+    return task;
   }
 
   Future<TaskResponse?> updateTask(int id, UpdateTaskRequest request) async {

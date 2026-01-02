@@ -7,6 +7,7 @@ import '../providers/task_provider.dart';
 import '../providers/suggestion_cache_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/ai_suggestion_service.dart';
+import '../services/api_service.dart';
 import '../models/task.dart';
 import '../models/enums.dart';
 import '../models/schedule.dart';
@@ -247,7 +248,6 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog>
     if (!_formKey.currentState!.validate()) return;
 
     HapticFeedback.mediumImpact();
-    setState(() => _isLoading = true);
 
     final request = CreateTaskRequest(
       name: _nameController.text.trim(),
@@ -261,14 +261,27 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog>
       completionWindowHours: _completionWindowHours,
     );
 
-    final result = await ref.read(tasksProvider(widget.taskListId).notifier).createTask(request);
+    setState(() => _isLoading = true);
 
-    if (mounted) {
-      setState(() => _isLoading = false);
-      if (result != null) {
+    try {
+      await ref.read(tasksProvider(widget.taskListId).notifier).createTask(request);
+      if (mounted) {
+        setState(() => _isLoading = false);
         HapticFeedback.lightImpact();
         Navigator.of(context).pop(true);
-      } else {
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        HapticFeedback.vibrate();
+        final strings = AppStrings.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(strings.translateApiException(e))),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
         HapticFeedback.vibrate();
         final strings = AppStrings.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
