@@ -76,7 +76,7 @@ class LegalInfoScreen extends StatelessWidget {
 
   List<Widget> _buildPrivacyPolicy(BuildContext context, bool isDark, Color seedColor) {
     return [
-      _LastUpdated(date: '28. december 2024', isDark: isDark),
+      _LastUpdated(date: '2. januar 2025', isDark: isDark),
       const SizedBox(height: 24),
       _SectionTitle(title: 'Introduktion', isDark: isDark),
       _Paragraph(
@@ -109,8 +109,14 @@ class LegalInfoScreen extends StatelessWidget {
         text: 'Dine data opbevares på sikre servere. Vi implementerer passende tekniske og organisatoriske foranstaltninger for at beskytte dine persondata mod uautoriseret adgang, ændring eller sletning.',
         isDark: isDark,
       ),
+      _SubsectionTitle(title: 'Dataplacering', isDark: isDark, seedColor: seedColor),
       _Paragraph(
-        text: 'Dine data kan opbevares og behandles i EU eller andre lande, hvor vores tjenesteudbydere opererer.',
+        text: 'Dine persondata (kontoinformation, opgaver og fuldførelser) opbevares på servere i EU.',
+        isDark: isDark,
+      ),
+      _SubsectionTitle(title: 'Tredjepartstjenester', isDark: isDark, seedColor: seedColor),
+      _Paragraph(
+        text: 'Når du bruger Android-appen, kan visse enheds- og notifikationsdata blive behandlet af Google Play Services i overensstemmelse med Googles privatlivspolitik. Vi kan ikke garantere, at Google opbevarer disse data inden for EU.',
         isDark: isDark,
       ),
       const SizedBox(height: 20),
