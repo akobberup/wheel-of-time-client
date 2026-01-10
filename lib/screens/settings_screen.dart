@@ -3,15 +3,18 @@
 // Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
 // =============================================================================
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/theme_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/locale_provider.dart';
+import '../providers/user_settings_provider.dart';
 import '../widgets/settings/color_picker_grid.dart';
 import '../config/version_config.dart';
 import '../l10n/app_strings.dart';
+import '../models/user_settings.dart';
 
 /// Indstillings-skærm med varm, organisk æstetik.
 ///
@@ -103,6 +106,15 @@ class SettingsScreen extends ConsumerWidget {
                       seedColor: seedColor,
                       isDark: isDark,
                     ),
+
+                    // Push notifications sektion (kun mobile)
+                    if (!kIsWeb) ...[
+                      const SizedBox(height: 28),
+                      _PushNotificationSection(
+                        seedColor: seedColor,
+                        isDark: isDark,
+                      ),
+                    ],
 
                     const SizedBox(height: 28),
 
@@ -959,6 +971,135 @@ class _LanguageOption extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Sektion til push notification preferences.
+/// Viser toggles for hver notifikationstype som brugeren kan aktivere/deaktivere.
+class _PushNotificationSection extends ConsumerWidget {
+  final Color seedColor;
+  final bool isDark;
+
+  const _PushNotificationSection({
+    required this.seedColor,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppStrings.of(context);
+    final settingsAsync = ref.watch(userSettingsProvider);
+
+    return settingsAsync.when(
+      data: (settings) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SectionHeader(
+            title: strings.pushNotifications,
+            seedColor: seedColor,
+          ),
+          const SizedBox(height: 12),
+          _SettingsCard(
+            isDark: isDark,
+            seedColor: seedColor,
+            child: Column(
+              children: [
+                _ToggleRow(
+                  icon: Icons.mail_outline_rounded,
+                  title: strings.pushInvitations,
+                  subtitle: strings.pushInvitationsDescription,
+                  value: settings.pushInvitations,
+                  seedColor: seedColor,
+                  isDark: isDark,
+                  onChanged: (_) => _toggleSetting(
+                    ref,
+                    pushInvitations: !settings.pushInvitations,
+                  ),
+                ),
+                _SettingsDivider(isDark: isDark),
+                _ToggleRow(
+                  icon: Icons.reply_rounded,
+                  title: strings.pushInvitationResponses,
+                  subtitle: strings.pushInvitationResponsesDescription,
+                  value: settings.pushInvitationResponses,
+                  seedColor: seedColor,
+                  isDark: isDark,
+                  onChanged: (_) => _toggleSetting(
+                    ref,
+                    pushInvitationResponses: !settings.pushInvitationResponses,
+                  ),
+                ),
+                _SettingsDivider(isDark: isDark),
+                _ToggleRow(
+                  icon: Icons.notifications_active_outlined,
+                  title: strings.pushTaskReminders,
+                  subtitle: strings.pushTaskRemindersDescription,
+                  value: settings.pushTaskReminders,
+                  seedColor: seedColor,
+                  isDark: isDark,
+                  onChanged: (_) => _toggleSetting(
+                    ref,
+                    pushTaskReminders: !settings.pushTaskReminders,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      loading: () => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SectionHeader(
+            title: strings.pushNotifications,
+            seedColor: seedColor,
+          ),
+          const SizedBox(height: 12),
+          _SettingsCard(
+            isDark: isDark,
+            seedColor: seedColor,
+            child: const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: CircularProgressIndicator.adaptive(),
+              ),
+            ),
+          ),
+        ],
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  /// Opdaterer en push notification preference.
+  void _toggleSetting(
+    WidgetRef ref, {
+    bool? pushInvitations,
+    bool? pushInvitationResponses,
+    bool? pushTaskReminders,
+  }) {
+    ref.read(userSettingsProvider.notifier).updateSettings(
+          UpdateUserSettingsRequest(
+            pushInvitations: pushInvitations,
+            pushInvitationResponses: pushInvitationResponses,
+            pushTaskReminders: pushTaskReminders,
+          ),
+        );
+  }
+}
+
+/// Divider mellem settings rækker.
+class _SettingsDivider extends StatelessWidget {
+  final bool isDark;
+
+  const _SettingsDivider({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(
+      height: 24,
+      color: isDark ? Colors.white12 : Colors.black.withOpacity(0.06),
     );
   }
 }

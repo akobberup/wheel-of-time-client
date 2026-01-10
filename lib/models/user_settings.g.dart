@@ -13,6 +13,9 @@ _$UserSettingsResponseImpl _$$UserSettingsResponseImplFromJson(
       userId: (json['userId'] as num).toInt(),
       mainThemeColor: json['mainThemeColor'] as String,
       darkModeEnabled: json['darkModeEnabled'] as bool,
+      pushInvitations: json['pushInvitations'] as bool? ?? true,
+      pushInvitationResponses: json['pushInvitationResponses'] as bool? ?? true,
+      pushTaskReminders: json['pushTaskReminders'] as bool? ?? true,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
@@ -24,6 +27,9 @@ Map<String, dynamic> _$$UserSettingsResponseImplToJson(
       'userId': instance.userId,
       'mainThemeColor': instance.mainThemeColor,
       'darkModeEnabled': instance.darkModeEnabled,
+      'pushInvitations': instance.pushInvitations,
+      'pushInvitationResponses': instance.pushInvitationResponses,
+      'pushTaskReminders': instance.pushTaskReminders,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
     };
@@ -33,6 +39,9 @@ _$UpdateUserSettingsRequestImpl _$$UpdateUserSettingsRequestImplFromJson(
     _$UpdateUserSettingsRequestImpl(
       mainThemeColor: json['mainThemeColor'] as String?,
       darkModeEnabled: json['darkModeEnabled'] as bool?,
+      pushInvitations: json['pushInvitations'] as bool?,
+      pushInvitationResponses: json['pushInvitationResponses'] as bool?,
+      pushTaskReminders: json['pushTaskReminders'] as bool?,
     );
 
 Map<String, dynamic> _$$UpdateUserSettingsRequestImplToJson(
@@ -40,4 +49,7 @@ Map<String, dynamic> _$$UpdateUserSettingsRequestImplToJson(
     <String, dynamic>{
       'mainThemeColor': instance.mainThemeColor,
       'darkModeEnabled': instance.darkModeEnabled,
+      'pushInvitations': instance.pushInvitations,
+      'pushInvitationResponses': instance.pushInvitationResponses,
+      'pushTaskReminders': instance.pushTaskReminders,
     };

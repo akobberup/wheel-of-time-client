@@ -94,6 +94,10 @@ enum ApiErrorKey {
   // Content Moderation
   contentModerationViolation,
 
+  // Push Notifications
+  failedToRegisterFcmToken,
+  failedToUnregisterFcmToken,
+
   // Generic
   networkError,
   unknownError,
@@ -1478,6 +1482,64 @@ class ApiService {
         );
       } else {
         throw ApiException.withKey(ApiErrorKey.failedToLoadVisualTheme, 'Failed to load visual theme', response.statusCode);
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  // ============================================================================
+  // PUSH NOTIFICATIONS
+  // ============================================================================
+
+  /// Registrerer en FCM token hos backend.
+  /// Tokenet bruges til at sende push notifications til denne enhed.
+  /// [token] er FCM tokenet fra Firebase Messaging.
+  /// [deviceId] er en valgfri enhedsidentifikator.
+  Future<void> registerFcmToken(String token, {String? deviceId}) async {
+    try {
+      final body = {
+        'token': token,
+        if (deviceId != null) 'deviceId': deviceId,
+      };
+
+      final response = await _loggedPost(
+        '$baseUrl/api/push-notifications/register',
+        headers: _getHeaders(includeAuth: true),
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        final errorData = jsonDecode(response.body);
+        throw ApiException.withKey(
+          ApiErrorKey.failedToRegisterFcmToken,
+          errorData['message'] ?? 'Failed to register FCM token',
+          response.statusCode,
+        );
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  /// Afregistrerer en FCM token fra backend.
+  /// Bruges ved logout eller når brugeren fravælger push notifications.
+  Future<void> unregisterFcmToken(String token) async {
+    try {
+      final response = await _loggedDelete(
+        '$baseUrl/api/push-notifications/unregister?token=$token',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        final errorData = jsonDecode(response.body);
+        throw ApiException.withKey(
+          ApiErrorKey.failedToUnregisterFcmToken,
+          errorData['message'] ?? 'Failed to unregister FCM token',
+          response.statusCode,
+        );
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;

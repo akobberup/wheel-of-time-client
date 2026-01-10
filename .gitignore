@@ -53,3 +53,6 @@ android/key.properties
 android/app/keystore/
 *.jks
 *.keystore
+
+# Firebase
+android/app/google-services.json

@@ -1,13 +1,17 @@
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/remote_logger_provider.dart';
+import 'providers/fcm_provider.dart';
 import 'router/app_router.dart';
 import 'services/background_task_service.dart';
+import 'services/fcm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +19,12 @@ void main() async {
   // Brug path-baseret URL strategi i stedet for hash-baseret (#)
   // Dette gør at URLs som /reset-password?token=... fungerer korrekt
   usePathUrlStrategy();
+
+  // Initialiser Firebase og FCM for push notifications (kun mobile)
+  if (!kIsWeb) {
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    await FcmService().initialize();
+  }
 
   // Aktiverer baggrunds-notifikationer på mobile platforme
   // Planlægger periodiske checks hver 30. minut for nye invitationer og forfaldne opgaver
@@ -66,6 +76,12 @@ class AarshjuletApp extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     final themeState = ref.watch(themeProvider);
     final router = ref.watch(routerProvider);
+
+    // Initialiser FCM provider så den lytter til auth state ændringer
+    // Dette sikrer at FCM token registreres ved login og afregistreres ved logout
+    if (!kIsWeb) {
+      ref.watch(fcmProvider);
+    }
 
     return MaterialApp.router(
       title: 'Årshjulet',

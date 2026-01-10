@@ -66,6 +66,10 @@ dependencies:
   # URL Launcher (åbn links, emails, telefonnumre)
   url_launcher: ^6.2.5
 
+  # Firebase
+  firebase_core: ^3.8.0
+  firebase_messaging: ^15.1.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

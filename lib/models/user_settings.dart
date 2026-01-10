@@ -12,6 +12,10 @@ class UserSettingsResponse with _$UserSettingsResponse {
     required int userId,
     required String mainThemeColor,
     required bool darkModeEnabled,
+    // Push notification preferences
+    @Default(true) bool pushInvitations,
+    @Default(true) bool pushInvitationResponses,
+    @Default(true) bool pushTaskReminders,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _UserSettingsResponse;
@@ -26,6 +30,10 @@ class UpdateUserSettingsRequest with _$UpdateUserSettingsRequest {
   const factory UpdateUserSettingsRequest({
     String? mainThemeColor,
     bool? darkModeEnabled,
+    // Push notification preferences
+    bool? pushInvitations,
+    bool? pushInvitationResponses,
+    bool? pushTaskReminders,
   }) = _UpdateUserSettingsRequest;
 
   factory UpdateUserSettingsRequest.fromJson(Map<String, dynamic> json) =>
@@ -35,6 +43,9 @@ class UpdateUserSettingsRequest with _$UpdateUserSettingsRequest {
   Map<String, dynamic> toJson() => {
         if (mainThemeColor != null) 'mainThemeColor': mainThemeColor,
         if (darkModeEnabled != null) 'darkModeEnabled': darkModeEnabled,
+        if (pushInvitations != null) 'pushInvitations': pushInvitations,
+        if (pushInvitationResponses != null) 'pushInvitationResponses': pushInvitationResponses,
+        if (pushTaskReminders != null) 'pushTaskReminders': pushTaskReminders,
       };
 }
 

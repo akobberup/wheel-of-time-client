@@ -1552,6 +1552,28 @@ class StringsEn extends AppStrings {
   @override
   String get failedToRequestAccountDeletion => 'Failed to request account deletion';
 
+  // Push Notifications
+  @override
+  String get pushNotifications => 'Push Notifications';
+
+  @override
+  String get pushInvitations => 'Invitations';
+
+  @override
+  String get pushInvitationsDescription => 'Receive notifications when invited to task lists';
+
+  @override
+  String get pushInvitationResponses => 'Invitation Responses';
+
+  @override
+  String get pushInvitationResponsesDescription => 'Receive notifications when invitations are accepted or declined';
+
+  @override
+  String get pushTaskReminders => 'Task Reminders';
+
+  @override
+  String get pushTaskRemindersDescription => 'Receive notifications for upcoming and due tasks';
+
   // Widget Strings
   @override
   String get widgetTitle => 'Aarshjulet';

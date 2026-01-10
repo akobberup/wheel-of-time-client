@@ -488,6 +488,15 @@ abstract class AppStrings {
   String get deleteAccountError;
   String get failedToRequestAccountDeletion;
 
+  // Push Notifications
+  String get pushNotifications;
+  String get pushInvitations;
+  String get pushInvitationsDescription;
+  String get pushInvitationResponses;
+  String get pushInvitationResponsesDescription;
+  String get pushTaskReminders;
+  String get pushTaskRemindersDescription;
+
   // Profile Screen
   String get profile;
   String get noUserData;
@@ -796,6 +805,11 @@ abstract class AppStrings {
       // Content Moderation
       case ApiErrorKey.contentModerationViolation:
         return contentModerationViolation;
+
+      // Push Notifications
+      case ApiErrorKey.failedToRegisterFcmToken:
+      case ApiErrorKey.failedToUnregisterFcmToken:
+        return unknownError; // Fejl ved FCM token håndtering vises ikke til brugeren
 
       // Generic
       case ApiErrorKey.networkError:

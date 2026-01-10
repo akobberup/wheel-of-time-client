@@ -1527,6 +1527,28 @@ class StringsDa extends AppStrings {
   @override
   String get failedToRequestAccountDeletion => 'Kunne ikke anmode om kontosletning';
 
+  // Push Notifications
+  @override
+  String get pushNotifications => 'Push-notifikationer';
+
+  @override
+  String get pushInvitations => 'Invitationer';
+
+  @override
+  String get pushInvitationsDescription => 'Modtag notifikationer når du inviteres til opgavelister';
+
+  @override
+  String get pushInvitationResponses => 'Invitationssvar';
+
+  @override
+  String get pushInvitationResponsesDescription => 'Modtag notifikationer når invitationer accepteres eller afvises';
+
+  @override
+  String get pushTaskReminders => 'Opgavepåmindelser';
+
+  @override
+  String get pushTaskRemindersDescription => 'Modtag notifikationer for kommende og forfaldne opgaver';
+
   // Widget Strings
   @override
   String get widgetTitle => 'Årshjulet Widget';
