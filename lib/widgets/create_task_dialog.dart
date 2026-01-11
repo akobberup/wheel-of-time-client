@@ -388,15 +388,6 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog>
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            strings.taskDescription,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.white.withValues(alpha: 0.85),
-            ),
-            textAlign: TextAlign.center,
-          ),
         ],
       ),
     );
@@ -416,6 +407,17 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Beskrivelse (scrolls med indholdet)
+            Text(
+              strings.taskDescription,
+              style: TextStyle(
+                fontSize: 13,
+                color: primaryColor.withValues(alpha: 0.8),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+
             // === PRIMARY FIELDS (Always Visible) ===
 
             // Task name field with AI button as suffix icon
