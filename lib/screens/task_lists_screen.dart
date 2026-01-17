@@ -9,6 +9,7 @@ import '../providers/theme_provider.dart';
 import '../l10n/app_strings.dart';
 import '../models/task_list.dart';
 import '../widgets/create_task_list_dialog.dart';
+import '../widgets/create_from_template_dialog.dart';
 import '../widgets/edit_task_list_dialog.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/error_state_widget.dart';
@@ -126,17 +127,33 @@ class _TaskListsScreenState extends ConsumerState<TaskListsScreen> {
     );
   }
 
-  /// Viser onboarding create-dialog og navigerer til den nye liste
+  /// Viser onboarding skabelon-dialog og navigerer til den nye liste
   Future<void> _showOnboardingCreateDialog(
       BuildContext context, WidgetRef ref) async {
-    final result = await showDialog<TaskListResponse>(
+    final result = await showDialog<dynamic>(
       context: context,
       barrierDismissible: true,
-      builder: (context) => const CreateTaskListDialog(),
+      builder: (context) => const CreateFromTemplateDialog(),
     );
-    
-    if (result != null && mounted) {
-      // Naviger direkte til den nye opgaveliste - listen genindlæses når vi vender tilbage
+
+    if (!mounted) return;
+
+    // Bruger valgte "Opret manuelt"
+    if (result is OpenManualCreateMarker) {
+      final manualResult = await showDialog<TaskListResponse>(
+        context: context,
+        builder: (context) => const CreateTaskListDialog(),
+      );
+      if (manualResult != null && mounted) {
+        context.push(
+          '/lists/${manualResult.id}?name=${Uri.encodeComponent(manualResult.name)}',
+        );
+      }
+      return;
+    }
+
+    // Bruger valgte en skabelon og listen blev oprettet
+    if (result is TaskListResponse) {
       context.push(
         '/lists/${result.id}?name=${Uri.encodeComponent(result.name)}',
       );
@@ -145,12 +162,33 @@ class _TaskListsScreenState extends ConsumerState<TaskListsScreen> {
 
   Future<void> _handleCreateTaskList(
       BuildContext context, WidgetRef ref) async {
-    final result = await showDialog<TaskListResponse>(
+    final result = await showDialog<dynamic>(
       context: context,
-      builder: (context) => const CreateTaskListDialog(),
+      barrierDismissible: true,
+      builder: (context) => const CreateFromTemplateDialog(),
     );
-    if (result != null) {
-      ref.read(taskListProvider.notifier).loadAllTaskLists();
+
+    if (!mounted) return;
+
+    // Bruger valgte "Opret manuelt"
+    if (result is OpenManualCreateMarker) {
+      final manualResult = await showDialog<TaskListResponse>(
+        context: context,
+        builder: (context) => const CreateTaskListDialog(),
+      );
+      if (manualResult != null && mounted) {
+        context.push(
+          '/lists/${manualResult.id}?name=${Uri.encodeComponent(manualResult.name)}',
+        );
+      }
+      return;
+    }
+
+    // Bruger valgte en skabelon og listen blev oprettet
+    if (result is TaskListResponse) {
+      context.push(
+        '/lists/${result.id}?name=${Uri.encodeComponent(result.name)}',
+      );
     }
   }
 }

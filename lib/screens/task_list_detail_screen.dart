@@ -10,6 +10,7 @@ import '../providers/task_history_provider.dart';
 import '../providers/suggestion_cache_provider.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/create_task_dialog.dart';
+import '../widgets/create_task_from_template_dialog.dart';
 import '../widgets/edit_task_dialog.dart';
 import '../widgets/common/contextual_delete_dialog.dart';
 import '../config/api_config.dart';
@@ -330,27 +331,64 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
   }
 
   /// Viser onboarding create-task dialog (bruges kun første gang)
+  /// Viser den nye "Opret fra skabelon" dialog med AI-forslag
   Future<void> _showOnboardingCreateTaskDialog(
     Color primaryColor,
     Color secondaryColor,
   ) async {
-    final result = await showDialog(
+    final result = await showDialog<dynamic>(
       context: context,
       barrierDismissible: true,
-      builder: (context) => CreateTaskDialog(
+      builder: (context) => CreateTaskFromTemplateDialog(
         taskListId: widget.taskListId,
         themeColor: primaryColor,
         secondaryThemeColor: secondaryColor,
       ),
     );
-    if (result == true && mounted) {
+
+    if (!mounted) return;
+
+    // Bruger valgte "Opret manuelt" - åbn tom CreateTaskDialog
+    if (result is OpenManualTaskCreateMarker) {
+      final manualResult = await showDialog<bool>(
+        context: context,
+        builder: (context) => CreateTaskDialog(
+          taskListId: widget.taskListId,
+          themeColor: primaryColor,
+          secondaryThemeColor: secondaryColor,
+        ),
+      );
+      if (manualResult == true && mounted) {
+        ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
+      }
+      return;
+    }
+
+    // Bruger valgte "Rediger" på et forslag - åbn CreateTaskDialog med præudfyldt data
+    if (result is EditTaskSuggestionMarker) {
+      final editResult = await showDialog<bool>(
+        context: context,
+        builder: (context) => CreateTaskDialog(
+          taskListId: widget.taskListId,
+          themeColor: primaryColor,
+          secondaryThemeColor: secondaryColor,
+          initialSuggestion: result.suggestion,
+        ),
+      );
+      if (editResult == true && mounted) {
+        ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
+      }
+      return;
+    }
+
+    // Bruger valgte "Opret" på et forslag - task blev oprettet direkte
+    if (result is TaskResponse) {
       ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
     }
   }
 
   Future<void> _handleCreateTask() async {
     final taskListAsync = ref.read(taskListDetailProvider(widget.taskListId));
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final fallbackColor = ref.read(themeProvider).seedColor;
 
     // Hent tema farver fra opgavelisten
@@ -366,15 +404,54 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
         ) ??
         fallbackColor;
 
-    final result = await showDialog(
+    // Vis "Opret fra skabelon" dialog med AI-forslag
+    final result = await showDialog<dynamic>(
       context: context,
-      builder: (context) => CreateTaskDialog(
+      barrierDismissible: true,
+      builder: (context) => CreateTaskFromTemplateDialog(
         taskListId: widget.taskListId,
         themeColor: primaryColor,
         secondaryThemeColor: secondaryColor,
       ),
     );
-    if (result == true && mounted) {
+
+    if (!mounted) return;
+
+    // Bruger valgte "Opret manuelt" - åbn tom CreateTaskDialog
+    if (result is OpenManualTaskCreateMarker) {
+      final manualResult = await showDialog<bool>(
+        context: context,
+        builder: (context) => CreateTaskDialog(
+          taskListId: widget.taskListId,
+          themeColor: primaryColor,
+          secondaryThemeColor: secondaryColor,
+        ),
+      );
+      if (manualResult == true && mounted) {
+        ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
+      }
+      return;
+    }
+
+    // Bruger valgte "Rediger" på et forslag - åbn CreateTaskDialog med præudfyldt data
+    if (result is EditTaskSuggestionMarker) {
+      final editResult = await showDialog<bool>(
+        context: context,
+        builder: (context) => CreateTaskDialog(
+          taskListId: widget.taskListId,
+          themeColor: primaryColor,
+          secondaryThemeColor: secondaryColor,
+          initialSuggestion: result.suggestion,
+        ),
+      );
+      if (editResult == true && mounted) {
+        ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
+      }
+      return;
+    }
+
+    // Bruger valgte "Opret" på et forslag - task blev oprettet direkte
+    if (result is TaskResponse) {
       ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
     }
   }

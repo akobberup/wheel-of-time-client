@@ -1454,6 +1454,33 @@ class StringsDa extends AppStrings {
   String get getStarted => 'Kom i gang';
 
   @override
+  String get chooseTemplateDescription =>
+      'Vælg en skabelon for at komme hurtigt i gang';
+
+  @override
+  String get chooseTaskTemplateDescription =>
+      'Vælg en opgave-skabelon eller opret din egen';
+
+  @override
+  String get createManually => 'Opret manuelt';
+
+  @override
+  String get editBeforeCreating => 'Rediger';
+
+  // Task repeat pattern descriptions
+  @override
+  String get repeatsDaily => 'Gentages dagligt';
+
+  @override
+  String get repeatsWeekly => 'Gentages ugentligt';
+
+  @override
+  String get repeatsMonthly => 'Gentages månedligt';
+
+  @override
+  String get repeatsYearly => 'Gentages årligt';
+
+  @override
   String get continueWithEmail => 'Fortsæt med e-mail';
 
   @override

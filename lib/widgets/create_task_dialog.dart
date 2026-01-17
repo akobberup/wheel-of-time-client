@@ -20,12 +20,14 @@ class CreateTaskDialog extends ConsumerStatefulWidget {
   final int taskListId;
   final Color? themeColor;
   final Color? secondaryThemeColor;
+  final TaskSuggestion? initialSuggestion;
 
   const CreateTaskDialog({
     super.key,
     required this.taskListId,
     this.themeColor,
     this.secondaryThemeColor,
+    this.initialSuggestion,
   });
 
   @override
@@ -58,6 +60,14 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog>
   void initState() {
     super.initState();
     _setupAnimations();
+    // Præudfyld felter hvis initialSuggestion er sat
+    if (widget.initialSuggestion != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _autoFillFromSuggestion(widget.initialSuggestion!);
+        }
+      });
+    }
   }
 
   /// Setup entrance animation

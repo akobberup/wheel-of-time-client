@@ -429,7 +429,17 @@ abstract class AppStrings {
   String get featureSharedDescription;
   String get featureStreaksDescription;
   String get getStarted;
+  String get chooseTemplateDescription;
+  String get chooseTaskTemplateDescription;
+  String get createManually;
+  String get editBeforeCreating;
   String get continueWithEmail;
+
+  // Task repeat pattern descriptions
+  String get repeatsDaily;
+  String get repeatsWeekly;
+  String get repeatsMonthly;
+  String get repeatsYearly;
   String get orContinueWith;
   String get noAccount;
   String get haveAccount;

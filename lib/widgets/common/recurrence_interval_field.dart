@@ -85,14 +85,23 @@ class _RecurrenceIntervalFieldState extends State<RecurrenceIntervalField> {
     super.didUpdateWidget(oldWidget);
 
     // Update controller if delta changed externally
+    // Bruger addPostFrameCallback for at undgå setState under build
     if (widget.repeatDelta != oldWidget.repeatDelta) {
-      _deltaController.text = widget.repeatDelta.toString();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _deltaController.text = widget.repeatDelta.toString();
+        }
+      });
     }
 
     // Update unit if changed externally
     if (widget.repeatUnit != oldWidget.repeatUnit) {
-      setState(() {
-        _currentUnit = widget.repeatUnit;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _currentUnit = widget.repeatUnit;
+          });
+        }
       });
     }
   }

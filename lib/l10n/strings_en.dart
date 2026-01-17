@@ -1479,6 +1479,33 @@ class StringsEn extends AppStrings {
   String get getStarted => 'Get Started';
 
   @override
+  String get chooseTemplateDescription =>
+      'Choose a template to get started quickly';
+
+  @override
+  String get chooseTaskTemplateDescription =>
+      'Choose a task template or create your own';
+
+  @override
+  String get createManually => 'Create manually';
+
+  @override
+  String get editBeforeCreating => 'Edit';
+
+  // Task repeat pattern descriptions
+  @override
+  String get repeatsDaily => 'Repeats daily';
+
+  @override
+  String get repeatsWeekly => 'Repeats weekly';
+
+  @override
+  String get repeatsMonthly => 'Repeats monthly';
+
+  @override
+  String get repeatsYearly => 'Repeats yearly';
+
+  @override
   String get continueWithEmail => 'Continue with Email';
 
   @override
