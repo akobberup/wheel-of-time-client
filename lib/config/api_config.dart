@@ -7,11 +7,21 @@ class ApiConfig {
   ApiConfig._();
 
   /// Base URL for API requests
-  /// - Debug mode: 10.0.2.2:8080 for Android emulator, localhost:8080 for web and other platforms
+  /// - Debug mode: Configurable via DEV_HOST env var, defaults to 10.0.2.2 for emulator
   /// - Production mode: configurable via environment variable or default
+  ///
+  /// For physical Android device testing, run with:
+  /// flutter run --dart-define=DEV_HOST=192.168.x.x (your computer's IP)
   static String get baseUrl {
     if (kDebugMode) {
       // Development environment
+      // Check for custom dev host (useful for physical device testing)
+      const String devHost = String.fromEnvironment('DEV_HOST', defaultValue: '');
+
+      if (devHost.isNotEmpty) {
+        return 'http://$devHost:8080/aarshjulet';
+      }
+
       // Web always uses localhost
       if (kIsWeb) {
         return 'http://localhost:8080/aarshjulet';

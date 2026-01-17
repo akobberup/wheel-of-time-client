@@ -10,7 +10,6 @@ import 'providers/theme_provider.dart';
 import 'providers/remote_logger_provider.dart';
 import 'providers/fcm_provider.dart';
 import 'router/app_router.dart';
-import 'services/background_task_service.dart';
 import 'services/fcm_service.dart';
 
 void main() async {
@@ -25,10 +24,6 @@ void main() async {
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     await FcmService().initialize();
   }
-
-  // Aktiverer baggrunds-notifikationer på mobile platforme
-  // Planlægger periodiske checks hver 30. minut for nye invitationer og forfaldne opgaver
-  await BackgroundTaskService.initialize();
 
   final container = ProviderContainer();
   final logger = container.read(remoteLoggerProvider);

@@ -12,7 +12,6 @@ import '../providers/notification_provider.dart';
 import '../providers/upcoming_tasks_provider.dart';
 import '../providers/task_list_provider.dart';
 import '../providers/theme_provider.dart';
-import '../services/background_task_service.dart';
 import '../l10n/app_strings.dart';
 
 /// Provider der holder styr på hvilket tab der er valgt i bottom navigation
@@ -29,16 +28,6 @@ class MainNavigationScreen extends ConsumerStatefulWidget {
 
 class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   bool _hasCheckedInitialTab = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // Bed om battery optimization exemption efter første frame er tegnet
-    // Dette sikrer at dialogen vises efter UI'en er klar
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      BackgroundTaskService.requestBatteryOptimizationExemption();
-    });
-  }
 
   /// Tjekker om brugeren har opgavelister og skifter til Lists tab hvis ikke
   /// Dette sikrer at nye brugere guides til at oprette deres første opgaveliste
