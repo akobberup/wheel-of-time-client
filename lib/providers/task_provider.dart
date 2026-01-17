@@ -3,6 +3,7 @@ import '../models/task.dart';
 import '../services/api_service.dart';
 import 'auth_provider.dart';
 import 'image_polling_provider.dart';
+import 'suggestion_cache_provider.dart';
 
 // Provider for tasks in a specific task list
 final tasksProvider = StateNotifierProvider.family<TasksNotifier, AsyncValue<List<TaskResponse>>, int>(
@@ -37,6 +38,10 @@ class TasksNotifier extends StateNotifier<AsyncValue<List<TaskResponse>>> {
   Future<TaskResponse> createTask(CreateTaskRequest request) async {
     final task = await _apiService.createTask(request);
     await loadTasks(); // Refresh the list
+
+    // Ryd suggestion cache så næste gang brugeren beder om forslag,
+    // tager de højde for den nyoprettede task
+    _ref.read(suggestionCacheProvider.notifier).clearCacheForTaskList(taskListId);
 
     // Start polling for billede-generering hvis ingen billede endnu
     if (task.taskImagePath == null || task.taskImagePath!.isEmpty) {

@@ -151,12 +151,17 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog>
     // Brug enten den medsendte tema farve eller brugerens valgte tema
     final primaryColor = widget.themeColor ?? themeState.seedColor;
     final secondaryColor = widget.secondaryThemeColor ?? primaryColor;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    // Lys baggrund baseret på tema farve
-    final backgroundColor = Color.lerp(primaryColor, Colors.white, 0.90) ??
-        primaryColor.withValues(alpha: 0.1);
-    final borderColor = Color.lerp(primaryColor, Colors.black, 0.1) ??
-        primaryColor;
+    // Baggrund baseret på tema farve og dark/light mode
+    final backgroundColor = isDarkMode
+        ? Color.lerp(primaryColor, Colors.black, 0.85) ??
+            primaryColor.withValues(alpha: 0.1)
+        : Color.lerp(primaryColor, Colors.white, 0.90) ??
+            primaryColor.withValues(alpha: 0.1);
+    final borderColor = isDarkMode
+        ? Color.lerp(primaryColor, Colors.white, 0.2) ?? primaryColor
+        : Color.lerp(primaryColor, Colors.black, 0.1) ?? primaryColor;
 
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -206,7 +211,7 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog>
               const SizedBox(height: _verticalSpacing),
 
               // Action buttons
-              _buildActionButtons(colorScheme, primaryColor, strings),
+              _buildActionButtons(colorScheme, primaryColor, strings, isDarkMode),
             ],
           ),
         ),
@@ -305,6 +310,7 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog>
     ColorScheme colorScheme,
     Color primaryColor,
     AppStrings strings,
+    bool isDarkMode,
   ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -341,7 +347,9 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog>
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  primaryColor,
+                  isDarkMode
+                      ? Color.lerp(primaryColor, Colors.white, 0.1) ?? primaryColor
+                      : primaryColor,
                   Color.lerp(primaryColor, Colors.black, 0.15) ?? primaryColor,
                 ],
               ),
