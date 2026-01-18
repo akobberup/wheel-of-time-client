@@ -223,8 +223,8 @@ class _TaskCompletionAnimationState
       }
     }
 
-    // Auto-dismiss after celebration
-    await Future.delayed(const Duration(milliseconds: 2200));
+    // Auto-dismiss efter mindst 5 sekunders visning
+    await Future.delayed(const Duration(milliseconds: 4500));
     if (mounted) {
       _dismiss();
     }
@@ -257,21 +257,25 @@ class _TaskCompletionAnimationState
     // Generate celebration colors based on theme
     final colors = _generateCelebrationColors(themeColor);
 
-    return AnimatedBuilder(
-      animation: Listenable.merge([
-        _mainController,
-        _confettiController,
-        _pulseController,
-        _streakController,
-      ]),
-      builder: (context, child) {
-        return Stack(
-          children: [
-            // Confetti layer
-            ..._buildConfettiParticles(colors),
+    return GestureDetector(
+      // Luk animation ved tap hvor som helst på skærmen
+      onTap: _dismiss,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedBuilder(
+        animation: Listenable.merge([
+          _mainController,
+          _confettiController,
+          _pulseController,
+          _streakController,
+        ]),
+        builder: (context, child) {
+          return Stack(
+            children: [
+              // Confetti layer
+              ..._buildConfettiParticles(colors),
 
-            // Main celebration content
-            Center(
+              // Main celebration content
+              Center(
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: Column(
@@ -299,7 +303,8 @@ class _TaskCompletionAnimationState
             ),
           ],
         );
-      },
+        },
+      ),
     );
   }
 
