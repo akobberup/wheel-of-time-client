@@ -30,9 +30,11 @@ git add pubspec.yaml
 git commit -m "Bump version til ${NEW_VERSION} (major release)"
 git tag "v${NEW_VERSION}"
 
+# Push commit og tag
+echo "📤 Pusher til remote..."
+git push origin main
+git push origin "v${NEW_VERSION}"
+
 echo "✅ Version opdateret til ${FULL_VERSION}"
-echo "📦 Tag v${NEW_VERSION} oprettet"
-echo ""
-echo "Kør følgende for at pushe:"
-echo "  git push origin main"
-echo "  git push origin v${NEW_VERSION}"
+echo "📦 Tag v${NEW_VERSION} oprettet og pushet"
+echo "🚀 GitHub Actions burde nu bygge Android-klienten"
