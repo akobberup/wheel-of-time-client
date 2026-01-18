@@ -8,7 +8,7 @@ import '../common/animated_card.dart';
 import 'task_card_badges.dart';
 
 /// Kompakt kort til future opgaver - minimalistisk design med tema-farver
-class CompactTaskCard extends StatelessWidget {
+class CompactTaskCard extends StatefulWidget {
   final UpcomingTaskOccurrenceResponse occurrence;
   final bool isClickable;
   final VoidCallback? onTap;
@@ -21,6 +21,13 @@ class CompactTaskCard extends StatelessWidget {
     this.onTap,
     this.isDesktop = false,
   });
+
+  @override
+  State<CompactTaskCard> createState() => _CompactTaskCardState();
+}
+
+class _CompactTaskCardState extends State<CompactTaskCard> {
+  bool _isHovered = false;
 
   /// Parser hex color string til Color objekt
   Color _parseHexColor(String? hexString, Color fallback) {
@@ -45,101 +52,112 @@ class CompactTaskCard extends StatelessWidget {
 
     // Brug task listens tema farve
     final primaryColor = _parseHexColor(
-      occurrence.taskListPrimaryColor,
+      widget.occurrence.taskListPrimaryColor,
       colorScheme.primary,
     );
 
-    // Responsive dimensioner
-    final avatarSize = isDesktop ? 36.0 : 42.0;
-    final horizontalPadding = isDesktop ? 12.0 : 14.0;
-    final verticalPadding = isDesktop ? 10.0 : 12.0;
+    // Responsive dimensioner - større avatars for bedre billedvisning
+    final avatarSize = widget.isDesktop ? 48.0 : 56.0;
+    final horizontalPadding = widget.isDesktop ? 12.0 : 14.0;
+    final verticalPadding = widget.isDesktop ? 10.0 : 12.0;
 
-    return AnimatedCard(
-      onTap: isClickable ? onTap : null,
-      baseElevation: isDesktop ? 1 : 1,
-      pressedElevation: isDesktop ? 3 : 2,
-      margin: EdgeInsets.only(bottom: isDesktop ? 0 : 6),
-      borderRadius: isDesktop ? 12 : 14,
-      borderSide: BorderSide(
-        color: primaryColor.withValues(alpha: 0.15),
-        width: 1,
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: horizontalPadding,
-          vertical: verticalPadding,
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedCard(
+        onTap: widget.isClickable ? widget.onTap : null,
+        baseElevation: widget.isDesktop ? 1 : 1,
+        pressedElevation: widget.isDesktop ? 3 : 2,
+        margin: EdgeInsets.only(bottom: widget.isDesktop ? 0 : 6),
+        borderRadius: widget.isDesktop ? 12 : 14,
+        borderSide: BorderSide(
+          color: primaryColor.withValues(alpha: 0.15),
+          width: 1,
         ),
-        child: Row(
-          children: [
-            // Cirkulær avatar med billede eller tema-farve
-            _buildAvatar(context, primaryColor, avatarSize),
-            SizedBox(width: isDesktop ? 10 : 12),
-            // Titel og liste
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Titel - uppercase for konsistens
-                  Text(
-                    occurrence.taskName.toUpperCase(),
-                    style: (isDesktop
-                            ? theme.textTheme.labelLarge
-                            : theme.textTheme.titleSmall)
-                        ?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                      color: colorScheme.onSurface,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: verticalPadding,
+          ),
+          child: Row(
+            children: [
+              // Cirkulær avatar med billede eller tema-farve
+              _buildAvatar(context, primaryColor, avatarSize),
+              SizedBox(width: widget.isDesktop ? 10 : 12),
+              // Titel og liste
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Titel - uppercase for konsistens
+                    Text(
+                      widget.occurrence.taskName.toUpperCase(),
+                      style: (widget.isDesktop
+                              ? theme.textTheme.labelLarge
+                              : theme.textTheme.titleSmall)
+                          ?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                        color: colorScheme.onSurface,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 3),
-                  // Task list label
-                  _buildTaskListLabel(context, primaryColor),
-                ],
+                    const SizedBox(height: 3),
+                    // Task list label
+                    _buildTaskListLabel(context, primaryColor),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(width: isDesktop ? 8 : 10),
-            // Dato badge
-            DueDateBadge(dueDate: occurrence.dueDate, compact: true),
-          ],
+              SizedBox(width: widget.isDesktop ? 8 : 10),
+              // Dato badge
+              DueDateBadge(dueDate: widget.occurrence.dueDate, compact: true),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildAvatar(BuildContext context, Color primaryColor, double size) {
-    final imagePath = occurrence.taskImagePath;
+    final imagePath = widget.occurrence.taskImagePath;
 
     // Lysere baggrund baseret på tema farve
     final backgroundColor = Color.lerp(primaryColor, Colors.white, 0.75) ??
         primaryColor.withValues(alpha: 0.2);
 
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: backgroundColor,
-        border: Border.all(
-          color: primaryColor.withValues(alpha: 0.3),
-          width: 1.5,
+    return AnimatedScale(
+      scale: _isHovered ? 1.05 : 1.0,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: backgroundColor,
+          border: Border.all(
+            color: primaryColor.withValues(alpha: 0.3),
+            width: 1.5,
+          ),
         ),
+        clipBehavior: Clip.antiAlias,
+        child: imagePath != null && imagePath.isNotEmpty
+            ? Padding(
+                // Minimal padding for at vise mere af billedet
+                padding: const EdgeInsets.all(2),
+                child: ClipOval(
+                  child: CachedNetworkImage(
+                    imageUrl: ApiConfig.getImageUrl(imagePath),
+                    fit: BoxFit.cover, // Fyld cirklen helt
+                    placeholder: (context, url) => _buildAvatarPlaceholder(primaryColor),
+                    errorWidget: (context, url, error) => _buildAvatarPlaceholder(primaryColor),
+                  ),
+                ),
+              )
+            : _buildAvatarPlaceholder(primaryColor),
       ),
-      clipBehavior: Clip.antiAlias,
-      child: imagePath != null && imagePath.isNotEmpty
-          ? Padding(
-              // Lille padding inde i cirklen for bedre visning
-              padding: const EdgeInsets.all(4),
-              child: CachedNetworkImage(
-                imageUrl: ApiConfig.getImageUrl(imagePath),
-                fit: BoxFit.contain, // Vis hele billedet uden beskæring
-                placeholder: (context, url) => _buildAvatarPlaceholder(primaryColor),
-                errorWidget: (context, url, error) => _buildAvatarPlaceholder(primaryColor),
-              ),
-            )
-          : _buildAvatarPlaceholder(primaryColor),
     );
   }
 
@@ -148,7 +166,7 @@ class CompactTaskCard extends StatelessWidget {
       child: Icon(
         Icons.task_alt_rounded,
         color: color.withValues(alpha: 0.6),
-        size: isDesktop ? 18 : 22,
+        size: widget.isDesktop ? 22 : 26,
       ),
     );
   }
@@ -165,16 +183,16 @@ class CompactTaskCard extends StatelessWidget {
       children: [
         Icon(
           Icons.folder_outlined,
-          size: isDesktop ? 11 : 12,
+          size: widget.isDesktop ? 11 : 12,
           color: labelTextColor.withValues(alpha: 0.7),
         ),
         const SizedBox(width: 4),
         Flexible(
           child: Text(
-            occurrence.taskListName,
+            widget.occurrence.taskListName,
             style: TextStyle(
               color: labelTextColor,
-              fontSize: isDesktop ? 11 : 12,
+              fontSize: widget.isDesktop ? 11 : 12,
               fontWeight: FontWeight.w500,
             ),
             maxLines: 1,

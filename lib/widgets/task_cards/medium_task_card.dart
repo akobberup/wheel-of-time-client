@@ -9,7 +9,7 @@ import 'task_urgency.dart';
 import 'task_card_badges.dart';
 
 /// Medium-kort til tomorrow og this week - vertikalt design med tema-farver
-class MediumTaskCard extends StatelessWidget {
+class MediumTaskCard extends StatefulWidget {
   final UpcomingTaskOccurrenceResponse occurrence;
   final bool isClickable;
   final TaskUrgency urgency;
@@ -24,6 +24,13 @@ class MediumTaskCard extends StatelessWidget {
     this.onTap,
     this.isDesktop = false,
   });
+
+  @override
+  State<MediumTaskCard> createState() => _MediumTaskCardState();
+}
+
+class _MediumTaskCardState extends State<MediumTaskCard> {
+  bool _isHovered = false;
 
   /// Parser hex color string til Color objekt
   Color _parseHexColor(String? hexString, Color fallback) {
@@ -48,39 +55,43 @@ class MediumTaskCard extends StatelessWidget {
 
     // Brug task listens tema farve
     final primaryColor = _parseHexColor(
-      occurrence.taskListPrimaryColor,
+      widget.occurrence.taskListPrimaryColor,
       colorScheme.primary,
     );
     final secondaryColor = _parseHexColor(
-      occurrence.taskListSecondaryColor,
+      widget.occurrence.taskListSecondaryColor,
       colorScheme.secondary,
     );
 
-    return AnimatedCard(
-      onTap: isClickable ? onTap : null,
-      baseElevation: isDesktop ? 2 : 2,
-      pressedElevation: isDesktop ? 6 : 4,
-      margin: EdgeInsets.only(bottom: isDesktop ? 0 : 6),
-      borderSide: BorderSide(
-        color: primaryColor.withValues(alpha: 0.25),
-        width: 1.5,
-      ),
-      borderRadius: isDesktop ? 14 : 16,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Billede sektion - kompakt version af hero
-          _buildImageSection(context, primaryColor, secondaryColor),
-          // Indhold sektion
-          _buildContentSection(context, primaryColor),
-        ],
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedCard(
+        onTap: widget.isClickable ? widget.onTap : null,
+        baseElevation: widget.isDesktop ? 2 : 2,
+        pressedElevation: widget.isDesktop ? 6 : 4,
+        margin: EdgeInsets.only(bottom: widget.isDesktop ? 0 : 6),
+        borderSide: BorderSide(
+          color: primaryColor.withValues(alpha: 0.25),
+          width: 1.5,
+        ),
+        borderRadius: widget.isDesktop ? 14 : 16,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Billede sektion - kompakt version af hero
+            _buildImageSection(context, primaryColor, secondaryColor),
+            // Indhold sektion
+            _buildContentSection(context, primaryColor),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildImageSection(BuildContext context, Color primaryColor, Color secondaryColor) {
-    final imagePath = occurrence.taskImagePath;
-    final imageHeight = isDesktop ? 90.0 : 110.0;
+    final imagePath = widget.occurrence.taskImagePath;
+    final imageHeight = widget.isDesktop ? 140.0 : 160.0;
 
     // Lysere baggrund baseret på tema farve
     final backgroundColor = Color.lerp(primaryColor, Colors.white, 0.75) ??
@@ -88,8 +99,8 @@ class MediumTaskCard extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(isDesktop ? 14 : 16),
-        topRight: Radius.circular(isDesktop ? 14 : 16),
+        topLeft: Radius.circular(widget.isDesktop ? 14 : 16),
+        topRight: Radius.circular(widget.isDesktop ? 14 : 16),
       ),
       child: Container(
         height: imageHeight,
@@ -106,32 +117,23 @@ class MediumTaskCard extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            // Centreret billede med afrundede hjørner
+            // Billede med zoom-effekt og minimal padding
             if (imagePath != null && imagePath.isNotEmpty)
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.all(isDesktop ? 12.0 : 16.0),
-                  child: ClipRRect(
-                    // Afrundet hjørner der matcher kortets design-sprog
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      // Subtil ramme omkring billedet
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: primaryColor.withValues(alpha: 0.15),
-                          width: 1,
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(9), // 1px mindre for border
-                        child: CachedNetworkImage(
-                          imageUrl: ApiConfig.getImageUrl(imagePath),
-                          fit: BoxFit.contain,
-                          placeholder: (context, url) => _buildPlaceholder(primaryColor),
-                          errorWidget: (context, url, error) => _buildPlaceholder(primaryColor),
-                        ),
-                      ),
+              Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: AnimatedScale(
+                    scale: _isHovered ? 1.03 : 1.0,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOut,
+                    child: CachedNetworkImage(
+                      imageUrl: ApiConfig.getImageUrl(imagePath),
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      placeholder: (context, url) => _buildPlaceholder(primaryColor),
+                      errorWidget: (context, url, error) => _buildPlaceholder(primaryColor),
                     ),
                   ),
                 ),
@@ -139,20 +141,40 @@ class MediumTaskCard extends StatelessWidget {
             else
               Center(child: _buildPlaceholder(primaryColor)),
 
+            // Subtil gradient overlay for badge-synlighed (hjørner)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: Container(
+                  margin: const EdgeInsets.all(6.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    gradient: LinearGradient(
+                      begin: Alignment.topRight,
+                      end: const Alignment(0.0, 0.5),
+                      colors: [
+                        Colors.black.withValues(alpha: 0.2),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
             // Due date badge øverst til højre
             Positioned(
-              top: isDesktop ? 8 : 10,
-              right: isDesktop ? 8 : 10,
-              child: DueDateBadge(dueDate: occurrence.dueDate, compact: true),
+              top: widget.isDesktop ? 12 : 14,
+              right: widget.isDesktop ? 12 : 14,
+              child: DueDateBadge(dueDate: widget.occurrence.dueDate, compact: true),
             ),
 
             // Streak badge øverst til venstre
-            if (occurrence.currentStreak != null && occurrence.currentStreak!.isActive)
+            if (widget.occurrence.currentStreak != null && widget.occurrence.currentStreak!.isActive)
               Positioned(
-                top: isDesktop ? 8 : 10,
-                left: isDesktop ? 8 : 10,
+                top: widget.isDesktop ? 12 : 14,
+                left: widget.isDesktop ? 12 : 14,
                 child: AnimatedStreakBadge(
-                  streakCount: occurrence.currentStreak!.streakCount,
+                  streakCount: widget.occurrence.currentStreak!.streakCount,
                   isAtRisk: false,
                   small: true,
                 ),
@@ -167,14 +189,14 @@ class MediumTaskCard extends StatelessWidget {
     return Icon(
       Icons.task_alt_rounded,
       color: color.withValues(alpha: 0.4),
-      size: isDesktop ? 36 : 44,
+      size: widget.isDesktop ? 36 : 44,
     );
   }
 
   Widget _buildContentSection(BuildContext context, Color primaryColor) {
     final theme = Theme.of(context);
 
-    final titleStyle = isDesktop
+    final titleStyle = widget.isDesktop
         ? theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.bold,
             letterSpacing: 0.8,
@@ -186,8 +208,8 @@ class MediumTaskCard extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 12.0 : 14.0,
-        vertical: isDesktop ? 10.0 : 12.0,
+        horizontal: widget.isDesktop ? 12.0 : 14.0,
+        vertical: widget.isDesktop ? 10.0 : 12.0,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -196,13 +218,13 @@ class MediumTaskCard extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              occurrence.taskName.toUpperCase(),
+              widget.occurrence.taskName.toUpperCase(),
               style: titleStyle,
               textAlign: TextAlign.center,
               maxLines: 1,
             ),
           ),
-          SizedBox(height: isDesktop ? 6 : 8),
+          SizedBox(height: widget.isDesktop ? 6 : 8),
           // Task list label
           _buildTaskListLabel(context, primaryColor),
         ],
@@ -221,8 +243,8 @@ class MediumTaskCard extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 8 : 10,
-        vertical: isDesktop ? 3 : 4,
+        horizontal: widget.isDesktop ? 8 : 10,
+        vertical: widget.isDesktop ? 3 : 4,
       ),
       decoration: BoxDecoration(
         color: labelBackground,
@@ -233,16 +255,16 @@ class MediumTaskCard extends StatelessWidget {
         children: [
           Icon(
             Icons.folder_outlined,
-            size: isDesktop ? 11 : 12,
+            size: widget.isDesktop ? 11 : 12,
             color: labelTextColor,
           ),
-          SizedBox(width: isDesktop ? 3 : 4),
+          SizedBox(width: widget.isDesktop ? 3 : 4),
           Flexible(
             child: Text(
-              occurrence.taskListName,
+              widget.occurrence.taskListName,
               style: TextStyle(
                 color: labelTextColor,
-                fontSize: isDesktop ? 10 : 11,
+                fontSize: widget.isDesktop ? 10 : 11,
                 fontWeight: FontWeight.w500,
               ),
               maxLines: 1,
