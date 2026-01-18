@@ -58,6 +58,17 @@ enum DayOfWeek {
   static DayOfWeek fromJson(String value) => DayOfWeek.values.byName(value);
 }
 
+/// Gender values (matches Java Gender enum)
+/// Used for user profile personalization
+enum Gender {
+  MALE,
+  FEMALE,
+  OTHER;
+
+  String toJson() => name;
+  static Gender fromJson(String value) => Gender.values.byName(value);
+}
+
 /// Months of the year (matches Java Month)
 /// Used for seasonal scheduling
 enum Month {

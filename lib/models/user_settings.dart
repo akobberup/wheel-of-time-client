@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/material.dart';
+import 'enums.dart';
 
 part 'user_settings.freezed.dart';
 part 'user_settings.g.dart';
@@ -16,6 +17,9 @@ class UserSettingsResponse with _$UserSettingsResponse {
     @Default(true) bool pushInvitations,
     @Default(true) bool pushInvitationResponses,
     @Default(true) bool pushTaskReminders,
+    // Personlige oplysninger
+    Gender? gender,
+    int? birthYear,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _UserSettingsResponse;
@@ -34,6 +38,9 @@ class UpdateUserSettingsRequest with _$UpdateUserSettingsRequest {
     bool? pushInvitations,
     bool? pushInvitationResponses,
     bool? pushTaskReminders,
+    // Personlige oplysninger
+    Gender? gender,
+    int? birthYear,
   }) = _UpdateUserSettingsRequest;
 
   factory UpdateUserSettingsRequest.fromJson(Map<String, dynamic> json) =>
@@ -46,6 +53,8 @@ class UpdateUserSettingsRequest with _$UpdateUserSettingsRequest {
         if (pushInvitations != null) 'pushInvitations': pushInvitations,
         if (pushInvitationResponses != null) 'pushInvitationResponses': pushInvitationResponses,
         if (pushTaskReminders != null) 'pushTaskReminders': pushTaskReminders,
+        if (gender != null) 'gender': gender!.toJson(),
+        if (birthYear != null) 'birthYear': birthYear,
       };
 }
 

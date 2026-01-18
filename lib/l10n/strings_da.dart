@@ -1797,4 +1797,35 @@ class StringsDa extends AppStrings {
       'Tryk "OK" for at åbne indstillinger, find derefter '
       '"Årshjulet" og vælg "Ingen begrænsninger" eller '
       '"Tillad baggrundsaktivitet".';
+
+  // Gender and Birth Year
+  @override
+  String get gender => 'Køn';
+
+  @override
+  String get birthYear => 'Fødselsår';
+
+  @override
+  String get genderMale => 'Mand';
+
+  @override
+  String get genderFemale => 'Kvinde';
+
+  @override
+  String get genderOther => 'Andet';
+
+  @override
+  String get notSpecified => 'Ikke angivet';
+
+  @override
+  String get selectBirthYear => 'Vælg fødselsår';
+
+  @override
+  String get thisHelpsPersonalize => 'Dette hjælper os med at personalisere dine forslag';
+
+  @override
+  String get personalizeYourExperience => 'Personalisér din oplevelse';
+
+  @override
+  String get continueButton => 'Fortsæt';
 }

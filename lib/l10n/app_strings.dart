@@ -674,6 +674,18 @@ abstract class AppStrings {
   String get batteryOptimizationTitle;
   String get batteryOptimizationMessage;
 
+  // Gender and Birth Year
+  String get gender;
+  String get birthYear;
+  String get genderMale;
+  String get genderFemale;
+  String get genderOther;
+  String get notSpecified;
+  String get selectBirthYear;
+  String get thisHelpsPersonalize;
+  String get personalizeYourExperience;
+  String get continueButton;
+
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);
 

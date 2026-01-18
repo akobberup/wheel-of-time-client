@@ -7,7 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
+import '../providers/user_settings_provider.dart';
+import '../models/user_settings.dart';
+import '../models/enums.dart';
 import '../l10n/app_strings.dart';
+import '../widgets/common/gender_selector.dart';
+import '../widgets/common/year_picker_sheet.dart';
 
 /// Profil skærm med varm, organisk æstetik.
 ///
@@ -21,6 +26,7 @@ class ProfileScreen extends ConsumerWidget {
     final strings = AppStrings.of(context);
     final authState = ref.watch(authProvider);
     final themeState = ref.watch(themeProvider);
+    final userSettingsAsync = ref.watch(userSettingsProvider);
     final seedColor = themeState.seedColor;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final user = authState.user;
@@ -136,6 +142,34 @@ class ProfileScreen extends ConsumerWidget {
                         isDark: isDark,
                         subtitle: strings.cannotBeChanged,
                       ),
+                      Divider(
+                        height: 24,
+                        color: isDark ? Colors.white12 : Colors.black.withOpacity(0.06),
+                      ),
+                      // Køn
+                      _ProfileInfoRow(
+                        icon: Icons.person_outline_rounded,
+                        label: strings.gender,
+                        value: userSettingsAsync.whenOrNull(
+                          data: (settings) => _getGenderDisplayName(settings.gender, strings),
+                        ) ?? strings.notSpecified,
+                        seedColor: seedColor,
+                        isDark: isDark,
+                      ),
+                      Divider(
+                        height: 24,
+                        color: isDark ? Colors.white12 : Colors.black.withOpacity(0.06),
+                      ),
+                      // Fødselsår
+                      _ProfileInfoRow(
+                        icon: Icons.cake_outlined,
+                        label: strings.birthYear,
+                        value: userSettingsAsync.whenOrNull(
+                          data: (settings) => settings.birthYear?.toString(),
+                        ) ?? strings.notSpecified,
+                        seedColor: seedColor,
+                        isDark: isDark,
+                      ),
                     ],
                   ),
                 ),
@@ -150,15 +184,14 @@ class ProfileScreen extends ConsumerWidget {
                   isDark: isDark,
                   seedColor: seedColor,
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(strings.editProfileComingSoon),
-                        backgroundColor: seedColor,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                    final currentSettings = userSettingsAsync.valueOrNull;
+                    _showEditProfileSheet(
+                      context: context,
+                      ref: ref,
+                      isDark: isDark,
+                      seedColor: seedColor,
+                      currentGender: currentSettings?.gender,
+                      currentBirthYear: currentSettings?.birthYear,
                     );
                   },
                   child: _ActionRow(
@@ -202,6 +235,44 @@ class ProfileScreen extends ConsumerWidget {
     if (parts.isEmpty) return '?';
     if (parts.length == 1) return parts[0][0].toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  /// Konverterer Gender enum til lokaliseret display navn
+  String _getGenderDisplayName(Gender? gender, AppStrings strings) {
+    if (gender == null) return strings.notSpecified;
+    switch (gender) {
+      case Gender.MALE:
+        return strings.genderMale;
+      case Gender.FEMALE:
+        return strings.genderFemale;
+      case Gender.OTHER:
+        return strings.genderOther;
+    }
+  }
+
+  /// Viser bottom sheet til redigering af profil (køn og fødselsår)
+  void _showEditProfileSheet({
+    required BuildContext context,
+    required WidgetRef ref,
+    required bool isDark,
+    required Color seedColor,
+    required Gender? currentGender,
+    required int? currentBirthYear,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1E1E22) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      isScrollControlled: true,
+      builder: (context) => _EditProfileSheet(
+        isDark: isDark,
+        seedColor: seedColor,
+        currentGender: currentGender,
+        currentBirthYear: currentBirthYear,
+      ),
+    );
   }
 }
 
@@ -534,6 +605,234 @@ class _ActionRow extends StatelessWidget {
           color: isDark ? Colors.white38 : Colors.black26,
         ),
       ],
+    );
+  }
+}
+
+/// Bottom sheet til redigering af køn og fødselsår
+class _EditProfileSheet extends ConsumerStatefulWidget {
+  final bool isDark;
+  final Color seedColor;
+  final Gender? currentGender;
+  final int? currentBirthYear;
+
+  const _EditProfileSheet({
+    required this.isDark,
+    required this.seedColor,
+    required this.currentGender,
+    required this.currentBirthYear,
+  });
+
+  @override
+  ConsumerState<_EditProfileSheet> createState() => _EditProfileSheetState();
+}
+
+class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
+  late Gender? _gender;
+  late int? _birthYear;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _gender = widget.currentGender;
+    _birthYear = widget.currentBirthYear;
+  }
+
+  Future<void> _saveProfile() async {
+    setState(() => _isLoading = true);
+
+    try {
+      await ref.read(userSettingsProvider.notifier).updateSettings(
+        UpdateUserSettingsRequest(
+          gender: _gender,
+          birthYear: _birthYear,
+        ),
+      );
+
+      if (mounted) {
+        final strings = AppStrings.of(context);
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.profileUpdated),
+            backgroundColor: widget.seedColor,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        final strings = AppStrings.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.failedToUpdateProfile),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
+    final textColor = widget.isDark ? Colors.white : const Color(0xFF1A1A1A);
+    final subtitleColor = widget.isDark ? Colors.white54 : Colors.black45;
+
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 24,
+          right: 24,
+          top: 24,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Titel
+            Center(
+              child: Text(
+                strings.editProfile,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: textColor,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: Text(
+                strings.thisHelpsPersonalize,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: subtitleColor,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Køn vælger
+            GenderSelector(
+              selectedGender: _gender,
+              onChanged: (gender) => setState(() => _gender = gender),
+              themeColor: widget.seedColor,
+            ),
+
+            const SizedBox(height: 20),
+
+            // Fødselsår
+            Text(
+              strings.birthYear,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: subtitleColor,
+              ),
+            ),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: () {
+                showYearPickerSheet(
+                  context: context,
+                  selectedYear: _birthYear,
+                  seedColor: widget.seedColor,
+                  onYearSelected: (year) => setState(() => _birthYear = year),
+                );
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: widget.isDark
+                        ? Colors.white.withValues(alpha: 0.12)
+                        : Colors.black.withValues(alpha: 0.12),
+                  ),
+                  color: widget.isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.black.withValues(alpha: 0.02),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.cake_outlined,
+                      size: 20,
+                      color: _birthYear != null ? widget.seedColor : subtitleColor,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _birthYear?.toString() ?? strings.selectBirthYear,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: _birthYear != null ? textColor : subtitleColor,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: subtitleColor,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 28),
+
+            // Gem-knap
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _saveProfile,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: widget.seedColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 0,
+                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text(
+                        strings.save,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

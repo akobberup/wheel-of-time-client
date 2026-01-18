@@ -1823,4 +1823,35 @@ class StringsEn extends AppStrings {
       'Tap "OK" to open settings, then find '
       '"Aarshjulet" and select "No restrictions" or '
       '"Allow background activity".';
+
+  // Gender and Birth Year
+  @override
+  String get gender => 'Gender';
+
+  @override
+  String get birthYear => 'Birth year';
+
+  @override
+  String get genderMale => 'Male';
+
+  @override
+  String get genderFemale => 'Female';
+
+  @override
+  String get genderOther => 'Other';
+
+  @override
+  String get notSpecified => 'Not specified';
+
+  @override
+  String get selectBirthYear => 'Select birth year';
+
+  @override
+  String get thisHelpsPersonalize => 'This helps us personalize your suggestions';
+
+  @override
+  String get personalizeYourExperience => 'Personalize your experience';
+
+  @override
+  String get continueButton => 'Continue';
 }
