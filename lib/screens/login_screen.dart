@@ -143,9 +143,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         _FormCard(
                           isDark: isDark,
                           seedColor: seedColor,
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
+                          child: AutofillGroup(
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 // Navn felt ved registrering
@@ -162,6 +163,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                             icon: Icons.person_outline_rounded,
                                             seedColor: seedColor,
                                             isDark: isDark,
+                                            autofillHints: const [AutofillHints.name],
                                             validator: (value) {
                                               if (!_isLoginMode &&
                                                   (value == null || value.trim().isEmpty)) {
@@ -181,6 +183,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   keyboardType: TextInputType.emailAddress,
                                   seedColor: seedColor,
                                   isDark: isDark,
+                                  autofillHints: const [AutofillHints.email, AutofillHints.username],
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
                                       return AppStrings.of(context).pleaseEnterEmail;
@@ -201,6 +204,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   obscureText: _obscurePassword,
                                   seedColor: seedColor,
                                   isDark: isDark,
+                                  autofillHints: _isLoginMode
+                                      ? const [AutofillHints.password]
+                                      : const [AutofillHints.newPassword],
                                   suffixIcon: ExcludeFocus(
                                   child: IconButton(
                                     icon: Icon(
@@ -289,6 +295,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 ),
                               ],
                             ),
+                          ),
                           ),
                         ),
 
@@ -1084,6 +1091,7 @@ class _WarmTextField extends StatefulWidget {
   final void Function(String)? onFieldSubmitted;
   final Color seedColor;
   final bool isDark;
+  final Iterable<String>? autofillHints;
 
   const _WarmTextField({
     required this.controller,
@@ -1096,6 +1104,7 @@ class _WarmTextField extends StatefulWidget {
     this.onFieldSubmitted,
     required this.seedColor,
     required this.isDark,
+    this.autofillHints,
   });
 
   @override
@@ -1132,6 +1141,7 @@ class _WarmTextFieldState extends State<_WarmTextField> {
         keyboardType: widget.keyboardType,
         validator: widget.validator,
         onFieldSubmitted: widget.onFieldSubmitted,
+        autofillHints: widget.autofillHints,
         style: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.w500,
