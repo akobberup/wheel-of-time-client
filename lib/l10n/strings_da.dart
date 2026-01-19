@@ -646,6 +646,29 @@ class StringsDa extends AppStrings {
   @override
   String get sendInvite => 'Send invitation';
 
+  // Contact picker
+  @override
+  String get selectFromContacts => 'Vælg fra kontakter';
+
+  @override
+  String get errorLoadingContacts => 'Kunne ikke indlæse kontakter';
+
+  @override
+  String get contactPermissionRequired => 'Kontaktadgang påkrævet';
+
+  @override
+  String get contactPermissionDescription =>
+      'For at vælge en kontakt skal du give appen adgang til dine kontakter i Indstillinger.';
+
+  @override
+  String get openSettings => 'Åbn indstillinger';
+
+  @override
+  String get contactHasNoEmail => 'Denne kontakt har ingen e-mailadresse';
+
+  @override
+  String get selectEmailAddress => 'Vælg e-mailadresse';
+
   // Task fields
   @override
   String get taskListName => 'Opgavelistenavn';

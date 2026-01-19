@@ -1,7 +1,10 @@
 // Design Version: 1.0.0 (se docs/DESIGN_GUIDELINES.md)
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../providers/invitation_provider.dart';
 import '../providers/theme_provider.dart';
 import '../models/invitation.dart';
@@ -42,6 +45,10 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog>
   bool _isLoading = false;
   bool _isSuccess = false;
 
+  // Kontakt-picker state
+  Contact? _selectedContact;
+  bool _isLoadingContacts = false;
+
   // Animation controllers
   late AnimationController _scaleController;
   late Animation<double> _scaleAnimation;
@@ -70,6 +77,184 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog>
     _emailController.dispose();
     _scaleController.dispose();
     super.dispose();
+  }
+
+  /// Åbner kontakt-picker og håndterer valg af kontakt.
+  Future<void> _pickContact() async {
+    final strings = AppStrings.of(context);
+
+    setState(() => _isLoadingContacts = true);
+
+    try {
+      // Tjek og anmod om permission
+      final hasPermission = await FlutterContacts.requestPermission();
+
+      if (!hasPermission) {
+        if (mounted) {
+          setState(() => _isLoadingContacts = false);
+          _showPermissionDeniedDialog(strings);
+        }
+        return;
+      }
+
+      // Åbn native kontakt-picker
+      final contact = await FlutterContacts.openExternalPick();
+
+      if (contact == null) {
+        if (mounted) {
+          setState(() => _isLoadingContacts = false);
+        }
+        return;
+      }
+
+      // Hent fuld kontakt med email-adresser
+      final fullContact = await FlutterContacts.getContact(
+        contact.id,
+        withProperties: true,
+      );
+
+      if (!mounted) return;
+
+      if (fullContact == null || fullContact.emails.isEmpty) {
+        setState(() => _isLoadingContacts = false);
+        _showNoEmailSnackbar(strings);
+        return;
+      }
+
+      // Håndter kontakt med én eller flere emails
+      if (fullContact.emails.length == 1) {
+        _selectContactEmail(fullContact, fullContact.emails.first.address);
+      } else {
+        _showEmailSelectionSheet(fullContact, strings);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoadingContacts = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.errorLoadingContacts),
+            backgroundColor: Colors.red.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  /// Viser dialog når permission er nægtet.
+  void _showPermissionDeniedDialog(AppStrings strings) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(strings.contactPermissionRequired),
+        content: Text(strings.contactPermissionDescription),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(strings.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              // Åbn app-indstillinger
+              launchUrl(Uri.parse('app-settings:'));
+            },
+            child: Text(strings.openSettings),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Viser snackbar når kontakt ikke har email.
+  void _showNoEmailSnackbar(AppStrings strings) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(strings.contactHasNoEmail),
+        backgroundColor: Colors.orange.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  /// Viser bottom sheet til valg af email når kontakt har flere.
+  void _showEmailSelectionSheet(Contact contact, AppStrings strings) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final themeState = ref.read(themeProvider);
+    final primaryColor = widget.themeColor ?? themeState.seedColor;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 16),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colorScheme.outline.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                strings.selectEmailAddress,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ...contact.emails.map((email) => ListTile(
+              leading: Icon(
+                Icons.email_outlined,
+                color: primaryColor,
+              ),
+              title: Text(email.address),
+              subtitle: email.label.name.isNotEmpty
+                  ? Text(email.label.name)
+                  : null,
+              onTap: () {
+                Navigator.of(context).pop();
+                _selectContactEmail(contact, email.address);
+              },
+            )),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Vælger en kontakt med den angivne email.
+  void _selectContactEmail(Contact contact, String email) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _selectedContact = contact;
+      _emailController.text = email;
+      _isLoadingContacts = false;
+    });
+  }
+
+  /// Rydder den valgte kontakt men beholder email.
+  void _clearSelectedContact() {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _selectedContact = null;
+    });
   }
 
   /// Validates the email format.
@@ -203,6 +388,9 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog>
                       ),
                     ),
                     const SizedBox(height: 16),
+                    // Vis kontakt-kort hvis en kontakt er valgt
+                    if (_selectedContact != null)
+                      _buildSelectedContactCard(primaryColor, colorScheme),
                     _buildEmailField(colorScheme, primaryColor, strings),
                   ],
                 ),
@@ -269,6 +457,94 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog>
     );
   }
 
+  /// Bygger kontakt-kort der vises over email-feltet når en kontakt er valgt.
+  Widget _buildSelectedContactCard(Color primaryColor, ColorScheme colorScheme) {
+    final contact = _selectedContact!;
+    final displayName = contact.displayName.isNotEmpty
+        ? contact.displayName
+        : _emailController.text;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOutCubic,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: primaryColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: primaryColor.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          // Avatar
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: primaryColor.withValues(alpha: 0.15),
+            ),
+            child: Center(
+              child: Text(
+                displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
+                style: TextStyle(
+                  color: primaryColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Navn og email
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  displayName,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (_emailController.text.isNotEmpty &&
+                    _emailController.text != displayName)
+                  Text(
+                    _emailController.text,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
+            ),
+          ),
+          // Fjern-knap
+          IconButton(
+            icon: Icon(
+              Icons.close,
+              size: 20,
+              color: colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+            onPressed: _clearSelectedContact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(
+              minWidth: 32,
+              minHeight: 32,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Bygger email input felt med tema farve på fokus
   Widget _buildEmailField(
     ColorScheme colorScheme,
@@ -294,6 +570,28 @@ class _SendInvitationDialogState extends ConsumerState<SendInvitationDialog>
           Icons.email_outlined,
           color: primaryColor.withValues(alpha: 0.7),
         ),
+        // Kontakt-ikon som suffix (kun på mobile platforme)
+        suffixIcon: !kIsWeb
+            ? IconButton(
+                icon: _isLoadingContacts
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            primaryColor.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      )
+                    : Icon(
+                        Icons.contacts_outlined,
+                        color: primaryColor.withValues(alpha: 0.7),
+                      ),
+                onPressed: _isLoadingContacts ? null : _pickContact,
+                tooltip: strings.selectFromContacts,
+              )
+            : null,
         filled: true,
         fillColor: colorScheme.surface,
       ),

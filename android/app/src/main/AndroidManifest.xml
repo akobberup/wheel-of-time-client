@@ -5,6 +5,9 @@
     <!-- Camera permission for image_picker -->
     <uses-permission android:name="android.permission.CAMERA"/>
 
+    <!-- Kontakt-adgang til invitationer -->
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+
     <!-- Notification permissions -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.VIBRATE"/>

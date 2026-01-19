@@ -664,6 +664,29 @@ class StringsEn extends AppStrings {
   @override
   String get sendInvite => 'Send Invite';
 
+  // Contact picker
+  @override
+  String get selectFromContacts => 'Select from contacts';
+
+  @override
+  String get errorLoadingContacts => 'Failed to load contacts';
+
+  @override
+  String get contactPermissionRequired => 'Contact access required';
+
+  @override
+  String get contactPermissionDescription =>
+      'To select a contact, you need to grant the app access to your contacts in Settings.';
+
+  @override
+  String get openSettings => 'Open Settings';
+
+  @override
+  String get contactHasNoEmail => 'This contact has no email address';
+
+  @override
+  String get selectEmailAddress => 'Select email address';
+
   // Task fields
   @override
   String get taskListName => 'Task List Name';

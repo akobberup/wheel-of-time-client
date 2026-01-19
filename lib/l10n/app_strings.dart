@@ -217,6 +217,15 @@ abstract class AppStrings {
   String get enterEmailToInvite;
   String get sendInvite;
 
+  // Contact picker
+  String get selectFromContacts;
+  String get errorLoadingContacts;
+  String get contactPermissionRequired;
+  String get contactPermissionDescription;
+  String get openSettings;
+  String get contactHasNoEmail;
+  String get selectEmailAddress;
+
   // Task fields
   String get taskListName;
   String get alarmTime;
