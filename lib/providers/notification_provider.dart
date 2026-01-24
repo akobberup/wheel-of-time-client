@@ -29,9 +29,6 @@ class NotificationNotifier extends StateNotifier<AsyncValue<List<AppNotification
   final ApiService _apiService;
   final int? _currentUserId;
   final NotificationService _notificationService = NotificationService();
-
-  // Track previously seen notification IDs to detect new ones
-  final Set<String> _seenNotificationIds = {};
   bool _isFirstLoad = true;
 
   NotificationNotifier(
@@ -109,30 +106,8 @@ class NotificationNotifier extends StateNotifier<AsyncValue<List<AppNotification
       // Sort notifications by timestamp (newest first)
       notifications.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
-      // Show platform notifications
-      if (_isFirstLoad) {
-        // On first load, only show notifications for tasks that are due
-        // This prevents spamming users with old invitation notifications on app start
-        for (final notification in notifications) {
-          if (notification.type == NotificationType.TASK_DUE) {
-            developer.log('Task due notification on app start: ${notification.task?.name}', name: 'NotificationNotifier');
-            await _notificationService.showNotification(notification);
-          }
-        }
-        _isFirstLoad = false;
-      } else {
-        // On subsequent loads, show notifications for all new items
-        for (final notification in notifications) {
-          if (!_seenNotificationIds.contains(notification.id)) {
-            developer.log('New notification detected: ${notification.type.name}', name: 'NotificationNotifier');
-            await _notificationService.showNotification(notification);
-          }
-        }
-      }
-
-      // Update seen notification IDs
-      _seenNotificationIds.clear();
-      _seenNotificationIds.addAll(notifications.map((n) => n.id));
+      // Push notifications håndteres af backend via FCM - vi viser kun in-app liste her
+      _isFirstLoad = false;
 
       // Tjek om notifier stadig er mounted før state opdateres
       if (mounted) {
@@ -169,11 +144,8 @@ class NotificationNotifier extends StateNotifier<AsyncValue<List<AppNotification
 
   /// Dismiss a notification (remove it from the list)
   Future<void> dismissNotification(String notificationId) async {
-    // Cancel the platform notification
+    // Cancel the platform notification (hvis den er vist via FCM)
     await _notificationService.cancelNotification(notificationId);
-
-    // Remove from seen IDs
-    _seenNotificationIds.remove(notificationId);
 
     state.whenData((notifications) {
       final updatedNotifications = notifications.where((n) => n.id != notificationId).toList();
