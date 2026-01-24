@@ -35,6 +35,7 @@ class TaskResponse with _$TaskResponse {
     String? taskImagePath,
     @Default(0) int totalCompletions,
     StreakResponse? currentStreak,
+    @Default(false) bool scheduleFromCompletion,
   }) = _TaskResponse;
 
   factory TaskResponse.fromJson(Map<String, dynamic> json) =>
@@ -53,6 +54,7 @@ class CreateTaskRequest with _$CreateTaskRequest {
     required DateTime firstRunDate,
     int? sortOrder,
     int? taskImageId,
+    bool? scheduleFromCompletion,
   }) = _CreateTaskRequest;
 
   factory CreateTaskRequest.fromJson(Map<String, dynamic> json) =>
@@ -70,6 +72,7 @@ class UpdateTaskRequest with _$UpdateTaskRequest {
     int? sortOrder,
     bool? isActive,
     int? taskImageId,
+    bool? scheduleFromCompletion,
   }) = _UpdateTaskRequest;
 
   factory UpdateTaskRequest.fromJson(Map<String, dynamic> json) =>

@@ -47,6 +47,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog>
   DateTime _firstRunDate = DateTime.now();
   LocalTime? _alarmTime;
   int? _completionWindowHours;
+  bool _scheduleFromCompletion = true;
   bool _isLoading = false;
 
   // Progressive disclosure: controls whether optional fields are visible
@@ -269,6 +270,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog>
       firstRunDate: _firstRunDate,
       alarmAtTimeOfDay: _alarmTime,
       completionWindowHours: _completionWindowHours,
+      scheduleFromCompletion: _scheduleFromCompletion ? true : null,
     );
 
     setState(() => _isLoading = true);
@@ -467,6 +469,21 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog>
             RecurrenceEditor(
               initialSchedule: _schedule,
               onScheduleChanged: _updateSchedule,
+            ),
+            const SizedBox(height: 8),
+
+            // Schedule from completion toggle
+            SwitchListTile(
+              title: Text(strings.scheduleFromCompletionLabel),
+              subtitle: Text(
+                strings.scheduleFromCompletionDescription,
+                style: const TextStyle(fontSize: 12),
+              ),
+              value: _scheduleFromCompletion,
+              activeTrackColor: primaryColor.withValues(alpha: 0.5),
+              activeThumbColor: primaryColor,
+              onChanged: (value) => setState(() => _scheduleFromCompletion = value),
+              contentPadding: EdgeInsets.zero,
             ),
             const SizedBox(height: 16),
 

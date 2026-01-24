@@ -39,6 +39,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
   late final TextEditingController _descriptionController;
   late TaskSchedule _schedule;
   late bool _isActive;
+  late bool _scheduleFromCompletion;
   LocalTime? _alarmTime;
   int? _completionWindowHours;
   bool _isLoading = false;
@@ -56,6 +57,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
     );
     _schedule = widget.task.schedule;
     _isActive = widget.task.isActive;
+    _scheduleFromCompletion = widget.task.scheduleFromCompletion;
     _alarmTime = widget.task.alarmAtTimeOfDay;
     _completionWindowHours = widget.task.completionWindowHours;
 
@@ -95,6 +97,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
       isActive: _isActive,
       alarmAtTimeOfDay: _alarmTime,
       completionWindowHours: _completionWindowHours,
+      scheduleFromCompletion: _scheduleFromCompletion,
     );
 
     final result = await ref.read(tasksProvider(widget.task.taskListId).notifier).updateTask(
@@ -167,6 +170,21 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                   setState(() => _schedule = schedule);
                 },
                 themeColor: primaryColor,
+              ),
+              const SizedBox(height: 8),
+
+              // Schedule from completion toggle
+              SwitchListTile(
+                title: Text(strings.scheduleFromCompletionLabel),
+                subtitle: Text(
+                  strings.scheduleFromCompletionDescription,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                value: _scheduleFromCompletion,
+                activeTrackColor: primaryColor.withValues(alpha: 0.5),
+                activeThumbColor: primaryColor,
+                onChanged: (value) => setState(() => _scheduleFromCompletion = value),
+                contentPadding: EdgeInsets.zero,
               ),
               const SizedBox(height: 16),
 

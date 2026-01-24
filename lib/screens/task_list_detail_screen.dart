@@ -792,7 +792,7 @@ class _ThemedTaskCard extends ConsumerWidget {
         secondaryThemeColor: secondaryColor,
       ),
     );
-    if (result == true) {
+    if (result == true && context.mounted) {
       ref.read(tasksProvider(taskListId).notifier).loadTasks();
     }
   }

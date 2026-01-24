@@ -695,6 +695,10 @@ abstract class AppStrings {
   String get personalizeYourExperience;
   String get continueButton;
 
+  // Schedule from Completion
+  String get scheduleFromCompletionLabel;
+  String get scheduleFromCompletionDescription;
+
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);
 

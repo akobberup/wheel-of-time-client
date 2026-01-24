@@ -1877,4 +1877,12 @@ class StringsEn extends AppStrings {
 
   @override
   String get continueButton => 'Continue';
+
+  // Schedule from Completion
+  @override
+  String get scheduleFromCompletionLabel => 'Schedule from completion';
+
+  @override
+  String get scheduleFromCompletionDescription =>
+      'Next occurrence is calculated from when you complete, not from the scheduled date';
 }

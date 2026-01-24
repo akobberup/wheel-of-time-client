@@ -37,6 +37,7 @@ mixin _$TaskResponse {
   String? get taskImagePath => throw _privateConstructorUsedError;
   int get totalCompletions => throw _privateConstructorUsedError;
   StreakResponse? get currentStreak => throw _privateConstructorUsedError;
+  bool get scheduleFromCompletion => throw _privateConstructorUsedError;
 
   /// Serializes this TaskResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -69,7 +70,8 @@ abstract class $TaskResponseCopyWith<$Res> {
       bool isActive,
       String? taskImagePath,
       int totalCompletions,
-      StreakResponse? currentStreak});
+      StreakResponse? currentStreak,
+      bool scheduleFromCompletion});
 
   $TaskScheduleCopyWith<$Res> get schedule;
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
@@ -106,6 +108,7 @@ class _$TaskResponseCopyWithImpl<$Res, $Val extends TaskResponse>
     Object? taskImagePath = freezed,
     Object? totalCompletions = null,
     Object? currentStreak = freezed,
+    Object? scheduleFromCompletion = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -168,6 +171,10 @@ class _$TaskResponseCopyWithImpl<$Res, $Val extends TaskResponse>
           ? _value.currentStreak
           : currentStreak // ignore: cast_nullable_to_non_nullable
               as StreakResponse?,
+      scheduleFromCompletion: null == scheduleFromCompletion
+          ? _value.scheduleFromCompletion
+          : scheduleFromCompletion // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 
@@ -233,7 +240,8 @@ abstract class _$$TaskResponseImplCopyWith<$Res>
       bool isActive,
       String? taskImagePath,
       int totalCompletions,
-      StreakResponse? currentStreak});
+      StreakResponse? currentStreak,
+      bool scheduleFromCompletion});
 
   @override
   $TaskScheduleCopyWith<$Res> get schedule;
@@ -271,6 +279,7 @@ class __$$TaskResponseImplCopyWithImpl<$Res>
     Object? taskImagePath = freezed,
     Object? totalCompletions = null,
     Object? currentStreak = freezed,
+    Object? scheduleFromCompletion = null,
   }) {
     return _then(_$TaskResponseImpl(
       id: null == id
@@ -333,6 +342,10 @@ class __$$TaskResponseImplCopyWithImpl<$Res>
           ? _value.currentStreak
           : currentStreak // ignore: cast_nullable_to_non_nullable
               as StreakResponse?,
+      scheduleFromCompletion: null == scheduleFromCompletion
+          ? _value.scheduleFromCompletion
+          : scheduleFromCompletion // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -355,7 +368,8 @@ class _$TaskResponseImpl implements _TaskResponse {
       this.isActive = true,
       this.taskImagePath,
       this.totalCompletions = 0,
-      this.currentStreak});
+      this.currentStreak,
+      this.scheduleFromCompletion = false});
 
   factory _$TaskResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$TaskResponseImplFromJson(json);
@@ -395,10 +409,13 @@ class _$TaskResponseImpl implements _TaskResponse {
   final int totalCompletions;
   @override
   final StreakResponse? currentStreak;
+  @override
+  @JsonKey()
+  final bool scheduleFromCompletion;
 
   @override
   String toString() {
-    return 'TaskResponse(id: $id, name: $name, description: $description, taskListId: $taskListId, taskListName: $taskListName, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, firstRunDate: $firstRunDate, nextDueDate: $nextDueDate, sortOrder: $sortOrder, isActive: $isActive, taskImagePath: $taskImagePath, totalCompletions: $totalCompletions, currentStreak: $currentStreak)';
+    return 'TaskResponse(id: $id, name: $name, description: $description, taskListId: $taskListId, taskListName: $taskListName, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, firstRunDate: $firstRunDate, nextDueDate: $nextDueDate, sortOrder: $sortOrder, isActive: $isActive, taskImagePath: $taskImagePath, totalCompletions: $totalCompletions, currentStreak: $currentStreak, scheduleFromCompletion: $scheduleFromCompletion)';
   }
 
   @override
@@ -433,7 +450,9 @@ class _$TaskResponseImpl implements _TaskResponse {
             (identical(other.totalCompletions, totalCompletions) ||
                 other.totalCompletions == totalCompletions) &&
             (identical(other.currentStreak, currentStreak) ||
-                other.currentStreak == currentStreak));
+                other.currentStreak == currentStreak) &&
+            (identical(other.scheduleFromCompletion, scheduleFromCompletion) ||
+                other.scheduleFromCompletion == scheduleFromCompletion));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -454,7 +473,8 @@ class _$TaskResponseImpl implements _TaskResponse {
       isActive,
       taskImagePath,
       totalCompletions,
-      currentStreak);
+      currentStreak,
+      scheduleFromCompletion);
 
   /// Create a copy of TaskResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -488,7 +508,8 @@ abstract class _TaskResponse implements TaskResponse {
       final bool isActive,
       final String? taskImagePath,
       final int totalCompletions,
-      final StreakResponse? currentStreak}) = _$TaskResponseImpl;
+      final StreakResponse? currentStreak,
+      final bool scheduleFromCompletion}) = _$TaskResponseImpl;
 
   factory _TaskResponse.fromJson(Map<String, dynamic> json) =
       _$TaskResponseImpl.fromJson;
@@ -525,6 +546,8 @@ abstract class _TaskResponse implements TaskResponse {
   int get totalCompletions;
   @override
   StreakResponse? get currentStreak;
+  @override
+  bool get scheduleFromCompletion;
 
   /// Create a copy of TaskResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -551,6 +574,7 @@ mixin _$CreateTaskRequest {
   DateTime get firstRunDate => throw _privateConstructorUsedError;
   int? get sortOrder => throw _privateConstructorUsedError;
   int? get taskImageId => throw _privateConstructorUsedError;
+  bool? get scheduleFromCompletion => throw _privateConstructorUsedError;
 
   /// Serializes this CreateTaskRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -577,7 +601,8 @@ abstract class $CreateTaskRequestCopyWith<$Res> {
       int? completionWindowHours,
       DateTime firstRunDate,
       int? sortOrder,
-      int? taskImageId});
+      int? taskImageId,
+      bool? scheduleFromCompletion});
 
   $TaskScheduleCopyWith<$Res> get schedule;
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
@@ -607,6 +632,7 @@ class _$CreateTaskRequestCopyWithImpl<$Res, $Val extends CreateTaskRequest>
     Object? firstRunDate = null,
     Object? sortOrder = freezed,
     Object? taskImageId = freezed,
+    Object? scheduleFromCompletion = freezed,
   }) {
     return _then(_value.copyWith(
       name: null == name
@@ -645,6 +671,10 @@ class _$CreateTaskRequestCopyWithImpl<$Res, $Val extends CreateTaskRequest>
           ? _value.taskImageId
           : taskImageId // ignore: cast_nullable_to_non_nullable
               as int?,
+      scheduleFromCompletion: freezed == scheduleFromCompletion
+          ? _value.scheduleFromCompletion
+          : scheduleFromCompletion // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ) as $Val);
   }
 
@@ -690,7 +720,8 @@ abstract class _$$CreateTaskRequestImplCopyWith<$Res>
       int? completionWindowHours,
       DateTime firstRunDate,
       int? sortOrder,
-      int? taskImageId});
+      int? taskImageId,
+      bool? scheduleFromCompletion});
 
   @override
   $TaskScheduleCopyWith<$Res> get schedule;
@@ -720,6 +751,7 @@ class __$$CreateTaskRequestImplCopyWithImpl<$Res>
     Object? firstRunDate = null,
     Object? sortOrder = freezed,
     Object? taskImageId = freezed,
+    Object? scheduleFromCompletion = freezed,
   }) {
     return _then(_$CreateTaskRequestImpl(
       name: null == name
@@ -758,6 +790,10 @@ class __$$CreateTaskRequestImplCopyWithImpl<$Res>
           ? _value.taskImageId
           : taskImageId // ignore: cast_nullable_to_non_nullable
               as int?,
+      scheduleFromCompletion: freezed == scheduleFromCompletion
+          ? _value.scheduleFromCompletion
+          : scheduleFromCompletion // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ));
   }
 }
@@ -774,7 +810,8 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
       this.completionWindowHours,
       required this.firstRunDate,
       this.sortOrder,
-      this.taskImageId});
+      this.taskImageId,
+      this.scheduleFromCompletion});
 
   factory _$CreateTaskRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreateTaskRequestImplFromJson(json);
@@ -799,10 +836,12 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
   final int? sortOrder;
   @override
   final int? taskImageId;
+  @override
+  final bool? scheduleFromCompletion;
 
   @override
   String toString() {
-    return 'CreateTaskRequest(name: $name, description: $description, taskListId: $taskListId, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, firstRunDate: $firstRunDate, sortOrder: $sortOrder, taskImageId: $taskImageId)';
+    return 'CreateTaskRequest(name: $name, description: $description, taskListId: $taskListId, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, firstRunDate: $firstRunDate, sortOrder: $sortOrder, taskImageId: $taskImageId, scheduleFromCompletion: $scheduleFromCompletion)';
   }
 
   @override
@@ -826,7 +865,9 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
             (identical(other.sortOrder, sortOrder) ||
                 other.sortOrder == sortOrder) &&
             (identical(other.taskImageId, taskImageId) ||
-                other.taskImageId == taskImageId));
+                other.taskImageId == taskImageId) &&
+            (identical(other.scheduleFromCompletion, scheduleFromCompletion) ||
+                other.scheduleFromCompletion == scheduleFromCompletion));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -841,7 +882,8 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
       completionWindowHours,
       firstRunDate,
       sortOrder,
-      taskImageId);
+      taskImageId,
+      scheduleFromCompletion);
 
   /// Create a copy of CreateTaskRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -870,7 +912,8 @@ abstract class _CreateTaskRequest implements CreateTaskRequest {
       final int? completionWindowHours,
       required final DateTime firstRunDate,
       final int? sortOrder,
-      final int? taskImageId}) = _$CreateTaskRequestImpl;
+      final int? taskImageId,
+      final bool? scheduleFromCompletion}) = _$CreateTaskRequestImpl;
 
   factory _CreateTaskRequest.fromJson(Map<String, dynamic> json) =
       _$CreateTaskRequestImpl.fromJson;
@@ -895,6 +938,8 @@ abstract class _CreateTaskRequest implements CreateTaskRequest {
   int? get sortOrder;
   @override
   int? get taskImageId;
+  @override
+  bool? get scheduleFromCompletion;
 
   /// Create a copy of CreateTaskRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -920,6 +965,7 @@ mixin _$UpdateTaskRequest {
   int? get sortOrder => throw _privateConstructorUsedError;
   bool? get isActive => throw _privateConstructorUsedError;
   int? get taskImageId => throw _privateConstructorUsedError;
+  bool? get scheduleFromCompletion => throw _privateConstructorUsedError;
 
   /// Serializes this UpdateTaskRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -945,7 +991,8 @@ abstract class $UpdateTaskRequestCopyWith<$Res> {
       int? completionWindowHours,
       int? sortOrder,
       bool? isActive,
-      int? taskImageId});
+      int? taskImageId,
+      bool? scheduleFromCompletion});
 
   $TaskScheduleCopyWith<$Res>? get schedule;
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
@@ -974,6 +1021,7 @@ class _$UpdateTaskRequestCopyWithImpl<$Res, $Val extends UpdateTaskRequest>
     Object? sortOrder = freezed,
     Object? isActive = freezed,
     Object? taskImageId = freezed,
+    Object? scheduleFromCompletion = freezed,
   }) {
     return _then(_value.copyWith(
       name: freezed == name
@@ -1008,6 +1056,10 @@ class _$UpdateTaskRequestCopyWithImpl<$Res, $Val extends UpdateTaskRequest>
           ? _value.taskImageId
           : taskImageId // ignore: cast_nullable_to_non_nullable
               as int?,
+      scheduleFromCompletion: freezed == scheduleFromCompletion
+          ? _value.scheduleFromCompletion
+          : scheduleFromCompletion // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ) as $Val);
   }
 
@@ -1056,7 +1108,8 @@ abstract class _$$UpdateTaskRequestImplCopyWith<$Res>
       int? completionWindowHours,
       int? sortOrder,
       bool? isActive,
-      int? taskImageId});
+      int? taskImageId,
+      bool? scheduleFromCompletion});
 
   @override
   $TaskScheduleCopyWith<$Res>? get schedule;
@@ -1085,6 +1138,7 @@ class __$$UpdateTaskRequestImplCopyWithImpl<$Res>
     Object? sortOrder = freezed,
     Object? isActive = freezed,
     Object? taskImageId = freezed,
+    Object? scheduleFromCompletion = freezed,
   }) {
     return _then(_$UpdateTaskRequestImpl(
       name: freezed == name
@@ -1119,6 +1173,10 @@ class __$$UpdateTaskRequestImplCopyWithImpl<$Res>
           ? _value.taskImageId
           : taskImageId // ignore: cast_nullable_to_non_nullable
               as int?,
+      scheduleFromCompletion: freezed == scheduleFromCompletion
+          ? _value.scheduleFromCompletion
+          : scheduleFromCompletion // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ));
   }
 }
@@ -1134,7 +1192,8 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
       this.completionWindowHours,
       this.sortOrder,
       this.isActive,
-      this.taskImageId});
+      this.taskImageId,
+      this.scheduleFromCompletion});
 
   factory _$UpdateTaskRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$UpdateTaskRequestImplFromJson(json);
@@ -1157,10 +1216,12 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
   final bool? isActive;
   @override
   final int? taskImageId;
+  @override
+  final bool? scheduleFromCompletion;
 
   @override
   String toString() {
-    return 'UpdateTaskRequest(name: $name, description: $description, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, sortOrder: $sortOrder, isActive: $isActive, taskImageId: $taskImageId)';
+    return 'UpdateTaskRequest(name: $name, description: $description, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, sortOrder: $sortOrder, isActive: $isActive, taskImageId: $taskImageId, scheduleFromCompletion: $scheduleFromCompletion)';
   }
 
   @override
@@ -1182,7 +1243,9 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
             (identical(other.isActive, isActive) ||
                 other.isActive == isActive) &&
             (identical(other.taskImageId, taskImageId) ||
-                other.taskImageId == taskImageId));
+                other.taskImageId == taskImageId) &&
+            (identical(other.scheduleFromCompletion, scheduleFromCompletion) ||
+                other.scheduleFromCompletion == scheduleFromCompletion));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1196,7 +1259,8 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
       completionWindowHours,
       sortOrder,
       isActive,
-      taskImageId);
+      taskImageId,
+      scheduleFromCompletion);
 
   /// Create a copy of UpdateTaskRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -1224,7 +1288,8 @@ abstract class _UpdateTaskRequest implements UpdateTaskRequest {
       final int? completionWindowHours,
       final int? sortOrder,
       final bool? isActive,
-      final int? taskImageId}) = _$UpdateTaskRequestImpl;
+      final int? taskImageId,
+      final bool? scheduleFromCompletion}) = _$UpdateTaskRequestImpl;
 
   factory _UpdateTaskRequest.fromJson(Map<String, dynamic> json) =
       _$UpdateTaskRequestImpl.fromJson;
@@ -1247,6 +1312,8 @@ abstract class _UpdateTaskRequest implements UpdateTaskRequest {
   bool? get isActive;
   @override
   int? get taskImageId;
+  @override
+  bool? get scheduleFromCompletion;
 
   /// Create a copy of UpdateTaskRequest
   /// with the given fields replaced by the non-null parameter values.

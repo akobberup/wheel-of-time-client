@@ -1851,4 +1851,12 @@ class StringsDa extends AppStrings {
 
   @override
   String get continueButton => 'Fortsæt';
+
+  // Schedule from Completion
+  @override
+  String get scheduleFromCompletionLabel => 'Beregn fra gennemførelse';
+
+  @override
+  String get scheduleFromCompletionDescription =>
+      'Næste forekomst beregnes fra hvornår du gennemfører, ikke fra den planlagte dato';
 }

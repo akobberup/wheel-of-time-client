@@ -30,6 +30,7 @@ _$TaskResponseImpl _$$TaskResponseImplFromJson(Map<String, dynamic> json) =>
           ? null
           : StreakResponse.fromJson(
               json['currentStreak'] as Map<String, dynamic>),
+      scheduleFromCompletion: json['scheduleFromCompletion'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$$TaskResponseImplToJson(_$TaskResponseImpl instance) =>
@@ -50,6 +51,7 @@ Map<String, dynamic> _$$TaskResponseImplToJson(_$TaskResponseImpl instance) =>
       'taskImagePath': instance.taskImagePath,
       'totalCompletions': instance.totalCompletions,
       'currentStreak': instance.currentStreak,
+      'scheduleFromCompletion': instance.scheduleFromCompletion,
     };
 
 _$CreateTaskRequestImpl _$$CreateTaskRequestImplFromJson(
@@ -66,6 +68,7 @@ _$CreateTaskRequestImpl _$$CreateTaskRequestImplFromJson(
       firstRunDate: DateTime.parse(json['firstRunDate'] as String),
       sortOrder: (json['sortOrder'] as num?)?.toInt(),
       taskImageId: (json['taskImageId'] as num?)?.toInt(),
+      scheduleFromCompletion: json['scheduleFromCompletion'] as bool?,
     );
 
 Map<String, dynamic> _$$CreateTaskRequestImplToJson(
@@ -81,6 +84,7 @@ Map<String, dynamic> _$$CreateTaskRequestImplToJson(
       'firstRunDate': instance.firstRunDate.toIso8601String(),
       'sortOrder': instance.sortOrder,
       'taskImageId': instance.taskImageId,
+      'scheduleFromCompletion': instance.scheduleFromCompletion,
     };
 
 _$UpdateTaskRequestImpl _$$UpdateTaskRequestImplFromJson(
@@ -96,6 +100,7 @@ _$UpdateTaskRequestImpl _$$UpdateTaskRequestImplFromJson(
       sortOrder: (json['sortOrder'] as num?)?.toInt(),
       isActive: json['isActive'] as bool?,
       taskImageId: (json['taskImageId'] as num?)?.toInt(),
+      scheduleFromCompletion: json['scheduleFromCompletion'] as bool?,
     );
 
 Map<String, dynamic> _$$UpdateTaskRequestImplToJson(
@@ -111,6 +116,7 @@ Map<String, dynamic> _$$UpdateTaskRequestImplToJson(
       'sortOrder': instance.sortOrder,
       'isActive': instance.isActive,
       'taskImageId': instance.taskImageId,
+      'scheduleFromCompletion': instance.scheduleFromCompletion,
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(
