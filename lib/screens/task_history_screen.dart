@@ -182,7 +182,11 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
 
   List<TaskInstanceResponse> _sortInstancesByDate(List<TaskInstanceResponse> instances) {
     return List<TaskInstanceResponse>.from(instances)
-      ..sort((a, b) => b.completedDateTime.compareTo(a.completedDateTime));
+      ..sort((a, b) {
+        final aTime = a.completedDateTime ?? a.dismissedDateTime ?? DateTime(0);
+        final bTime = b.completedDateTime ?? b.dismissedDateTime ?? DateTime(0);
+        return bTime.compareTo(aTime);
+      });
   }
 
   /// Bygger summary header med organisk design og subtil gradient
@@ -324,7 +328,10 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
 
     final cutoffDate = _getCutoffDate(_selectedFilter);
     return instances
-        .where((instance) => instance.completedDateTime.isAfter(cutoffDate))
+        .where((instance) {
+          final eventTime = instance.completedDateTime ?? instance.dismissedDateTime;
+          return eventTime != null && eventTime.isAfter(cutoffDate);
+        })
         .toList();
   }
 
@@ -358,6 +365,7 @@ class _HistoryCard extends StatelessWidget {
   static const Color _pendingColor = Color(0xFF3B82F6);   // Blå
   static const Color _completedColor = Color(0xFF22C55E); // Grøn
   static const Color _expiredColor = Color(0xFFEF4444);   // Rød
+  static const Color _dismissedColor = Color(0xFFF59E0B); // Orange
 
   const _HistoryCard({
     required this.instance,
@@ -374,6 +382,8 @@ class _HistoryCard extends StatelessWidget {
         return _completedColor;
       case TaskInstanceStatus.expired:
         return _expiredColor;
+      case TaskInstanceStatus.dismissed:
+        return _dismissedColor;
     }
   }
 
@@ -386,6 +396,8 @@ class _HistoryCard extends StatelessWidget {
         return Icons.check_circle_rounded;
       case TaskInstanceStatus.expired:
         return Icons.cancel_rounded;
+      case TaskInstanceStatus.dismissed:
+        return Icons.event_busy_rounded;
     }
   }
 
@@ -509,8 +521,10 @@ class _HistoryCard extends StatelessWidget {
   Widget _buildUserInfo(AppStrings strings) {
     final dateFormat = DateFormat.yMMMd();
     final timeFormat = DateFormat.jm();
-    final completedDate = dateFormat.format(instance.completedDateTime);
-    final completedTime = timeFormat.format(instance.completedDateTime);
+    // Brug completedDateTime, dismissedDateTime eller nu som fallback
+    final eventTime = instance.completedDateTime ?? instance.dismissedDateTime ?? DateTime.now();
+    final eventDate = dateFormat.format(eventTime);
+    final eventTimeStr = timeFormat.format(eventTime);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -527,7 +541,7 @@ class _HistoryCard extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          '${strings.completedOn(completedDate)} ${strings.completedAt(completedTime)}',
+          '${strings.completedOn(eventDate)} ${strings.completedAt(eventTimeStr)}',
           style: TextStyle(
             fontSize: 14,
             color: isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B),
@@ -546,6 +560,8 @@ class _HistoryCard extends StatelessWidget {
         return strings.completed;
       case TaskInstanceStatus.expired:
         return strings.expired;
+      case TaskInstanceStatus.dismissed:
+        return strings.skipped;
     }
   }
 

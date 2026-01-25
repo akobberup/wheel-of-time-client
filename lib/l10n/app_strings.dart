@@ -146,6 +146,7 @@ abstract class AppStrings {
   String get invite;
   String get pending;
   String get completed;
+  String get skipped;
 
   // Confirmation messages
   String get confirmDeleteMessage;

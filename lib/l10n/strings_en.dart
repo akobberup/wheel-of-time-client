@@ -450,6 +450,9 @@ class StringsEn extends AppStrings {
   @override
   String get completed => 'Completed';
 
+  @override
+  String get skipped => 'Skipped';
+
   // Confirmation messages
   @override
   String get confirmDeleteMessage => 'This action cannot be undone.';

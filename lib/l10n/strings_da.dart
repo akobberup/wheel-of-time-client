@@ -448,6 +448,9 @@ class StringsDa extends AppStrings {
   @override
   String get completed => 'Fuldført';
 
+  @override
+  String get skipped => 'Sprunget over';
+
   // Confirmation messages
   @override
   String get confirmDeleteMessage => 'Denne handling kan ikke fortrydes.';

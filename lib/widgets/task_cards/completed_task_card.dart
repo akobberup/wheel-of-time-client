@@ -259,12 +259,12 @@ class CompletedTaskCard extends StatelessWidget {
   String _getTimeText(AppStrings strings) {
     if (_isExpired) {
       // For expired tasks, show when it was due
-      final dueDate = taskInstance.dueDate ?? taskInstance.completedDateTime;
+      final dueDate = taskInstance.dueDate ?? taskInstance.completedDateTime ?? DateTime.now();
       return strings.expiredAgo(_formatTimeAgo(dueDate, strings));
     } else {
-      // For completed tasks, show when it was completed
-      return strings.completedAgo(
-          _formatTimeAgo(taskInstance.completedDateTime, strings));
+      // For completed/dismissed tasks, show when it happened
+      final eventTime = taskInstance.completedDateTime ?? taskInstance.dismissedDateTime ?? DateTime.now();
+      return strings.completedAgo(_formatTimeAgo(eventTime, strings));
     }
   }
 
