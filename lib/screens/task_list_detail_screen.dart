@@ -13,6 +13,7 @@ import '../widgets/create_task_dialog.dart';
 import '../widgets/create_task_from_template_dialog.dart';
 import '../widgets/edit_task_dialog.dart';
 import '../widgets/common/contextual_delete_dialog.dart';
+import '../widgets/common/inline_action_buttons.dart';
 import '../config/api_config.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/empty_state.dart';
@@ -520,50 +521,39 @@ class _ThemedTaskCard extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Titel og menu
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    task.name.toUpperCase(),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 15,
-                                      letterSpacing: 0.5,
-                                      color: isDark
-                                          ? const Color(0xFFF5F5F5)
-                                          : const Color(0xFF1A1A1A),
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                _buildPopupMenu(context, ref),
-                              ],
+                            // Titel
+                            Text(
+                              task.name.toUpperCase(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                                letterSpacing: 0.5,
+                                color: isDark
+                                    ? const Color(0xFFF5F5F5)
+                                    : const Color(0xFF1A1A1A),
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                             // Beskrivelse
                             if (task.description != null &&
                                 task.description!.isNotEmpty) ...[
                               const SizedBox(height: 6),
-                              Expanded(
-                                child: Text(
-                                  task.description!,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: isDark
-                                        ? const Color(0xFFA0A0A0)
-                                        : const Color(0xFF6B6B6B),
-                                    fontSize: 13,
-                                  ),
+                              Text(
+                                task.description!,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: isDark
+                                      ? const Color(0xFFA0A0A0)
+                                      : const Color(0xFF6B6B6B),
+                                  fontSize: 13,
                                 ),
                               ),
-                            ] else
-                              const Spacer(),
-                            // Metadata chips
-                            const SizedBox(height: 8),
-                            _buildMetadataRow(context),
+                            ],
+                            const Spacer(),
+                            // Metadata chips og inline action buttons
+                            _buildMetadataAndActionsRow(context, ref),
                           ],
                         ),
                       ),
@@ -648,32 +638,52 @@ class _ThemedTaskCard extends ConsumerWidget {
     );
   }
 
-  /// Bygger metadata række med tema-farvede chips
-  Widget _buildMetadataRow(BuildContext context) {
+  /// Bygger metadata række med tema-farvede chips og inline action buttons
+  Widget _buildMetadataAndActionsRow(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 6,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        // Schedule chip
-        _buildThemedChip(
-          icon: Icons.repeat_rounded,
-          label: _formatSchedule(task.schedule),
+        // Metadata chips (venstre side)
+        Expanded(
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: [
+              // Schedule chip
+              _buildThemedChip(
+                icon: Icons.repeat_rounded,
+                label: _formatSchedule(task.schedule),
+              ),
+              // Streak chip hvis aktiv
+              if (task.currentStreak != null &&
+                  task.currentStreak!.streakCount > 0)
+                _buildThemedChip(
+                  icon: Icons.local_fire_department,
+                  label: strings.streakCount(task.currentStreak!.streakCount),
+                  isHighlight: true,
+                ),
+              // Completions chip
+              if (task.totalCompletions > 0)
+                _buildThemedChip(
+                  icon: Icons.check_circle_outline,
+                  label: '${task.totalCompletions}x',
+                ),
+            ],
+          ),
         ),
-        // Streak chip hvis aktiv
-        if (task.currentStreak != null && task.currentStreak!.streakCount > 0)
-          _buildThemedChip(
-            icon: Icons.local_fire_department,
-            label: strings.streakCount(task.currentStreak!.streakCount),
-            isHighlight: true,
-          ),
-        // Completions chip
-        if (task.totalCompletions > 0)
-          _buildThemedChip(
-            icon: Icons.check_circle_outline,
-            label: '${task.totalCompletions}x',
-          ),
+        // Inline action buttons (højre side)
+        const SizedBox(width: 8),
+        InlineActionButtons(
+          onEdit: () => _handleEdit(context, ref),
+          onDelete: () => _handleDelete(context, ref),
+          themeColor: primaryColor,
+          isDark: isDark,
+          itemName: task.name,
+          editLabel: strings.edit,
+          deleteLabel: strings.delete,
+        ),
       ],
     );
   }
@@ -715,49 +725,6 @@ class _ThemedTaskCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildPopupMenu(BuildContext context, WidgetRef ref) {
-    final strings = AppStrings.of(context);
-
-    return PopupMenuButton<String>(
-      icon: Icon(
-        Icons.more_vert,
-        color: isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B),
-        size: 20,
-      ),
-      itemBuilder: (context) => [
-        _buildEditMenuItem(strings),
-        _buildDeleteMenuItem(strings),
-      ],
-      onSelected: (value) => _handleMenuSelection(context, ref, value),
-    );
-  }
-
-  PopupMenuItem<String> _buildEditMenuItem(AppStrings strings) {
-    return PopupMenuItem(
-      value: 'edit',
-      child: Row(
-        children: [
-          const Icon(Icons.edit, size: 20),
-          const SizedBox(width: 12),
-          Text(strings.edit),
-        ],
-      ),
-    );
-  }
-
-  PopupMenuItem<String> _buildDeleteMenuItem(AppStrings strings) {
-    return PopupMenuItem(
-      value: 'delete',
-      child: Row(
-        children: [
-          const Icon(Icons.delete, size: 20, color: Colors.red),
-          const SizedBox(width: 12),
-          Text(strings.delete, style: const TextStyle(color: Colors.red)),
-        ],
-      ),
-    );
-  }
-
   String _formatSchedule(TaskSchedule schedule) {
     return schedule.when(
       interval: (unit, delta, description, activeMonths) => description,
@@ -769,18 +736,6 @@ class _ThemedTaskCard extends ConsumerWidget {
     context.push(
       '/lists/$taskListId/tasks/${task.id}?name=${Uri.encodeComponent(task.name)}',
     );
-  }
-
-  Future<void> _handleMenuSelection(
-    BuildContext context,
-    WidgetRef ref,
-    String value,
-  ) async {
-    if (value == 'edit') {
-      await _handleEdit(context, ref);
-    } else if (value == 'delete') {
-      await _handleDelete(context, ref);
-    }
   }
 
   Future<void> _handleEdit(BuildContext context, WidgetRef ref) async {

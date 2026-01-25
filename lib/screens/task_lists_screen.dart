@@ -15,6 +15,7 @@ import '../widgets/common/empty_state.dart';
 import '../widgets/common/error_state_widget.dart';
 import '../widgets/common/contextual_delete_dialog.dart';
 import '../widgets/common/stacked_avatars.dart';
+import '../widgets/common/inline_action_buttons.dart';
 
 /// Viser liste over brugerens opgavelister med mulighed for at oprette, redigere og slette
 class TaskListsScreen extends ConsumerStatefulWidget {
@@ -240,24 +241,16 @@ class _TaskListCard extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Titel og menu
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            taskList.name,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: isDark
-                                  ? const Color(0xFFF5F5F5)
-                                  : const Color(0xFF1A1A1A),
-                            ),
-                          ),
-                        ),
-                        _buildMenuButton(context, ref, strings),
-                      ],
+                    // Titel
+                    Text(
+                      taskList.name,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? const Color(0xFFF5F5F5)
+                            : const Color(0xFF1A1A1A),
+                      ),
                     ),
                     // Tema display name med ikon
                     const SizedBox(height: 4),
@@ -295,8 +288,8 @@ class _TaskListCard extends ConsumerWidget {
                       ),
                     ],
                     const SizedBox(height: 16),
-                    // Statistik række
-                    _buildStatsRow(context, strings, themeState),
+                    // Statistik række med inline action buttons
+                    _buildStatsRow(context, ref, strings, themeState),
                   ],
                 ),
               ),
@@ -346,15 +339,15 @@ class _TaskListCard extends ConsumerWidget {
     return Color(int.parse(buffer.toString(), radix: 16));
   }
 
-  /// Bygger statistik række med fremskridtsindikator og medlemmer
+  /// Bygger statistik række med fremskridtsindikator, medlemmer og inline action buttons
   Widget _buildStatsRow(
-      BuildContext context, AppStrings strings, ThemeState themeState) {
+      BuildContext context, WidgetRef ref, AppStrings strings, ThemeState themeState) {
     final isDark = themeState.isDarkMode;
     final primaryTextColor =
         isDark ? const Color(0xFFF5F5F5) : const Color(0xFF1A1A1A);
     final secondaryTextColor =
         isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B);
-    
+
     // Brug tema farver til fremskridtsindikator
     final themeColor = _parseHexColor(taskList.visualTheme.primaryColor);
 
@@ -387,12 +380,26 @@ class _TaskListCard extends ConsumerWidget {
           ),
         ),
         // Stablede medlems-avatarer
-        if (taskList.memberCount > 0)
+        if (taskList.memberCount > 0) ...[
           StackedAvatars(
             memberCount: taskList.memberCount as int,
             avatarSize: 28,
             maxVisible: 3,
           ),
+          const SizedBox(width: 12),
+        ],
+        // Inline action buttons
+        InlineActionButtons(
+          onEdit: () => _handleEdit(context, ref),
+          onShare: () => _handleShare(context),
+          onDelete: () => _handleDelete(context, ref, strings),
+          themeColor: themeColor,
+          isDark: isDark,
+          itemName: taskList.name,
+          editLabel: strings.edit,
+          shareLabel: strings.members,
+          deleteLabel: strings.delete,
+        ),
       ],
     );
   }
@@ -450,57 +457,6 @@ class _TaskListCard extends ConsumerWidget {
     return strings.percentComplete(percent);
   }
 
-  Widget _buildMenuButton(
-      BuildContext context, WidgetRef ref, AppStrings strings) {
-    return Semantics(
-      label: '${strings.moreOptions} ${taskList.name}',
-      button: true,
-      child: PopupMenuButton<String>(
-        itemBuilder: (context) => _buildMenuItems(strings),
-        onSelected: (value) =>
-            _handleMenuSelection(value, context, ref, strings),
-      ),
-    );
-  }
-
-  List<PopupMenuEntry<String>> _buildMenuItems(AppStrings strings) {
-    return [
-      PopupMenuItem(
-        value: 'edit',
-        child: Row(
-          children: [
-            const Icon(Icons.edit, size: 20),
-            const SizedBox(width: 12),
-            Text(strings.edit),
-          ],
-        ),
-      ),
-      PopupMenuItem(
-        value: 'delete',
-        child: Row(
-          children: [
-            const Icon(Icons.delete, size: 20, color: Colors.red),
-            const SizedBox(width: 12),
-            Text(strings.delete, style: const TextStyle(color: Colors.red)),
-          ],
-        ),
-      ),
-    ];
-  }
-
-  Future<void> _handleMenuSelection(
-    String value,
-    BuildContext context,
-    WidgetRef ref,
-    AppStrings strings,
-  ) async {
-    if (value == 'edit') {
-      await _handleEdit(context, ref);
-    } else if (value == 'delete') {
-      await _handleDelete(context, ref, strings);
-    }
-  }
-
   Future<void> _handleEdit(BuildContext context, WidgetRef ref) async {
     final result = await showDialog<bool>(
       context: context,
@@ -509,6 +465,18 @@ class _TaskListCard extends ConsumerWidget {
     if (result == true) {
       ref.read(taskListProvider.notifier).loadAllTaskLists();
     }
+  }
+
+  /// Navigerer til medlemmer-skærmen for denne opgaveliste
+  void _handleShare(BuildContext context) {
+    final primaryColor = _parseHexColor(taskList.visualTheme.primaryColor);
+    final secondaryColor = _parseHexColor(taskList.visualTheme.secondaryColor);
+    final primaryHex = '#${primaryColor.value.toRadixString(16).substring(2)}';
+    final secondaryHex = '#${secondaryColor.value.toRadixString(16).substring(2)}';
+
+    context.push(
+      '/lists/${taskList.id}/members?name=${Uri.encodeComponent(taskList.name)}&primaryColor=${Uri.encodeComponent(primaryHex)}&secondaryColor=${Uri.encodeComponent(secondaryHex)}',
+    );
   }
 
   Future<void> _handleDelete(
