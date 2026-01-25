@@ -52,6 +52,18 @@ class TaskInstancesNotifier extends StateNotifier<AsyncValue<List<TaskInstanceRe
       return null;
     }
   }
+
+  /// Dismiss a task occurrence by due date (for occurrences without spawned instance)
+  Future<TaskInstanceResponse?> dismissTaskOccurrence(DateTime dueDate) async {
+    try {
+      final instance = await _apiService.dismissTaskOccurrence(taskId, dueDate);
+      await loadTaskInstances(); // Refresh the list
+      return instance;
+    } catch (e) {
+      state = AsyncValue.error(e, StackTrace.current);
+      return null;
+    }
+  }
 }
 
 // Provider for task instances by task list

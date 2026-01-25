@@ -447,20 +447,20 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
       UpcomingTaskOccurrenceResponse occurrence) async {
     HapticFeedback.mediumImpact();
 
-    // Find task instance ID fra occurrence
+    final notifier = ref.read(taskInstancesProvider(occurrence.taskId).notifier);
     final taskInstanceId = occurrence.taskInstanceId;
-    if (taskInstanceId == null) {
-      return;
-    }
 
-    final result = await ref
-        .read(taskInstancesProvider(occurrence.taskId).notifier)
-        .dismissTaskInstance(taskInstanceId);
+    // Brug taskInstanceId hvis tilgængelig, ellers brug taskId + dueDate
+    final TaskInstanceResponse? result;
+    if (taskInstanceId != null) {
+      result = await notifier.dismissTaskInstance(taskInstanceId);
+    } else {
+      result = await notifier.dismissTaskOccurrence(occurrence.dueDate);
+    }
 
     if (result != null && mounted) {
       final strings = AppStrings.of(context);
 
-      // Vis snackbar med undo mulighed (ikke implementeret endnu - kræver backend support)
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(strings.taskDismissed),

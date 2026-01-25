@@ -975,6 +975,32 @@ class ApiService {
     }
   }
 
+  /// Dismiss a task occurrence by taskId and dueDate
+  /// Used for future occurrences that don't have a spawned instance yet
+  Future<TaskInstanceResponse> dismissTaskOccurrence(int taskId, DateTime dueDate) async {
+    try {
+      final dueDateStr = '${dueDate.year}-${dueDate.month.toString().padLeft(2, '0')}-${dueDate.day.toString().padLeft(2, '0')}';
+      final response = await _loggedPost(
+        '$baseUrl/api/task-instances/task/$taskId/dismiss?dueDate=$dueDateStr',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        return TaskInstanceResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException.withKey(
+          ApiErrorKey.failedToCreateTaskInstance,
+          errorData['message'] ?? 'Failed to dismiss task occurrence',
+          response.statusCode,
+        );
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
   /// Get recently completed task instances with pagination
   /// Returns the last [limit] completed tasks starting from [offset]
   Future<List<TaskInstanceResponse>> getRecentlyCompletedTasks({
