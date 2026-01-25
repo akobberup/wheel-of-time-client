@@ -11,6 +11,8 @@ enum TaskInstanceStatus {
   completed,
   @JsonValue('EXPIRED')
   expired,
+  @JsonValue('DISMISSED')
+  dismissed,
 }
 
 @freezed
@@ -19,10 +21,12 @@ class TaskInstanceResponse with _$TaskInstanceResponse {
     required int id,
     required int taskId,
     required String taskName,
-    // userId og userName kan være null for EXPIRED instances der ikke blev completed af en bruger
+    // userId og userName kan være null for EXPIRED/DISMISSED instances
     int? userId,
     String? userName,
-    required DateTime completedDateTime,
+    // completedDateTime kan være null for PENDING/DISMISSED instances
+    DateTime? completedDateTime,
+    DateTime? dismissedDateTime,
     String? optionalImagePath,
     String? optionalComment,
     @Default(false) bool contributedToStreak,

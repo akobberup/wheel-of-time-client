@@ -13,6 +13,7 @@ part 'task_occurrence.g.dart';
 class UpcomingTaskOccurrenceResponse with _$UpcomingTaskOccurrenceResponse {
   const factory UpcomingTaskOccurrenceResponse({
     required String occurrenceId,
+    int? taskInstanceId,
     required int taskId,
     required String taskName,
     String? description,

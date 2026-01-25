@@ -14,7 +14,12 @@ _$TaskInstanceResponseImpl _$$TaskInstanceResponseImplFromJson(
       taskName: json['taskName'] as String,
       userId: (json['userId'] as num?)?.toInt(),
       userName: json['userName'] as String?,
-      completedDateTime: DateTime.parse(json['completedDateTime'] as String),
+      completedDateTime: json['completedDateTime'] == null
+          ? null
+          : DateTime.parse(json['completedDateTime'] as String),
+      dismissedDateTime: json['dismissedDateTime'] == null
+          ? null
+          : DateTime.parse(json['dismissedDateTime'] as String),
       optionalImagePath: json['optionalImagePath'] as String?,
       optionalComment: json['optionalComment'] as String?,
       contributedToStreak: json['contributedToStreak'] as bool? ?? false,
@@ -34,7 +39,8 @@ Map<String, dynamic> _$$TaskInstanceResponseImplToJson(
       'taskName': instance.taskName,
       'userId': instance.userId,
       'userName': instance.userName,
-      'completedDateTime': instance.completedDateTime.toIso8601String(),
+      'completedDateTime': instance.completedDateTime?.toIso8601String(),
+      'dismissedDateTime': instance.dismissedDateTime?.toIso8601String(),
       'optionalImagePath': instance.optionalImagePath,
       'optionalComment': instance.optionalComment,
       'contributedToStreak': instance.contributedToStreak,
@@ -46,6 +52,7 @@ const _$TaskInstanceStatusEnumMap = {
   TaskInstanceStatus.pending: 'PENDING',
   TaskInstanceStatus.completed: 'COMPLETED',
   TaskInstanceStatus.expired: 'EXPIRED',
+  TaskInstanceStatus.dismissed: 'DISMISSED',
 };
 
 _$CreateTaskInstanceRequestImpl _$$CreateTaskInstanceRequestImplFromJson(

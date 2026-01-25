@@ -1429,6 +1429,14 @@ class StringsEn extends AppStrings {
   // Task Swipe Actions
   @override
   String get taskCompletedSwipe => 'Completed!';
+  @override
+  String get taskDismissedSwipe => 'Skip';
+  @override
+  String get skipThisTime => 'Skip this time';
+  @override
+  String get taskDismissed => 'Task skipped';
+  @override
+  String get undo => 'Undo';
 
   // Profile Screen
   @override

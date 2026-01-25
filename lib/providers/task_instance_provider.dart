@@ -41,6 +41,17 @@ class TaskInstancesNotifier extends StateNotifier<AsyncValue<List<TaskInstanceRe
       return null;
     }
   }
+
+  Future<TaskInstanceResponse?> dismissTaskInstance(int taskInstanceId) async {
+    try {
+      final instance = await _apiService.dismissTaskInstance(taskInstanceId);
+      await loadTaskInstances(); // Refresh the list
+      return instance;
+    } catch (e) {
+      state = AsyncValue.error(e, StackTrace.current);
+      return null;
+    }
+  }
 }
 
 // Provider for task instances by task list

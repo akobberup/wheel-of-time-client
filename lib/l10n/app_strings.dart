@@ -646,6 +646,10 @@ abstract class AppStrings {
 
   // Task Swipe Actions
   String get taskCompletedSwipe;
+  String get taskDismissedSwipe;
+  String get skipThisTime;
+  String get taskDismissed;
+  String get undo;
 
   // Additional API Error Strings (for ApiErrorKey translation)
   String get failedToLoadOwnedTaskLists;

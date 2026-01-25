@@ -10,6 +10,7 @@ _$UpcomingTaskOccurrenceResponseImpl
     _$$UpcomingTaskOccurrenceResponseImplFromJson(Map<String, dynamic> json) =>
         _$UpcomingTaskOccurrenceResponseImpl(
           occurrenceId: json['occurrenceId'] as String,
+          taskInstanceId: (json['taskInstanceId'] as num?)?.toInt(),
           taskId: (json['taskId'] as num).toInt(),
           taskName: json['taskName'] as String,
           description: json['description'] as String?,
@@ -38,6 +39,7 @@ Map<String, dynamic> _$$UpcomingTaskOccurrenceResponseImplToJson(
         _$UpcomingTaskOccurrenceResponseImpl instance) =>
     <String, dynamic>{
       'occurrenceId': instance.occurrenceId,
+      'taskInstanceId': instance.taskInstanceId,
       'taskId': instance.taskId,
       'taskName': instance.taskName,
       'description': instance.description,

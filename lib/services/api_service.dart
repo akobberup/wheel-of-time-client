@@ -951,6 +951,30 @@ class ApiService {
     }
   }
 
+  /// Dismiss a task instance (skip without affecting streak)
+  Future<TaskInstanceResponse> dismissTaskInstance(int taskInstanceId) async {
+    try {
+      final response = await _loggedPost(
+        '$baseUrl/api/task-instances/$taskInstanceId/dismiss',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        return TaskInstanceResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException.withKey(
+          ApiErrorKey.failedToCreateTaskInstance,
+          errorData['message'] ?? 'Failed to dismiss task instance',
+          response.statusCode,
+        );
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
   /// Get recently completed task instances with pagination
   /// Returns the last [limit] completed tasks starting from [offset]
   Future<List<TaskInstanceResponse>> getRecentlyCompletedTasks({

@@ -23,10 +23,12 @@ mixin _$TaskInstanceResponse {
   int get id => throw _privateConstructorUsedError;
   int get taskId => throw _privateConstructorUsedError;
   String get taskName =>
-      throw _privateConstructorUsedError; // userId og userName kan være null for EXPIRED instances der ikke blev completed af en bruger
+      throw _privateConstructorUsedError; // userId og userName kan være null for EXPIRED/DISMISSED instances
   int? get userId => throw _privateConstructorUsedError;
-  String? get userName => throw _privateConstructorUsedError;
-  DateTime get completedDateTime => throw _privateConstructorUsedError;
+  String? get userName =>
+      throw _privateConstructorUsedError; // completedDateTime kan være null for PENDING/DISMISSED instances
+  DateTime? get completedDateTime => throw _privateConstructorUsedError;
+  DateTime? get dismissedDateTime => throw _privateConstructorUsedError;
   String? get optionalImagePath => throw _privateConstructorUsedError;
   String? get optionalComment => throw _privateConstructorUsedError;
   bool get contributedToStreak =>
@@ -56,7 +58,8 @@ abstract class $TaskInstanceResponseCopyWith<$Res> {
       String taskName,
       int? userId,
       String? userName,
-      DateTime completedDateTime,
+      DateTime? completedDateTime,
+      DateTime? dismissedDateTime,
       String? optionalImagePath,
       String? optionalComment,
       bool contributedToStreak,
@@ -85,7 +88,8 @@ class _$TaskInstanceResponseCopyWithImpl<$Res,
     Object? taskName = null,
     Object? userId = freezed,
     Object? userName = freezed,
-    Object? completedDateTime = null,
+    Object? completedDateTime = freezed,
+    Object? dismissedDateTime = freezed,
     Object? optionalImagePath = freezed,
     Object? optionalComment = freezed,
     Object? contributedToStreak = null,
@@ -113,10 +117,14 @@ class _$TaskInstanceResponseCopyWithImpl<$Res,
           ? _value.userName
           : userName // ignore: cast_nullable_to_non_nullable
               as String?,
-      completedDateTime: null == completedDateTime
+      completedDateTime: freezed == completedDateTime
           ? _value.completedDateTime
           : completedDateTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
+      dismissedDateTime: freezed == dismissedDateTime
+          ? _value.dismissedDateTime
+          : dismissedDateTime // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       optionalImagePath: freezed == optionalImagePath
           ? _value.optionalImagePath
           : optionalImagePath // ignore: cast_nullable_to_non_nullable
@@ -155,7 +163,8 @@ abstract class _$$TaskInstanceResponseImplCopyWith<$Res>
       String taskName,
       int? userId,
       String? userName,
-      DateTime completedDateTime,
+      DateTime? completedDateTime,
+      DateTime? dismissedDateTime,
       String? optionalImagePath,
       String? optionalComment,
       bool contributedToStreak,
@@ -181,7 +190,8 @@ class __$$TaskInstanceResponseImplCopyWithImpl<$Res>
     Object? taskName = null,
     Object? userId = freezed,
     Object? userName = freezed,
-    Object? completedDateTime = null,
+    Object? completedDateTime = freezed,
+    Object? dismissedDateTime = freezed,
     Object? optionalImagePath = freezed,
     Object? optionalComment = freezed,
     Object? contributedToStreak = null,
@@ -209,10 +219,14 @@ class __$$TaskInstanceResponseImplCopyWithImpl<$Res>
           ? _value.userName
           : userName // ignore: cast_nullable_to_non_nullable
               as String?,
-      completedDateTime: null == completedDateTime
+      completedDateTime: freezed == completedDateTime
           ? _value.completedDateTime
           : completedDateTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
+      dismissedDateTime: freezed == dismissedDateTime
+          ? _value.dismissedDateTime
+          : dismissedDateTime // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       optionalImagePath: freezed == optionalImagePath
           ? _value.optionalImagePath
           : optionalImagePath // ignore: cast_nullable_to_non_nullable
@@ -246,7 +260,8 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
       required this.taskName,
       this.userId,
       this.userName,
-      required this.completedDateTime,
+      this.completedDateTime,
+      this.dismissedDateTime,
       this.optionalImagePath,
       this.optionalComment,
       this.contributedToStreak = false,
@@ -262,13 +277,16 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
   final int taskId;
   @override
   final String taskName;
-// userId og userName kan være null for EXPIRED instances der ikke blev completed af en bruger
+// userId og userName kan være null for EXPIRED/DISMISSED instances
   @override
   final int? userId;
   @override
   final String? userName;
+// completedDateTime kan være null for PENDING/DISMISSED instances
   @override
-  final DateTime completedDateTime;
+  final DateTime? completedDateTime;
+  @override
+  final DateTime? dismissedDateTime;
   @override
   final String? optionalImagePath;
   @override
@@ -285,7 +303,7 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
 
   @override
   String toString() {
-    return 'TaskInstanceResponse(id: $id, taskId: $taskId, taskName: $taskName, userId: $userId, userName: $userName, completedDateTime: $completedDateTime, optionalImagePath: $optionalImagePath, optionalComment: $optionalComment, contributedToStreak: $contributedToStreak, status: $status, dueDate: $dueDate)';
+    return 'TaskInstanceResponse(id: $id, taskId: $taskId, taskName: $taskName, userId: $userId, userName: $userName, completedDateTime: $completedDateTime, dismissedDateTime: $dismissedDateTime, optionalImagePath: $optionalImagePath, optionalComment: $optionalComment, contributedToStreak: $contributedToStreak, status: $status, dueDate: $dueDate)';
   }
 
   @override
@@ -302,6 +320,8 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
                 other.userName == userName) &&
             (identical(other.completedDateTime, completedDateTime) ||
                 other.completedDateTime == completedDateTime) &&
+            (identical(other.dismissedDateTime, dismissedDateTime) ||
+                other.dismissedDateTime == dismissedDateTime) &&
             (identical(other.optionalImagePath, optionalImagePath) ||
                 other.optionalImagePath == optionalImagePath) &&
             (identical(other.optionalComment, optionalComment) ||
@@ -322,6 +342,7 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
       userId,
       userName,
       completedDateTime,
+      dismissedDateTime,
       optionalImagePath,
       optionalComment,
       contributedToStreak,
@@ -353,7 +374,8 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
       required final String taskName,
       final int? userId,
       final String? userName,
-      required final DateTime completedDateTime,
+      final DateTime? completedDateTime,
+      final DateTime? dismissedDateTime,
       final String? optionalImagePath,
       final String? optionalComment,
       final bool contributedToStreak,
@@ -369,13 +391,16 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
   int get taskId;
   @override
   String
-      get taskName; // userId og userName kan være null for EXPIRED instances der ikke blev completed af en bruger
+      get taskName; // userId og userName kan være null for EXPIRED/DISMISSED instances
   @override
   int? get userId;
   @override
-  String? get userName;
+  String?
+      get userName; // completedDateTime kan være null for PENDING/DISMISSED instances
   @override
-  DateTime get completedDateTime;
+  DateTime? get completedDateTime;
+  @override
+  DateTime? get dismissedDateTime;
   @override
   String? get optionalImagePath;
   @override

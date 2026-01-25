@@ -292,6 +292,7 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                 child: TaskOccurrenceCard(
                   occurrence: task,
                   onQuickComplete: _handleQuickComplete,
+                  onQuickDismiss: _handleQuickDismiss,
                   onTap: _handleTaskCompletion,
                   isDesktop: false,
                 ),
@@ -318,6 +319,7 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
               itemBuilder: (context, index) => TaskOccurrenceCard(
                 occurrence: tasksToShow[index],
                 onQuickComplete: _handleQuickComplete,
+                onQuickDismiss: _handleQuickDismiss,
                 onTap: _handleTaskCompletion,
                 isDesktop: isDesktop,
               ),
@@ -434,6 +436,37 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
       await TaskCompletionAnimation.show(
         context: context,
         streakCount: newStreakCount,
+      );
+
+      ref.read(upcomingTasksProvider.notifier).refresh();
+    }
+  }
+
+  /// Hurtig dismiss (spring over) til swipe-handling
+  Future<void> _handleQuickDismiss(
+      UpcomingTaskOccurrenceResponse occurrence) async {
+    HapticFeedback.mediumImpact();
+
+    // Find task instance ID fra occurrence
+    final taskInstanceId = occurrence.taskInstanceId;
+    if (taskInstanceId == null) {
+      return;
+    }
+
+    final result = await ref
+        .read(taskInstancesProvider(occurrence.taskId).notifier)
+        .dismissTaskInstance(taskInstanceId);
+
+    if (result != null && mounted) {
+      final strings = AppStrings.of(context);
+
+      // Vis snackbar med undo mulighed (ikke implementeret endnu - kræver backend support)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(strings.taskDismissed),
+          duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
 
       ref.read(upcomingTasksProvider.notifier).refresh();

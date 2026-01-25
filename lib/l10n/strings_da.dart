@@ -1404,6 +1404,14 @@ class StringsDa extends AppStrings {
   // Task Swipe Actions
   @override
   String get taskCompletedSwipe => 'Fuldført!';
+  @override
+  String get taskDismissedSwipe => 'Spring over';
+  @override
+  String get skipThisTime => 'Spring over denne gang';
+  @override
+  String get taskDismissed => 'Opgave sprunget over';
+  @override
+  String get undo => 'Fortryd';
 
   // Profile Screen
   @override

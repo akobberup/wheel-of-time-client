@@ -22,6 +22,7 @@ UpcomingTaskOccurrenceResponse _$UpcomingTaskOccurrenceResponseFromJson(
 /// @nodoc
 mixin _$UpcomingTaskOccurrenceResponse {
   String get occurrenceId => throw _privateConstructorUsedError;
+  int? get taskInstanceId => throw _privateConstructorUsedError;
   int get taskId => throw _privateConstructorUsedError;
   String get taskName => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
@@ -61,6 +62,7 @@ abstract class $UpcomingTaskOccurrenceResponseCopyWith<$Res> {
   @useResult
   $Res call(
       {String occurrenceId,
+      int? taskInstanceId,
       int taskId,
       String taskName,
       String? description,
@@ -100,6 +102,7 @@ class _$UpcomingTaskOccurrenceResponseCopyWithImpl<$Res,
   @override
   $Res call({
     Object? occurrenceId = null,
+    Object? taskInstanceId = freezed,
     Object? taskId = null,
     Object? taskName = null,
     Object? description = freezed,
@@ -122,6 +125,10 @@ class _$UpcomingTaskOccurrenceResponseCopyWithImpl<$Res,
           ? _value.occurrenceId
           : occurrenceId // ignore: cast_nullable_to_non_nullable
               as String,
+      taskInstanceId: freezed == taskInstanceId
+          ? _value.taskInstanceId
+          : taskInstanceId // ignore: cast_nullable_to_non_nullable
+              as int?,
       taskId: null == taskId
           ? _value.taskId
           : taskId // ignore: cast_nullable_to_non_nullable
@@ -239,6 +246,7 @@ abstract class _$$UpcomingTaskOccurrenceResponseImplCopyWith<$Res>
   @useResult
   $Res call(
       {String occurrenceId,
+      int? taskInstanceId,
       int taskId,
       String taskName,
       String? description,
@@ -280,6 +288,7 @@ class __$$UpcomingTaskOccurrenceResponseImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? occurrenceId = null,
+    Object? taskInstanceId = freezed,
     Object? taskId = null,
     Object? taskName = null,
     Object? description = freezed,
@@ -302,6 +311,10 @@ class __$$UpcomingTaskOccurrenceResponseImplCopyWithImpl<$Res>
           ? _value.occurrenceId
           : occurrenceId // ignore: cast_nullable_to_non_nullable
               as String,
+      taskInstanceId: freezed == taskInstanceId
+          ? _value.taskInstanceId
+          : taskInstanceId // ignore: cast_nullable_to_non_nullable
+              as int?,
       taskId: null == taskId
           ? _value.taskId
           : taskId // ignore: cast_nullable_to_non_nullable
@@ -376,6 +389,7 @@ class _$UpcomingTaskOccurrenceResponseImpl
     implements _UpcomingTaskOccurrenceResponse {
   const _$UpcomingTaskOccurrenceResponseImpl(
       {required this.occurrenceId,
+      this.taskInstanceId,
       required this.taskId,
       required this.taskName,
       this.description,
@@ -399,6 +413,8 @@ class _$UpcomingTaskOccurrenceResponseImpl
 
   @override
   final String occurrenceId;
+  @override
+  final int? taskInstanceId;
   @override
   final int taskId;
   @override
@@ -439,7 +455,7 @@ class _$UpcomingTaskOccurrenceResponseImpl
 
   @override
   String toString() {
-    return 'UpcomingTaskOccurrenceResponse(occurrenceId: $occurrenceId, taskId: $taskId, taskName: $taskName, description: $description, taskListId: $taskListId, taskListName: $taskListName, dueDate: $dueDate, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, taskImagePath: $taskImagePath, totalCompletions: $totalCompletions, currentStreak: $currentStreak, schedule: $schedule, occurrenceNumber: $occurrenceNumber, isNextOccurrence: $isNextOccurrence, taskListPrimaryColor: $taskListPrimaryColor, taskListSecondaryColor: $taskListSecondaryColor)';
+    return 'UpcomingTaskOccurrenceResponse(occurrenceId: $occurrenceId, taskInstanceId: $taskInstanceId, taskId: $taskId, taskName: $taskName, description: $description, taskListId: $taskListId, taskListName: $taskListName, dueDate: $dueDate, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, taskImagePath: $taskImagePath, totalCompletions: $totalCompletions, currentStreak: $currentStreak, schedule: $schedule, occurrenceNumber: $occurrenceNumber, isNextOccurrence: $isNextOccurrence, taskListPrimaryColor: $taskListPrimaryColor, taskListSecondaryColor: $taskListSecondaryColor)';
   }
 
   @override
@@ -449,6 +465,8 @@ class _$UpcomingTaskOccurrenceResponseImpl
             other is _$UpcomingTaskOccurrenceResponseImpl &&
             (identical(other.occurrenceId, occurrenceId) ||
                 other.occurrenceId == occurrenceId) &&
+            (identical(other.taskInstanceId, taskInstanceId) ||
+                other.taskInstanceId == taskInstanceId) &&
             (identical(other.taskId, taskId) || other.taskId == taskId) &&
             (identical(other.taskName, taskName) ||
                 other.taskName == taskName) &&
@@ -486,6 +504,7 @@ class _$UpcomingTaskOccurrenceResponseImpl
   int get hashCode => Object.hash(
       runtimeType,
       occurrenceId,
+      taskInstanceId,
       taskId,
       taskName,
       description,
@@ -525,6 +544,7 @@ abstract class _UpcomingTaskOccurrenceResponse
     implements UpcomingTaskOccurrenceResponse {
   const factory _UpcomingTaskOccurrenceResponse(
           {required final String occurrenceId,
+          final int? taskInstanceId,
           required final int taskId,
           required final String taskName,
           final String? description,
@@ -548,6 +568,8 @@ abstract class _UpcomingTaskOccurrenceResponse
 
   @override
   String get occurrenceId;
+  @override
+  int? get taskInstanceId;
   @override
   int get taskId;
   @override
