@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -99,4 +100,96 @@ class FcmNotifier extends StateNotifier<String?> {
 final fcmProvider = StateNotifierProvider<FcmNotifier, String?>((ref) {
   final apiService = ref.watch(apiServiceProvider);
   return FcmNotifier(apiService, ref);
+});
+
+/// Data class for pending notification navigation.
+class PendingNotificationNavigation {
+  final String type;
+  final int? taskInstanceId;
+  final int? taskListId;
+  final String? taskListName;
+
+  PendingNotificationNavigation({
+    required this.type,
+    this.taskInstanceId,
+    this.taskListId,
+    this.taskListName,
+  });
+
+  factory PendingNotificationNavigation.fromData(Map<String, dynamic> data) {
+    return PendingNotificationNavigation(
+      type: data['type'] as String? ?? '',
+      taskInstanceId: _parseInt(data['taskInstanceId']),
+      taskListId: _parseInt(data['taskListId']),
+      taskListName: data['taskListName'] as String?,
+    );
+  }
+
+  static int? _parseInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  /// Returnerer den route der skal navigeres til baseret på notification type.
+  String? getNavigationRoute() {
+    switch (type) {
+      case 'TASK_DUE':
+      case 'TASK_EXPIRING_SOON':
+      case 'TASK_OVERDUE':
+      case 'TASK_COMPLETED_BY_OTHER':
+      case 'TASK_DISMISSED_BY_OTHER':
+        // For task-relaterede notifications, gå til home (upcoming tasks)
+        // Ideelt ville vi navigere til den specifikke task, men det kræver taskListId
+        if (taskListId != null) {
+          return '/lists/$taskListId';
+        }
+        return '/';
+
+      case 'INVITATION_RECEIVED':
+      case 'INVITATION_ACCEPTED':
+      case 'INVITATION_DECLINED':
+        // For invitation notifications, gå til notifications skærm
+        return '/notifications';
+
+      default:
+        developer.log('FCM: Ukendt notification type: $type', name: 'FcmProvider');
+        return '/';
+    }
+  }
+}
+
+/// Notifier der holder styr på pending notification navigation.
+class NotificationNavigationNotifier extends StateNotifier<PendingNotificationNavigation?> {
+  StreamSubscription<Map<String, dynamic>>? _subscription;
+
+  NotificationNavigationNotifier() : super(null) {
+    // Skip på web
+    if (kIsWeb) return;
+
+    // Lyt til notification tap events fra FcmService
+    _subscription = FcmService().onNotificationTap.listen((data) {
+      developer.log('FCM: Modtog notification tap data: $data', name: 'FcmProvider');
+      state = PendingNotificationNavigation.fromData(data);
+    });
+  }
+
+  /// Marker navigation som håndteret.
+  void clearPendingNavigation() {
+    state = null;
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+}
+
+/// Provider for notification-triggered navigation.
+/// Watch denne provider for at reagere på notification taps.
+final notificationNavigationProvider =
+    StateNotifierProvider<NotificationNavigationNotifier, PendingNotificationNavigation?>((ref) {
+  return NotificationNavigationNotifier();
 });

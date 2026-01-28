@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:go_router/go_router.dart';
 import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/remote_logger_provider.dart';
@@ -63,11 +64,16 @@ void main() async {
   );
 }
 
-class AarshjuletApp extends ConsumerWidget {
+class AarshjuletApp extends ConsumerStatefulWidget {
   const AarshjuletApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AarshjuletApp> createState() => _AarshjuletAppState();
+}
+
+class _AarshjuletAppState extends ConsumerState<AarshjuletApp> {
+  @override
+  Widget build(BuildContext context) {
     final locale = ref.watch(localeProvider);
     final themeState = ref.watch(themeProvider);
     final router = ref.watch(routerProvider);
@@ -76,6 +82,16 @@ class AarshjuletApp extends ConsumerWidget {
     // Dette sikrer at FCM token registreres ved login og afregistreres ved logout
     if (!kIsWeb) {
       ref.watch(fcmProvider);
+
+      // Lyt til notification navigation events
+      ref.listen<PendingNotificationNavigation?>(
+        notificationNavigationProvider,
+        (previous, next) {
+          if (next != null) {
+            _handleNotificationNavigation(next, router);
+          }
+        },
+      );
     }
 
     return MaterialApp.router(
@@ -98,5 +114,23 @@ class AarshjuletApp extends ConsumerWidget {
       // GoRouter til korrekt browser historik-håndtering
       routerConfig: router,
     );
+  }
+
+  /// Håndterer navigation fra notification tap.
+  void _handleNotificationNavigation(PendingNotificationNavigation navigation, GoRouter router) {
+    debugPrint('FCM: Håndterer notification navigation: type=${navigation.type}');
+
+    final route = navigation.getNavigationRoute();
+    if (route != null) {
+      debugPrint('FCM: Navigerer til: $route');
+
+      // Brug en kort delay for at sikre at app'en er klar
+      Future.delayed(const Duration(milliseconds: 100), () {
+        router.go(route);
+      });
+    }
+
+    // Ryd pending navigation
+    ref.read(notificationNavigationProvider.notifier).clearPendingNavigation();
   }
 }
