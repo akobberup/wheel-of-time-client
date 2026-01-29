@@ -19,9 +19,20 @@ class FcmService {
   /// Bruges til at sende notification data til UI-laget for navigation.
   final _notificationTapController = StreamController<Map<String, dynamic>>.broadcast();
 
+  /// Cached pending notification data - bruges når listener tilføjes efter event.
+  Map<String, dynamic>? _pendingNotificationData;
+
   /// Stream af notification tap events.
   /// Lyt til denne stream for at håndtere navigation når bruger trykker på notification.
   Stream<Map<String, dynamic>> get onNotificationTap => _notificationTapController.stream;
+
+  /// Henter og clearer pending notification data.
+  /// Bruges af listeners der tilføjes efter notification tap event.
+  Map<String, dynamic>? consumePendingNotification() {
+    final data = _pendingNotificationData;
+    _pendingNotificationData = null;
+    return data;
+  }
 
   /// Initialiserer Firebase og FCM.
   /// Returnerer FCM token hvis tilgængeligt.
@@ -107,17 +118,16 @@ class FcmService {
     if (initialMessage != null) {
       debugPrint('FCM: App åbnet fra notification (cold start): ${initialMessage.notification?.title}');
       debugPrint('FCM: Initial notification data: ${initialMessage.data}');
-
-      // Vent lidt så app'en er klar til at navigere
-      await Future.delayed(const Duration(milliseconds: 500));
       _handleNotificationTap(initialMessage.data);
     }
   }
 
-  /// Håndterer notification tap ved at sende data til stream.
+  /// Håndterer notification tap ved at sende data til stream og cache det.
   void _handleNotificationTap(Map<String, dynamic> data) {
     if (data.isNotEmpty) {
       debugPrint('FCM: Sender notification tap event: $data');
+      // Cache data så det kan hentes af listeners der tilføjes senere
+      _pendingNotificationData = data;
       _notificationTapController.add(data);
     }
   }

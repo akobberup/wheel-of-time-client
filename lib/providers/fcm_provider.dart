@@ -168,8 +168,18 @@ class NotificationNavigationNotifier extends StateNotifier<PendingNotificationNa
     // Skip på web
     if (kIsWeb) return;
 
-    // Lyt til notification tap events fra FcmService
-    _subscription = FcmService().onNotificationTap.listen((data) {
+    final fcmService = FcmService();
+
+    // Tjek om der er en pending notification fra før vi subscribede
+    // Dette håndterer tilfælde hvor notification tap skete før provider blev oprettet
+    final pendingData = fcmService.consumePendingNotification();
+    if (pendingData != null) {
+      developer.log('FCM: Fandt cached pending notification: $pendingData', name: 'FcmProvider');
+      state = PendingNotificationNavigation.fromData(pendingData);
+    }
+
+    // Lyt til fremtidige notification tap events fra FcmService
+    _subscription = fcmService.onNotificationTap.listen((data) {
       developer.log('FCM: Modtog notification tap data: $data', name: 'FcmProvider');
       state = PendingNotificationNavigation.fromData(data);
     });
