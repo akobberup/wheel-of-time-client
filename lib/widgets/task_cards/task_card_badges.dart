@@ -239,6 +239,93 @@ class MetadataChip extends StatelessWidget {
   }
 }
 
+/// Badge der viser hvem der er ansvarlig for en opgave
+/// Bruger person-ikon og viser brugerens fornavn
+class AssignedUserBadge extends StatelessWidget {
+  final String userName;
+  final bool compact;
+  final Color? themeColor;
+
+  const AssignedUserBadge({
+    super.key,
+    required this.userName,
+    this.compact = false,
+    this.themeColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    // Beregn baggrunds- og tekstfarve
+    final Color backgroundColor;
+    final Color textColor;
+    final Color iconColor;
+
+    if (themeColor != null) {
+      // Brug tema-farve med lav opacity
+      backgroundColor = themeColor!.withValues(alpha: 0.15);
+      textColor = themeColor!;
+      iconColor = themeColor!;
+    } else {
+      // Fallback til neutral lilla farve (ansvar/rolle farve)
+      backgroundColor = isDark
+          ? const Color(0xFF9C27B0).withValues(alpha: 0.2)
+          : const Color(0xFF9C27B0).withValues(alpha: 0.1);
+      textColor = isDark
+          ? const Color(0xFFCE93D8)
+          : const Color(0xFF7B1FA2);
+      iconColor = textColor;
+    }
+
+    // Responsive padding og font-størrelse
+    final horizontalPadding = compact ? 6.0 : 8.0;
+    final verticalPadding = compact ? 2.0 : 4.0;
+    final fontSize = compact ? 10.0 : 11.0;
+    final iconSize = compact ? 12.0 : 14.0;
+
+    // Vis kun fornavn for at spare plads
+    final displayName = _getFirstName(userName);
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: horizontalPadding,
+        vertical: verticalPadding,
+      ),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.person_outline, size: iconSize, color: iconColor),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              displayName,
+              style: TextStyle(
+                color: textColor,
+                fontSize: fontSize,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Ekstraherer fornavn fra fuldt navn
+  String _getFirstName(String fullName) {
+    final parts = fullName.trim().split(' ');
+    return parts.isNotEmpty ? parts.first : fullName;
+  }
+}
+
 /// Streak advarsel banner
 /// Bruger theme.colorScheme.error i stedet for hardcoded rød
 class StreakWarningBanner extends StatelessWidget {

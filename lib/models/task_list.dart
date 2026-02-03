@@ -12,6 +12,7 @@ class TaskListResponse with _$TaskListResponse {
     String? description,
     required int ownerId,
     required String ownerName,
+    String? ownerEmail,
     required VisualThemeResponse visualTheme,
     @Default(0) int taskCount,
     @Default(0) int activeTaskCount,

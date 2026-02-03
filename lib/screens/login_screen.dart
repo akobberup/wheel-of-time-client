@@ -334,9 +334,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       );
     }
 
+    // Tjek om widget stadig er mounted efter async operation
+    if (!mounted) return;
+
     // Vis onboarding sheet efter succesfuld registrering
     final authState = ref.read(authProvider);
-    if (wasRegisterMode && authState.isAuthenticated && mounted) {
+    if (wasRegisterMode && authState.isAuthenticated) {
       await _showPersonalizationSheet();
     }
 

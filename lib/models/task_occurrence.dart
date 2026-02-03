@@ -30,6 +30,9 @@ class UpcomingTaskOccurrenceResponse with _$UpcomingTaskOccurrenceResponse {
     @Default(false) bool isNextOccurrence,
     String? taskListPrimaryColor,
     String? taskListSecondaryColor,
+    // Ansvarlig bruger (hvis tildelt)
+    int? assignedUserId,
+    String? assignedUserName,
   }) = _UpcomingTaskOccurrenceResponse;
 
   factory UpcomingTaskOccurrenceResponse.fromJson(

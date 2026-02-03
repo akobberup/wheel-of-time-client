@@ -241,38 +241,53 @@ class _MediumTaskCardState extends State<MediumTaskCard> {
     final labelTextColor = Color.lerp(primaryColor, Colors.black, 0.3) ??
         theme.colorScheme.onSurfaceVariant;
 
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: widget.isDesktop ? 8 : 10,
-        vertical: widget.isDesktop ? 3 : 4,
-      ),
-      decoration: BoxDecoration(
-        color: labelBackground,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.folder_outlined,
-            size: widget.isDesktop ? 11 : 12,
-            color: labelTextColor,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: widget.isDesktop ? 8 : 10,
+            vertical: widget.isDesktop ? 3 : 4,
           ),
-          SizedBox(width: widget.isDesktop ? 3 : 4),
-          Flexible(
-            child: Text(
-              widget.occurrence.taskListName,
-              style: TextStyle(
+          decoration: BoxDecoration(
+            color: labelBackground,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.folder_outlined,
+                size: widget.isDesktop ? 11 : 12,
                 color: labelTextColor,
-                fontSize: widget.isDesktop ? 10 : 11,
-                fontWeight: FontWeight.w500,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+              SizedBox(width: widget.isDesktop ? 3 : 4),
+              Flexible(
+                child: Text(
+                  widget.occurrence.taskListName,
+                  style: TextStyle(
+                    color: labelTextColor,
+                    fontSize: widget.isDesktop ? 10 : 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Ansvarlig bruger badge
+        if (widget.occurrence.assignedUserName != null) ...[
+          SizedBox(width: widget.isDesktop ? 6 : 8),
+          AssignedUserBadge(
+            userName: widget.occurrence.assignedUserName!,
+            compact: true,
+            themeColor: primaryColor,
           ),
         ],
-      ),
+      ],
     );
   }
 }

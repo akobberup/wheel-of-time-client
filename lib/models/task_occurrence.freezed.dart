@@ -40,7 +40,10 @@ mixin _$UpcomingTaskOccurrenceResponse {
   int get occurrenceNumber => throw _privateConstructorUsedError;
   bool get isNextOccurrence => throw _privateConstructorUsedError;
   String? get taskListPrimaryColor => throw _privateConstructorUsedError;
-  String? get taskListSecondaryColor => throw _privateConstructorUsedError;
+  String? get taskListSecondaryColor =>
+      throw _privateConstructorUsedError; // Ansvarlig bruger (hvis tildelt)
+  int? get assignedUserId => throw _privateConstructorUsedError;
+  String? get assignedUserName => throw _privateConstructorUsedError;
 
   /// Serializes this UpcomingTaskOccurrenceResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -78,7 +81,9 @@ abstract class $UpcomingTaskOccurrenceResponseCopyWith<$Res> {
       int occurrenceNumber,
       bool isNextOccurrence,
       String? taskListPrimaryColor,
-      String? taskListSecondaryColor});
+      String? taskListSecondaryColor,
+      int? assignedUserId,
+      String? assignedUserName});
 
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
   $StreakResponseCopyWith<$Res>? get currentStreak;
@@ -119,6 +124,8 @@ class _$UpcomingTaskOccurrenceResponseCopyWithImpl<$Res,
     Object? isNextOccurrence = null,
     Object? taskListPrimaryColor = freezed,
     Object? taskListSecondaryColor = freezed,
+    Object? assignedUserId = freezed,
+    Object? assignedUserName = freezed,
   }) {
     return _then(_value.copyWith(
       occurrenceId: null == occurrenceId
@@ -193,6 +200,14 @@ class _$UpcomingTaskOccurrenceResponseCopyWithImpl<$Res,
           ? _value.taskListSecondaryColor
           : taskListSecondaryColor // ignore: cast_nullable_to_non_nullable
               as String?,
+      assignedUserId: freezed == assignedUserId
+          ? _value.assignedUserId
+          : assignedUserId // ignore: cast_nullable_to_non_nullable
+              as int?,
+      assignedUserName: freezed == assignedUserName
+          ? _value.assignedUserName
+          : assignedUserName // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 
@@ -262,7 +277,9 @@ abstract class _$$UpcomingTaskOccurrenceResponseImplCopyWith<$Res>
       int occurrenceNumber,
       bool isNextOccurrence,
       String? taskListPrimaryColor,
-      String? taskListSecondaryColor});
+      String? taskListSecondaryColor,
+      int? assignedUserId,
+      String? assignedUserName});
 
   @override
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
@@ -305,6 +322,8 @@ class __$$UpcomingTaskOccurrenceResponseImplCopyWithImpl<$Res>
     Object? isNextOccurrence = null,
     Object? taskListPrimaryColor = freezed,
     Object? taskListSecondaryColor = freezed,
+    Object? assignedUserId = freezed,
+    Object? assignedUserName = freezed,
   }) {
     return _then(_$UpcomingTaskOccurrenceResponseImpl(
       occurrenceId: null == occurrenceId
@@ -379,6 +398,14 @@ class __$$UpcomingTaskOccurrenceResponseImplCopyWithImpl<$Res>
           ? _value.taskListSecondaryColor
           : taskListSecondaryColor // ignore: cast_nullable_to_non_nullable
               as String?,
+      assignedUserId: freezed == assignedUserId
+          ? _value.assignedUserId
+          : assignedUserId // ignore: cast_nullable_to_non_nullable
+              as int?,
+      assignedUserName: freezed == assignedUserName
+          ? _value.assignedUserName
+          : assignedUserName // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -405,7 +432,9 @@ class _$UpcomingTaskOccurrenceResponseImpl
       this.occurrenceNumber = 1,
       this.isNextOccurrence = false,
       this.taskListPrimaryColor,
-      this.taskListSecondaryColor});
+      this.taskListSecondaryColor,
+      this.assignedUserId,
+      this.assignedUserName});
 
   factory _$UpcomingTaskOccurrenceResponseImpl.fromJson(
           Map<String, dynamic> json) =>
@@ -452,10 +481,15 @@ class _$UpcomingTaskOccurrenceResponseImpl
   final String? taskListPrimaryColor;
   @override
   final String? taskListSecondaryColor;
+// Ansvarlig bruger (hvis tildelt)
+  @override
+  final int? assignedUserId;
+  @override
+  final String? assignedUserName;
 
   @override
   String toString() {
-    return 'UpcomingTaskOccurrenceResponse(occurrenceId: $occurrenceId, taskInstanceId: $taskInstanceId, taskId: $taskId, taskName: $taskName, description: $description, taskListId: $taskListId, taskListName: $taskListName, dueDate: $dueDate, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, taskImagePath: $taskImagePath, totalCompletions: $totalCompletions, currentStreak: $currentStreak, schedule: $schedule, occurrenceNumber: $occurrenceNumber, isNextOccurrence: $isNextOccurrence, taskListPrimaryColor: $taskListPrimaryColor, taskListSecondaryColor: $taskListSecondaryColor)';
+    return 'UpcomingTaskOccurrenceResponse(occurrenceId: $occurrenceId, taskInstanceId: $taskInstanceId, taskId: $taskId, taskName: $taskName, description: $description, taskListId: $taskListId, taskListName: $taskListName, dueDate: $dueDate, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, taskImagePath: $taskImagePath, totalCompletions: $totalCompletions, currentStreak: $currentStreak, schedule: $schedule, occurrenceNumber: $occurrenceNumber, isNextOccurrence: $isNextOccurrence, taskListPrimaryColor: $taskListPrimaryColor, taskListSecondaryColor: $taskListSecondaryColor, assignedUserId: $assignedUserId, assignedUserName: $assignedUserName)';
   }
 
   @override
@@ -496,31 +530,38 @@ class _$UpcomingTaskOccurrenceResponseImpl
             (identical(other.taskListPrimaryColor, taskListPrimaryColor) ||
                 other.taskListPrimaryColor == taskListPrimaryColor) &&
             (identical(other.taskListSecondaryColor, taskListSecondaryColor) ||
-                other.taskListSecondaryColor == taskListSecondaryColor));
+                other.taskListSecondaryColor == taskListSecondaryColor) &&
+            (identical(other.assignedUserId, assignedUserId) ||
+                other.assignedUserId == assignedUserId) &&
+            (identical(other.assignedUserName, assignedUserName) ||
+                other.assignedUserName == assignedUserName));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      occurrenceId,
-      taskInstanceId,
-      taskId,
-      taskName,
-      description,
-      taskListId,
-      taskListName,
-      dueDate,
-      alarmAtTimeOfDay,
-      completionWindowHours,
-      taskImagePath,
-      totalCompletions,
-      currentStreak,
-      schedule,
-      occurrenceNumber,
-      isNextOccurrence,
-      taskListPrimaryColor,
-      taskListSecondaryColor);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        occurrenceId,
+        taskInstanceId,
+        taskId,
+        taskName,
+        description,
+        taskListId,
+        taskListName,
+        dueDate,
+        alarmAtTimeOfDay,
+        completionWindowHours,
+        taskImagePath,
+        totalCompletions,
+        currentStreak,
+        schedule,
+        occurrenceNumber,
+        isNextOccurrence,
+        taskListPrimaryColor,
+        taskListSecondaryColor,
+        assignedUserId,
+        assignedUserName
+      ]);
 
   /// Create a copy of UpcomingTaskOccurrenceResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -543,25 +584,26 @@ class _$UpcomingTaskOccurrenceResponseImpl
 abstract class _UpcomingTaskOccurrenceResponse
     implements UpcomingTaskOccurrenceResponse {
   const factory _UpcomingTaskOccurrenceResponse(
-          {required final String occurrenceId,
-          final int? taskInstanceId,
-          required final int taskId,
-          required final String taskName,
-          final String? description,
-          required final int taskListId,
-          required final String taskListName,
-          required final DateTime dueDate,
-          @LocalTimeConverter() final LocalTime? alarmAtTimeOfDay,
-          final int? completionWindowHours,
-          final String? taskImagePath,
-          final int totalCompletions,
-          final StreakResponse? currentStreak,
-          @TaskScheduleConverter() required final TaskSchedule schedule,
-          final int occurrenceNumber,
-          final bool isNextOccurrence,
-          final String? taskListPrimaryColor,
-          final String? taskListSecondaryColor}) =
-      _$UpcomingTaskOccurrenceResponseImpl;
+      {required final String occurrenceId,
+      final int? taskInstanceId,
+      required final int taskId,
+      required final String taskName,
+      final String? description,
+      required final int taskListId,
+      required final String taskListName,
+      required final DateTime dueDate,
+      @LocalTimeConverter() final LocalTime? alarmAtTimeOfDay,
+      final int? completionWindowHours,
+      final String? taskImagePath,
+      final int totalCompletions,
+      final StreakResponse? currentStreak,
+      @TaskScheduleConverter() required final TaskSchedule schedule,
+      final int occurrenceNumber,
+      final bool isNextOccurrence,
+      final String? taskListPrimaryColor,
+      final String? taskListSecondaryColor,
+      final int? assignedUserId,
+      final String? assignedUserName}) = _$UpcomingTaskOccurrenceResponseImpl;
 
   factory _UpcomingTaskOccurrenceResponse.fromJson(Map<String, dynamic> json) =
       _$UpcomingTaskOccurrenceResponseImpl.fromJson;
@@ -603,7 +645,11 @@ abstract class _UpcomingTaskOccurrenceResponse
   @override
   String? get taskListPrimaryColor;
   @override
-  String? get taskListSecondaryColor;
+  String? get taskListSecondaryColor; // Ansvarlig bruger (hvis tildelt)
+  @override
+  int? get assignedUserId;
+  @override
+  String? get assignedUserName;
 
   /// Create a copy of UpcomingTaskOccurrenceResponse
   /// with the given fields replaced by the non-null parameter values.

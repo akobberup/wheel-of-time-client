@@ -199,6 +199,15 @@ class _CompactTaskCardState extends State<CompactTaskCard> {
             overflow: TextOverflow.ellipsis,
           ),
         ),
+        // Ansvarlig bruger badge
+        if (widget.occurrence.assignedUserName != null) ...[
+          SizedBox(width: widget.isDesktop ? 6 : 8),
+          AssignedUserBadge(
+            userName: widget.occurrence.assignedUserName!,
+            compact: true,
+            themeColor: primaryColor,
+          ),
+        ],
       ],
     );
   }

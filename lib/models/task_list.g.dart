@@ -14,6 +14,7 @@ _$TaskListResponseImpl _$$TaskListResponseImplFromJson(
       description: json['description'] as String?,
       ownerId: (json['ownerId'] as num).toInt(),
       ownerName: json['ownerName'] as String,
+      ownerEmail: json['ownerEmail'] as String?,
       visualTheme: VisualThemeResponse.fromJson(
           json['visualTheme'] as Map<String, dynamic>),
       taskCount: (json['taskCount'] as num?)?.toInt() ?? 0,
@@ -29,6 +30,7 @@ Map<String, dynamic> _$$TaskListResponseImplToJson(
       'description': instance.description,
       'ownerId': instance.ownerId,
       'ownerName': instance.ownerName,
+      'ownerEmail': instance.ownerEmail,
       'visualTheme': instance.visualTheme,
       'taskCount': instance.taskCount,
       'activeTaskCount': instance.activeTaskCount,

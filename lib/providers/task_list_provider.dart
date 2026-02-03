@@ -23,27 +23,33 @@ class TaskListNotifier extends StateNotifier<AsyncValue<List<TaskListResponse>>>
   }
 
   Future<void> loadAllTaskLists() async {
+    if (!mounted) return;
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _apiService.getAllTaskLists());
+    final result = await AsyncValue.guard(() => _apiService.getAllTaskLists());
+    if (mounted) state = result;
   }
 
   Future<void> loadOwnedTaskLists() async {
+    if (!mounted) return;
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _apiService.getOwnedTaskLists());
+    final result = await AsyncValue.guard(() => _apiService.getOwnedTaskLists());
+    if (mounted) state = result;
   }
 
   Future<void> loadSharedTaskLists() async {
+    if (!mounted) return;
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _apiService.getSharedTaskLists());
+    final result = await AsyncValue.guard(() => _apiService.getSharedTaskLists());
+    if (mounted) state = result;
   }
 
   Future<TaskListResponse?> createTaskList(CreateTaskListRequest request) async {
     try {
       final taskList = await _apiService.createTaskList(request);
-      await loadAllTaskLists(); // Refresh the list
+      await loadAllTaskLists();
       return taskList;
     } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+      if (mounted) state = AsyncValue.error(e, StackTrace.current);
       return null;
     }
   }
@@ -51,10 +57,10 @@ class TaskListNotifier extends StateNotifier<AsyncValue<List<TaskListResponse>>>
   Future<TaskListResponse?> updateTaskList(int id, UpdateTaskListRequest request) async {
     try {
       final taskList = await _apiService.updateTaskList(id, request);
-      await loadAllTaskLists(); // Refresh the list
+      await loadAllTaskLists();
       return taskList;
     } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+      if (mounted) state = AsyncValue.error(e, StackTrace.current);
       return null;
     }
   }
@@ -62,10 +68,10 @@ class TaskListNotifier extends StateNotifier<AsyncValue<List<TaskListResponse>>>
   Future<bool> deleteTaskList(int id) async {
     try {
       await _apiService.deleteTaskList(id);
-      await loadAllTaskLists(); // Refresh the list
+      await loadAllTaskLists();
       return true;
     } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+      if (mounted) state = AsyncValue.error(e, StackTrace.current);
       return false;
     }
   }

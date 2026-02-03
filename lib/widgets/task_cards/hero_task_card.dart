@@ -304,31 +304,44 @@ class _HeroTaskCardState extends State<HeroTaskCard> {
   Widget _buildTaskListLabel(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.list,
-            size: 14,
-            color: theme.colorScheme.onSurfaceVariant,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(20),
           ),
-          const SizedBox(width: 4),
-          Text(
-            widget.occurrence.taskListName,
-            style: TextStyle(
-              color: theme.colorScheme.onSurfaceVariant,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.list,
+                size: 14,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                widget.occurrence.taskListName,
+                style: TextStyle(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Ansvarlig bruger badge
+        if (widget.occurrence.assignedUserName != null) ...[
+          const SizedBox(width: 8),
+          AssignedUserBadge(
+            userName: widget.occurrence.assignedUserName!,
+            compact: false,
           ),
         ],
-      ),
+      ],
     );
   }
 

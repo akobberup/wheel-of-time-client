@@ -25,6 +25,7 @@ mixin _$TaskListResponse {
   String? get description => throw _privateConstructorUsedError;
   int get ownerId => throw _privateConstructorUsedError;
   String get ownerName => throw _privateConstructorUsedError;
+  String? get ownerEmail => throw _privateConstructorUsedError;
   VisualThemeResponse get visualTheme => throw _privateConstructorUsedError;
   int get taskCount => throw _privateConstructorUsedError;
   int get activeTaskCount => throw _privateConstructorUsedError;
@@ -52,6 +53,7 @@ abstract class $TaskListResponseCopyWith<$Res> {
       String? description,
       int ownerId,
       String ownerName,
+      String? ownerEmail,
       VisualThemeResponse visualTheme,
       int taskCount,
       int activeTaskCount,
@@ -80,6 +82,7 @@ class _$TaskListResponseCopyWithImpl<$Res, $Val extends TaskListResponse>
     Object? description = freezed,
     Object? ownerId = null,
     Object? ownerName = null,
+    Object? ownerEmail = freezed,
     Object? visualTheme = null,
     Object? taskCount = null,
     Object? activeTaskCount = null,
@@ -106,6 +109,10 @@ class _$TaskListResponseCopyWithImpl<$Res, $Val extends TaskListResponse>
           ? _value.ownerName
           : ownerName // ignore: cast_nullable_to_non_nullable
               as String,
+      ownerEmail: freezed == ownerEmail
+          ? _value.ownerEmail
+          : ownerEmail // ignore: cast_nullable_to_non_nullable
+              as String?,
       visualTheme: null == visualTheme
           ? _value.visualTheme
           : visualTheme // ignore: cast_nullable_to_non_nullable
@@ -150,6 +157,7 @@ abstract class _$$TaskListResponseImplCopyWith<$Res>
       String? description,
       int ownerId,
       String ownerName,
+      String? ownerEmail,
       VisualThemeResponse visualTheme,
       int taskCount,
       int activeTaskCount,
@@ -177,6 +185,7 @@ class __$$TaskListResponseImplCopyWithImpl<$Res>
     Object? description = freezed,
     Object? ownerId = null,
     Object? ownerName = null,
+    Object? ownerEmail = freezed,
     Object? visualTheme = null,
     Object? taskCount = null,
     Object? activeTaskCount = null,
@@ -203,6 +212,10 @@ class __$$TaskListResponseImplCopyWithImpl<$Res>
           ? _value.ownerName
           : ownerName // ignore: cast_nullable_to_non_nullable
               as String,
+      ownerEmail: freezed == ownerEmail
+          ? _value.ownerEmail
+          : ownerEmail // ignore: cast_nullable_to_non_nullable
+              as String?,
       visualTheme: null == visualTheme
           ? _value.visualTheme
           : visualTheme // ignore: cast_nullable_to_non_nullable
@@ -232,6 +245,7 @@ class _$TaskListResponseImpl implements _TaskListResponse {
       this.description,
       required this.ownerId,
       required this.ownerName,
+      this.ownerEmail,
       required this.visualTheme,
       this.taskCount = 0,
       this.activeTaskCount = 0,
@@ -251,6 +265,8 @@ class _$TaskListResponseImpl implements _TaskListResponse {
   @override
   final String ownerName;
   @override
+  final String? ownerEmail;
+  @override
   final VisualThemeResponse visualTheme;
   @override
   @JsonKey()
@@ -264,7 +280,7 @@ class _$TaskListResponseImpl implements _TaskListResponse {
 
   @override
   String toString() {
-    return 'TaskListResponse(id: $id, name: $name, description: $description, ownerId: $ownerId, ownerName: $ownerName, visualTheme: $visualTheme, taskCount: $taskCount, activeTaskCount: $activeTaskCount, memberCount: $memberCount)';
+    return 'TaskListResponse(id: $id, name: $name, description: $description, ownerId: $ownerId, ownerName: $ownerName, ownerEmail: $ownerEmail, visualTheme: $visualTheme, taskCount: $taskCount, activeTaskCount: $activeTaskCount, memberCount: $memberCount)';
   }
 
   @override
@@ -279,6 +295,8 @@ class _$TaskListResponseImpl implements _TaskListResponse {
             (identical(other.ownerId, ownerId) || other.ownerId == ownerId) &&
             (identical(other.ownerName, ownerName) ||
                 other.ownerName == ownerName) &&
+            (identical(other.ownerEmail, ownerEmail) ||
+                other.ownerEmail == ownerEmail) &&
             (identical(other.visualTheme, visualTheme) ||
                 other.visualTheme == visualTheme) &&
             (identical(other.taskCount, taskCount) ||
@@ -291,8 +309,18 @@ class _$TaskListResponseImpl implements _TaskListResponse {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, description, ownerId,
-      ownerName, visualTheme, taskCount, activeTaskCount, memberCount);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      description,
+      ownerId,
+      ownerName,
+      ownerEmail,
+      visualTheme,
+      taskCount,
+      activeTaskCount,
+      memberCount);
 
   /// Create a copy of TaskListResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -318,6 +346,7 @@ abstract class _TaskListResponse implements TaskListResponse {
       final String? description,
       required final int ownerId,
       required final String ownerName,
+      final String? ownerEmail,
       required final VisualThemeResponse visualTheme,
       final int taskCount,
       final int activeTaskCount,
@@ -336,6 +365,8 @@ abstract class _TaskListResponse implements TaskListResponse {
   int get ownerId;
   @override
   String get ownerName;
+  @override
+  String? get ownerEmail;
   @override
   VisualThemeResponse get visualTheme;
   @override

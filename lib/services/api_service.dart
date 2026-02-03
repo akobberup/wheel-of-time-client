@@ -16,6 +16,7 @@ import '../models/image.dart';
 import '../models/user_settings.dart';
 import '../models/visual_theme.dart';
 import '../models/enums.dart';
+import '../models/task_responsible.dart';
 import '../config/api_config.dart';
 import 'remote_logger_service.dart';
 
@@ -1588,6 +1589,85 @@ class ApiService {
         throw ApiException.withKey(
           ApiErrorKey.failedToUnregisterFcmToken,
           errorData['message'] ?? 'Failed to unregister FCM token',
+          response.statusCode,
+        );
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  // ============================================================================
+  // TASK RESPONSIBLE
+  // ============================================================================
+
+  /// Henter ansvarskonfiguration for en task.
+  /// Returnerer null hvis ingen konfiguration findes (implicit ALL strategi).
+  Future<TaskResponsibleConfigResponse?> getTaskResponsibleConfig(int taskId) async {
+    try {
+      final response = await _loggedGet(
+        '$baseUrl/api/tasks/$taskId/responsible',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        return TaskResponsibleConfigResponse.fromJson(jsonDecode(response.body));
+      } else if (response.statusCode == 204) {
+        return null; // Ingen config = ALL strategi
+      } else {
+        throw ApiException.withKey(
+          ApiErrorKey.failedToLoadTasks,
+          'Failed to load responsible config',
+          response.statusCode,
+        );
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  /// Opretter eller opdaterer ansvarskonfiguration for en task.
+  Future<TaskResponsibleConfigResponse> setTaskResponsibleConfig(
+    int taskId,
+    TaskResponsibleConfigRequest request,
+  ) async {
+    try {
+      final response = await _loggedPut(
+        '$baseUrl/api/tasks/$taskId/responsible',
+        headers: _getHeaders(includeAuth: true),
+        body: jsonEncode(request.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        return TaskResponsibleConfigResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException.withKey(
+          ApiErrorKey.failedToUpdateTask,
+          errorData['message'] ?? 'Failed to update responsible config',
+          response.statusCode,
+        );
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  /// Fjerner ansvarskonfiguration for en task (falder tilbage til ALL strategi).
+  Future<void> removeTaskResponsibleConfig(int taskId) async {
+    try {
+      final response = await _loggedDelete(
+        '$baseUrl/api/tasks/$taskId/responsible',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode != 204 && response.statusCode != 200) {
+        throw ApiException.withKey(
+          ApiErrorKey.failedToUpdateTask,
+          'Failed to remove responsible config',
           response.statusCode,
         );
       }

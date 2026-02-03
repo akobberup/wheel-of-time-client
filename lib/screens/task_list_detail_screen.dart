@@ -14,8 +14,15 @@ import '../widgets/create_task_from_template_dialog.dart';
 import '../widgets/edit_task_dialog.dart';
 import '../widgets/common/contextual_delete_dialog.dart';
 import '../widgets/common/inline_action_buttons.dart';
+import '../widgets/responsibility_bottom_sheet.dart';
 import '../config/api_config.dart';
 import '../l10n/app_strings.dart';
+import '../providers/task_list_user_provider.dart';
+import '../providers/task_responsible_provider.dart';
+import '../models/task_responsible.dart';
+import '../models/task_list_user.dart';
+import '../models/enums.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/skeleton_loader.dart';
 import '../models/schedule.dart';
@@ -642,6 +649,18 @@ class _ThemedTaskCard extends ConsumerWidget {
   Widget _buildMetadataAndActionsRow(BuildContext context, WidgetRef ref) {
     final strings = AppStrings.of(context);
 
+    // Hent task list detaljer for at tjekke antal medlemmer
+    // BEMÆRK: memberCount tæller kun tilføjede medlemmer (TaskListUser), IKKE ejeren.
+    // Derfor viser vi ansvarlig-chip hvis memberCount >= 1 (ejer + mindst ét medlem)
+    final taskListAsync = ref.watch(taskListDetailProvider(taskListId));
+    final memberCount = taskListAsync.whenOrNull(data: (tl) => tl.memberCount) ?? 0;
+    final hasMultipleMembers = memberCount >= 1;
+
+    // Hent ansvarskonfiguration hvis der er flere medlemmer
+    final responsibleConfigAsync = hasMultipleMembers
+        ? ref.watch(taskResponsibleConfigProvider(task.id))
+        : null;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -673,18 +692,141 @@ class _ThemedTaskCard extends ConsumerWidget {
             ],
           ),
         ),
-        // Inline action buttons (højre side)
+        // Action buttons area (højre side)
         const SizedBox(width: 8),
-        InlineActionButtons(
-          onEdit: () => _handleEdit(context, ref),
-          onDelete: () => _handleDelete(context, ref),
-          themeColor: primaryColor,
-          isDark: isDark,
-          itemName: task.name,
-          editLabel: strings.edit,
-          deleteLabel: strings.delete,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Ansvarlig knap - kun hvis flere medlemmer
+            if (hasMultipleMembers) ...[
+              _buildResponsibleButton(
+                context,
+                ref,
+                responsibleConfigAsync,
+              ),
+              const SizedBox(width: 8),
+            ],
+            InlineActionButtons(
+              onEdit: () => _handleEdit(context, ref),
+              onDelete: () => _handleDelete(context, ref),
+              themeColor: primaryColor,
+              isDark: isDark,
+              itemName: task.name,
+              editLabel: strings.edit,
+              deleteLabel: strings.delete,
+            ),
+          ],
         ),
       ],
+    );
+  }
+
+  /// Beregner display ikon for ansvarskonfiguration.
+  IconData _getResponsibleIcon(TaskResponsibleConfigResponse? config) {
+    if (config == null || config.strategy == ResponsibleStrategy.all) {
+      return Icons.people_outline;
+    } else if (config.strategy == ResponsibleStrategy.fixedPerson) {
+      return Icons.person;
+    } else {
+      return Icons.sync_alt;
+    }
+  }
+
+  /// Bygger ansvarlig-knap der åbner ResponsibilityBottomSheet.
+  /// Placeres sammen med andre action buttons og har hover-effekt.
+  Widget _buildResponsibleButton(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue<TaskResponsibleConfigResponse?>? configAsync,
+  ) {
+    final isLoading = configAsync == null || configAsync.isLoading;
+    final config = configAsync?.valueOrNull;
+    final icon = isLoading ? Icons.person_outline : _getResponsibleIcon(config);
+
+    // Brug en lilla/violet farve for at skille sig ud fra andre knapper
+    final buttonColor = isDark
+        ? const Color(0xFFB388FF) // Lys lilla i dark mode
+        : const Color(0xFF7C4DFF); // Dyb lilla i light mode
+
+    return Semantics(
+      label: 'Ansvarlig for ${task.name}',
+      button: true,
+      child: _HoverableActionButton(
+        onTap: () => _openResponsibilitySheet(context, ref),
+        color: buttonColor,
+        icon: icon,
+        isDark: isDark,
+      ),
+    );
+  }
+
+  /// Åbner ResponsibilityBottomSheet for at vælge ansvarsstrategi.
+  /// Viser en loading besked hvis medlemsdata ikke er indlæst endnu.
+  void _openResponsibilitySheet(BuildContext context, WidgetRef ref) async {
+    final strings = AppStrings.of(context);
+
+    // Hent task list for at få ejerens info
+    final taskListAsync = ref.read(taskListDetailProvider(taskListId));
+    final taskList = taskListAsync.valueOrNull;
+
+    if (taskList == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${strings.loading}...')),
+      );
+      return;
+    }
+
+    // Hent medlemmer (ekskl. ejer) - vent på at data er indlæst
+    final membersAsync = ref.read(taskListUsersProvider(taskListId));
+    List<TaskListUserResponse> addedMembers;
+
+    if (membersAsync.isLoading || membersAsync.hasError) {
+      // Data ikke klar - hent det direkte fra API
+      try {
+        final apiService = ref.read(apiServiceProvider);
+        addedMembers = await apiService.getUsersByTaskList(taskListId);
+      } catch (e) {
+        addedMembers = [];
+      }
+    } else {
+      addedMembers = membersAsync.valueOrNull ?? [];
+    }
+
+    // Opret en syntetisk TaskListUserResponse for ejeren
+    final ownerAsMember = TaskListUserResponse(
+      id: 0, // Syntetisk ID
+      taskListId: taskListId,
+      taskListName: taskList.name,
+      userId: taskList.ownerId,
+      userName: taskList.ownerName,
+      userEmail: taskList.ownerEmail ?? '', // Fallback til tom streng hvis ikke tilgængelig
+      userAdminLevel: AdminLevel.CAN_EDIT,
+      addedDate: DateTime.now(),
+      addedByUserName: taskList.ownerName,
+    );
+
+    // Kombiner ejer + tilføjede medlemmer (ejer først)
+    final allMembers = [ownerAsMember, ...addedMembers];
+
+    // Hent nuværende config (kan være null/loading - det er OK)
+    final configAsync = ref.read(taskResponsibleConfigProvider(task.id));
+    final currentConfig = configAsync.valueOrNull;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ResponsibilityBottomSheet(
+        members: allMembers,
+        currentConfig: currentConfig,
+        themeColor: primaryColor,
+        onSave: (request) async {
+          // Bottom sheet lukker sig selv - kald bare setConfig
+          await ref
+              .read(taskResponsibleConfigProvider(task.id).notifier)
+              .setConfig(request);
+        },
+      ),
     );
   }
 
@@ -693,9 +835,11 @@ class _ThemedTaskCard extends ConsumerWidget {
     required IconData icon,
     required String label,
     bool isHighlight = false,
+    bool isInteractive = false,
   }) {
     final chipColor = isHighlight ? secondaryColor : primaryColor;
     final bgAlpha = isDark ? 0.20 : 0.12;
+    final borderAlpha = isInteractive ? 0.4 : 0.2;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -703,8 +847,8 @@ class _ThemedTaskCard extends ConsumerWidget {
         color: chipColor.withValues(alpha: bgAlpha),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: chipColor.withValues(alpha: 0.2),
-          width: 1,
+          color: chipColor.withValues(alpha: borderAlpha),
+          width: isInteractive ? 1.5 : 1,
         ),
       ),
       child: Row(
@@ -720,6 +864,14 @@ class _ThemedTaskCard extends ConsumerWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
+          if (isInteractive) ...[
+            const SizedBox(width: 2),
+            Icon(
+              Icons.keyboard_arrow_down,
+              size: 14,
+              color: chipColor.withValues(alpha: 0.7),
+            ),
+          ],
         ],
       ),
     );
@@ -831,6 +983,71 @@ class _ThemedTaskCard extends ConsumerWidget {
       SnackBar(
         content: Text(
           success ? strings.taskDeletedSuccess : strings.failedToDeleteTask,
+        ),
+      ),
+    );
+  }
+}
+
+/// Action-knap med hover-effekt til brug i task cards.
+/// Matcher stilen fra InlineActionButtons men med hover animation.
+class _HoverableActionButton extends StatefulWidget {
+  final VoidCallback onTap;
+  final Color color;
+  final IconData icon;
+  final bool isDark;
+  final double size;
+
+  const _HoverableActionButton({
+    required this.onTap,
+    required this.color,
+    required this.icon,
+    required this.isDark,
+    this.size = 34,
+  });
+
+  @override
+  State<_HoverableActionButton> createState() => _HoverableActionButtonState();
+}
+
+class _HoverableActionButtonState extends State<_HoverableActionButton> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOut,
+        width: widget.size,
+        height: widget.size,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: widget.color.withValues(alpha: _isHovered ? 0.8 : 0.4),
+            width: 1.5,
+          ),
+          color: widget.color.withValues(alpha: _isHovered ? 0.2 : 0.08),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: widget.onTap,
+            borderRadius: BorderRadius.circular(8),
+            child: Center(
+              child: AnimatedScale(
+                scale: _isHovered ? 1.1 : 1.0,
+                duration: const Duration(milliseconds: 150),
+                child: Icon(
+                  widget.icon,
+                  size: 18,
+                  color: widget.color,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

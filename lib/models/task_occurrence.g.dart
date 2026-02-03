@@ -33,6 +33,8 @@ _$UpcomingTaskOccurrenceResponseImpl
           isNextOccurrence: json['isNextOccurrence'] as bool? ?? false,
           taskListPrimaryColor: json['taskListPrimaryColor'] as String?,
           taskListSecondaryColor: json['taskListSecondaryColor'] as String?,
+          assignedUserId: (json['assignedUserId'] as num?)?.toInt(),
+          assignedUserName: json['assignedUserName'] as String?,
         );
 
 Map<String, dynamic> _$$UpcomingTaskOccurrenceResponseImplToJson(
@@ -57,4 +59,6 @@ Map<String, dynamic> _$$UpcomingTaskOccurrenceResponseImplToJson(
       'isNextOccurrence': instance.isNextOccurrence,
       'taskListPrimaryColor': instance.taskListPrimaryColor,
       'taskListSecondaryColor': instance.taskListSecondaryColor,
+      'assignedUserId': instance.assignedUserId,
+      'assignedUserName': instance.assignedUserName,
     };
