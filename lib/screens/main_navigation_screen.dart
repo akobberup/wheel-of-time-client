@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'task_lists_screen.dart';
 import 'invitations_screen.dart';
 import 'upcoming_tasks_screen.dart';
+import '../models/invitation.dart';
 import '../providers/invitation_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
@@ -29,22 +30,38 @@ class MainNavigationScreen extends ConsumerStatefulWidget {
 class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   bool _hasCheckedInitialTab = false;
 
-  /// Tjekker om brugeren har opgavelister og skifter til Lists tab hvis ikke
-  /// Dette sikrer at nye brugere guides til at oprette deres første opgaveliste
-  void _checkInitialTabForNewUser(AsyncValue<List<dynamic>> taskListsAsync) {
+  /// Tjekker om brugeren har opgavelister og dirigerer til korrekt tab
+  /// Hvis brugeren har ventende invitationer → Invitations tab (index 2)
+  /// Hvis ingen opgavelister og ingen invitationer → Lists tab (index 0) for onboarding
+  void _checkInitialTabForNewUser(
+    AsyncValue<List<dynamic>> taskListsAsync,
+    AsyncValue<List<InvitationResponse>> invitationsAsync,
+  ) {
     if (_hasCheckedInitialTab) return;
 
     taskListsAsync.whenData((taskLists) {
       if (_hasCheckedInitialTab) return;
-      _hasCheckedInitialTab = true;
 
       if (taskLists.isEmpty) {
-        // Ny bruger uden opgavelister - skift til Lists tab
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            ref.read(selectedIndexProvider.notifier).state = 0;
-          }
+        // Vent på at invitationer også er loaded før vi beslutter
+        invitationsAsync.whenData((invitations) {
+          if (_hasCheckedInitialTab) return;
+          _hasCheckedInitialTab = true;
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              if (invitations.isNotEmpty) {
+                // Ny bruger med ventende invitationer - vis Invitations tab
+                ref.read(selectedIndexProvider.notifier).state = 2;
+              } else {
+                // Ny bruger uden invitationer - vis Lists tab for onboarding
+                ref.read(selectedIndexProvider.notifier).state = 0;
+              }
+            }
+          });
         });
+      } else {
+        _hasCheckedInitialTab = true;
       }
     });
   }
@@ -60,9 +77,10 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     final backgroundColor =
         isDark ? const Color(0xFF121214) : const Color(0xFFFAFAF8);
 
-    // Tjek om ny bruger skal startes på Lists tab (kun første gang data er loaded)
+    // Tjek om ny bruger skal dirigeres til Invitations eller Lists tab
     final taskListsAsync = ref.watch(taskListProvider);
-    _checkInitialTabForNewUser(taskListsAsync);
+    final invitationsAsync = ref.watch(invitationProvider);
+    _checkInitialTabForNewUser(taskListsAsync, invitationsAsync);
 
     return Scaffold(
       backgroundColor: backgroundColor,

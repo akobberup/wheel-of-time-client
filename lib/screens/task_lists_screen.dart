@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/task_list_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/invitation_provider.dart';
 import '../providers/theme_provider.dart';
 import '../l10n/app_strings.dart';
 import '../models/task_list.dart';
@@ -60,7 +61,9 @@ class _TaskListsScreenState extends ConsumerState<TaskListsScreen> {
     WidgetRef ref,
   ) {
     // Onboarding: Åbn create-dialog automatisk hvis ingen lister findes
-    if (taskLists.isEmpty && !_hasShownCreateDialog) {
+    // Spring over hvis brugeren har ventende invitationer - de skal håndtere dem først
+    final hasPendingInvitations = ref.watch(invitationProvider).valueOrNull?.isNotEmpty ?? false;
+    if (taskLists.isEmpty && !_hasShownCreateDialog && !hasPendingInvitations) {
       _hasShownCreateDialog = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showOnboardingCreateDialog(context, ref);
