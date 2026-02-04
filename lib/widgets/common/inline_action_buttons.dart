@@ -76,10 +76,8 @@ class InlineActionButtons extends StatelessWidget {
   }
 
   Widget _buildShareButton(BuildContext context) {
-    // Brug en blå farve til del-knappen for at adskille den visuelt
-    final shareColor = isDark
-        ? const Color(0xFF64B5F6)
-        : const Color(0xFF1976D2);
+    // Brug tema-farven for visuelt sammenhæng med resten af kortet
+    final shareColor = themeColor;
 
     return Semantics(
       label: '${shareLabel ?? 'Del'} $itemName',

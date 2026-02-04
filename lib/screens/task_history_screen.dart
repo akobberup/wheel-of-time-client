@@ -23,11 +23,15 @@ enum DateFilter { all, thisWeek, thisMonth, last3Months }
 class TaskHistoryScreen extends ConsumerStatefulWidget {
   final int taskId;
   final String taskName;
+  final Color? primaryColor;
+  final Color? secondaryColor;
 
   const TaskHistoryScreen({
     super.key,
     required this.taskId,
     required this.taskName,
+    this.primaryColor,
+    this.secondaryColor,
   });
 
   @override
@@ -42,21 +46,24 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
     final strings = AppStrings.of(context);
     final historyAsync = ref.watch(taskHistoryProvider(widget.taskId));
     final themeState = ref.watch(themeProvider);
-    final seedColor = themeState.seedColor;
+    // Brug opgavelistens farver hvis tilgængelige, ellers fallback til global primaryColor
+    final primaryColor = widget.primaryColor ?? themeState.seedColor;
+    final secondaryColor = widget.secondaryColor ?? primaryColor;
+    final isDark = themeState.isDarkMode;
 
     return Scaffold(
-      backgroundColor: themeState.isDarkMode 
+      backgroundColor: isDark 
           ? const Color(0xFF121214) 
           : const Color(0xFFFAFAF8),
       body: RefreshIndicator(
         onRefresh: () => ref.read(taskHistoryProvider(widget.taskId).notifier).refresh(),
         child: CustomScrollView(
           slivers: [
-            _buildSliverAppBar(context, strings, seedColor, themeState.isDarkMode),
+            _buildSliverAppBar(context, strings, primaryColor, secondaryColor, isDark),
             historyAsync.when(
-              data: (instances) => _buildHistoryContent(instances, strings, seedColor, themeState.isDarkMode),
+              data: (instances) => _buildHistoryContent(instances, strings, primaryColor, secondaryColor, isDark),
               loading: () => _buildLoadingSliver(strings),
-              error: (error, stack) => _buildErrorSliver(error, strings, seedColor),
+              error: (error, stack) => _buildErrorSliver(error, strings, primaryColor),
             ),
           ],
         ),
@@ -65,7 +72,7 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
   }
 
   /// Bygger custom SliverAppBar med organisk design
-  Widget _buildSliverAppBar(BuildContext context, AppStrings strings, Color seedColor, bool isDark) {
+  Widget _buildSliverAppBar(BuildContext context, AppStrings strings, Color primaryColor, Color secondaryColor, bool isDark) {
     return SliverAppBar(
       expandedHeight: 100,
       floating: false,
@@ -94,47 +101,47 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                seedColor.withOpacity(0.05),
-                seedColor.withOpacity(0.02),
+                primaryColor.withOpacity(0.08),
+                secondaryColor.withOpacity(0.03),
               ],
             ),
           ),
         ),
       ),
-      actions: [_buildFilterButton(strings, seedColor, isDark)],
+      actions: [_buildFilterButton(strings, primaryColor, isDark)],
     );
   }
 
-  Widget _buildFilterButton(AppStrings strings, Color seedColor, bool isDark) {
+  Widget _buildFilterButton(AppStrings strings, Color primaryColor, bool isDark) {
     return PopupMenuButton<DateFilter>(
       icon: const Icon(Icons.filter_list_rounded),
       tooltip: strings.filter,
       onSelected: _handleFilterSelected,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       itemBuilder: (context) => [
-        _buildFilterMenuItem(DateFilter.all, strings.allTime, seedColor),
-        _buildFilterMenuItem(DateFilter.thisWeek, strings.thisWeek, seedColor),
-        _buildFilterMenuItem(DateFilter.thisMonth, strings.thisMonth, seedColor),
-        _buildFilterMenuItem(DateFilter.last3Months, strings.last3Months, seedColor),
+        _buildFilterMenuItem(DateFilter.all, strings.allTime, primaryColor),
+        _buildFilterMenuItem(DateFilter.thisWeek, strings.thisWeek, primaryColor),
+        _buildFilterMenuItem(DateFilter.thisMonth, strings.thisMonth, primaryColor),
+        _buildFilterMenuItem(DateFilter.last3Months, strings.last3Months, primaryColor),
       ],
     );
   }
 
-  PopupMenuItem<DateFilter> _buildFilterMenuItem(DateFilter filter, String label, Color seedColor) {
+  PopupMenuItem<DateFilter> _buildFilterMenuItem(DateFilter filter, String label, Color primaryColor) {
     final isSelected = _selectedFilter == filter;
     return PopupMenuItem(
       value: filter,
       child: Row(
         children: [
           if (isSelected) ...[
-            Icon(Icons.check_circle_rounded, size: 20, color: seedColor),
+            Icon(Icons.check_circle_rounded, size: 20, color: primaryColor),
             const SizedBox(width: 8),
           ],
           Text(
             label,
             style: TextStyle(
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected ? seedColor : null,
+              color: isSelected ? primaryColor : null,
             ),
           ),
         ],
@@ -147,7 +154,7 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
   }
 
   /// Bygger hovedindhold med historik-liste
-  Widget _buildHistoryContent(List<TaskInstanceResponse> instances, AppStrings strings, Color seedColor, bool isDark) {
+  Widget _buildHistoryContent(List<TaskInstanceResponse> instances, AppStrings strings, Color primaryColor, Color secondaryColor, bool isDark) {
     final filteredInstances = _applyFilter(instances);
 
     if (filteredInstances.isEmpty) {
@@ -163,14 +170,15 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
 
     return SliverList(
       delegate: SliverChildListDelegate([
-        _buildSummaryHeader(sortedInstances.length, strings, seedColor, isDark),
+        _buildSummaryHeader(sortedInstances.length, strings, primaryColor, secondaryColor, isDark),
         const SizedBox(height: 24),
         ...sortedInstances.map((instance) => 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
             child: _HistoryCard(
               instance: instance,
-              seedColor: seedColor,
+              primaryColor: primaryColor,
+              secondaryColor: secondaryColor,
               isDark: isDark,
             ),
           ),
@@ -190,15 +198,15 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
   }
 
   /// Bygger summary header med organisk design og subtil gradient
-  Widget _buildSummaryHeader(int count, AppStrings strings, Color seedColor, bool isDark) {
+  Widget _buildSummaryHeader(int count, AppStrings strings, Color primaryColor, Color secondaryColor, bool isDark) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            seedColor.withOpacity(0.15),
-            seedColor.withOpacity(0.08),
+            primaryColor.withOpacity(0.15),
+            secondaryColor.withOpacity(0.08),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -217,12 +225,12 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: seedColor.withOpacity(0.2),
+              color: primaryColor.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.check_circle_rounded,
-              color: seedColor,
+              color: primaryColor,
               size: 24,
             ),
           ),
@@ -262,7 +270,7 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
     );
   }
 
-  Widget _buildErrorSliver(Object error, AppStrings strings, Color seedColor) {
+  Widget _buildErrorSliver(Object error, AppStrings strings, Color primaryColor) {
     return SliverFillRemaining(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -307,7 +315,7 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
               icon: const Icon(Icons.refresh_rounded),
               label: Text(strings.retry),
               style: ElevatedButton.styleFrom(
-                backgroundColor: seedColor,
+                backgroundColor: primaryColor,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 shape: RoundedRectangleBorder(
@@ -358,10 +366,11 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
 /// Viser status-indikation (PENDING, COMPLETED, EXPIRED) med farver og badges.
 class _HistoryCard extends StatelessWidget {
   final TaskInstanceResponse instance;
-  final Color seedColor;
+  final Color primaryColor;
+  final Color secondaryColor;
   final bool isDark;
 
-  // Status farver
+  // Status farver (beholdes for tydelig status-indikation)
   static const Color _pendingColor = Color(0xFF3B82F6);   // Blå
   static const Color _completedColor = Color(0xFF22C55E); // Grøn
   static const Color _expiredColor = Color(0xFFEF4444);   // Rød
@@ -369,7 +378,8 @@ class _HistoryCard extends StatelessWidget {
 
   const _HistoryCard({
     required this.instance,
-    required this.seedColor,
+    required this.primaryColor,
+    required this.secondaryColor,
     required this.isDark,
   });
 
@@ -477,9 +487,11 @@ class _HistoryCard extends StatelessWidget {
   }
 
   Widget _buildAvatar() {
-    // Brug status-farve for system entries, brugerens farve for completed
+    // For system entries (expired/pending): brug status-farve, ellers tema-farve
     final bool isSystemEntry = instance.userName == null;
-    final avatarColor = isSystemEntry ? _statusColor : seedColor;
+    final avatarColor = (isSystemEntry || instance.status == TaskInstanceStatus.expired)
+        ? _statusColor
+        : primaryColor;
 
     return Container(
       width: 48,
@@ -580,13 +592,13 @@ class _HistoryCard extends StatelessWidget {
           _buildBadge(
             icon: Icons.local_fire_department_rounded,
             label: strings.contributedToStreak,
-            color: const Color(0xFFF59E0B),
+            color: secondaryColor,
           ),
         if (_hasComment)
           _buildBadge(
             icon: Icons.comment_rounded,
             label: strings.withComment,
-            color: seedColor,
+            color: primaryColor,
           ),
       ],
     );
@@ -712,7 +724,7 @@ class _HistoryCard extends StatelessWidget {
       ),
       child: Center(
         child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(seedColor),
+          valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
         ),
       ),
     );

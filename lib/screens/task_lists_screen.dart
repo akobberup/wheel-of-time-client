@@ -15,7 +15,6 @@ import '../widgets/edit_task_list_dialog.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/error_state_widget.dart';
 import '../widgets/common/contextual_delete_dialog.dart';
-import '../widgets/common/stacked_avatars.dart';
 import '../widgets/common/inline_action_buttons.dart';
 
 /// Viser liste over brugerens opgavelister med mulighed for at oprette, redigere og slette
@@ -382,15 +381,7 @@ class _TaskListCard extends ConsumerWidget {
             ],
           ),
         ),
-        // Stablede medlems-avatarer
-        if (taskList.memberCount > 0) ...[
-          StackedAvatars(
-            memberCount: taskList.memberCount as int,
-            avatarSize: 28,
-            maxVisible: 3,
-          ),
-          const SizedBox(width: 12),
-        ],
+
         // Inline action buttons
         InlineActionButtons(
           onEdit: () => _handleEdit(context, ref),

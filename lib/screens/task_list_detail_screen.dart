@@ -489,7 +489,7 @@ class _ThemedTaskCard extends ConsumerWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      height: 160, // Fast højde for konsistent layout
+      // Dynamisk højde med minimum for konsistens
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color: cardColor,
@@ -515,7 +515,7 @@ class _ThemedTaskCard extends ConsumerWidget {
               // Gradient accent border i toppen
               _buildThemeAccent(),
               // Horisontalt layout: billede til venstre, indhold til højre
-              Expanded(
+              IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -524,9 +524,10 @@ class _ThemedTaskCard extends ConsumerWidget {
                     // Indhold til højre (ca 2/3 af bredden)
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             // Titel
                             Text(
@@ -558,7 +559,7 @@ class _ThemedTaskCard extends ConsumerWidget {
                                 ),
                               ),
                             ],
-                            const Spacer(),
+                            const SizedBox(height: 8),
                             // Metadata chips og inline action buttons
                             _buildMetadataAndActionsRow(context, ref),
                           ],
@@ -661,50 +662,45 @@ class _ThemedTaskCard extends ConsumerWidget {
         ? ref.watch(taskResponsibleConfigProvider(task.id))
         : null;
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        // Metadata chips (venstre side)
-        Expanded(
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: [
-              // Schedule chip
-              _buildThemedChip(
-                icon: Icons.repeat_rounded,
-                label: _formatSchedule(task.schedule),
-              ),
-              // Streak chip hvis aktiv
-              if (task.currentStreak != null &&
-                  task.currentStreak!.streakCount > 0)
-                _buildThemedChip(
-                  icon: Icons.local_fire_department,
-                  label: strings.streakCount(task.currentStreak!.streakCount),
-                  isHighlight: true,
-                ),
-              // Completions chip
-              if (task.totalCompletions > 0)
-                _buildThemedChip(
-                  icon: Icons.check_circle_outline,
-                  label: '${task.totalCompletions}x',
-                ),
-            ],
-          ),
-        ),
-        // Action buttons area (højre side)
-        const SizedBox(width: 8),
-        Row(
-          mainAxisSize: MainAxisSize.min,
+        // Række 1: Metadata chips
+        Wrap(
+          spacing: 6,
+          runSpacing: 4,
           children: [
-            // Ansvarlig knap - kun hvis flere medlemmer
+            _buildThemedChip(
+              icon: Icons.repeat_rounded,
+              label: _formatSchedule(task.schedule),
+            ),
+            if (task.currentStreak != null &&
+                task.currentStreak!.streakCount > 0)
+              _buildThemedChip(
+                icon: Icons.local_fire_department,
+                label: strings.streakCount(task.currentStreak!.streakCount),
+                isHighlight: true,
+              ),
+            if (task.totalCompletions > 0)
+              _buildThemedChip(
+                icon: Icons.check_circle_outline,
+                label: '${task.totalCompletions}x',
+              ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // Række 2: Action buttons (højre-alignet)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
             if (hasMultipleMembers) ...[
               _buildResponsibleButton(
                 context,
                 ref,
                 responsibleConfigAsync,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
             ],
             InlineActionButtons(
               onEdit: () => _handleEdit(context, ref),
@@ -714,6 +710,7 @@ class _ThemedTaskCard extends ConsumerWidget {
               itemName: task.name,
               editLabel: strings.edit,
               deleteLabel: strings.delete,
+              buttonSize: 32,
             ),
           ],
         ),
@@ -743,10 +740,8 @@ class _ThemedTaskCard extends ConsumerWidget {
     final config = configAsync?.valueOrNull;
     final icon = isLoading ? Icons.person_outline : _getResponsibleIcon(config);
 
-    // Brug en lilla/violet farve for at skille sig ud fra andre knapper
-    final buttonColor = isDark
-        ? const Color(0xFFB388FF) // Lys lilla i dark mode
-        : const Color(0xFF7C4DFF); // Dyb lilla i light mode
+    // Brug task listens tema-farve for visuelt sammenhæng
+    final buttonColor = primaryColor;
 
     return Semantics(
       label: 'Ansvarlig for ${task.name}',
@@ -885,8 +880,10 @@ class _ThemedTaskCard extends ConsumerWidget {
   }
 
   void _navigateToTaskHistory(BuildContext context) {
+    final primaryHex = primaryColor.value.toRadixString(16);
+    final secondaryHex = secondaryColor.value.toRadixString(16);
     context.push(
-      '/lists/$taskListId/tasks/${task.id}?name=${Uri.encodeComponent(task.name)}',
+      '/lists/$taskListId/tasks/${task.id}?name=${Uri.encodeComponent(task.name)}&primaryColor=$primaryHex&secondaryColor=$secondaryHex',
     );
   }
 
