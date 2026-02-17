@@ -23,6 +23,8 @@ class CompleteTaskDialog extends ConsumerStatefulWidget {
   final String? taskImagePath;
   final String? taskListPrimaryColor;
   final String? taskListSecondaryColor;
+  final int? taskInstanceId;
+  final DateTime dueDate;
 
   const CompleteTaskDialog({
     super.key,
@@ -32,6 +34,8 @@ class CompleteTaskDialog extends ConsumerStatefulWidget {
     this.taskImagePath,
     this.taskListPrimaryColor,
     this.taskListSecondaryColor,
+    this.taskInstanceId,
+    required this.dueDate,
   });
 
   @override
@@ -52,6 +56,7 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
   final _commentController = TextEditingController();
   DateTime _completedDateTime = DateTime.now();
   bool _isLoading = false;
+  bool _isSkipping = false;
   bool _isSuccess = false;
   bool _showCommentField = false;
   bool _isTimeSelected = false;
@@ -221,6 +226,31 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
           _isTimeSelected = true;
         });
         HapticFeedback.selectionClick();
+      }
+    }
+  }
+
+  /// Springer opgaven over (dismiss) via API
+  Future<void> _skip() async {
+    HapticFeedback.mediumImpact();
+    setState(() => _isSkipping = true);
+
+    final notifier = ref.read(taskInstancesProvider(widget.taskId).notifier);
+    final taskInstanceId = widget.taskInstanceId;
+
+    final result = taskInstanceId != null
+        ? await notifier.dismissTaskInstance(taskInstanceId)
+        : await notifier.dismissTaskOccurrence(widget.dueDate);
+
+    if (mounted) {
+      if (result != null) {
+        Navigator.of(context).pop({'action': 'skipped'});
+      } else {
+        setState(() => _isSkipping = false);
+        final strings = AppStrings.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(strings.error)),
+        );
       }
     }
   }
@@ -639,6 +669,7 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
   /// Builds the action buttons with success state handling.
   Widget _buildActionButtons(ColorScheme colorScheme, Color themeColor) {
     final strings = AppStrings.of(context);
+    final bool anyLoading = _isLoading || _isSkipping || _isSuccess;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -646,7 +677,7 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
         // Cancel button
         Flexible(
           child: OutlinedButton(
-            onPressed: _isLoading || _isSuccess
+            onPressed: anyLoading
                 ? null
                 : () => Navigator.of(context).pop(),
             style: OutlinedButton.styleFrom(
@@ -655,14 +686,38 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
             child: Text(strings.cancel),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
+
+        // Skip button
+        Flexible(
+          child: OutlinedButton.icon(
+            onPressed: anyLoading ? null : _skip,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.orange.shade700,
+              side: BorderSide(color: anyLoading ? Colors.grey.shade300 : Colors.orange.shade300),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            icon: _isSkipping
+                ? SizedBox(
+                    width: _buttonIconSize,
+                    height: _buttonIconSize,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.orange.shade700),
+                    ),
+                  )
+                : Icon(Icons.skip_next, size: _buttonIconSize),
+            label: Text(strings.taskDismissedSwipe),
+          ),
+        ),
+        const SizedBox(width: 8),
 
         // Complete button with animated states
         Flexible(
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             child: FilledButton.icon(
-              onPressed: _isLoading || _isSuccess ? null : _submit,
+              onPressed: anyLoading ? null : _submit,
               style: FilledButton.styleFrom(
                 backgroundColor:
                     _isSuccess ? Colors.green.shade600 : Colors.green.shade500,

@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/upcoming_tasks_provider.dart';
 import '../providers/completed_tasks_provider.dart';
-import '../providers/task_instance_provider.dart';
 import '../providers/theme_provider.dart';
 import '../models/task_occurrence.dart';
 import '../models/task_instance.dart';
@@ -291,8 +290,6 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: TaskOccurrenceCard(
                   occurrence: task,
-                  onQuickComplete: _handleQuickComplete,
-                  onQuickDismiss: _handleQuickDismiss,
                   onTap: _handleTaskCompletion,
                   isDesktop: false,
                 ),
@@ -318,8 +315,6 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
               itemCount: tasksToShow.length,
               itemBuilder: (context, index) => TaskOccurrenceCard(
                 occurrence: tasksToShow[index],
-                onQuickComplete: _handleQuickComplete,
-                onQuickDismiss: _handleQuickDismiss,
                 onTap: _handleTaskCompletion,
                 isDesktop: isDesktop,
               ),
@@ -415,65 +410,7 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     );
   }
 
-  /// Hurtig fuldførelse med nuværende tidsstempel (til swipe-handling)
-  Future<void> _handleQuickComplete(
-      UpcomingTaskOccurrenceResponse occurrence) async {
-    final request = CreateTaskInstanceRequest(
-      taskId: occurrence.taskId,
-      completedDateTime: DateTime.now(),
-      optionalComment: null,
-    );
-
-    final result = await ref
-        .read(taskInstancesProvider(occurrence.taskId).notifier)
-        .createTaskInstance(request);
-
-    if (result != null && mounted) {
-      final newStreakCount = result.contributedToStreak
-          ? (occurrence.currentStreak?.streakCount ?? 0) + 1
-          : null;
-
-      await TaskCompletionAnimation.show(
-        context: context,
-        streakCount: newStreakCount,
-      );
-
-      ref.read(upcomingTasksProvider.notifier).refresh();
-    }
-  }
-
-  /// Hurtig dismiss (spring over) til swipe-handling
-  Future<void> _handleQuickDismiss(
-      UpcomingTaskOccurrenceResponse occurrence) async {
-    HapticFeedback.mediumImpact();
-
-    final notifier = ref.read(taskInstancesProvider(occurrence.taskId).notifier);
-    final taskInstanceId = occurrence.taskInstanceId;
-
-    // Brug taskInstanceId hvis tilgængelig, ellers brug taskId + dueDate
-    final TaskInstanceResponse? result;
-    if (taskInstanceId != null) {
-      result = await notifier.dismissTaskInstance(taskInstanceId);
-    } else {
-      result = await notifier.dismissTaskOccurrence(occurrence.dueDate);
-    }
-
-    if (result != null && mounted) {
-      final strings = AppStrings.of(context);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(strings.taskDismissed),
-          duration: const Duration(seconds: 3),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-
-      ref.read(upcomingTasksProvider.notifier).refresh();
-    }
-  }
-
-  /// Håndterer opgavefuldførelse og viser passende succesbesked
+  /// Håndterer opgave-tap: åbner dialog med mulighed for fuldførelse eller skip
   Future<void> _handleTaskCompletion(
     BuildContext context,
     UpcomingTaskOccurrenceResponse occurrence,
@@ -488,10 +425,27 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
         taskImagePath: occurrence.taskImagePath,
         taskListPrimaryColor: occurrence.taskListPrimaryColor,
         taskListSecondaryColor: occurrence.taskListSecondaryColor,
+        taskInstanceId: occurrence.taskInstanceId,
+        dueDate: occurrence.dueDate,
       ),
     );
 
     if (dialogResult != null && context.mounted) {
+      // Håndtér skip-action
+      if (dialogResult['action'] == 'skipped') {
+        final strings = AppStrings.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.taskDismissed),
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        ref.read(upcomingTasksProvider.notifier).refresh();
+        return;
+      }
+
+      // Håndtér fuldførelse
       final result = dialogResult['result'] as TaskInstanceResponse;
       final completionMessage = dialogResult['message'] as String?;
 
