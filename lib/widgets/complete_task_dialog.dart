@@ -1,15 +1,15 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/task_instance_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
 import '../models/task_instance.dart';
 import '../models/streak.dart';
 import '../l10n/app_strings.dart';
-import '../config/api_config.dart';
 
 /// A celebratory dialog for completing tasks with animations and encouraging messages.
 ///
@@ -44,13 +44,20 @@ class CompleteTaskDialog extends ConsumerStatefulWidget {
 
 class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
     with TickerProviderStateMixin {
-  // Constants for consistent spacing and sizing
-  static const double _verticalSpacing = 16.0;
-  static const double _headerPadding = 28.0;
+  // Fejringse-emojis der vises tilfældigt øverst i dialogen
+  static const List<String> _celebrationEmojis = [
+    '⭐', '💪', '🔥', '🚀', '🏆', '🎉', '✨', '🌟', '👊', '🎯',
+  ];
+
+  // Konstanter for ensartet spacing og størrelser
+  static const double _verticalSpacing = 12.0;
+  static const double _headerPadding = 20.0;
   static const double _contentPadding = 20.0;
   static const double _borderRadius = 28.0;
-  static const double _iconSize = 56.0;
   static const double _buttonIconSize = 20.0;
+
+  // Den tilfældigt valgte fejrings-emoji for denne session
+  late final String _celebrationEmoji;
 
   // Controllers and state
   final _commentController = TextEditingController();
@@ -75,6 +82,8 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
   @override
   void initState() {
     super.initState();
+    // Vælg en tilfældig fejrings-emoji én gang, så den ikke skifter under animationer
+    _celebrationEmoji = _celebrationEmojis[Random().nextInt(_celebrationEmojis.length)];
     _setupAnimations();
     _fetchCompletionMessage();
   }
@@ -388,7 +397,8 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
     );
   }
 
-  /// Builds the celebratory header with task image - no separate background.
+  /// Bygger den fejrende header med en stor tilfældig emoji og opgavetitel.
+  /// Billedet er fjernet - brugeren har allerede set det på listkortet.
   Widget _buildCelebratoryHeader(
     ColorScheme colorScheme,
     TextTheme textTheme,
@@ -396,10 +406,15 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
     Color secondaryColor,
   ) {
     return Padding(
-      padding: const EdgeInsets.all(_headerPadding),
+      padding: const EdgeInsets.fromLTRB(
+        _headerPadding,
+        _headerPadding,
+        _headerPadding,
+        12,
+      ),
       child: Column(
         children: [
-          // Animeret opgave billede eller celebration ikon
+          // Stor animeret fejrings-emoji - tilfældig ved hver åbning
           AnimatedBuilder(
             animation: Listenable.merge([
               _iconBounceAnimation,
@@ -410,12 +425,15 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
                 scale: _iconBounceAnimation.value,
                 child: Transform.rotate(
                   angle: _iconRotationAnimation.value,
-                  child: _buildHeaderImage(primaryColor),
+                  child: Text(
+                    _celebrationEmoji,
+                    style: const TextStyle(fontSize: 72),
+                  ),
                 ),
               );
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text(
             widget.taskName.toUpperCase(),
             style: textTheme.titleLarge?.copyWith(
@@ -426,62 +444,6 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
             textAlign: TextAlign.center,
           ),
         ],
-      ),
-    );
-  }
-
-  /// Bygger header billedet - enten opgave billede eller celebration ikon
-  Widget _buildHeaderImage(Color primaryColor) {
-    final imagePath = widget.taskImagePath;
-
-    if (imagePath != null && imagePath.isNotEmpty) {
-      // Vis opgavens faktiske billede
-      return SizedBox(
-        width: 120,
-        height: 120,
-        child: CachedNetworkImage(
-          imageUrl: ApiConfig.getImageUrl(imagePath),
-          fit: BoxFit.contain,
-          placeholder: (context, url) => const Center(
-            child: CircularProgressIndicator(),
-          ),
-          errorWidget: (context, url, error) =>
-              _buildFallbackIcon(primaryColor),
-        ),
-      );
-    } else {
-      // Fallback til celebration ikon
-      return _buildFallbackIcon(primaryColor);
-    }
-  }
-
-  /// Bygger fallback celebration ikon
-  Widget _buildFallbackIcon(Color primaryColor) {
-    return Container(
-      width: _iconSize + 16,
-      height: _iconSize + 16,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            primaryColor.withValues(alpha: 0.2),
-            primaryColor.withValues(alpha: 0.1),
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: primaryColor.withValues(alpha: 0.2),
-            blurRadius: 20,
-            spreadRadius: 5,
-          ),
-        ],
-      ),
-      child: Icon(
-        Icons.celebration_rounded,
-        size: _iconSize,
-        color: primaryColor,
       ),
     );
   }
@@ -571,61 +533,29 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
     );
   }
 
-  /// Builds the time selector with animated highlight on selection.
-  Widget _buildTimeSelector(ColorScheme colorScheme) {
-    final strings = AppStrings.of(context);
+  /// Formatér tidspunkt som kompakt tekst, f.eks. "i dag kl. 10:44" eller "20. feb kl. 10:44".
+  String _formatCompactDateTime(DateTime dt) {
+    final now = DateTime.now();
+    final isToday = dt.year == now.year && dt.month == now.month && dt.day == now.day;
+    final time = DateFormat.Hm().format(dt);
+    if (isToday) return 'i dag kl. $time';
+    return '${DateFormat.MMMd().format(dt)} kl. $time';
+  }
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOutCubic,
-      decoration: BoxDecoration(
-        color: _isTimeSelected
-            ? colorScheme.primaryContainer.withValues(alpha: 0.4)
-            : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: _isTimeSelected
-              ? colorScheme.primary.withValues(alpha: 0.6)
-              : colorScheme.outline.withValues(alpha: 0.2),
-          width: _isTimeSelected ? 2 : 1,
+  /// Kompakt inline tidsvælger - matcher alignment med "Tilføj note"-knappen.
+  Widget _buildTimeSelector(ColorScheme colorScheme) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: TextButton.icon(
+        onPressed: _selectCompletionTime,
+        icon: Icon(
+          _isTimeSelected ? Icons.check_circle : Icons.access_time_rounded,
+          size: 18,
         ),
-      ),
-      child: ListTile(
-        title: Text(
-          strings.whenDidYouCompleteThis,
-          style: TextStyle(
-            color: colorScheme.onSurface,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
+        label: Text(
+          _formatCompactDateTime(_completedDateTime),
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(
-            '${DateFormat.yMMMd().format(_completedDateTime)} at ${DateFormat.jm().format(_completedDateTime)}',
-            style: TextStyle(
-              color: colorScheme.primary,
-              fontWeight: FontWeight.w600,
-              fontSize: 15,
-            ),
-          ),
-        ),
-        trailing: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: _isTimeSelected
-                ? colorScheme.primary.withValues(alpha: 0.1)
-                : Colors.transparent,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            _isTimeSelected ? Icons.check_circle : Icons.access_time,
-            color: colorScheme.primary,
-          ),
-        ),
-        onTap: _selectCompletionTime,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       ),
     );
   }
