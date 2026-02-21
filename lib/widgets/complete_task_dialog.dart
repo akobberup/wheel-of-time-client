@@ -667,75 +667,80 @@ class _CompleteTaskDialogState extends ConsumerState<CompleteTaskDialog>
   }
 
   /// Builds the action buttons with success state handling.
+  /// Knapperne stables vertikalt for at undgå at teksten wrapper på smalle skærme.
   Widget _buildActionButtons(ColorScheme colorScheme, Color themeColor) {
     final strings = AppStrings.of(context);
     final bool anyLoading = _isLoading || _isSkipping || _isSuccess;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Cancel button
-        Flexible(
-          child: OutlinedButton(
-            onPressed: anyLoading
-                ? null
-                : () => Navigator.of(context).pop(),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        // Fuldfør-knap (primær handling - vises først/øverst)
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          child: FilledButton.icon(
+            onPressed: anyLoading ? null : _submit,
+            style: FilledButton.styleFrom(
+              backgroundColor:
+                  _isSuccess ? Colors.green.shade600 : Colors.green.shade500,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              elevation: _isSuccess ? 6 : 2,
+              shadowColor: Colors.green.withValues(alpha: 0.4),
             ),
-            child: Text(strings.cancel),
-          ),
-        ),
-        const SizedBox(width: 8),
-
-        // Skip button
-        Flexible(
-          child: OutlinedButton.icon(
-            onPressed: anyLoading ? null : _skip,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.orange.shade700,
-              side: BorderSide(color: anyLoading ? Colors.grey.shade300 : Colors.orange.shade300),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
-            icon: _isSkipping
-                ? SizedBox(
-                    width: _buttonIconSize,
-                    height: _buttonIconSize,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.orange.shade700),
-                    ),
-                  )
-                : Icon(Icons.skip_next, size: _buttonIconSize),
-            label: Text(strings.taskDismissedSwipe),
-          ),
-        ),
-        const SizedBox(width: 8),
-
-        // Complete button with animated states
-        Flexible(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            child: FilledButton.icon(
-              onPressed: anyLoading ? null : _submit,
-              style: FilledButton.styleFrom(
-                backgroundColor:
-                    _isSuccess ? Colors.green.shade600 : Colors.green.shade500,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                elevation: _isSuccess ? 6 : 2,
-                shadowColor: Colors.green.withValues(alpha: 0.4),
+            icon: _buildButtonIcon(),
+            label: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: Text(
+                _getButtonLabel(strings),
+                key: ValueKey(_getButtonLabel(strings)),
               ),
-              icon: _buildButtonIcon(),
-              label: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: Text(
-                  _getButtonLabel(strings),
-                  key: ValueKey(_getButtonLabel(strings)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // Sekundære knapper (Spring over og Annuller) side om side
+        Row(
+          children: [
+            // Annuller-knap
+            Expanded(
+              child: OutlinedButton(
+                onPressed: anyLoading
+                    ? null
+                    : () => Navigator.of(context).pop(),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 ),
+                child: Text(strings.cancel),
               ),
             ),
-          ),
+            const SizedBox(width: 10),
+
+            // Spring over-knap
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: anyLoading ? null : _skip,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.orange.shade700,
+                  side: BorderSide(color: anyLoading ? Colors.grey.shade300 : Colors.orange.shade300),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                ),
+                icon: _isSkipping
+                    ? SizedBox(
+                        width: _buttonIconSize,
+                        height: _buttonIconSize,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.orange.shade700),
+                        ),
+                      )
+                    : Icon(Icons.skip_next, size: _buttonIconSize),
+                label: Text(strings.taskDismissedSwipe),
+              ),
+            ),
+          ],
         ),
       ],
     );
