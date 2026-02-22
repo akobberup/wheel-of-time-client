@@ -29,6 +29,7 @@ class UserSettingsNotifier extends AsyncNotifier<UserSettingsResponse> {
           pushInvitations: request.pushInvitations ?? currentState.pushInvitations,
           pushInvitationResponses: request.pushInvitationResponses ?? currentState.pushInvitationResponses,
           pushTaskReminders: request.pushTaskReminders ?? currentState.pushTaskReminders,
+          pushCheers: request.pushCheers ?? currentState.pushCheers,
           gender: request.gender ?? currentState.gender,
           birthYear: request.birthYear ?? currentState.birthYear,
           createdAt: currentState.createdAt,

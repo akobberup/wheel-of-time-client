@@ -140,6 +140,7 @@ class PendingNotificationNavigation {
       case 'TASK_OVERDUE':
       case 'TASK_COMPLETED_BY_OTHER':
       case 'TASK_DISMISSED_BY_OTHER':
+      case 'CHEER_RECEIVED':
         // For task-relaterede notifications, gå til home (upcoming tasks)
         // Ideelt ville vi navigere til den specifikke task, men det kræver taskListId
         if (taskListId != null) {

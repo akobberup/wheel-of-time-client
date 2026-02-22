@@ -704,6 +704,18 @@ abstract class AppStrings {
   String get scheduleFromCompletionLabel;
   String get scheduleFromCompletionDescription;
 
+  // Cheers
+  String get cheerTaskInstance;
+  String get cheerSent;
+  String get writeMessage;
+  String get pushCheers;
+  String get pushCheersDescription;
+  String get cannotCheerOwnTask;
+  String get cheerUpdated;
+  String get cheerDeleted;
+  String get failedToCheerTask;
+  String get failedToDeleteCheer;
+
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);
 
@@ -845,6 +857,12 @@ abstract class AppStrings {
       // Content Moderation
       case ApiErrorKey.contentModerationViolation:
         return contentModerationViolation;
+
+      // Cheers
+      case ApiErrorKey.failedToCheerTask:
+        return failedToCheerTask;
+      case ApiErrorKey.failedToDeleteCheer:
+        return failedToDeleteCheer;
 
       // Push Notifications
       case ApiErrorKey.failedToRegisterFcmToken:

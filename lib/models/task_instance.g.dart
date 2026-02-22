@@ -29,6 +29,10 @@ _$TaskInstanceResponseImpl _$$TaskInstanceResponseImplFromJson(
       dueDate: json['dueDate'] == null
           ? null
           : DateTime.parse(json['dueDate'] as String),
+      cheers: (json['cheers'] as List<dynamic>?)
+              ?.map((e) => CheerResponse.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$$TaskInstanceResponseImplToJson(
@@ -46,6 +50,7 @@ Map<String, dynamic> _$$TaskInstanceResponseImplToJson(
       'contributedToStreak': instance.contributedToStreak,
       'status': _$TaskInstanceStatusEnumMap[instance.status]!,
       'dueDate': instance.dueDate?.toIso8601String(),
+      'cheers': instance.cheers,
     };
 
 const _$TaskInstanceStatusEnumMap = {

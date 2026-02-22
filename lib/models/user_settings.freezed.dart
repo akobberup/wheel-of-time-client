@@ -27,7 +27,8 @@ mixin _$UserSettingsResponse {
       throw _privateConstructorUsedError; // Push notification preferences
   bool get pushInvitations => throw _privateConstructorUsedError;
   bool get pushInvitationResponses => throw _privateConstructorUsedError;
-  bool get pushTaskReminders =>
+  bool get pushTaskReminders => throw _privateConstructorUsedError;
+  bool get pushCheers =>
       throw _privateConstructorUsedError; // Personlige oplysninger
   Gender? get gender => throw _privateConstructorUsedError;
   int? get birthYear => throw _privateConstructorUsedError;
@@ -58,6 +59,7 @@ abstract class $UserSettingsResponseCopyWith<$Res> {
       bool pushInvitations,
       bool pushInvitationResponses,
       bool pushTaskReminders,
+      bool pushCheers,
       Gender? gender,
       int? birthYear,
       DateTime createdAt,
@@ -87,6 +89,7 @@ class _$UserSettingsResponseCopyWithImpl<$Res,
     Object? pushInvitations = null,
     Object? pushInvitationResponses = null,
     Object? pushTaskReminders = null,
+    Object? pushCheers = null,
     Object? gender = freezed,
     Object? birthYear = freezed,
     Object? createdAt = null,
@@ -120,6 +123,10 @@ class _$UserSettingsResponseCopyWithImpl<$Res,
       pushTaskReminders: null == pushTaskReminders
           ? _value.pushTaskReminders
           : pushTaskReminders // ignore: cast_nullable_to_non_nullable
+              as bool,
+      pushCheers: null == pushCheers
+          ? _value.pushCheers
+          : pushCheers // ignore: cast_nullable_to_non_nullable
               as bool,
       gender: freezed == gender
           ? _value.gender
@@ -157,6 +164,7 @@ abstract class _$$UserSettingsResponseImplCopyWith<$Res>
       bool pushInvitations,
       bool pushInvitationResponses,
       bool pushTaskReminders,
+      bool pushCheers,
       Gender? gender,
       int? birthYear,
       DateTime createdAt,
@@ -183,6 +191,7 @@ class __$$UserSettingsResponseImplCopyWithImpl<$Res>
     Object? pushInvitations = null,
     Object? pushInvitationResponses = null,
     Object? pushTaskReminders = null,
+    Object? pushCheers = null,
     Object? gender = freezed,
     Object? birthYear = freezed,
     Object? createdAt = null,
@@ -217,6 +226,10 @@ class __$$UserSettingsResponseImplCopyWithImpl<$Res>
           ? _value.pushTaskReminders
           : pushTaskReminders // ignore: cast_nullable_to_non_nullable
               as bool,
+      pushCheers: null == pushCheers
+          ? _value.pushCheers
+          : pushCheers // ignore: cast_nullable_to_non_nullable
+              as bool,
       gender: freezed == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
@@ -248,6 +261,7 @@ class _$UserSettingsResponseImpl implements _UserSettingsResponse {
       this.pushInvitations = true,
       this.pushInvitationResponses = true,
       this.pushTaskReminders = true,
+      this.pushCheers = true,
       this.gender,
       this.birthYear,
       required this.createdAt,
@@ -274,6 +288,9 @@ class _$UserSettingsResponseImpl implements _UserSettingsResponse {
   @override
   @JsonKey()
   final bool pushTaskReminders;
+  @override
+  @JsonKey()
+  final bool pushCheers;
 // Personlige oplysninger
   @override
   final Gender? gender;
@@ -286,7 +303,7 @@ class _$UserSettingsResponseImpl implements _UserSettingsResponse {
 
   @override
   String toString() {
-    return 'UserSettingsResponse(id: $id, userId: $userId, mainThemeColor: $mainThemeColor, darkModeEnabled: $darkModeEnabled, pushInvitations: $pushInvitations, pushInvitationResponses: $pushInvitationResponses, pushTaskReminders: $pushTaskReminders, gender: $gender, birthYear: $birthYear, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'UserSettingsResponse(id: $id, userId: $userId, mainThemeColor: $mainThemeColor, darkModeEnabled: $darkModeEnabled, pushInvitations: $pushInvitations, pushInvitationResponses: $pushInvitationResponses, pushTaskReminders: $pushTaskReminders, pushCheers: $pushCheers, gender: $gender, birthYear: $birthYear, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -307,6 +324,8 @@ class _$UserSettingsResponseImpl implements _UserSettingsResponse {
                 other.pushInvitationResponses == pushInvitationResponses) &&
             (identical(other.pushTaskReminders, pushTaskReminders) ||
                 other.pushTaskReminders == pushTaskReminders) &&
+            (identical(other.pushCheers, pushCheers) ||
+                other.pushCheers == pushCheers) &&
             (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.birthYear, birthYear) ||
                 other.birthYear == birthYear) &&
@@ -327,6 +346,7 @@ class _$UserSettingsResponseImpl implements _UserSettingsResponse {
       pushInvitations,
       pushInvitationResponses,
       pushTaskReminders,
+      pushCheers,
       gender,
       birthYear,
       createdAt,
@@ -359,6 +379,7 @@ abstract class _UserSettingsResponse implements UserSettingsResponse {
       final bool pushInvitations,
       final bool pushInvitationResponses,
       final bool pushTaskReminders,
+      final bool pushCheers,
       final Gender? gender,
       final int? birthYear,
       required final DateTime createdAt,
@@ -380,7 +401,9 @@ abstract class _UserSettingsResponse implements UserSettingsResponse {
   @override
   bool get pushInvitationResponses;
   @override
-  bool get pushTaskReminders; // Personlige oplysninger
+  bool get pushTaskReminders;
+  @override
+  bool get pushCheers; // Personlige oplysninger
   @override
   Gender? get gender;
   @override
@@ -410,7 +433,8 @@ mixin _$UpdateUserSettingsRequest {
       throw _privateConstructorUsedError; // Push notification preferences
   bool? get pushInvitations => throw _privateConstructorUsedError;
   bool? get pushInvitationResponses => throw _privateConstructorUsedError;
-  bool? get pushTaskReminders =>
+  bool? get pushTaskReminders => throw _privateConstructorUsedError;
+  bool? get pushCheers =>
       throw _privateConstructorUsedError; // Personlige oplysninger
   Gender? get gender => throw _privateConstructorUsedError;
   int? get birthYear => throw _privateConstructorUsedError;
@@ -437,6 +461,7 @@ abstract class $UpdateUserSettingsRequestCopyWith<$Res> {
       bool? pushInvitations,
       bool? pushInvitationResponses,
       bool? pushTaskReminders,
+      bool? pushCheers,
       Gender? gender,
       int? birthYear});
 }
@@ -462,6 +487,7 @@ class _$UpdateUserSettingsRequestCopyWithImpl<$Res,
     Object? pushInvitations = freezed,
     Object? pushInvitationResponses = freezed,
     Object? pushTaskReminders = freezed,
+    Object? pushCheers = freezed,
     Object? gender = freezed,
     Object? birthYear = freezed,
   }) {
@@ -485,6 +511,10 @@ class _$UpdateUserSettingsRequestCopyWithImpl<$Res,
       pushTaskReminders: freezed == pushTaskReminders
           ? _value.pushTaskReminders
           : pushTaskReminders // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      pushCheers: freezed == pushCheers
+          ? _value.pushCheers
+          : pushCheers // ignore: cast_nullable_to_non_nullable
               as bool?,
       gender: freezed == gender
           ? _value.gender
@@ -513,6 +543,7 @@ abstract class _$$UpdateUserSettingsRequestImplCopyWith<$Res>
       bool? pushInvitations,
       bool? pushInvitationResponses,
       bool? pushTaskReminders,
+      bool? pushCheers,
       Gender? gender,
       int? birthYear});
 }
@@ -537,6 +568,7 @@ class __$$UpdateUserSettingsRequestImplCopyWithImpl<$Res>
     Object? pushInvitations = freezed,
     Object? pushInvitationResponses = freezed,
     Object? pushTaskReminders = freezed,
+    Object? pushCheers = freezed,
     Object? gender = freezed,
     Object? birthYear = freezed,
   }) {
@@ -561,6 +593,10 @@ class __$$UpdateUserSettingsRequestImplCopyWithImpl<$Res>
           ? _value.pushTaskReminders
           : pushTaskReminders // ignore: cast_nullable_to_non_nullable
               as bool?,
+      pushCheers: freezed == pushCheers
+          ? _value.pushCheers
+          : pushCheers // ignore: cast_nullable_to_non_nullable
+              as bool?,
       gender: freezed == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
@@ -582,6 +618,7 @@ class _$UpdateUserSettingsRequestImpl implements _UpdateUserSettingsRequest {
       this.pushInvitations,
       this.pushInvitationResponses,
       this.pushTaskReminders,
+      this.pushCheers,
       this.gender,
       this.birthYear});
 
@@ -599,6 +636,8 @@ class _$UpdateUserSettingsRequestImpl implements _UpdateUserSettingsRequest {
   final bool? pushInvitationResponses;
   @override
   final bool? pushTaskReminders;
+  @override
+  final bool? pushCheers;
 // Personlige oplysninger
   @override
   final Gender? gender;
@@ -607,7 +646,7 @@ class _$UpdateUserSettingsRequestImpl implements _UpdateUserSettingsRequest {
 
   @override
   String toString() {
-    return 'UpdateUserSettingsRequest(mainThemeColor: $mainThemeColor, darkModeEnabled: $darkModeEnabled, pushInvitations: $pushInvitations, pushInvitationResponses: $pushInvitationResponses, pushTaskReminders: $pushTaskReminders, gender: $gender, birthYear: $birthYear)';
+    return 'UpdateUserSettingsRequest(mainThemeColor: $mainThemeColor, darkModeEnabled: $darkModeEnabled, pushInvitations: $pushInvitations, pushInvitationResponses: $pushInvitationResponses, pushTaskReminders: $pushTaskReminders, pushCheers: $pushCheers, gender: $gender, birthYear: $birthYear)';
   }
 
   @override
@@ -626,6 +665,8 @@ class _$UpdateUserSettingsRequestImpl implements _UpdateUserSettingsRequest {
                 other.pushInvitationResponses == pushInvitationResponses) &&
             (identical(other.pushTaskReminders, pushTaskReminders) ||
                 other.pushTaskReminders == pushTaskReminders) &&
+            (identical(other.pushCheers, pushCheers) ||
+                other.pushCheers == pushCheers) &&
             (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.birthYear, birthYear) ||
                 other.birthYear == birthYear));
@@ -640,6 +681,7 @@ class _$UpdateUserSettingsRequestImpl implements _UpdateUserSettingsRequest {
       pushInvitations,
       pushInvitationResponses,
       pushTaskReminders,
+      pushCheers,
       gender,
       birthYear);
 
@@ -667,6 +709,7 @@ abstract class _UpdateUserSettingsRequest implements UpdateUserSettingsRequest {
       final bool? pushInvitations,
       final bool? pushInvitationResponses,
       final bool? pushTaskReminders,
+      final bool? pushCheers,
       final Gender? gender,
       final int? birthYear}) = _$UpdateUserSettingsRequestImpl;
 
@@ -682,7 +725,9 @@ abstract class _UpdateUserSettingsRequest implements UpdateUserSettingsRequest {
   @override
   bool? get pushInvitationResponses;
   @override
-  bool? get pushTaskReminders; // Personlige oplysninger
+  bool? get pushTaskReminders;
+  @override
+  bool? get pushCheers; // Personlige oplysninger
   @override
   Gender? get gender;
   @override

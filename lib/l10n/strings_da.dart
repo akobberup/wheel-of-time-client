@@ -1870,4 +1870,35 @@ class StringsDa extends AppStrings {
   @override
   String get scheduleFromCompletionDescription =>
       'Næste forekomst beregnes fra hvornår du gennemfører, ikke fra den planlagte dato';
+
+  // Cheers
+  @override
+  String get cheerTaskInstance => 'Send en reaktion';
+
+  @override
+  String get cheerSent => 'Reaktion sendt!';
+
+  @override
+  String get writeMessage => 'Skriv en besked';
+
+  @override
+  String get pushCheers => 'Heppen';
+
+  @override
+  String get pushCheersDescription => 'Besked når andre hepper på dine opgaver';
+
+  @override
+  String get cannotCheerOwnTask => 'Du kan ikke heppe på dine egne opgaver';
+
+  @override
+  String get cheerUpdated => 'Hep opdateret';
+
+  @override
+  String get cheerDeleted => 'Hep fjernet';
+
+  @override
+  String get failedToCheerTask => 'Kunne ikke sende reaktion';
+
+  @override
+  String get failedToDeleteCheer => 'Kunne ikke fjerne reaktion';
 }

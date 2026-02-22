@@ -11,6 +11,8 @@ enum NotificationType {
   INVITATION_DECLINED,
   /// When a task is due to be completed
   TASK_DUE,
+  /// Når nogen hepper på din fuldførte opgave
+  CHEER_RECEIVED,
 }
 
 /// Unified notification model that wraps different notification sources

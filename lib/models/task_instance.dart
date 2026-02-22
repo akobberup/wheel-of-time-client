@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'cheer.dart';
 
 part 'task_instance.freezed.dart';
 part 'task_instance.g.dart';
@@ -33,6 +34,7 @@ class TaskInstanceResponse with _$TaskInstanceResponse {
     // Timeline view fields
     @Default(TaskInstanceStatus.completed) TaskInstanceStatus status,
     DateTime? dueDate,
+    @Default([]) List<CheerResponse> cheers,
   }) = _TaskInstanceResponse;
 
   factory TaskInstanceResponse.fromJson(Map<String, dynamic> json) =>

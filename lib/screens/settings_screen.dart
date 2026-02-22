@@ -1043,6 +1043,19 @@ class _PushNotificationSection extends ConsumerWidget {
                     pushTaskReminders: !settings.pushTaskReminders,
                   ),
                 ),
+                _SettingsDivider(isDark: isDark),
+                _ToggleRow(
+                  icon: Icons.celebration_outlined,
+                  title: strings.pushCheers,
+                  subtitle: strings.pushCheersDescription,
+                  value: settings.pushCheers,
+                  seedColor: seedColor,
+                  isDark: isDark,
+                  onChanged: (_) => _toggleSetting(
+                    ref,
+                    pushCheers: !settings.pushCheers,
+                  ),
+                ),
               ],
             ),
           ),
@@ -1078,12 +1091,14 @@ class _PushNotificationSection extends ConsumerWidget {
     bool? pushInvitations,
     bool? pushInvitationResponses,
     bool? pushTaskReminders,
+    bool? pushCheers,
   }) {
     ref.read(userSettingsProvider.notifier).updateSettings(
           UpdateUserSettingsRequest(
             pushInvitations: pushInvitations,
             pushInvitationResponses: pushInvitationResponses,
             pushTaskReminders: pushTaskReminders,
+            pushCheers: pushCheers,
           ),
         );
   }

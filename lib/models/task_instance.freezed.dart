@@ -35,6 +35,7 @@ mixin _$TaskInstanceResponse {
       throw _privateConstructorUsedError; // Timeline view fields
   TaskInstanceStatus get status => throw _privateConstructorUsedError;
   DateTime? get dueDate => throw _privateConstructorUsedError;
+  List<CheerResponse> get cheers => throw _privateConstructorUsedError;
 
   /// Serializes this TaskInstanceResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -64,7 +65,8 @@ abstract class $TaskInstanceResponseCopyWith<$Res> {
       String? optionalComment,
       bool contributedToStreak,
       TaskInstanceStatus status,
-      DateTime? dueDate});
+      DateTime? dueDate,
+      List<CheerResponse> cheers});
 }
 
 /// @nodoc
@@ -95,6 +97,7 @@ class _$TaskInstanceResponseCopyWithImpl<$Res,
     Object? contributedToStreak = null,
     Object? status = null,
     Object? dueDate = freezed,
+    Object? cheers = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -145,6 +148,10 @@ class _$TaskInstanceResponseCopyWithImpl<$Res,
           ? _value.dueDate
           : dueDate // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      cheers: null == cheers
+          ? _value.cheers
+          : cheers // ignore: cast_nullable_to_non_nullable
+              as List<CheerResponse>,
     ) as $Val);
   }
 }
@@ -169,7 +176,8 @@ abstract class _$$TaskInstanceResponseImplCopyWith<$Res>
       String? optionalComment,
       bool contributedToStreak,
       TaskInstanceStatus status,
-      DateTime? dueDate});
+      DateTime? dueDate,
+      List<CheerResponse> cheers});
 }
 
 /// @nodoc
@@ -197,6 +205,7 @@ class __$$TaskInstanceResponseImplCopyWithImpl<$Res>
     Object? contributedToStreak = null,
     Object? status = null,
     Object? dueDate = freezed,
+    Object? cheers = null,
   }) {
     return _then(_$TaskInstanceResponseImpl(
       id: null == id
@@ -247,6 +256,10 @@ class __$$TaskInstanceResponseImplCopyWithImpl<$Res>
           ? _value.dueDate
           : dueDate // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      cheers: null == cheers
+          ? _value._cheers
+          : cheers // ignore: cast_nullable_to_non_nullable
+              as List<CheerResponse>,
     ));
   }
 }
@@ -266,7 +279,9 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
       this.optionalComment,
       this.contributedToStreak = false,
       this.status = TaskInstanceStatus.completed,
-      this.dueDate});
+      this.dueDate,
+      final List<CheerResponse> cheers = const []})
+      : _cheers = cheers;
 
   factory _$TaskInstanceResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$TaskInstanceResponseImplFromJson(json);
@@ -300,10 +315,18 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
   final TaskInstanceStatus status;
   @override
   final DateTime? dueDate;
+  final List<CheerResponse> _cheers;
+  @override
+  @JsonKey()
+  List<CheerResponse> get cheers {
+    if (_cheers is EqualUnmodifiableListView) return _cheers;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_cheers);
+  }
 
   @override
   String toString() {
-    return 'TaskInstanceResponse(id: $id, taskId: $taskId, taskName: $taskName, userId: $userId, userName: $userName, completedDateTime: $completedDateTime, dismissedDateTime: $dismissedDateTime, optionalImagePath: $optionalImagePath, optionalComment: $optionalComment, contributedToStreak: $contributedToStreak, status: $status, dueDate: $dueDate)';
+    return 'TaskInstanceResponse(id: $id, taskId: $taskId, taskName: $taskName, userId: $userId, userName: $userName, completedDateTime: $completedDateTime, dismissedDateTime: $dismissedDateTime, optionalImagePath: $optionalImagePath, optionalComment: $optionalComment, contributedToStreak: $contributedToStreak, status: $status, dueDate: $dueDate, cheers: $cheers)';
   }
 
   @override
@@ -329,7 +352,8 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
             (identical(other.contributedToStreak, contributedToStreak) ||
                 other.contributedToStreak == contributedToStreak) &&
             (identical(other.status, status) || other.status == status) &&
-            (identical(other.dueDate, dueDate) || other.dueDate == dueDate));
+            (identical(other.dueDate, dueDate) || other.dueDate == dueDate) &&
+            const DeepCollectionEquality().equals(other._cheers, _cheers));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -347,7 +371,8 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
       optionalComment,
       contributedToStreak,
       status,
-      dueDate);
+      dueDate,
+      const DeepCollectionEquality().hash(_cheers));
 
   /// Create a copy of TaskInstanceResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -380,7 +405,8 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
       final String? optionalComment,
       final bool contributedToStreak,
       final TaskInstanceStatus status,
-      final DateTime? dueDate}) = _$TaskInstanceResponseImpl;
+      final DateTime? dueDate,
+      final List<CheerResponse> cheers}) = _$TaskInstanceResponseImpl;
 
   factory _TaskInstanceResponse.fromJson(Map<String, dynamic> json) =
       _$TaskInstanceResponseImpl.fromJson;
@@ -411,6 +437,8 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
   TaskInstanceStatus get status;
   @override
   DateTime? get dueDate;
+  @override
+  List<CheerResponse> get cheers;
 
   /// Create a copy of TaskInstanceResponse
   /// with the given fields replaced by the non-null parameter values.

@@ -545,6 +545,7 @@ class _NotificationCard extends HookConsumerWidget {
       NotificationType.INVITATION_ACCEPTED => (Colors.green, Icons.check_circle_rounded),
       NotificationType.INVITATION_DECLINED => (Colors.orange, Icons.cancel_rounded),
       NotificationType.TASK_DUE => (seedColor, Icons.task_alt_rounded),
+      NotificationType.CHEER_RECEIVED => (Colors.amber, Icons.celebration_rounded),
     };
 
     return Container(
@@ -615,6 +616,7 @@ class _NotificationCard extends HookConsumerWidget {
       NotificationType.INVITATION_ACCEPTED => strings.invitationWasAccepted,
       NotificationType.INVITATION_DECLINED => strings.invitationWasDeclined,
       NotificationType.TASK_DUE => strings.taskDue,
+      NotificationType.CHEER_RECEIVED => strings.pushCheers,
     };
   }
 
@@ -640,6 +642,7 @@ class _NotificationCard extends HookConsumerWidget {
         final taskListName = notification.task?.taskListName ?? '';
         return '"$taskName" ${strings.inList} "$taskListName"';
       }(),
+      NotificationType.CHEER_RECEIVED => '',
     };
   }
 

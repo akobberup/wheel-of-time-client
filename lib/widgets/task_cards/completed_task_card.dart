@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../models/task_instance.dart';
 import '../../l10n/app_strings.dart';
 import '../common/animated_card.dart';
+import '../cheer_display.dart';
 
 /// Kort til visning af fuldførte og udløbne opgaver i timeline
 /// Design: Succes-farve for completed, fejl-farve for expired
@@ -195,6 +196,9 @@ class CompletedTaskCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  // Cheers (emoji-reaktioner fra andre brugere)
+                  if (taskInstance.cheers.isNotEmpty)
+                    CheerDisplay(cheers: taskInstance.cheers),
                 ],
               ),
             ),

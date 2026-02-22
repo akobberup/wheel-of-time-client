@@ -17,6 +17,7 @@ import '../models/user_settings.dart';
 import '../models/visual_theme.dart';
 import '../models/enums.dart';
 import '../models/task_responsible.dart';
+import '../models/cheer.dart';
 import '../config/api_config.dart';
 import 'remote_logger_service.dart';
 
@@ -55,6 +56,8 @@ enum ApiErrorKey {
   failedToLoadTaskInstances,
   failedToLoadTaskInstance,
   failedToCreateTaskInstance,
+  failedToCheerTask,
+  failedToDeleteCheer,
   failedToLoadRecentlyCompleted,
 
   // Streaks
@@ -1019,6 +1022,73 @@ class ApiService {
         return data.map((json) => TaskInstanceResponse.fromJson(json)).toList();
       } else {
         throw ApiException.withKey(ApiErrorKey.failedToLoadRecentlyCompleted, 'Failed to load recently completed tasks', response.statusCode);
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  // ============================================================================
+  // CHEERS
+  // ============================================================================
+
+  /// Opret eller opdater en cheer på en task instance
+  Future<CheerResponse> cheerTaskInstance(int taskInstanceId, {
+    required String emoji,
+    String? message,
+  }) async {
+    try {
+      final response = await _loggedPut(
+        '$baseUrl/api/task-instances/$taskInstanceId/cheers',
+        headers: _getHeaders(includeAuth: true),
+        body: jsonEncode({
+          'emoji': emoji,
+          if (message != null) 'message': message,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return CheerResponse.fromJson(jsonDecode(response.body));
+      } else {
+        _handleContentModerationError(response, ApiErrorKey.failedToCheerTask);
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  /// Hent alle cheers for en task instance
+  Future<List<CheerResponse>> getCheersForTaskInstance(int taskInstanceId) async {
+    try {
+      final response = await _loggedGet(
+        '$baseUrl/api/task-instances/$taskInstanceId/cheers',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => CheerResponse.fromJson(json as Map<String, dynamic>)).toList();
+      } else {
+        throw ApiException.withKey(ApiErrorKey.failedToCheerTask, 'Failed to load cheers', response.statusCode);
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  /// Slet egen cheer fra en task instance
+  Future<void> deleteCheer(int taskInstanceId) async {
+    try {
+      final response = await _loggedDelete(
+        '$baseUrl/api/task-instances/$taskInstanceId/cheers',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode != 204) {
+        throw ApiException.withKey(ApiErrorKey.failedToDeleteCheer, 'Failed to delete cheer', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;

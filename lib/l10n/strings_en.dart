@@ -1896,4 +1896,35 @@ class StringsEn extends AppStrings {
   @override
   String get scheduleFromCompletionDescription =>
       'Next occurrence is calculated from when you complete, not from the scheduled date';
+
+  // Cheers
+  @override
+  String get cheerTaskInstance => 'Send a reaction';
+
+  @override
+  String get cheerSent => 'Reaction sent!';
+
+  @override
+  String get writeMessage => 'Write a message';
+
+  @override
+  String get pushCheers => 'Cheers';
+
+  @override
+  String get pushCheersDescription => 'Notification when others cheer your tasks';
+
+  @override
+  String get cannotCheerOwnTask => "You can't cheer your own tasks";
+
+  @override
+  String get cheerUpdated => 'Cheer updated';
+
+  @override
+  String get cheerDeleted => 'Cheer removed';
+
+  @override
+  String get failedToCheerTask => 'Failed to send reaction';
+
+  @override
+  String get failedToDeleteCheer => 'Failed to remove reaction';
 }

@@ -197,6 +197,12 @@ class NotificationService {
           strings.taskDue,
           strings.notificationTaskDue(taskName, taskListName),
         );
+
+      case NotificationType.CHEER_RECEIVED:
+        return (
+          strings.pushCheers,
+          strings.cheerSent,
+        );
     }
   }
 
