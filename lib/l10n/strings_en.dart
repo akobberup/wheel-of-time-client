@@ -1897,6 +1897,19 @@ class StringsEn extends AppStrings {
   String get scheduleFromCompletionDescription =>
       'Next occurrence is calculated from when you complete, not from the scheduled date';
 
+  // Retroactive completion
+  @override
+  String get retroactiveCompleteTitle => 'Complete retroactively';
+
+  @override
+  String get whoCompletedTask => 'Who completed the task?';
+
+  @override
+  String get taskMarkedAsCompleted => 'Task marked as completed';
+
+  @override
+  String get failedToCompleteRetroactive => 'Failed to complete task retroactively';
+
   // Cheers
   @override
   String get cheerTaskInstance => 'Send a reaction';

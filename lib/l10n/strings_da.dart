@@ -1871,6 +1871,19 @@ class StringsDa extends AppStrings {
   String get scheduleFromCompletionDescription =>
       'Næste forekomst beregnes fra hvornår du gennemfører, ikke fra den planlagte dato';
 
+  // Retroaktiv completion
+  @override
+  String get retroactiveCompleteTitle => 'Fuldfør retroaktivt';
+
+  @override
+  String get whoCompletedTask => 'Hvem udførte opgaven?';
+
+  @override
+  String get taskMarkedAsCompleted => 'Opgave markeret som fuldført';
+
+  @override
+  String get failedToCompleteRetroactive => 'Kunne ikke fuldføre opgaven retroaktivt';
+
   // Cheers
   @override
   String get cheerTaskInstance => 'Send en reaktion';

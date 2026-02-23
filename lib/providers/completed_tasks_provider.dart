@@ -132,6 +132,25 @@ class CompletedTasksNotifier extends StateNotifier<CompletedTasksState> {
     state = state.copyWith(isExpanded: expanded);
   }
 
+  /// Retroaktiv completion af en expired task instance.
+  /// Ved success opdateres listen in-place og refreshes.
+  Future<TaskInstanceResponse?> completeRetroactive(
+    int taskInstanceId,
+    RetroactiveCompleteRequest request,
+  ) async {
+    try {
+      final result = await _apiService.completeRetroactive(
+        taskInstanceId,
+        request,
+      );
+      // Refresh listen så den opdaterede instance vises
+      await refresh();
+      return result;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   /// Refreshes the completed tasks list
   Future<void> refresh() async {
     state = state.copyWith(

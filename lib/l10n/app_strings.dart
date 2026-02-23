@@ -704,6 +704,12 @@ abstract class AppStrings {
   String get scheduleFromCompletionLabel;
   String get scheduleFromCompletionDescription;
 
+  // Retroaktiv completion
+  String get retroactiveCompleteTitle;
+  String get whoCompletedTask;
+  String get taskMarkedAsCompleted;
+  String get failedToCompleteRetroactive;
+
   // Cheers
   String get cheerTaskInstance;
   String get cheerSent;
@@ -793,6 +799,8 @@ abstract class AppStrings {
         return failedToCreateTaskInstance;
       case ApiErrorKey.failedToLoadRecentlyCompleted:
         return failedToLoadRecentlyCompleted;
+      case ApiErrorKey.failedToCompleteRetroactive:
+        return failedToCompleteRetroactive;
 
       // Streaks
       case ApiErrorKey.failedToLoadCurrentStreak:

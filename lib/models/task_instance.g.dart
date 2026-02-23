@@ -11,6 +11,7 @@ _$TaskInstanceResponseImpl _$$TaskInstanceResponseImplFromJson(
     _$TaskInstanceResponseImpl(
       id: (json['id'] as num).toInt(),
       taskId: (json['taskId'] as num).toInt(),
+      taskListId: (json['taskListId'] as num?)?.toInt(),
       taskName: json['taskName'] as String,
       userId: (json['userId'] as num?)?.toInt(),
       userName: json['userName'] as String?,
@@ -40,6 +41,7 @@ Map<String, dynamic> _$$TaskInstanceResponseImplToJson(
     <String, dynamic>{
       'id': instance.id,
       'taskId': instance.taskId,
+      'taskListId': instance.taskListId,
       'taskName': instance.taskName,
       'userId': instance.userId,
       'userName': instance.userName,
@@ -59,6 +61,22 @@ const _$TaskInstanceStatusEnumMap = {
   TaskInstanceStatus.expired: 'EXPIRED',
   TaskInstanceStatus.dismissed: 'DISMISSED',
 };
+
+_$RetroactiveCompleteRequestImpl _$$RetroactiveCompleteRequestImplFromJson(
+        Map<String, dynamic> json) =>
+    _$RetroactiveCompleteRequestImpl(
+      completedByUserId: (json['completedByUserId'] as num).toInt(),
+      optionalComment: json['optionalComment'] as String?,
+      optionalImageId: (json['optionalImageId'] as num?)?.toInt(),
+    );
+
+Map<String, dynamic> _$$RetroactiveCompleteRequestImplToJson(
+        _$RetroactiveCompleteRequestImpl instance) =>
+    <String, dynamic>{
+      'completedByUserId': instance.completedByUserId,
+      'optionalComment': instance.optionalComment,
+      'optionalImageId': instance.optionalImageId,
+    };
 
 _$CreateTaskInstanceRequestImpl _$$CreateTaskInstanceRequestImplFromJson(
         Map<String, dynamic> json) =>

@@ -11,6 +11,7 @@ import '../cheer_display.dart';
 class CompletedTaskCard extends StatelessWidget {
   final TaskInstanceResponse taskInstance;
   final bool isDesktop;
+  final bool canEdit;
   final VoidCallback? onTap;
 
   // Status farver fra Design Guidelines
@@ -21,6 +22,7 @@ class CompletedTaskCard extends StatelessWidget {
     super.key,
     required this.taskInstance,
     this.isDesktop = false,
+    this.canEdit = false,
     this.onTap,
   });
 
@@ -216,23 +218,24 @@ class CompletedTaskCard extends StatelessWidget {
   /// Bygger status badge (streak for completed, expired label for expired)
   Widget _buildStatusBadge() {
     if (_isExpired) {
-      // Expired badge
+      // Expired badge — replay-ikon hvis canEdit, ellers close
+      final badgeColor = canEdit ? _successColor : _errorColor;
       return Container(
         padding: EdgeInsets.symmetric(
           horizontal: isDesktop ? 6 : 8,
           vertical: isDesktop ? 3 : 4,
         ),
         decoration: BoxDecoration(
-          color: _errorColor.withValues(alpha: 0.15),
+          color: badgeColor.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: _errorColor.withValues(alpha: 0.3),
+            color: badgeColor.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
         child: Icon(
-          Icons.close,
-          color: _errorColor,
+          canEdit ? Icons.replay : Icons.close,
+          color: badgeColor,
           size: isDesktop ? 12 : 14,
         ),
       );

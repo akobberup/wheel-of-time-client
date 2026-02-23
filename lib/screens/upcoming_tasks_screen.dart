@@ -15,6 +15,7 @@ import '../widgets/common/skeleton_loader.dart';
 import '../widgets/common/task_completion_animation.dart';
 import '../widgets/common/timeline_separator.dart';
 import '../widgets/task_cards/task_cards.dart';
+import '../widgets/retroactive_complete_sheet.dart';
 
 /// Grupperer opgaver efter dato-sektion
 Map<String, List<UpcomingTaskOccurrenceResponse>> _groupByDate(
@@ -206,6 +207,29 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                     },
                     onLoadMore: () {
                       ref.read(completedTasksProvider.notifier).loadMore();
+                    },
+                    onRetroactiveComplete: (task) async {
+                      if (task.taskListId == null) return;
+                      final result = await RetroactiveCompleteSheet.show(
+                        context,
+                        taskInstance: task,
+                        taskListId: task.taskListId!,
+                      );
+                      if (result != null && context.mounted) {
+                        await ref
+                            .read(completedTasksProvider.notifier)
+                            .refresh();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                AppStrings.of(context).taskMarkedAsCompleted,
+                              ),
+                              backgroundColor: const Color(0xFF22C55E),
+                            ),
+                          );
+                        }
+                      }
                     },
                   ),
                   // Timeline separator (NOW marker)
@@ -759,6 +783,7 @@ class _CompletedTasksSection extends StatelessWidget {
   final bool isDesktop;
   final VoidCallback onToggleExpand;
   final VoidCallback onLoadMore;
+  final void Function(TaskInstanceResponse task)? onRetroactiveComplete;
 
   // Status farve fra Design Guidelines
   static const Color _successColor = Color(0xFF22C55E);
@@ -768,6 +793,7 @@ class _CompletedTasksSection extends StatelessWidget {
     required this.isDesktop,
     required this.onToggleExpand,
     required this.onLoadMore,
+    this.onRetroactiveComplete,
   });
 
   @override
@@ -911,13 +937,23 @@ class _CompletedTasksSection extends StatelessWidget {
         SizedBox(height: isDesktop ? 12 : 8),
         // Lista af completed tasks
         ...completedState.completedTasks.map(
-          (task) => Padding(
-            padding: EdgeInsets.only(bottom: isDesktop ? 6 : 4),
-            child: CompletedTaskCard(
-              taskInstance: task,
-              isDesktop: isDesktop,
-            ),
-          ),
+          (task) {
+            final isExpired =
+                task.status == TaskInstanceStatus.expired;
+            final canEdit =
+                isExpired && onRetroactiveComplete != null;
+            return Padding(
+              padding: EdgeInsets.only(bottom: isDesktop ? 6 : 4),
+              child: CompletedTaskCard(
+                taskInstance: task,
+                isDesktop: isDesktop,
+                canEdit: canEdit,
+                onTap: canEdit
+                    ? () => onRetroactiveComplete!(task)
+                    : null,
+              ),
+            );
+          },
         ),
         // Load more button
         if (completedState.hasMore && !completedState.isLoadingMore)

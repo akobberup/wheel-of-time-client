@@ -22,6 +22,7 @@ TaskInstanceResponse _$TaskInstanceResponseFromJson(Map<String, dynamic> json) {
 mixin _$TaskInstanceResponse {
   int get id => throw _privateConstructorUsedError;
   int get taskId => throw _privateConstructorUsedError;
+  int? get taskListId => throw _privateConstructorUsedError;
   String get taskName =>
       throw _privateConstructorUsedError; // userId og userName kan være null for EXPIRED/DISMISSED instances
   int? get userId => throw _privateConstructorUsedError;
@@ -56,6 +57,7 @@ abstract class $TaskInstanceResponseCopyWith<$Res> {
   $Res call(
       {int id,
       int taskId,
+      int? taskListId,
       String taskName,
       int? userId,
       String? userName,
@@ -87,6 +89,7 @@ class _$TaskInstanceResponseCopyWithImpl<$Res,
   $Res call({
     Object? id = null,
     Object? taskId = null,
+    Object? taskListId = freezed,
     Object? taskName = null,
     Object? userId = freezed,
     Object? userName = freezed,
@@ -108,6 +111,10 @@ class _$TaskInstanceResponseCopyWithImpl<$Res,
           ? _value.taskId
           : taskId // ignore: cast_nullable_to_non_nullable
               as int,
+      taskListId: freezed == taskListId
+          ? _value.taskListId
+          : taskListId // ignore: cast_nullable_to_non_nullable
+              as int?,
       taskName: null == taskName
           ? _value.taskName
           : taskName // ignore: cast_nullable_to_non_nullable
@@ -167,6 +174,7 @@ abstract class _$$TaskInstanceResponseImplCopyWith<$Res>
   $Res call(
       {int id,
       int taskId,
+      int? taskListId,
       String taskName,
       int? userId,
       String? userName,
@@ -195,6 +203,7 @@ class __$$TaskInstanceResponseImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? taskId = null,
+    Object? taskListId = freezed,
     Object? taskName = null,
     Object? userId = freezed,
     Object? userName = freezed,
@@ -216,6 +225,10 @@ class __$$TaskInstanceResponseImplCopyWithImpl<$Res>
           ? _value.taskId
           : taskId // ignore: cast_nullable_to_non_nullable
               as int,
+      taskListId: freezed == taskListId
+          ? _value.taskListId
+          : taskListId // ignore: cast_nullable_to_non_nullable
+              as int?,
       taskName: null == taskName
           ? _value.taskName
           : taskName // ignore: cast_nullable_to_non_nullable
@@ -270,6 +283,7 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
   const _$TaskInstanceResponseImpl(
       {required this.id,
       required this.taskId,
+      this.taskListId,
       required this.taskName,
       this.userId,
       this.userName,
@@ -290,6 +304,8 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
   final int id;
   @override
   final int taskId;
+  @override
+  final int? taskListId;
   @override
   final String taskName;
 // userId og userName kan være null for EXPIRED/DISMISSED instances
@@ -326,7 +342,7 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
 
   @override
   String toString() {
-    return 'TaskInstanceResponse(id: $id, taskId: $taskId, taskName: $taskName, userId: $userId, userName: $userName, completedDateTime: $completedDateTime, dismissedDateTime: $dismissedDateTime, optionalImagePath: $optionalImagePath, optionalComment: $optionalComment, contributedToStreak: $contributedToStreak, status: $status, dueDate: $dueDate, cheers: $cheers)';
+    return 'TaskInstanceResponse(id: $id, taskId: $taskId, taskListId: $taskListId, taskName: $taskName, userId: $userId, userName: $userName, completedDateTime: $completedDateTime, dismissedDateTime: $dismissedDateTime, optionalImagePath: $optionalImagePath, optionalComment: $optionalComment, contributedToStreak: $contributedToStreak, status: $status, dueDate: $dueDate, cheers: $cheers)';
   }
 
   @override
@@ -336,6 +352,8 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
             other is _$TaskInstanceResponseImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.taskId, taskId) || other.taskId == taskId) &&
+            (identical(other.taskListId, taskListId) ||
+                other.taskListId == taskListId) &&
             (identical(other.taskName, taskName) ||
                 other.taskName == taskName) &&
             (identical(other.userId, userId) || other.userId == userId) &&
@@ -362,6 +380,7 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
       runtimeType,
       id,
       taskId,
+      taskListId,
       taskName,
       userId,
       userName,
@@ -396,6 +415,7 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
   const factory _TaskInstanceResponse(
       {required final int id,
       required final int taskId,
+      final int? taskListId,
       required final String taskName,
       final int? userId,
       final String? userName,
@@ -415,6 +435,8 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
   int get id;
   @override
   int get taskId;
+  @override
+  int? get taskListId;
   @override
   String
       get taskName; // userId og userName kan være null for EXPIRED/DISMISSED instances
@@ -445,6 +467,208 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TaskInstanceResponseImplCopyWith<_$TaskInstanceResponseImpl>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+RetroactiveCompleteRequest _$RetroactiveCompleteRequestFromJson(
+    Map<String, dynamic> json) {
+  return _RetroactiveCompleteRequest.fromJson(json);
+}
+
+/// @nodoc
+mixin _$RetroactiveCompleteRequest {
+  int get completedByUserId => throw _privateConstructorUsedError;
+  String? get optionalComment => throw _privateConstructorUsedError;
+  int? get optionalImageId => throw _privateConstructorUsedError;
+
+  /// Serializes this RetroactiveCompleteRequest to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of RetroactiveCompleteRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $RetroactiveCompleteRequestCopyWith<RetroactiveCompleteRequest>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $RetroactiveCompleteRequestCopyWith<$Res> {
+  factory $RetroactiveCompleteRequestCopyWith(RetroactiveCompleteRequest value,
+          $Res Function(RetroactiveCompleteRequest) then) =
+      _$RetroactiveCompleteRequestCopyWithImpl<$Res,
+          RetroactiveCompleteRequest>;
+  @useResult
+  $Res call(
+      {int completedByUserId, String? optionalComment, int? optionalImageId});
+}
+
+/// @nodoc
+class _$RetroactiveCompleteRequestCopyWithImpl<$Res,
+        $Val extends RetroactiveCompleteRequest>
+    implements $RetroactiveCompleteRequestCopyWith<$Res> {
+  _$RetroactiveCompleteRequestCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of RetroactiveCompleteRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? completedByUserId = null,
+    Object? optionalComment = freezed,
+    Object? optionalImageId = freezed,
+  }) {
+    return _then(_value.copyWith(
+      completedByUserId: null == completedByUserId
+          ? _value.completedByUserId
+          : completedByUserId // ignore: cast_nullable_to_non_nullable
+              as int,
+      optionalComment: freezed == optionalComment
+          ? _value.optionalComment
+          : optionalComment // ignore: cast_nullable_to_non_nullable
+              as String?,
+      optionalImageId: freezed == optionalImageId
+          ? _value.optionalImageId
+          : optionalImageId // ignore: cast_nullable_to_non_nullable
+              as int?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$RetroactiveCompleteRequestImplCopyWith<$Res>
+    implements $RetroactiveCompleteRequestCopyWith<$Res> {
+  factory _$$RetroactiveCompleteRequestImplCopyWith(
+          _$RetroactiveCompleteRequestImpl value,
+          $Res Function(_$RetroactiveCompleteRequestImpl) then) =
+      __$$RetroactiveCompleteRequestImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {int completedByUserId, String? optionalComment, int? optionalImageId});
+}
+
+/// @nodoc
+class __$$RetroactiveCompleteRequestImplCopyWithImpl<$Res>
+    extends _$RetroactiveCompleteRequestCopyWithImpl<$Res,
+        _$RetroactiveCompleteRequestImpl>
+    implements _$$RetroactiveCompleteRequestImplCopyWith<$Res> {
+  __$$RetroactiveCompleteRequestImplCopyWithImpl(
+      _$RetroactiveCompleteRequestImpl _value,
+      $Res Function(_$RetroactiveCompleteRequestImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of RetroactiveCompleteRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? completedByUserId = null,
+    Object? optionalComment = freezed,
+    Object? optionalImageId = freezed,
+  }) {
+    return _then(_$RetroactiveCompleteRequestImpl(
+      completedByUserId: null == completedByUserId
+          ? _value.completedByUserId
+          : completedByUserId // ignore: cast_nullable_to_non_nullable
+              as int,
+      optionalComment: freezed == optionalComment
+          ? _value.optionalComment
+          : optionalComment // ignore: cast_nullable_to_non_nullable
+              as String?,
+      optionalImageId: freezed == optionalImageId
+          ? _value.optionalImageId
+          : optionalImageId // ignore: cast_nullable_to_non_nullable
+              as int?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$RetroactiveCompleteRequestImpl implements _RetroactiveCompleteRequest {
+  const _$RetroactiveCompleteRequestImpl(
+      {required this.completedByUserId,
+      this.optionalComment,
+      this.optionalImageId});
+
+  factory _$RetroactiveCompleteRequestImpl.fromJson(
+          Map<String, dynamic> json) =>
+      _$$RetroactiveCompleteRequestImplFromJson(json);
+
+  @override
+  final int completedByUserId;
+  @override
+  final String? optionalComment;
+  @override
+  final int? optionalImageId;
+
+  @override
+  String toString() {
+    return 'RetroactiveCompleteRequest(completedByUserId: $completedByUserId, optionalComment: $optionalComment, optionalImageId: $optionalImageId)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$RetroactiveCompleteRequestImpl &&
+            (identical(other.completedByUserId, completedByUserId) ||
+                other.completedByUserId == completedByUserId) &&
+            (identical(other.optionalComment, optionalComment) ||
+                other.optionalComment == optionalComment) &&
+            (identical(other.optionalImageId, optionalImageId) ||
+                other.optionalImageId == optionalImageId));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, completedByUserId, optionalComment, optionalImageId);
+
+  /// Create a copy of RetroactiveCompleteRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$RetroactiveCompleteRequestImplCopyWith<_$RetroactiveCompleteRequestImpl>
+      get copyWith => __$$RetroactiveCompleteRequestImplCopyWithImpl<
+          _$RetroactiveCompleteRequestImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$RetroactiveCompleteRequestImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _RetroactiveCompleteRequest
+    implements RetroactiveCompleteRequest {
+  const factory _RetroactiveCompleteRequest(
+      {required final int completedByUserId,
+      final String? optionalComment,
+      final int? optionalImageId}) = _$RetroactiveCompleteRequestImpl;
+
+  factory _RetroactiveCompleteRequest.fromJson(Map<String, dynamic> json) =
+      _$RetroactiveCompleteRequestImpl.fromJson;
+
+  @override
+  int get completedByUserId;
+  @override
+  String? get optionalComment;
+  @override
+  int? get optionalImageId;
+
+  /// Create a copy of RetroactiveCompleteRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$RetroactiveCompleteRequestImplCopyWith<_$RetroactiveCompleteRequestImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
 

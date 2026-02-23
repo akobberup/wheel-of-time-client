@@ -59,6 +59,7 @@ enum ApiErrorKey {
   failedToCheerTask,
   failedToDeleteCheer,
   failedToLoadRecentlyCompleted,
+  failedToCompleteRetroactive,
 
   // Streaks
   failedToLoadCurrentStreak,
@@ -1022,6 +1023,29 @@ class ApiService {
         return data.map((json) => TaskInstanceResponse.fromJson(json)).toList();
       } else {
         throw ApiException.withKey(ApiErrorKey.failedToLoadRecentlyCompleted, 'Failed to load recently completed tasks', response.statusCode);
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  /// Retroaktiv completion af en EXPIRED task instance
+  Future<TaskInstanceResponse> completeRetroactive(
+    int taskInstanceId,
+    RetroactiveCompleteRequest request,
+  ) async {
+    try {
+      final response = await _loggedPost(
+        '$baseUrl/api/task-instances/$taskInstanceId/complete-retroactive',
+        headers: _getHeaders(includeAuth: true),
+        body: jsonEncode(request.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        return TaskInstanceResponse.fromJson(jsonDecode(response.body));
+      } else {
+        throw ApiException.withKey(ApiErrorKey.failedToCompleteRetroactive, 'Failed to complete task retroactively', response.statusCode);
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;

@@ -21,6 +21,7 @@ class TaskInstanceResponse with _$TaskInstanceResponse {
   const factory TaskInstanceResponse({
     required int id,
     required int taskId,
+    int? taskListId,
     required String taskName,
     // userId og userName kan være null for EXPIRED/DISMISSED instances
     int? userId,
@@ -39,6 +40,18 @@ class TaskInstanceResponse with _$TaskInstanceResponse {
 
   factory TaskInstanceResponse.fromJson(Map<String, dynamic> json) =>
       _$TaskInstanceResponseFromJson(json);
+}
+
+@freezed
+class RetroactiveCompleteRequest with _$RetroactiveCompleteRequest {
+  const factory RetroactiveCompleteRequest({
+    required int completedByUserId,
+    String? optionalComment,
+    int? optionalImageId,
+  }) = _RetroactiveCompleteRequest;
+
+  factory RetroactiveCompleteRequest.fromJson(Map<String, dynamic> json) =>
+      _$RetroactiveCompleteRequestFromJson(json);
 }
 
 @freezed
