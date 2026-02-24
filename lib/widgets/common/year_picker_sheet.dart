@@ -39,10 +39,10 @@ class _YearPickerSheetState extends State<YearPickerSheet> {
     super.initState();
     _scrollController = ScrollController();
 
-    // Beregn år-intervallet: 1920 til nuværende år - 13 (minimum alder)
+    // Beregn år-intervallet: 1920 til nuværende år - 6
     final currentYear = DateTime.now().year;
     _minYear = 1920;
-    _maxYear = currentYear - 13;
+    _maxYear = currentYear - 6;
     _years = List.generate(_maxYear - _minYear + 1, (i) => _maxYear - i);
 
     // Scroll til valgt år efter første frame
