@@ -1941,6 +1941,47 @@ class StringsEn extends AppStrings {
   @override
   String get failedToDeleteCheer => 'Failed to remove reaction';
 
+  // Help tips
+  @override
+  String get tipVelkommenTitel => 'Welcome to Aarshjulet!';
+
+  @override
+  String get tipVelkommenBeskrivelse =>
+      'Aarshjulet helps you keep track of things that need to be done again and again — '
+      'like cleaning, car maintenance or dentist appointments.\n\n'
+      'You start by creating a list. A list groups tasks that belong together, '
+      'e.g. \'Home & Garden\', \'Car\' or \'Health\'.\n\n'
+      'Then you add tasks to the list — and Aarshjulet will automatically remind you '
+      'when it\'s time again.';
+
+  @override
+  String get tipVelkommenEkstra => 'Let\'s start by creating your first list!';
+
+  @override
+  String get tipTaskIndstillingerTitel => 'How tasks work';
+
+  @override
+  String get tipTaskIndstillingerBeskrivelse =>
+      'Each task has a recurrence — e.g. every week, every 3 months or every year.\n\n'
+      'You can also choose specific weekdays, e.g. "every Monday and Thursday", '
+      'if the task should be done on fixed days.\n\n'
+      'Under optional settings you can add an alarm, '
+      'so you get a reminder when the task is due.';
+
+  @override
+  String get tipDelingTitel => 'Share with others';
+
+  @override
+  String get tipDelingBeskrivelse =>
+      'Did you know you can share lists with others? '
+      'Invite family, friends or roommates — so you can see each other\'s tasks '
+      'and keep track of who does what.\n\n'
+      'You can also assign a responsible person to each task, so it\'s always clear who\'s in charge.\n\n'
+      'Tap the person icon in the top right to invite someone to this list.';
+
+  @override
+  String get tipForstaaet => 'Got it';
+
   // Expiry
   @override
   String expiresIn(String timeLeft) => 'Expires in $timeLeft';

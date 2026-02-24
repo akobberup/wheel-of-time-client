@@ -16,6 +16,8 @@ import '../widgets/common/empty_state.dart';
 import '../widgets/common/error_state_widget.dart';
 import '../widgets/common/contextual_delete_dialog.dart';
 import '../widgets/common/inline_action_buttons.dart';
+import '../widgets/common/hjaelpe_tip_bottom_sheet.dart';
+import '../models/hjaelpe_tip.dart';
 
 /// Viser liste over brugerens opgavelister med mulighed for at oprette, redigere og slette
 class TaskListsScreen extends ConsumerStatefulWidget {
@@ -133,6 +135,15 @@ class _TaskListsScreenState extends ConsumerState<TaskListsScreen> {
   /// Viser onboarding skabelon-dialog og navigerer til den nye liste
   Future<void> _showOnboardingCreateDialog(
       BuildContext context, WidgetRef ref) async {
+    // Vis velkomst-tip før opret-dialog
+    await HjaelpeTipBottomSheet.visHvisRelevant(
+      context: context,
+      ref: ref,
+      triggerPunkt: TipTriggerPunkt.foerOpretListeOnboarding,
+      forsinkelse: const Duration(milliseconds: 600),
+    );
+    if (!mounted) return;
+
     final result = await showDialog<dynamic>(
       context: context,
       barrierDismissible: true,

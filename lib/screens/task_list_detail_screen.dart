@@ -24,6 +24,8 @@ import '../models/task_list_user.dart';
 import '../models/enums.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/common/empty_state.dart';
+import '../widgets/common/hjaelpe_tip_bottom_sheet.dart';
+import '../models/hjaelpe_tip.dart';
 import '../widgets/common/skeleton_loader.dart';
 import '../models/schedule.dart';
 import '../models/task.dart' show TaskResponse;
@@ -344,6 +346,16 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
     Color primaryColor,
     Color secondaryColor,
   ) async {
+    // Vis tip om task-indstillinger før opret-dialog
+    await HjaelpeTipBottomSheet.visHvisRelevant(
+      context: context,
+      ref: ref,
+      triggerPunkt: TipTriggerPunkt.foerOpretTaskOnboarding,
+      temaFarve: primaryColor,
+      forsinkelse: const Duration(milliseconds: 600),
+    );
+    if (!mounted) return;
+
     final result = await showDialog<dynamic>(
       context: context,
       barrierDismissible: true,
@@ -392,6 +404,16 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
     // Bruger valgte "Opret" på et forslag - task blev oprettet direkte
     if (result is TaskResponse) {
       ref.read(tasksProvider(widget.taskListId).notifier).loadTasks();
+    }
+
+    // Vis delings-tip efter task-oprettelse (uanset oprettelsesmetode)
+    if (result != null && mounted) {
+      await HjaelpeTipBottomSheet.visHvisRelevant(
+        context: context,
+        ref: ref,
+        triggerPunkt: TipTriggerPunkt.efterFoersteTaskOprettet,
+        forsinkelse: const Duration(milliseconds: 800),
+      );
     }
   }
 

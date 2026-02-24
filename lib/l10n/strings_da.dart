@@ -1915,6 +1915,47 @@ class StringsDa extends AppStrings {
   @override
   String get failedToDeleteCheer => 'Kunne ikke fjerne reaktion';
 
+  // Hjælpe-tips
+  @override
+  String get tipVelkommenTitel => 'Velkommen til Årshjulet!';
+
+  @override
+  String get tipVelkommenBeskrivelse =>
+      'I Årshjulet holder du styr på ting der skal gøres igen og igen — '
+      'fx rengøring, bilservice eller tandlægebesøg.\n\n'
+      'Du starter med at oprette en liste. En liste samler opgaver der hører sammen, '
+      'fx \'Hus og have\', \'Bil\' eller \'Sundhed\'.\n\n'
+      'Derefter tilføjer du opgaver til listen — og Årshjulet minder dig automatisk, '
+      'når det er tid igen.';
+
+  @override
+  String get tipVelkommenEkstra => 'Lad os starte med at oprette din første liste!';
+
+  @override
+  String get tipTaskIndstillingerTitel => 'Sådan virker opgaver';
+
+  @override
+  String get tipTaskIndstillingerBeskrivelse =>
+      'Hver opgave har en gentagelse — fx hver uge, hver 3. måned eller hvert år.\n\n'
+      'Du kan også vælge bestemte ugedage, fx "hver mandag og torsdag", '
+      'hvis opgaven skal udføres på faste dage.\n\n'
+      'Under valgfrie indstillinger kan du tilføje en alarm, '
+      'så du får en påmindelse når opgaven skal udføres.';
+
+  @override
+  String get tipDelingTitel => 'Del med andre';
+
+  @override
+  String get tipDelingBeskrivelse =>
+      'Vidste du at du kan dele lister med andre? '
+      'Inviter familie, venner eller roommates — så kan I se hinandens opgaver '
+      'og holde styr på hvem der gør hvad.\n\n'
+      'I kan også sætte en ansvarlig på hver opgave, så det altid er klart hvem der står for den.\n\n'
+      'Tryk på person-ikonet øverst til højre for at invitere nogen til denne liste.';
+
+  @override
+  String get tipForstaaet => 'Forstået';
+
   // Udløb
   @override
   String expiresIn(String timeLeft) => 'Udløber om $timeLeft';

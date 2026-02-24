@@ -722,6 +722,16 @@ abstract class AppStrings {
   String get failedToCheerTask;
   String get failedToDeleteCheer;
 
+  // Hjælpe-tips
+  String get tipVelkommenTitel;
+  String get tipVelkommenBeskrivelse;
+  String get tipVelkommenEkstra;
+  String get tipTaskIndstillingerTitel;
+  String get tipTaskIndstillingerBeskrivelse;
+  String get tipDelingTitel;
+  String get tipDelingBeskrivelse;
+  String get tipForstaaet;
+
   // Udløb (expiry countdown)
   String expiresIn(String timeLeft);
 

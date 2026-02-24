@@ -173,20 +173,22 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
               ),
               const SizedBox(height: 8),
 
-              // Schedule from completion toggle
-              SwitchListTile(
-                title: Text(strings.scheduleFromCompletionLabel),
-                subtitle: Text(
-                  strings.scheduleFromCompletionDescription,
-                  style: const TextStyle(fontSize: 12),
+              // Schedule from completion toggle (kun relevant for interval-schedules)
+              if (_schedule is IntervalSchedule) ...[
+                SwitchListTile(
+                  title: Text(strings.scheduleFromCompletionLabel),
+                  subtitle: Text(
+                    strings.scheduleFromCompletionDescription,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  value: _scheduleFromCompletion,
+                  activeTrackColor: primaryColor.withValues(alpha: 0.5),
+                  activeThumbColor: primaryColor,
+                  onChanged: (value) => setState(() => _scheduleFromCompletion = value),
+                  contentPadding: EdgeInsets.zero,
                 ),
-                value: _scheduleFromCompletion,
-                activeTrackColor: primaryColor.withValues(alpha: 0.5),
-                activeThumbColor: primaryColor,
-                onChanged: (value) => setState(() => _scheduleFromCompletion = value),
-                contentPadding: EdgeInsets.zero,
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
+              ],
 
               // Active status toggle - themed
               SwitchListTile(
