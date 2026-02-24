@@ -722,6 +722,9 @@ abstract class AppStrings {
   String get failedToCheerTask;
   String get failedToDeleteCheer;
 
+  // Udløb (expiry countdown)
+  String expiresIn(String timeLeft);
+
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);
 

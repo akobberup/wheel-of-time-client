@@ -1881,7 +1881,7 @@ class StringsEn extends AppStrings {
   String get selectBirthYear => 'Select birth year';
 
   @override
-  String get thisHelpsPersonalize => 'This helps us personalize your suggestions';
+  String get thisHelpsPersonalize => 'We only use this to suggest tasks that others in the same age group and gender have done';
 
   @override
   String get personalizeYourExperience => 'Personalize your experience';
@@ -1940,4 +1940,8 @@ class StringsEn extends AppStrings {
 
   @override
   String get failedToDeleteCheer => 'Failed to remove reaction';
+
+  // Expiry
+  @override
+  String expiresIn(String timeLeft) => 'Expires in $timeLeft';
 }

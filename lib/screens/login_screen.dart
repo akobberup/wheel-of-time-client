@@ -39,6 +39,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   final _nameController = TextEditingController();
   bool _isLoginMode = true;
   bool _obscurePassword = true;
+  Gender? _gender;
+  int? _birthYear;
 
   AnimationController? _orbController;
   AnimationController? _formController;
@@ -235,6 +237,107 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   },
                                 ),
 
+                                // Køn og fødselsår ved registrering
+                                AnimatedSize(
+                                  duration: const Duration(milliseconds: 250),
+                                  curve: Curves.easeInOut,
+                                  child: _isLoginMode
+                                      ? const SizedBox.shrink()
+                                      : Padding(
+                                          padding: const EdgeInsets.only(top: 20),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              // Info-tekst
+                                              Row(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Icon(
+                                                    Icons.info_outline_rounded,
+                                                    size: 16,
+                                                    color: isDark ? Colors.white38 : Colors.black38,
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: Text(
+                                                      AppStrings.of(context).thisHelpsPersonalize,
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: isDark ? Colors.white38 : Colors.black38,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 16),
+
+                                              // Køn vælger
+                                              GenderSelector(
+                                                selectedGender: _gender,
+                                                onChanged: (gender) => setState(() => _gender = gender),
+                                                themeColor: seedColor,
+                                              ),
+                                              const SizedBox(height: 16),
+
+                                              // Fødselsår vælger
+                                              InkWell(
+                                                onTap: () {
+                                                  showYearPickerSheet(
+                                                    context: context,
+                                                    selectedYear: _birthYear,
+                                                    seedColor: seedColor,
+                                                    onYearSelected: (year) => setState(() => _birthYear = year),
+                                                  );
+                                                },
+                                                borderRadius: BorderRadius.circular(12),
+                                                child: Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                                  decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(12),
+                                                    border: Border.all(
+                                                      color: isDark
+                                                          ? Colors.white.withValues(alpha: 0.12)
+                                                          : Colors.black.withValues(alpha: 0.12),
+                                                    ),
+                                                    color: isDark
+                                                        ? Colors.white.withValues(alpha: 0.05)
+                                                        : Colors.black.withValues(alpha: 0.02),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.cake_outlined,
+                                                        size: 20,
+                                                        color: _birthYear != null
+                                                            ? seedColor
+                                                            : (isDark ? Colors.white54 : Colors.black45),
+                                                      ),
+                                                      const SizedBox(width: 12),
+                                                      Expanded(
+                                                        child: Text(
+                                                          _birthYear?.toString() ?? AppStrings.of(context).selectBirthYear,
+                                                          style: TextStyle(
+                                                            fontSize: 15,
+                                                            fontWeight: FontWeight.w500,
+                                                            color: _birthYear != null
+                                                                ? (isDark ? Colors.white : const Color(0xFF1A1A1A))
+                                                                : (isDark ? Colors.white54 : Colors.black45),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Icon(
+                                                        Icons.chevron_right_rounded,
+                                                        color: isDark ? Colors.white54 : Colors.black45,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                ),
+
                                 // Glemt adgangskode
                                 if (_isLoginMode) ...[
                                   const SizedBox(height: 4),
@@ -319,7 +422,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     if (!_formKey.currentState!.validate()) return;
 
     final authNotifier = ref.read(authProvider.notifier);
+    final settingsNotifier = ref.read(userSettingsProvider.notifier);
     final wasRegisterMode = !_isLoginMode;
+    final gender = _gender;
+    final birthYear = _birthYear;
 
     if (_isLoginMode) {
       await authNotifier.login(
@@ -332,38 +438,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         _emailController.text.trim(),
         _passwordController.text,
       );
+
+      // Gem demografisk data efter registrering (fire-and-forget)
+      if (gender != null || birthYear != null) {
+        settingsNotifier.updateSettings(
+          UpdateUserSettingsRequest(
+            gender: gender,
+            birthYear: birthYear,
+          ),
+        );
+      }
     }
 
-    // Tjek om widget stadig er mounted efter async operation
     if (!mounted) return;
-
-    // Vis onboarding sheet efter succesfuld registrering
-    final authState = ref.read(authProvider);
-    if (wasRegisterMode && authState.isAuthenticated) {
-      await _showPersonalizationSheet();
-    }
-
     _navigateToHomeIfAuthenticated();
-  }
-
-  /// Viser personaliserings-sheet efter registrering
-  Future<void> _showPersonalizationSheet() async {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    await showModalBottomSheet(
-      context: context,
-      backgroundColor: isDark ? const Color(0xFF1E1E22) : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      isScrollControlled: true,
-      isDismissible: false,
-      enableDrag: false,
-      builder: (context) => _PersonalizationSheet(
-        isDark: isDark,
-        seedColor: kBrandColor,
-      ),
-    );
   }
 
   void _navigateToHomeIfAuthenticated() {
@@ -1372,230 +1460,3 @@ class _VersionInfo extends StatelessWidget {
   }
 }
 
-/// Personaliserings-sheet der vises efter registrering
-class _PersonalizationSheet extends ConsumerStatefulWidget {
-  final bool isDark;
-  final Color seedColor;
-
-  const _PersonalizationSheet({
-    required this.isDark,
-    required this.seedColor,
-  });
-
-  @override
-  ConsumerState<_PersonalizationSheet> createState() => _PersonalizationSheetState();
-}
-
-class _PersonalizationSheetState extends ConsumerState<_PersonalizationSheet> {
-  Gender? _gender;
-  int? _birthYear;
-  bool _isLoading = false;
-
-  Future<void> _continue() async {
-    // Hvis der er valgt noget, gem det
-    if (_gender != null || _birthYear != null) {
-      setState(() => _isLoading = true);
-
-      try {
-        await ref.read(userSettingsProvider.notifier).updateSettings(
-          UpdateUserSettingsRequest(
-            gender: _gender,
-            birthYear: _birthYear,
-          ),
-        );
-      } catch (e) {
-        // Ignorer fejl - brugeren kan altid opdatere senere
-      }
-    }
-
-    if (mounted) {
-      Navigator.of(context).pop();
-    }
-  }
-
-  void _skip() {
-    Navigator.of(context).pop();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final strings = AppStrings.of(context);
-    final textColor = widget.isDark ? Colors.white : const Color(0xFF1A1A1A);
-    final subtitleColor = widget.isDark ? Colors.white54 : Colors.black45;
-
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: 24,
-          right: 24,
-          top: 24,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Titel
-            Center(
-              child: Text(
-                strings.personalizeYourExperience,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: textColor,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Center(
-              child: Text(
-                strings.thisHelpsPersonalize,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: subtitleColor,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Køn vælger
-            GenderSelector(
-              selectedGender: _gender,
-              onChanged: (gender) => setState(() => _gender = gender),
-              themeColor: widget.seedColor,
-            ),
-
-            const SizedBox(height: 20),
-
-            // Fødselsår
-            Text(
-              strings.birthYear,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: subtitleColor,
-              ),
-            ),
-            const SizedBox(height: 8),
-            InkWell(
-              onTap: () {
-                showYearPickerSheet(
-                  context: context,
-                  selectedYear: _birthYear,
-                  seedColor: widget.seedColor,
-                  onYearSelected: (year) => setState(() => _birthYear = year),
-                );
-              },
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: widget.isDark
-                        ? Colors.white.withValues(alpha: 0.12)
-                        : Colors.black.withValues(alpha: 0.12),
-                  ),
-                  color: widget.isDark
-                      ? Colors.white.withValues(alpha: 0.05)
-                      : Colors.black.withValues(alpha: 0.02),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.cake_outlined,
-                      size: 20,
-                      color: _birthYear != null ? widget.seedColor : subtitleColor,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        _birthYear?.toString() ?? strings.selectBirthYear,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: _birthYear != null ? textColor : subtitleColor,
-                        ),
-                      ),
-                    ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: subtitleColor,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 28),
-
-            // Knapper
-            Row(
-              children: [
-                // Spring over knap
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: _isLoading ? null : _skip,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: subtitleColor,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      side: BorderSide(
-                        color: widget.isDark
-                            ? Colors.white.withValues(alpha: 0.2)
-                            : Colors.black.withValues(alpha: 0.15),
-                      ),
-                    ),
-                    child: Text(
-                      strings.skip,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // Fortsæt knap
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _continue,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: widget.seedColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : Text(
-                            strings.continueButton,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

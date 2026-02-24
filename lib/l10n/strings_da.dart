@@ -1855,7 +1855,7 @@ class StringsDa extends AppStrings {
   String get selectBirthYear => 'Vælg fødselsår';
 
   @override
-  String get thisHelpsPersonalize => 'Dette hjælper os med at personalisere dine forslag';
+  String get thisHelpsPersonalize => 'Vi bruger kun dette til at foreslå opgaver som andre i samme aldersgruppe og køn har lavet';
 
   @override
   String get personalizeYourExperience => 'Personalisér din oplevelse';
@@ -1914,4 +1914,8 @@ class StringsDa extends AppStrings {
 
   @override
   String get failedToDeleteCheer => 'Kunne ikke fjerne reaktion';
+
+  // Udløb
+  @override
+  String expiresIn(String timeLeft) => 'Udløber om $timeLeft';
 }

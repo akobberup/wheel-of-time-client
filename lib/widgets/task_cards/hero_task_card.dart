@@ -288,6 +288,13 @@ class _HeroTaskCardState extends State<HeroTaskCard> {
           // Opgave-liste og schedule info
           _buildTaskListLabel(context),
 
+          // Udløbstidspunkt for forsinkede opgaver med completion window
+          if (_getExpiryDuration() != null)
+            Padding(
+              padding: EdgeInsets.only(top: widget.isDesktop ? 8 : 10),
+              child: _buildExpiryBanner(context),
+            ),
+
           // Streak advarsel hvis relevant
           if (_shouldShowStreakWarning())
             Padding(
@@ -367,6 +374,74 @@ class _HeroTaskCardState extends State<HeroTaskCard> {
               color: Colors.white,
               fontSize: 12,
               fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Beregner resterende tid til udløb for forsinkede opgaver.
+  /// Returnerer null hvis opgaven ikke er forsinket eller ikke har completion window.
+  Duration? _getExpiryDuration() {
+    if (widget.urgency != TaskUrgency.overdue) return null;
+    final windowHours = widget.occurrence.completionWindowHours;
+    if (windowHours == null) return null;
+
+    final expiryTime = widget.occurrence.dueDate.add(Duration(hours: windowHours));
+    final remaining = expiryTime.difference(DateTime.now());
+    if (remaining.isNegative) return null;
+    return remaining;
+  }
+
+  /// Formaterer varighed til menneskeligt læsbar streng (f.eks. "2 dage", "5 timer", "30 min.")
+  String _formatDuration(Duration duration) {
+    if (duration.inDays > 0) {
+      return duration.inDays == 1 ? '1 dag' : '${duration.inDays} dage';
+    }
+    if (duration.inHours > 0) {
+      final hours = duration.inHours;
+      return hours == 1 ? '1 time' : '$hours timer';
+    }
+    final minutes = duration.inMinutes;
+    if (minutes <= 0) return '< 1 min.';
+    return '$minutes min.';
+  }
+
+  Widget _buildExpiryBanner(BuildContext context) {
+    final strings = AppStrings.of(context);
+    final theme = Theme.of(context);
+    final remaining = _getExpiryDuration()!;
+    final isUrgent = remaining.inHours < 6;
+    final color = isUrgent ? theme.colorScheme.error : const Color(0xFFF59E0B);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: color.withValues(alpha: 0.4),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.timer_outlined,
+            color: color,
+            size: 16,
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              strings.expiresIn(_formatDuration(remaining)),
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
