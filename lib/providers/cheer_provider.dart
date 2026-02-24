@@ -50,3 +50,7 @@ final cheerProvider = StateNotifierProvider<CheerNotifier, AsyncValue<void>>((re
   final apiService = ref.watch(apiServiceProvider);
   return CheerNotifier(apiService, ref);
 });
+
+/// Provider for pending cheer fra push notification.
+/// Sættes når brugeren trykker på en TASK_COMPLETED_BY_OTHER notification.
+final pendingCheerProvider = StateProvider<int?>((ref) => null);

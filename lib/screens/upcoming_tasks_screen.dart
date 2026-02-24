@@ -16,6 +16,8 @@ import '../widgets/common/task_completion_animation.dart';
 import '../widgets/common/timeline_separator.dart';
 import '../widgets/task_cards/task_cards.dart';
 import '../widgets/retroactive_complete_sheet.dart';
+import '../widgets/cheer_bottom_sheet.dart';
+import '../providers/cheer_provider.dart';
 
 /// Grupperer opgaver efter dato-sektion
 Map<String, List<UpcomingTaskOccurrenceResponse>> _groupByDate(
@@ -74,6 +76,17 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     }
   }
 
+  /// Åbner CheerBottomSheet for en given taskInstanceId og refresher efter
+  Future<void> _openCheerSheet(int taskInstanceId) async {
+    final result = await CheerBottomSheet.show(
+      context,
+      taskInstanceId: taskInstanceId,
+    );
+    if (result == true && mounted) {
+      await ref.read(completedTasksProvider.notifier).refresh();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(upcomingTasksProvider);
@@ -82,6 +95,18 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final strings = AppStrings.of(context);
+
+    // Lyt til pending cheer fra push notification (TASK_COMPLETED_BY_OTHER)
+    ref.listen<int?>(pendingCheerProvider, (previous, next) {
+      if (next != null) {
+        // Ryd pending state med det samme
+        ref.read(pendingCheerProvider.notifier).state = null;
+        // Åbn CheerBottomSheet efter kort delay så skærmen er klar
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) _openCheerSheet(next);
+        });
+      }
+    });
 
     // Brugerens valgte tema-farve
     final seedColor = themeState.seedColor;
@@ -208,6 +233,7 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
                     onLoadMore: () {
                       ref.read(completedTasksProvider.notifier).loadMore();
                     },
+                    onCheer: (task) => _openCheerSheet(task.id),
                     onRetroactiveComplete: (task) async {
                       if (task.taskListId == null) return;
                       final result = await RetroactiveCompleteSheet.show(
@@ -783,6 +809,7 @@ class _CompletedTasksSection extends StatelessWidget {
   final bool isDesktop;
   final VoidCallback onToggleExpand;
   final VoidCallback onLoadMore;
+  final void Function(TaskInstanceResponse task)? onCheer;
   final void Function(TaskInstanceResponse task)? onRetroactiveComplete;
 
   // Status farve fra Design Guidelines
@@ -793,6 +820,7 @@ class _CompletedTasksSection extends StatelessWidget {
     required this.isDesktop,
     required this.onToggleExpand,
     required this.onLoadMore,
+    this.onCheer,
     this.onRetroactiveComplete,
   });
 
@@ -950,7 +978,9 @@ class _CompletedTasksSection extends StatelessWidget {
                 canEdit: canEdit,
                 onTap: canEdit
                     ? () => onRetroactiveComplete!(task)
-                    : null,
+                    : onCheer != null
+                        ? () => onCheer!(task)
+                        : null,
               ),
             );
           },

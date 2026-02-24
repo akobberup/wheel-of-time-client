@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/remote_logger_provider.dart';
+import 'providers/cheer_provider.dart';
 import 'providers/fcm_provider.dart';
 import 'router/app_router.dart';
 import 'services/fcm_service.dart';
@@ -119,6 +120,11 @@ class _AarshjuletAppState extends ConsumerState<AarshjuletApp> {
   /// Håndterer navigation fra notification tap.
   void _handleNotificationNavigation(PendingNotificationNavigation navigation, GoRouter router) {
     debugPrint('FCM: Håndterer notification navigation: type=${navigation.type}');
+
+    // For TASK_COMPLETED_BY_OTHER: sæt pending cheer så CheerBottomSheet åbnes
+    if (navigation.type == 'TASK_COMPLETED_BY_OTHER' && navigation.taskInstanceId != null) {
+      ref.read(pendingCheerProvider.notifier).state = navigation.taskInstanceId;
+    }
 
     final route = navigation.getNavigationRoute();
     if (route != null) {

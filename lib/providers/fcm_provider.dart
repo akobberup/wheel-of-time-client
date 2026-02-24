@@ -135,14 +135,16 @@ class PendingNotificationNavigation {
   /// Returnerer den route der skal navigeres til baseret på notification type.
   String? getNavigationRoute() {
     switch (type) {
+      case 'TASK_COMPLETED_BY_OTHER':
+        // Naviger altid til home så CheerBottomSheet kan åbnes via pendingCheerProvider
+        return '/';
+
       case 'TASK_DUE':
       case 'TASK_EXPIRING_SOON':
       case 'TASK_OVERDUE':
-      case 'TASK_COMPLETED_BY_OTHER':
       case 'TASK_DISMISSED_BY_OTHER':
       case 'CHEER_RECEIVED':
-        // For task-relaterede notifications, gå til home (upcoming tasks)
-        // Ideelt ville vi navigere til den specifikke task, men det kræver taskListId
+        // For task-relaterede notifications, gå til task listen hvis muligt
         if (taskListId != null) {
           return '/lists/$taskListId';
         }
