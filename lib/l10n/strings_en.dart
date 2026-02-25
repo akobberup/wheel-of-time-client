@@ -1921,6 +1921,12 @@ class StringsEn extends AppStrings {
   String get writeMessage => 'Write a message';
 
   @override
+  String get sendReaction => 'Send reaction';
+
+  @override
+  String get selectEmojiFirst => 'Select an emoji first';
+
+  @override
   String get pushCheers => 'Cheers';
 
   @override
@@ -1985,4 +1991,177 @@ class StringsEn extends AppStrings {
   // Expiry
   @override
   String expiresIn(String timeLeft) => 'Expires in $timeLeft';
+
+  // Documentation
+  @override
+  String get documentation => 'Documentation';
+  @override
+  String get documentationDescription => 'Learn how the app works';
+  @override
+  String get docIntro =>
+      'Årshjulet helps you keep track of all the tasks that need doing again and again '
+      '– from vacuuming and gardening to car maintenance and window cleaning.\n\n'
+      'Here you can read about how the app works. Tap a section to expand it.';
+
+  // Doc: Task Lists
+  @override
+  String get docTaskListsTitle => 'Task Lists';
+  @override
+  String get docTaskListsBody =>
+      'Start by creating a task list – it\'s your collection of tasks that belong together. '
+      'For example, you might have a list for "House & Garden", one for "Car" and one for '
+      '"Shared chores" with your partner.\n\n'
+      'Each list can have its own look with colours and an icon so you can easily tell them apart. '
+      'When creating a new list you can pick a template to get started quickly, '
+      'or start from scratch. The app can also suggest a name for your list.';
+
+  // Doc: Tasks
+  @override
+  String get docTasksTitle => 'Tasks';
+  @override
+  String get docTasksBody =>
+      'Once you have a list you can add tasks to it. A task is something you need to remember to do '
+      '– e.g. "Vacuum the living room" or "Trim the hedge".\n\n'
+      'You decide how often a task should repeat:\n'
+      '• At a fixed interval – every fortnight, every month, every six months\n'
+      '• On specific weekdays – e.g. Monday and Thursday\n'
+      '• Only in certain months – perfect for seasonal jobs like gardening\n\n'
+      'You can also set an alarm so you get a reminder at the right time. '
+      'And if the task needs to be done within a certain window, you can set a deadline '
+      '– it expires automatically if it isn\'t completed in time.\n\n'
+      'Would you rather have the next occurrence count from the day you actually did it '
+      '(instead of a fixed date)? Then turn on "schedule from completion".';
+
+  // Doc: Task Completion
+  @override
+  String get docCompletionTitle => 'When you complete a task';
+  @override
+  String get docCompletionBody =>
+      'When you\'ve done a task, mark it as completed with a simple swipe. '
+      'You can add a comment or a photo – e.g. a picture of the freshly trimmed hedge.\n\n'
+      'Forgot to mark it yesterday? No problem – you can log it retroactively '
+      'so your stats still add up.\n\n'
+      'If a task isn\'t relevant this time (maybe it\'s raining and you\'re skipping the watering), '
+      'you can dismiss it. It simply skips ahead to the next occurrence.\n\n'
+      'If you share the list with others, they\'ll automatically get a notification when you complete a task '
+      '– so everyone knows it\'s been taken care of.';
+
+  // Doc: Streaks
+  @override
+  String get docStreaksTitle => 'Streaks – keep the rhythm';
+  @override
+  String get docStreaksBody =>
+      'Streaks show how many times in a row you\'ve completed a task on time. '
+      'It\'s a small motivational nudge that makes it more fun to stick to your routines.\n\n'
+      'You can see your current streak and your personal best for each task. '
+      'Miss one and the counter resets – so there\'s always a good reason to keep going!';
+
+  // Doc: Sharing & Collaboration
+  @override
+  String get docSharingTitle => 'Share with others';
+  @override
+  String get docSharingBody =>
+      'Årshjulet is even better when you\'re not alone. Share a task list with your partner, '
+      'your family or your housemates via email.\n\n'
+      'You decide what others can do:\n'
+      '• Can edit – they can create and modify tasks\n'
+      '• Can view – they can see and complete tasks but not change them\n\n'
+      'You can change permissions or remove someone from the list at any time.';
+
+  // Doc: Assignment
+  @override
+  String get docAssignmentTitle => 'Divide the work';
+  @override
+  String get docAssignmentBody =>
+      'When several people share a list you can choose how tasks are divided:\n\n'
+      '• Everyone – anyone can complete the task, but only one person needs to, e.g. "Water the plants"\n'
+      '• Fixed person – the task always belongs to the same person, e.g. "Car service"\n'
+      '• Take turns – the task rotates automatically so you share the load. '
+      'Perfect for "Vacuuming" or "Emptying the dishwasher"';
+
+  // Doc: Cheers
+  @override
+  String get docCheersTitle => 'Give each other a pat on the back';
+  @override
+  String get docCheersBody =>
+      'When someone on your list completes a task you can send a little reaction '
+      '– an emoji with a short message. It\'s a quick way to say "well done!" '
+      'and keep the motivation going.';
+
+  // Doc: Push Notifications
+  @override
+  String get docNotificationsTitle => 'Reminders';
+  @override
+  String get docNotificationsBody =>
+      'Årshjulet can give you a nudge when there\'s something to remember:\n\n'
+      '• Reminders when a task is waiting for you\n'
+      '• A message when someone invites you to a list\n'
+      '• A message when someone sends you a reaction\n\n'
+      'You choose what you want to be notified about in Settings.';
+
+  // Doc: Settings
+  @override
+  String get docSettingsTitle => 'Make the app yours';
+  @override
+  String get docSettingsBody =>
+      'Customise Årshjulet so it feels right for you:\n\n'
+      '• Pick your favourite colour – it\'s used throughout the app\n'
+      '• Turn on dark mode if you prefer it\n'
+      '• Switch between Danish and English';
+
+  // Doc: Account
+  @override
+  String get docAccountTitle => 'Your account';
+  @override
+  String get docAccountBody =>
+      'Under your account you can edit your name, change your password, '
+      'or delete your account if you no longer want to use the app.\n\n'
+      'Account deletion requires confirmation via email, and all your data is permanently removed.';
+
+  // Doc: Example
+  @override
+  String get docExampleTitle => 'A real-life example';
+  @override
+  String get docExampleBody =>
+      'Here\'s how the developer behind Årshjulet uses the app at home '
+      'with his family of four – two adults and two teenagers.\n\n'
+
+      '🚗  Car (just me)\n'
+      '• Interior cleaning – every 2 weeks\n'
+      '• Check oil – every 2 months\n'
+      '• Check tyre pressure – every 2 months\n\n'
+
+      '🏠  House (just me)\n'
+      '• Clean gutters – every month (summer half only)\n'
+      '• Paint bargeboards – every 2 years\n'
+      '• Paint soffits – every 3 years\n\n'
+
+      '🌿  Garden (shared with my wife)\n'
+      '• Weed the beds – every 2 weeks (summer half only)\n'
+      '• Water the planters – every 2 weeks (summer half only)\n'
+      '• Trim the hedge – once in June and once in September\n\n'
+
+      '🧹  Indoors (shared with my wife – we take turns)\n'
+      '• Vacuum & mop downstairs – every week\n'
+      '• Vacuum & mop upstairs – every week\n'
+      '• Water the plants – every week\n'
+      '• Clean bathroom upstairs – every week\n'
+      '• Clean bathroom downstairs – every week\n'
+      '• Change bed linen – every week\n'
+      '• Dust surfaces – every 2 weeks\n'
+      '• Clean windows – every 2 months\n'
+      '• Deep-clean kitchen – every 2 months\n'
+      '• Test smoke alarms – every month\n\n'
+
+      '📚  Kids\' tasks (shared with wife and child)\n'
+      'Each child has their own list where all tasks are assigned to them:\n'
+      '• Do homework – Mon–Thu + Sunday\n'
+      '• Make packed lunch – Mon–Thu + Sunday\n\n'
+
+      'Start small with 5–10 tasks and build from there. '
+      'The most important thing is to find a rhythm that works for your household.';
+
+  // Doc: Common labels
+  @override
+  String get docTip => 'Tip';
 }

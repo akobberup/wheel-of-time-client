@@ -45,6 +45,13 @@ class _CheerBottomSheetState extends ConsumerState<CheerBottomSheet> {
   bool _showMessageField = false;
   final _messageController = TextEditingController();
   bool _isSending = false;
+  String? _selectedEmoji;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedEmoji = widget.existingEmoji;
+  }
 
   @override
   void dispose() {
@@ -79,6 +86,16 @@ class _CheerBottomSheetState extends ConsumerState<CheerBottomSheet> {
       } else {
         setState(() => _isSending = false);
       }
+    }
+  }
+
+  void _onEmojiTap(String emoji) {
+    if (_showMessageField) {
+      // Besked-felt er synligt → vælg emoji (send via knap)
+      setState(() => _selectedEmoji = emoji);
+    } else {
+      // Ingen besked → send med det same
+      _sendCheer(emoji);
     }
   }
 
@@ -122,8 +139,8 @@ class _CheerBottomSheetState extends ConsumerState<CheerBottomSheet> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: _quickEmojis.map((emoji) => _EmojiButton(
               emoji: emoji,
-              isSelected: emoji == widget.existingEmoji,
-              onTap: _isSending ? null : () => _sendCheer(emoji),
+              isSelected: emoji == _selectedEmoji,
+              onTap: _isSending ? null : () => _onEmojiTap(emoji),
             )).toList(),
           ),
           const SizedBox(height: 16),
@@ -136,7 +153,7 @@ class _CheerBottomSheetState extends ConsumerState<CheerBottomSheet> {
               label: Text(strings.writeMessage),
             ),
 
-          // Besked-felt
+          // Besked-felt + send-knap
           if (_showMessageField) ...[
             TextField(
               controller: _messageController,
@@ -151,7 +168,17 @@ class _CheerBottomSheetState extends ConsumerState<CheerBottomSheet> {
               ),
               autofocus: true,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _isSending || _selectedEmoji == null
+                    ? null
+                    : () => _sendCheer(_selectedEmoji!),
+                icon: const Icon(Icons.send, size: 18),
+                label: Text(strings.sendReaction),
+              ),
+            ),
           ],
 
           const SizedBox(height: 16),

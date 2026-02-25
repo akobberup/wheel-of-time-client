@@ -16,6 +16,7 @@ import '../screens/notifications_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/legal_info_screen.dart';
+import '../screens/documentation_screen.dart';
 
 /// Provider til GoRouter instansen
 /// Lytter på auth state for at håndtere redirects
@@ -44,6 +45,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         '/security',
         '/support',
         '/account-deletion',
+        '/documentation',
       ];
       final isPublicRoute = publicRoutes.any((r) => currentPath.startsWith(r));
 
@@ -222,6 +224,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const LegalInfoScreen(type: LegalInfoType.accountDeletion),
+          transitionsBuilder: _fadeSlideTransition,
+          transitionDuration: const Duration(milliseconds: 350),
+        ),
+      ),
+
+      // Dokumentation
+      GoRoute(
+        path: '/documentation',
+        name: 'documentation',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const DocumentationScreen(),
           transitionsBuilder: _fadeSlideTransition,
           transitionDuration: const Duration(milliseconds: 350),
         ),

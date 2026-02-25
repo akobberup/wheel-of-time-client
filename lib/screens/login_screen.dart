@@ -403,7 +403,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           ),
                         ),
 
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 12),
+
+                        // Dokumentation link
+                        TextButton.icon(
+                          onPressed: () => context.push('/documentation'),
+                          icon: Icon(
+                            Icons.menu_book_rounded,
+                            size: 16,
+                            color: isDark ? Colors.white38 : Colors.black38,
+                          ),
+                          label: Text(
+                            AppStrings.of(context).documentation,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: isDark ? Colors.white38 : Colors.black38,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
 
                         // Version
                         _VersionInfo(isDark: isDark),

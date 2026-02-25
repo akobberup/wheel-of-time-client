@@ -714,6 +714,8 @@ abstract class AppStrings {
   String get cheerTaskInstance;
   String get cheerSent;
   String get writeMessage;
+  String get sendReaction;
+  String get selectEmojiFirst;
   String get pushCheers;
   String get pushCheersDescription;
   String get cannotCheerOwnTask;
@@ -734,6 +736,58 @@ abstract class AppStrings {
 
   // Udløb (expiry countdown)
   String expiresIn(String timeLeft);
+
+  // Dokumentation
+  String get documentation;
+  String get documentationDescription;
+  String get docIntro;
+
+  // Dok: Opgavelister
+  String get docTaskListsTitle;
+  String get docTaskListsBody;
+
+  // Dok: Opgaver
+  String get docTasksTitle;
+  String get docTasksBody;
+
+  // Dok: Opgavefuldførelse
+  String get docCompletionTitle;
+  String get docCompletionBody;
+
+  // Dok: Streaks
+  String get docStreaksTitle;
+  String get docStreaksBody;
+
+  // Dok: Deling & samarbejde
+  String get docSharingTitle;
+  String get docSharingBody;
+
+  // Dok: Ansvarsfordeling
+  String get docAssignmentTitle;
+  String get docAssignmentBody;
+
+  // Dok: Cheers
+  String get docCheersTitle;
+  String get docCheersBody;
+
+  // Dok: Push-notifikationer
+  String get docNotificationsTitle;
+  String get docNotificationsBody;
+
+  // Dok: Indstillinger
+  String get docSettingsTitle;
+  String get docSettingsBody;
+
+  // Dok: Konto
+  String get docAccountTitle;
+  String get docAccountBody;
+
+  // Dok: Eksempel
+  String get docExampleTitle;
+  String get docExampleBody;
+
+  // Dok: Fælles labels
+  String get docTip;
 
   static AppStrings of(BuildContext context) {
     final locale = Localizations.localeOf(context);

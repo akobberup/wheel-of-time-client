@@ -1895,6 +1895,12 @@ class StringsDa extends AppStrings {
   String get writeMessage => 'Skriv en besked';
 
   @override
+  String get sendReaction => 'Send reaktion';
+
+  @override
+  String get selectEmojiFirst => 'Vælg en emoji først';
+
+  @override
   String get pushCheers => 'Heppen';
 
   @override
@@ -1959,4 +1965,175 @@ class StringsDa extends AppStrings {
   // Udløb
   @override
   String expiresIn(String timeLeft) => 'Udløber om $timeLeft';
+
+  // Dokumentation
+  @override
+  String get documentation => 'Dokumentation';
+  @override
+  String get documentationDescription => 'Lær hvordan appen fungerer';
+  @override
+  String get docIntro =>
+      'Årshjulet hjælper dig med at holde styr på alle de opgaver, der skal gøres igen og igen '
+      '– fra støvsugning og havearbejde til bilservice og vinduespudsning.\n\n'
+      'Her kan du læse om, hvordan appen virker. Tryk på en sektion for at folde den ud.';
+
+  // Dok: Opgavelister
+  @override
+  String get docTaskListsTitle => 'Opgavelister';
+  @override
+  String get docTaskListsBody =>
+      'Start med at oprette en opgaveliste – det er din samling af opgaver, der hører sammen. '
+      'Du kan f.eks. have en liste til "Hus og have", en til "Bil" og en til "Fællesopgaver" med din partner.\n\n'
+      'Hver liste kan få sit eget udseende med farver og ikon, så du nemt kan kende dem fra hinanden. '
+      'Når du opretter en ny liste, kan du vælge en skabelon for at komme hurtigt i gang, '
+      'eller du kan starte fra bunden. Appen kan også foreslå et navn til din liste.';
+
+  // Dok: Opgaver
+  @override
+  String get docTasksTitle => 'Opgaver';
+  @override
+  String get docTasksBody =>
+      'Når du har en liste, kan du tilføje opgaver til den. En opgave er noget, du skal huske at gøre '
+      '– f.eks. "Støvsug stuerne" eller "Klip hækken".\n\n'
+      'Du bestemmer selv, hvor tit opgaven skal gentages:\n'
+      '• Med fast mellemrum – hver 14. dag, hver måned, hvert halve år\n'
+      '• På bestemte ugedage – f.eks. mandag og torsdag\n'
+      '• Kun i bestemte måneder – perfekt til sæsonopgaver som havearbejde\n\n'
+      'Du kan også sætte en alarm, så du får en påmindelse på det rigtige tidspunkt. '
+      'Og hvis opgaven skal klares inden en bestemt tid, kan du sætte et tidsvindue '
+      '– så udløber den automatisk, hvis den ikke bliver gjort.\n\n'
+      'Vil du hellere have, at næste gang tælles fra den dag du rent faktisk gør det (og ikke fra en fast dato)? '
+      'Så kan du slå "planlæg fra fuldførelse" til.';
+
+  // Dok: Opgavefuldførelse
+  @override
+  String get docCompletionTitle => 'Når du klarer en opgave';
+  @override
+  String get docCompletionBody =>
+      'Når du har gjort en opgave, markerer du den som udført med et enkelt swipe. '
+      'Du kan tilføje en kommentar eller et billede – f.eks. et foto af den nyklippede hæk.\n\n'
+      'Glemte du at markere den i går? Ingen problem – du kan registrere den bagud, '
+      'så din statistik stadig passer.\n\n'
+      'Hvis en opgave ikke er relevant denne gang (måske regner det, og du springer havevanding over), '
+      'kan du afvise den. Så springer den bare videre til næste gang.\n\n'
+      'Deler du listen med andre, får de automatisk en notifikation, når du fuldfører en opgave '
+      '– så alle kan se, at den er klaret.';
+
+  // Dok: Streaks
+  @override
+  String get docStreaksTitle => 'Streaks – hold kadencen';
+  @override
+  String get docStreaksBody =>
+      'Streaks viser, hvor mange gange i træk du har klaret en opgave til tiden. '
+      'Det er en lille motivationsfaktor, der gør det sjovere at holde fast i rutinerne.\n\n'
+      'Du kan se din nuværende streak og din personlige rekord for hver opgave. '
+      'Misser du en gang, starter tælleren forfra – så der er altid en god grund til at holde kadencen!';
+
+  // Dok: Deling & samarbejde
+  @override
+  String get docSharingTitle => 'Del med andre';
+  @override
+  String get docSharingBody =>
+      'Årshjulet er endnu bedre, når I er flere. Del en opgaveliste med din partner, '
+      'din familie eller dine roommates via email.\n\n'
+      'Du bestemmer, hvad de andre må:\n'
+      '• Kan redigere – de kan oprette og ændre opgaver\n'
+      '• Kan se – de kan se og fuldføre opgaver, men ikke ændre dem\n\n'
+      'Du kan til enhver tid ændre rettigheder eller fjerne nogen fra listen.';
+
+  // Dok: Ansvarsfordeling
+  @override
+  String get docAssignmentTitle => 'Fordel opgaverne';
+  @override
+  String get docAssignmentBody =>
+      'Når I er flere om en liste, kan du vælge, hvordan opgaverne fordeles:\n\n'
+      '• Alle – alle kan fuldføre opgaven, men kun én behøver at gøre det, f.eks. "Vande blomster"\n'
+      '• Fast person – opgaven tilhører altid den samme, f.eks. "Service af bilen"\n'
+      '• Skiftes – opgaven roterer automatisk, så I skiftes. Perfekt til "Støvsug" eller "Tøm opvaskemaskinen"';
+
+  // Dok: Cheers
+  @override
+  String get docCheersTitle => 'Giv hinanden et klap på skulderen';
+  @override
+  String get docCheersBody =>
+      'Når nogen i din liste klarer en opgave, kan du sende en lille reaktion '
+      '– en emoji med en kort besked. Det er en hurtig måde at sige "godt gået!" '
+      'og holde motivationen oppe.';
+
+  // Dok: Push-notifikationer
+  @override
+  String get docNotificationsTitle => 'Påmindelser';
+  @override
+  String get docNotificationsBody =>
+      'Årshjulet kan give dig et prik, når der er noget, du skal huske:\n\n'
+      '• Påmindelser når en opgave venter på dig\n'
+      '• Besked når nogen inviterer dig til en liste\n'
+      '• Besked når nogen sender dig en reaktion\n\n'
+      'Du bestemmer selv, hvad du vil have besked om under Indstillinger.';
+
+  // Dok: Indstillinger
+  @override
+  String get docSettingsTitle => 'Gør appen til din';
+  @override
+  String get docSettingsBody =>
+      'Tilpas Årshjulet, så den føles rigtig for dig:\n\n'
+      '• Vælg din yndlingsfarve – den bruges i hele appen\n'
+      '• Slå mørk tilstand til, hvis du foretrækker det\n'
+      '• Skift mellem dansk og engelsk';
+
+  // Dok: Konto
+  @override
+  String get docAccountTitle => 'Din konto';
+  @override
+  String get docAccountBody =>
+      'Under din konto kan du redigere dit navn, ændre din adgangskode, '
+      'eller slette din konto, hvis du ikke længere vil bruge appen.\n\n'
+      'Kontosletning kræver bekræftelse via email, og alle dine data fjernes permanent.';
+
+  // Dok: Eksempel
+  @override
+  String get docExampleTitle => 'Eksempel fra det virkelige liv';
+  @override
+  String get docExampleBody =>
+      'Her er et eksempel på, hvordan udvikleren bag Årshjulet bruger appen derhjemme '
+      'med sin familie på fire – to voksne og to teenagere.\n\n'
+
+      '🚗  Bil (kun mig)\n'
+      '• Indvendig rengøring – hver 2. uge\n'
+      '• Check olie – hver 2. måned\n'
+      '• Check dæktryk – hver 2. måned\n\n'
+
+      '🏠  Hus (kun mig)\n'
+      '• Tøm tagrender – hver måned (kun sommerhalvåret)\n'
+      '• Mal vindskeder – hvert 2. år\n'
+      '• Mal udhæng – hvert 3. år\n\n'
+
+      '🌿  Have (delt med min kone)\n'
+      '• Luge ukrudt – hver 2. uge (kun sommerhalvåret)\n'
+      '• Fylde vand i plantekasser – hver 2. uge (kun sommerhalvåret)\n'
+      '• Klippe hæk – én gang i juni og én gang i september\n\n'
+
+      '🧹  Indendørs (delt med min kone – vi skiftes)\n'
+      '• Støvsuge og vaske gulv nedenunder – hver uge\n'
+      '• Støvsuge og vaske gulv ovenpå – hver uge\n'
+      '• Vande blomster – hver uge\n'
+      '• Gøre badeværelse ovenpå rent – hver uge\n'
+      '• Gøre badeværelse nedenunder rent – hver uge\n'
+      '• Skifte sengetøj – hver uge\n'
+      '• Tørre støv af – hver 2. uge\n'
+      '• Pudse vinduer – hver 2. måned\n'
+      '• Hovedrengøring køkken – hver 2. måned\n'
+      '• Test røgalarmer – hver måned\n\n'
+
+      '📚  Børnenes opgaver (delt med konen og barnet)\n'
+      'Hvert barn har sin egen liste, hvor alle opgaver er tildelt dem:\n'
+      '• Lave lektier – man–tors + søndag\n'
+      '• Lave madpakke – man–tors + søndag\n\n'
+
+      'Start småt med 5–10 opgaver og byg op derfra. '
+      'Det vigtigste er at finde den rytme, der passer til jeres hverdag.';
+
+  // Dok: Fælles labels
+  @override
+  String get docTip => 'Tip';
 }

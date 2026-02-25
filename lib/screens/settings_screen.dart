@@ -162,6 +162,21 @@ class SettingsScreen extends ConsumerWidget {
                     _SettingsCard(
                       isDark: isDark,
                       seedColor: seedColor,
+                      onTap: () => context.push('/documentation'),
+                      child: _NavigationRow(
+                        icon: Icons.menu_book_rounded,
+                        title: strings.documentation,
+                        subtitle: strings.documentationDescription,
+                        seedColor: seedColor,
+                        isDark: isDark,
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    _SettingsCard(
+                      isDark: isDark,
+                      seedColor: seedColor,
                       onTap: () => context.push('/support'),
                       child: _NavigationRow(
                         icon: Icons.help_outline_rounded,
