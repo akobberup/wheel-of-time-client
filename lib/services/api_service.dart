@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
+import 'dart:ui' show VoidCallback;
 import 'package:http/http.dart' as http;
 import 'package:jwt_decode/jwt_decode.dart';
 import '../models/auth_response.dart';
@@ -20,6 +21,7 @@ import '../models/task_responsible.dart';
 import '../models/cheer.dart';
 import '../config/api_config.dart';
 import 'remote_logger_service.dart';
+import 'storage_service.dart';
 
 /// Nøgler til lokaliserede fejlmeddelelser.
 /// Disse matcher getters i AppStrings klassen.
@@ -138,15 +140,23 @@ class ApiService {
 
   final http.Client _client;
   final RemoteLoggerService? _logger;
+  final StorageService? _storageService;
   String? _token;
+  bool _isRefreshing = false;
+
+  /// Callback der kaldes når session er udløbet og refresh fejler.
+  /// Sættes af AuthNotifier for at trigge logout.
+  VoidCallback? onSessionExpired;
 
   /// Constructor allows dependency injection of HTTP client for testing purposes.
   /// If no client is provided, uses the default http.Client().
   ApiService({
     http.Client? client,
     RemoteLoggerService? logger,
+    StorageService? storageService,
   })  : _client = client ?? http.Client(),
-        _logger = logger;
+        _logger = logger,
+        _storageService = storageService;
 
   /// Updates the stored authentication token.
   /// This token will be included in subsequent authenticated requests.
@@ -168,14 +178,74 @@ class ApiService {
     return headers;
   }
 
-  /// Wrapper for HTTP GET with logging
+  /// Forsøger at refreshe access token via stored refresh token.
+  /// Returnerer true hvis refresh lykkedes, false ellers.
+  Future<bool> _tryRefreshToken() async {
+    if (_isRefreshing) return false;
+    _isRefreshing = true;
+
+    try {
+      final refreshTokenValue = await _storageService?.getRefreshToken();
+      if (refreshTokenValue == null) return false;
+
+      developer.log('🔄 Token udløbet, forsøger automatisk refresh...', name: 'ApiService');
+      final authResponse = await refreshAccessToken(refreshTokenValue);
+
+      _token = authResponse.token;
+
+      await _storageService?.saveAuthData(
+        token: authResponse.token,
+        refreshToken: authResponse.refreshToken,
+        userId: authResponse.userId,
+        name: authResponse.name,
+        email: authResponse.email,
+      );
+
+      developer.log('✅ Token refresh lykkedes', name: 'ApiService');
+      return true;
+    } catch (e) {
+      developer.log('❌ Token refresh fejlede: $e', name: 'ApiService');
+      return false;
+    } finally {
+      _isRefreshing = false;
+    }
+  }
+
+  /// Håndterer 401-svar ved at forsøge token refresh og retry.
+  /// Returnerer original response hvis ikke 401 eller request ikke var autentificeret.
+  Future<http.Response> _handlePotential401(
+    http.Response response,
+    Map<String, String>? originalHeaders,
+    Future<http.Response> Function() retry,
+  ) async {
+    if (response.statusCode != 401) return response;
+    if (originalHeaders?.containsKey('Authorization') != true) return response;
+
+    final refreshed = await _tryRefreshToken();
+    if (refreshed) {
+      developer.log('🔄 Forsøger request igen med nyt token...', name: 'ApiService');
+      return await retry();
+    } else {
+      onSessionExpired?.call();
+      throw ApiException.withKey(ApiErrorKey.sessionExpired, 'Session expired', 401);
+    }
+  }
+
+  /// Wrapper for HTTP GET with logging og automatisk 401-håndtering
   Future<http.Response> _loggedGet(String url, {Map<String, String>? headers}) async {
     developer.log('>>> GET $url', name: 'ApiService');
 
-    final response = await _client.get(Uri.parse(url), headers: headers);
+    var response = await _client.get(Uri.parse(url), headers: headers);
 
     developer.log('<<< GET $url - Status: ${response.statusCode}', name: 'ApiService');
     developer.log('Response body: ${response.body}', name: 'ApiService');
+
+    // Automatisk token refresh ved 401 på autentificerede requests
+    response = await _handlePotential401(response, headers, () async {
+      final retryHeaders = Map<String, String>.from(headers ?? {});
+      retryHeaders['Authorization'] = 'Bearer $_token';
+      return await _client.get(Uri.parse(url), headers: retryHeaders);
+    });
 
     // Log errors to remote
     if (response.statusCode >= 400) {
@@ -195,17 +265,24 @@ class ApiService {
     return response;
   }
 
-  /// Wrapper for HTTP POST with logging
+  /// Wrapper for HTTP POST with logging og automatisk 401-håndtering
   Future<http.Response> _loggedPost(String url, {Map<String, String>? headers, Object? body}) async {
     developer.log('>>> POST $url', name: 'ApiService');
     if (body != null) {
       developer.log('Request body: $body', name: 'ApiService');
     }
 
-    final response = await _client.post(Uri.parse(url), headers: headers, body: body);
+    var response = await _client.post(Uri.parse(url), headers: headers, body: body);
 
     developer.log('<<< POST $url - Status: ${response.statusCode}', name: 'ApiService');
     developer.log('Response body: ${response.body}', name: 'ApiService');
+
+    // Automatisk token refresh ved 401 på autentificerede requests
+    response = await _handlePotential401(response, headers, () async {
+      final retryHeaders = Map<String, String>.from(headers ?? {});
+      retryHeaders['Authorization'] = 'Bearer $_token';
+      return await _client.post(Uri.parse(url), headers: retryHeaders, body: body);
+    });
 
     // Log errors to remote
     if (response.statusCode >= 400) {
@@ -225,17 +302,24 @@ class ApiService {
     return response;
   }
 
-  /// Wrapper for HTTP PUT with logging
+  /// Wrapper for HTTP PUT with logging og automatisk 401-håndtering
   Future<http.Response> _loggedPut(String url, {Map<String, String>? headers, Object? body}) async {
     developer.log('>>> PUT $url', name: 'ApiService');
     if (body != null) {
       developer.log('Request body: $body', name: 'ApiService');
     }
 
-    final response = await _client.put(Uri.parse(url), headers: headers, body: body);
+    var response = await _client.put(Uri.parse(url), headers: headers, body: body);
 
     developer.log('<<< PUT $url - Status: ${response.statusCode}', name: 'ApiService');
     developer.log('Response body: ${response.body}', name: 'ApiService');
+
+    // Automatisk token refresh ved 401 på autentificerede requests
+    response = await _handlePotential401(response, headers, () async {
+      final retryHeaders = Map<String, String>.from(headers ?? {});
+      retryHeaders['Authorization'] = 'Bearer $_token';
+      return await _client.put(Uri.parse(url), headers: retryHeaders, body: body);
+    });
 
     // Log errors to remote
     if (response.statusCode >= 400) {
@@ -294,14 +378,21 @@ class ApiService {
     );
   }
 
-  /// Wrapper for HTTP DELETE with logging
+  /// Wrapper for HTTP DELETE with logging og automatisk 401-håndtering
   Future<http.Response> _loggedDelete(String url, {Map<String, String>? headers}) async {
     developer.log('>>> DELETE $url', name: 'ApiService');
 
-    final response = await _client.delete(Uri.parse(url), headers: headers);
+    var response = await _client.delete(Uri.parse(url), headers: headers);
 
     developer.log('<<< DELETE $url - Status: ${response.statusCode}', name: 'ApiService');
     developer.log('Response body: ${response.body}', name: 'ApiService');
+
+    // Automatisk token refresh ved 401 på autentificerede requests
+    response = await _handlePotential401(response, headers, () async {
+      final retryHeaders = Map<String, String>.from(headers ?? {});
+      retryHeaders['Authorization'] = 'Bearer $_token';
+      return await _client.delete(Uri.parse(url), headers: retryHeaders);
+    });
 
     // Log errors to remote
     if (response.statusCode >= 400) {
@@ -1442,21 +1533,33 @@ class ApiService {
   // IMAGES
   // ============================================================================
 
-  /// Upload image
+  /// Upload image med automatisk token refresh ved 401
   Future<ImageUploadResponse> uploadImage(File imageFile, ImageSource imageSource) async {
     try {
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse('$baseUrl/api/images?imageSource=${imageSource.toJson()}'),
-      );
+      Future<http.Response> doUpload() async {
+        final request = http.MultipartRequest(
+          'POST',
+          Uri.parse('$baseUrl/api/images?imageSource=${imageSource.toJson()}'),
+        );
+        request.headers.addAll(_getHeaders(includeAuth: true));
+        request.headers.remove('Content-Type');
+        request.files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+        final streamedResponse = await request.send();
+        return await http.Response.fromStream(streamedResponse);
+      }
 
-      request.headers.addAll(_getHeaders(includeAuth: true));
-      request.headers.remove('Content-Type'); // Let http set the correct multipart content type
+      var response = await doUpload();
 
-      request.files.add(await http.MultipartFile.fromPath('file', imageFile.path));
-
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
+      // Automatisk token refresh ved 401
+      if (response.statusCode == 401) {
+        final refreshed = await _tryRefreshToken();
+        if (refreshed) {
+          response = await doUpload();
+        } else {
+          onSessionExpired?.call();
+          throw ApiException.withKey(ApiErrorKey.sessionExpired, 'Session expired', 401);
+        }
+      }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return ImageUploadResponse.fromJson(jsonDecode(response.body));

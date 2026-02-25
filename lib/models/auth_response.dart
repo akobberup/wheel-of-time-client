@@ -1,12 +1,13 @@
 /// Response from authentication endpoints (login, register, refresh).
 /// Contains authentication tokens and user information.
 class AuthResponse {
-  /// JWT access token for authenticated API requests (24 hour expiration).
-  /// Include in Authorization header as "Bearer {token}".
+  /// JWT access token for authenticated API requests.
+  /// Levetid: 7 dage (mobile) / 24 timer (web).
+  /// Ved 401 forsøger ApiService automatisk refresh via refresh token.
   final String token;
 
-  /// Refresh token for obtaining new access tokens (30 day expiration).
-  /// Used to refresh expired access tokens without requiring re-login.
+  /// Refresh token for obtaining new access tokens.
+  /// Levetid: 180 dage (mobile) / 30 dage (web).
   /// Server automatically revokes old refresh token when issuing new one.
   final String refreshToken;
 

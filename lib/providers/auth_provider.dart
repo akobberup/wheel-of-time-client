@@ -57,6 +57,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     this._storageService,
     this._logger,
   ) : super(AuthState()) {
+    // Sæt callback så ApiService kan trigge logout ved session expiry
+    _apiService.onSessionExpired = () => logout();
     _checkAuthStatus();
   }
 
@@ -308,7 +310,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
 /// Use this to access API functionality from anywhere in the app.
 final apiServiceProvider = Provider<ApiService>((ref) {
   final logger = ref.watch(remoteLoggerProvider);
-  return ApiService(logger: logger);
+  final storageService = ref.watch(storageServiceProvider);
+  return ApiService(logger: logger, storageService: storageService);
 });
 
 /// Provider for StorageService singleton.
