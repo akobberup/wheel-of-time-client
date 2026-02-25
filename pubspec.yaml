@@ -1,7 +1,7 @@
 name: aarshjulet
 description: Årshjulet - Hold styr på tilbagevendende opgaver
 publish_to: 'none'
-version: 1.9.0+26
+version: 1.10.0+27
 
 environment:
   sdk: ^3.5.0
