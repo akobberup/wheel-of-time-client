@@ -1150,7 +1150,7 @@ class ApiService {
 
   /// Opret eller opdater en cheer på en task instance
   Future<CheerResponse> cheerTaskInstance(int taskInstanceId, {
-    required String emoji,
+    String? emoji,
     String? message,
   }) async {
     try {
@@ -1158,7 +1158,7 @@ class ApiService {
         '$baseUrl/api/task-instances/$taskInstanceId/cheers',
         headers: _getHeaders(includeAuth: true),
         body: jsonEncode({
-          'emoji': emoji,
+          if (emoji != null) 'emoji': emoji,
           if (message != null) 'message': message,
         }),
       );

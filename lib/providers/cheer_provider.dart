@@ -14,7 +14,7 @@ class CheerNotifier extends StateNotifier<AsyncValue<void>> {
 
   /// Send eller opdater en cheer på en task instance.
   Future<CheerResponse?> sendCheer(int taskInstanceId, {
-    required String emoji,
+    String? emoji,
     String? message,
   }) async {
     state = const AsyncValue.loading();

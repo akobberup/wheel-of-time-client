@@ -51,6 +51,7 @@ class _CheerBottomSheetState extends ConsumerState<CheerBottomSheet> {
   void initState() {
     super.initState();
     _selectedEmoji = widget.existingEmoji;
+    _messageController.addListener(() => setState(() {}));
   }
 
   @override
@@ -59,18 +60,22 @@ class _CheerBottomSheetState extends ConsumerState<CheerBottomSheet> {
     super.dispose();
   }
 
-  Future<void> _sendCheer(String emoji) async {
-    if (_isSending) return;
+  bool get _canSend =>
+      !_isSending &&
+      (_selectedEmoji != null || _messageController.text.trim().isNotEmpty);
+
+  Future<void> _sendCheer() async {
+    if (_isSending || !_canSend) return;
     setState(() => _isSending = true);
     HapticFeedback.mediumImpact();
 
-    final message = _showMessageField && _messageController.text.trim().isNotEmpty
+    final message = _messageController.text.trim().isNotEmpty
         ? _messageController.text.trim()
         : null;
 
     final result = await ref.read(cheerProvider.notifier).sendCheer(
       widget.taskInstanceId,
-      emoji: emoji,
+      emoji: _selectedEmoji,
       message: message,
     );
 
@@ -91,11 +96,12 @@ class _CheerBottomSheetState extends ConsumerState<CheerBottomSheet> {
 
   void _onEmojiTap(String emoji) {
     if (_showMessageField) {
-      // Besked-felt er synligt → vælg emoji (send via knap)
-      setState(() => _selectedEmoji = emoji);
+      // Besked-felt er synligt → toggle emoji (send via knap)
+      setState(() => _selectedEmoji = _selectedEmoji == emoji ? null : emoji);
     } else {
-      // Ingen besked → send med det same
-      _sendCheer(emoji);
+      // Ingen besked → vælg og send med det same
+      setState(() => _selectedEmoji = emoji);
+      _sendCheer();
     }
   }
 
@@ -172,9 +178,7 @@ class _CheerBottomSheetState extends ConsumerState<CheerBottomSheet> {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: _isSending || _selectedEmoji == null
-                    ? null
-                    : () => _sendCheer(_selectedEmoji!),
+                onPressed: _canSend ? () => _sendCheer() : null,
                 icon: const Icon(Icons.send, size: 18),
                 label: Text(strings.sendReaction),
               ),
