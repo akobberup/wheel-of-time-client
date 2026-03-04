@@ -76,6 +76,18 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     }
   }
 
+  /// Håndterer en pending cheer fra push notification
+  void _handlePendingCheer(int taskInstanceId) {
+    // Ryd pending state med det samme
+    ref.read(pendingCheerProvider.notifier).state = null;
+    // Udvid seneste aktivitet så brugeren kan se den fuldførte opgave
+    ref.read(completedTasksProvider.notifier).expand();
+    // Åbn CheerBottomSheet efter kort delay så skærmen er klar
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) _openCheerSheet(taskInstanceId);
+    });
+  }
+
   /// Åbner CheerBottomSheet for en given taskInstanceId og refresher efter
   Future<void> _openCheerSheet(int taskInstanceId) async {
     final result = await CheerBottomSheet.show(
@@ -99,14 +111,15 @@ class _UpcomingTasksScreenState extends ConsumerState<UpcomingTasksScreen> {
     // Lyt til pending cheer fra push notification (TASK_COMPLETED_BY_OTHER)
     ref.listen<int?>(pendingCheerProvider, (previous, next) {
       if (next != null) {
-        // Ryd pending state med det samme
-        ref.read(pendingCheerProvider.notifier).state = null;
-        // Åbn CheerBottomSheet efter kort delay så skærmen er klar
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (mounted) _openCheerSheet(next);
-        });
+        _handlePendingCheer(next);
       }
     });
+
+    // Håndter pending cheer der allerede var sat før skærmen blev bygget (cold start)
+    final pendingCheer = ref.read(pendingCheerProvider);
+    if (pendingCheer != null) {
+      Future.microtask(() => _handlePendingCheer(pendingCheer));
+    }
 
     // Brugerens valgte tema-farve
     final seedColor = themeState.seedColor;

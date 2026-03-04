@@ -132,6 +132,15 @@ class CompletedTasksNotifier extends StateNotifier<CompletedTasksState> {
     state = state.copyWith(isExpanded: expanded);
   }
 
+  /// Udvider sektionen og loader data hvis nødvendigt
+  Future<void> expand() async {
+    if (state.isExpanded) return;
+    state = state.copyWith(isExpanded: true);
+    if (state.completedTasks.isEmpty) {
+      await loadInitial();
+    }
+  }
+
   /// Retroaktiv completion af en expired task instance.
   /// Ved success opdateres listen in-place og refreshes.
   Future<TaskInstanceResponse?> completeRetroactive(
