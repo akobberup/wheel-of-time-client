@@ -72,6 +72,21 @@ class TasksNotifier extends StateNotifier<AsyncValue<List<TaskResponse>>> {
       return false;
     }
   }
+
+  /// Genskaber billedet for en task ved at kalde backend-endpointet.
+  /// Opdaterer listen optimistisk (taskImagePath=null) og starter polling
+  /// for det nyoprettede billede.
+  /// Kaster exception ved fejl så UI kan vise specifik fejlbesked.
+  Future<void> recreateImage(int taskId) async {
+    // Kald API – returnerer task med taskImagePath=null (billedet genereres i baggrunden)
+    await _apiService.recreateTaskImage(taskId);
+
+    // Opdater listen med det samme (billede er nu null = viser loading-placeholder)
+    await loadTasks();
+
+    // Start polling for det nye billede
+    _ref.read(imagePollingProvider).pollForTaskImage(taskId, taskListId);
+  }
 }
 
 // Provider for a single task detail

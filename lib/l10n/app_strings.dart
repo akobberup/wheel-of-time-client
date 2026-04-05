@@ -174,6 +174,11 @@ abstract class AppStrings {
   String get permissionUpdatedSuccess;
   String invitationSentTo(String email);
 
+  // Billede-genskabning
+  String get recreateImage;
+  String get recreatingImage;
+  String get failedToRecreateTaskImage;
+
   // Error messages
   String get failedToDeleteTask;
   String get failedToDeleteTaskList;
@@ -850,6 +855,8 @@ abstract class AppStrings {
         return failedToUpdateTask;
       case ApiErrorKey.failedToDeleteTask:
         return failedToDeleteTask;
+      case ApiErrorKey.failedToRecreateTaskImage:
+        return failedToRecreateTaskImage;
       case ApiErrorKey.failedToLoadUpcomingTasks:
         return failedToLoadUpcomingTasks;
       case ApiErrorKey.failedToLoadUpcomingOccurrences:

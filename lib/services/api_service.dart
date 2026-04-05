@@ -105,6 +105,9 @@ enum ApiErrorKey {
   failedToRegisterFcmToken,
   failedToUnregisterFcmToken,
 
+  // Tasks - billede-genskabning
+  failedToRecreateTaskImage,
+
   // Generic
   networkError,
   unknownError,
@@ -906,6 +909,32 @@ class ApiService {
         throw ApiException.withKey(
           ApiErrorKey.failedToDeleteTask,
           errorData['message'] ?? 'Failed to delete task',
+          response.statusCode,
+        );
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  /// Genskab billede til en task.
+  /// Frigiver det gamle billede og starter ny DALL-E generering asynkront.
+  /// Returnerer TaskResponse med taskImagePath=null – billedet genereres i baggrunden.
+  Future<TaskResponse> recreateTaskImage(int taskId) async {
+    try {
+      final response = await _loggedPost(
+        '$baseUrl/api/tasks/$taskId/recreate-image',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        return TaskResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException.withKey(
+          ApiErrorKey.failedToRecreateTaskImage,
+          errorData['message'] ?? 'Failed to recreate task image',
           response.statusCode,
         );
       }

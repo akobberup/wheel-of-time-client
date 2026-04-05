@@ -535,6 +535,16 @@ class StringsDa extends AppStrings {
   @override
   String invitationSentTo(String email) => 'Invitation sendt til $email';
 
+  // Billede-genskabning
+  @override
+  String get recreateImage => 'Genskab billede';
+
+  @override
+  String get recreatingImage => 'Genererer nyt billede...';
+
+  @override
+  String get failedToRecreateTaskImage => 'Kunne ikke genskabe billede';
+
   // Error messages
   @override
   String get failedToDeleteTask => 'Kunne ikke slette opgave';

@@ -550,6 +550,16 @@ class StringsEn extends AppStrings {
   @override
   String invitationSentTo(String email) => 'Invitation sent to $email';
 
+  // Image recreation
+  @override
+  String get recreateImage => 'Recreate image';
+
+  @override
+  String get recreatingImage => 'Generating new image...';
+
+  @override
+  String get failedToRecreateTaskImage => 'Failed to recreate image';
+
   // Error messages
   @override
   String get failedToDeleteTask => 'Failed to delete task';

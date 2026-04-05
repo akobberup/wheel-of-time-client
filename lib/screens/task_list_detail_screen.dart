@@ -488,7 +488,7 @@ class _TaskListDetailScreenState extends ConsumerState<TaskListDetailScreen> {
 }
 
 /// Tema-farvet opgavekort - horisontalt layout med stort billede
-class _ThemedTaskCard extends ConsumerWidget {
+class _ThemedTaskCard extends ConsumerStatefulWidget {
   final TaskResponse task;
   final int taskListId;
   final Color primaryColor;
@@ -504,7 +504,22 @@ class _ThemedTaskCard extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ThemedTaskCard> createState() => _ThemedTaskCardState();
+}
+
+class _ThemedTaskCardState extends ConsumerState<_ThemedTaskCard> {
+  // Loading state mens "Genskab billede" requestet kører
+  bool _isRecreatingImage = false;
+
+  // Korte genveje til widget-felter for renere kode
+  TaskResponse get task => widget.task;
+  int get taskListId => widget.taskListId;
+  Color get primaryColor => widget.primaryColor;
+  Color get secondaryColor => widget.secondaryColor;
+  bool get isDark => widget.isDark;
+
+  @override
+  Widget build(BuildContext context) {
     final cardColor = isDark
         ? const Color(0xFF222226)
         : const Color(0xFFFFFFFF);
@@ -583,7 +598,7 @@ class _ThemedTaskCard extends ConsumerWidget {
                             ],
                             const SizedBox(height: 8),
                             // Metadata chips og inline action buttons
-                            _buildMetadataAndActionsRow(context, ref),
+                            _buildMetadataAndActionsRow(context),
                           ],
                         ),
                       ),
@@ -657,8 +672,25 @@ class _ThemedTaskCard extends ConsumerWidget {
     );
   }
 
-  /// Placeholder når der ikke er noget billede
+  /// Placeholder når der ikke er noget billede.
+  /// Viser en animeret spinner hvis vi aktivt genererer et nyt billede.
   Widget _buildImagePlaceholder() {
+    // Vis animeret loading-indikator efter genskabning (billede er på vej)
+    if (_isRecreatingImage) {
+      return Center(
+        child: SizedBox(
+          width: 32,
+          height: 32,
+          child: CircularProgressIndicator(
+            strokeWidth: 2.5,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              primaryColor.withValues(alpha: 0.6),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Center(
       child: Icon(
         Icons.check_circle_outline,
@@ -669,7 +701,7 @@ class _ThemedTaskCard extends ConsumerWidget {
   }
 
   /// Bygger metadata række med tema-farvede chips og inline action buttons
-  Widget _buildMetadataAndActionsRow(BuildContext context, WidgetRef ref) {
+  Widget _buildMetadataAndActionsRow(BuildContext context) {
     final strings = AppStrings.of(context);
 
     // Hent task list detaljer for at tjekke antal medlemmer
@@ -719,14 +751,16 @@ class _ThemedTaskCard extends ConsumerWidget {
             if (hasMultipleMembers) ...[
               _buildResponsibleButton(
                 context,
-                ref,
                 responsibleConfigAsync,
               ),
               const SizedBox(width: 6),
             ],
+            // Knap til at genskabe billedet – vises altid så brugeren kan forny det
+            _buildRecreateImageButton(context),
+            const SizedBox(width: 6),
             InlineActionButtons(
-              onEdit: () => _handleEdit(context, ref),
-              onDelete: () => _handleDelete(context, ref),
+              onEdit: () => _handleEdit(context),
+              onDelete: () => _handleDelete(context),
               themeColor: primaryColor,
               isDark: isDark,
               itemName: task.name,
@@ -755,7 +789,6 @@ class _ThemedTaskCard extends ConsumerWidget {
   /// Placeres sammen med andre action buttons og har hover-effekt.
   Widget _buildResponsibleButton(
     BuildContext context,
-    WidgetRef ref,
     AsyncValue<TaskResponsibleConfigResponse?>? configAsync,
   ) {
     final isLoading = configAsync == null || configAsync.isLoading;
@@ -769,7 +802,7 @@ class _ThemedTaskCard extends ConsumerWidget {
       label: 'Ansvarlig for ${task.name}',
       button: true,
       child: _HoverableActionButton(
-        onTap: () => _openResponsibilitySheet(context, ref),
+        onTap: () => _openResponsibilitySheet(context),
         color: buttonColor,
         icon: icon,
         isDark: isDark,
@@ -777,9 +810,45 @@ class _ThemedTaskCard extends ConsumerWidget {
     );
   }
 
+  /// Bygger "Genskab billede"-knap.
+  /// Viser en loading-spinner mens requestet kører.
+  Widget _buildRecreateImageButton(BuildContext context) {
+    final strings = AppStrings.of(context);
+
+    return Semantics(
+      label: '${strings.recreateImage} ${task.name}',
+      button: true,
+      child: _isRecreatingImage
+          ? Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: primaryColor.withValues(alpha: 0.08),
+                border: Border.all(
+                  color: primaryColor.withValues(alpha: 0.4),
+                  width: 1.5,
+                ),
+              ),
+              padding: const EdgeInsets.all(7),
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+              ),
+            )
+          : _HoverableActionButton(
+              onTap: () => _handleRecreateImage(context),
+              color: primaryColor,
+              icon: Icons.auto_fix_high_outlined,
+              isDark: isDark,
+              size: 32,
+            ),
+    );
+  }
+
   /// Åbner ResponsibilityBottomSheet for at vælge ansvarsstrategi.
   /// Viser en loading besked hvis medlemsdata ikke er indlæst endnu.
-  void _openResponsibilitySheet(BuildContext context, WidgetRef ref) async {
+  void _openResponsibilitySheet(BuildContext context) async {
     final strings = AppStrings.of(context);
 
     // Hent task list for at få ejerens info
@@ -909,7 +978,7 @@ class _ThemedTaskCard extends ConsumerWidget {
     );
   }
 
-  Future<void> _handleEdit(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleEdit(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => EditTaskDialog(
@@ -923,9 +992,9 @@ class _ThemedTaskCard extends ConsumerWidget {
     }
   }
 
-  Future<void> _handleDelete(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleDelete(BuildContext context) async {
     final strings = AppStrings.of(context);
-    final confirmed = await _showDeleteConfirmation(context, ref, strings);
+    final confirmed = await _showDeleteConfirmation(context, strings);
 
     if (!confirmed) return;
 
@@ -937,23 +1006,52 @@ class _ThemedTaskCard extends ConsumerWidget {
     }
   }
 
+  /// Kalder backend-endpointet for at genskabe billedet for denne task.
+  /// Viser loading state og fejlbesked ved fejl.
+  Future<void> _handleRecreateImage(BuildContext context) async {
+    if (_isRecreatingImage) return;
+
+    setState(() => _isRecreatingImage = true);
+
+    try {
+      await ref.read(tasksProvider(taskListId).notifier).recreateImage(task.id);
+
+      if (context.mounted) {
+        final strings = AppStrings.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(strings.recreatingImage)),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        final strings = AppStrings.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(strings.failedToRecreateTaskImage)),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isRecreatingImage = false);
+      }
+    }
+  }
+
   Future<bool> _showDeleteConfirmation(
     BuildContext context,
-    WidgetRef ref,
     AppStrings strings,
   ) async {
     return await showContextualDeleteDialog(
       context: context,
       title: strings.deleteTask,
       itemName: task.name,
-      fetchContext: () => _fetchDeletionContext(ref),
+      fetchContext: () => _fetchDeletionContext(),
       buildMessage: (deletionContext) => _buildDeletionMessage(deletionContext, strings),
       deleteButtonLabel: strings.delete,
       cancelButtonLabel: strings.cancel,
     );
   }
 
-  Future<DeletionContext> _fetchDeletionContext(WidgetRef ref) async {
+  Future<DeletionContext> _fetchDeletionContext() async {
     try {
       final taskHistoryNotifier =
           ref.read(taskHistoryProvider(task.id).notifier);
