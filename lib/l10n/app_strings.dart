@@ -723,6 +723,9 @@ abstract class AppStrings {
   String get selectEmojiFirst;
   String get pushCheers;
   String get pushCheersDescription;
+  String get emailNotifications;
+  String get emailWeeklySummary;
+  String get emailWeeklySummaryDescription;
   String get cannotCheerOwnTask;
   String get cheerUpdated;
   String get cheerDeleted;

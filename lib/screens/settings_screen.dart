@@ -1074,6 +1074,28 @@ class _PushNotificationSection extends ConsumerWidget {
               ],
             ),
           ),
+          const SizedBox(height: 24),
+          _SectionHeader(
+            title: strings.emailNotifications,
+            seedColor: seedColor,
+          ),
+          const SizedBox(height: 12),
+          _SettingsCard(
+            isDark: isDark,
+            seedColor: seedColor,
+            child: _ToggleRow(
+              icon: Icons.mark_email_read_outlined,
+              title: strings.emailWeeklySummary,
+              subtitle: strings.emailWeeklySummaryDescription,
+              value: settings.emailWeeklySummary,
+              seedColor: seedColor,
+              isDark: isDark,
+              onChanged: (_) => _toggleSetting(
+                ref,
+                emailWeeklySummary: !settings.emailWeeklySummary,
+              ),
+            ),
+          ),
         ],
       ),
       loading: () => Column(
@@ -1100,13 +1122,14 @@ class _PushNotificationSection extends ConsumerWidget {
     );
   }
 
-  /// Opdaterer en push notification preference.
+  /// Opdaterer en notifikations-preference (push eller email).
   void _toggleSetting(
     WidgetRef ref, {
     bool? pushInvitations,
     bool? pushInvitationResponses,
     bool? pushTaskReminders,
     bool? pushCheers,
+    bool? emailWeeklySummary,
   }) {
     ref.read(userSettingsProvider.notifier).updateSettings(
           UpdateUserSettingsRequest(
@@ -1114,6 +1137,7 @@ class _PushNotificationSection extends ConsumerWidget {
             pushInvitationResponses: pushInvitationResponses,
             pushTaskReminders: pushTaskReminders,
             pushCheers: pushCheers,
+            emailWeeklySummary: emailWeeklySummary,
           ),
         );
   }

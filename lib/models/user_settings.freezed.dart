@@ -29,6 +29,8 @@ mixin _$UserSettingsResponse {
   bool get pushInvitationResponses => throw _privateConstructorUsedError;
   bool get pushTaskReminders => throw _privateConstructorUsedError;
   bool get pushCheers =>
+      throw _privateConstructorUsedError; // Email preferences
+  bool get emailWeeklySummary =>
       throw _privateConstructorUsedError; // Personlige oplysninger
   Gender? get gender => throw _privateConstructorUsedError;
   int? get birthYear => throw _privateConstructorUsedError;
@@ -60,6 +62,7 @@ abstract class $UserSettingsResponseCopyWith<$Res> {
       bool pushInvitationResponses,
       bool pushTaskReminders,
       bool pushCheers,
+      bool emailWeeklySummary,
       Gender? gender,
       int? birthYear,
       DateTime createdAt,
@@ -90,6 +93,7 @@ class _$UserSettingsResponseCopyWithImpl<$Res,
     Object? pushInvitationResponses = null,
     Object? pushTaskReminders = null,
     Object? pushCheers = null,
+    Object? emailWeeklySummary = null,
     Object? gender = freezed,
     Object? birthYear = freezed,
     Object? createdAt = null,
@@ -127,6 +131,10 @@ class _$UserSettingsResponseCopyWithImpl<$Res,
       pushCheers: null == pushCheers
           ? _value.pushCheers
           : pushCheers // ignore: cast_nullable_to_non_nullable
+              as bool,
+      emailWeeklySummary: null == emailWeeklySummary
+          ? _value.emailWeeklySummary
+          : emailWeeklySummary // ignore: cast_nullable_to_non_nullable
               as bool,
       gender: freezed == gender
           ? _value.gender
@@ -165,6 +173,7 @@ abstract class _$$UserSettingsResponseImplCopyWith<$Res>
       bool pushInvitationResponses,
       bool pushTaskReminders,
       bool pushCheers,
+      bool emailWeeklySummary,
       Gender? gender,
       int? birthYear,
       DateTime createdAt,
@@ -192,6 +201,7 @@ class __$$UserSettingsResponseImplCopyWithImpl<$Res>
     Object? pushInvitationResponses = null,
     Object? pushTaskReminders = null,
     Object? pushCheers = null,
+    Object? emailWeeklySummary = null,
     Object? gender = freezed,
     Object? birthYear = freezed,
     Object? createdAt = null,
@@ -230,6 +240,10 @@ class __$$UserSettingsResponseImplCopyWithImpl<$Res>
           ? _value.pushCheers
           : pushCheers // ignore: cast_nullable_to_non_nullable
               as bool,
+      emailWeeklySummary: null == emailWeeklySummary
+          ? _value.emailWeeklySummary
+          : emailWeeklySummary // ignore: cast_nullable_to_non_nullable
+              as bool,
       gender: freezed == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
@@ -262,6 +276,7 @@ class _$UserSettingsResponseImpl implements _UserSettingsResponse {
       this.pushInvitationResponses = true,
       this.pushTaskReminders = true,
       this.pushCheers = true,
+      this.emailWeeklySummary = true,
       this.gender,
       this.birthYear,
       required this.createdAt,
@@ -291,6 +306,10 @@ class _$UserSettingsResponseImpl implements _UserSettingsResponse {
   @override
   @JsonKey()
   final bool pushCheers;
+// Email preferences
+  @override
+  @JsonKey()
+  final bool emailWeeklySummary;
 // Personlige oplysninger
   @override
   final Gender? gender;
@@ -303,7 +322,7 @@ class _$UserSettingsResponseImpl implements _UserSettingsResponse {
 
   @override
   String toString() {
-    return 'UserSettingsResponse(id: $id, userId: $userId, mainThemeColor: $mainThemeColor, darkModeEnabled: $darkModeEnabled, pushInvitations: $pushInvitations, pushInvitationResponses: $pushInvitationResponses, pushTaskReminders: $pushTaskReminders, pushCheers: $pushCheers, gender: $gender, birthYear: $birthYear, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'UserSettingsResponse(id: $id, userId: $userId, mainThemeColor: $mainThemeColor, darkModeEnabled: $darkModeEnabled, pushInvitations: $pushInvitations, pushInvitationResponses: $pushInvitationResponses, pushTaskReminders: $pushTaskReminders, pushCheers: $pushCheers, emailWeeklySummary: $emailWeeklySummary, gender: $gender, birthYear: $birthYear, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -326,6 +345,8 @@ class _$UserSettingsResponseImpl implements _UserSettingsResponse {
                 other.pushTaskReminders == pushTaskReminders) &&
             (identical(other.pushCheers, pushCheers) ||
                 other.pushCheers == pushCheers) &&
+            (identical(other.emailWeeklySummary, emailWeeklySummary) ||
+                other.emailWeeklySummary == emailWeeklySummary) &&
             (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.birthYear, birthYear) ||
                 other.birthYear == birthYear) &&
@@ -347,6 +368,7 @@ class _$UserSettingsResponseImpl implements _UserSettingsResponse {
       pushInvitationResponses,
       pushTaskReminders,
       pushCheers,
+      emailWeeklySummary,
       gender,
       birthYear,
       createdAt,
@@ -380,6 +402,7 @@ abstract class _UserSettingsResponse implements UserSettingsResponse {
       final bool pushInvitationResponses,
       final bool pushTaskReminders,
       final bool pushCheers,
+      final bool emailWeeklySummary,
       final Gender? gender,
       final int? birthYear,
       required final DateTime createdAt,
@@ -403,7 +426,9 @@ abstract class _UserSettingsResponse implements UserSettingsResponse {
   @override
   bool get pushTaskReminders;
   @override
-  bool get pushCheers; // Personlige oplysninger
+  bool get pushCheers; // Email preferences
+  @override
+  bool get emailWeeklySummary; // Personlige oplysninger
   @override
   Gender? get gender;
   @override
@@ -435,6 +460,8 @@ mixin _$UpdateUserSettingsRequest {
   bool? get pushInvitationResponses => throw _privateConstructorUsedError;
   bool? get pushTaskReminders => throw _privateConstructorUsedError;
   bool? get pushCheers =>
+      throw _privateConstructorUsedError; // Email preferences
+  bool? get emailWeeklySummary =>
       throw _privateConstructorUsedError; // Personlige oplysninger
   Gender? get gender => throw _privateConstructorUsedError;
   int? get birthYear => throw _privateConstructorUsedError;
@@ -462,6 +489,7 @@ abstract class $UpdateUserSettingsRequestCopyWith<$Res> {
       bool? pushInvitationResponses,
       bool? pushTaskReminders,
       bool? pushCheers,
+      bool? emailWeeklySummary,
       Gender? gender,
       int? birthYear});
 }
@@ -488,6 +516,7 @@ class _$UpdateUserSettingsRequestCopyWithImpl<$Res,
     Object? pushInvitationResponses = freezed,
     Object? pushTaskReminders = freezed,
     Object? pushCheers = freezed,
+    Object? emailWeeklySummary = freezed,
     Object? gender = freezed,
     Object? birthYear = freezed,
   }) {
@@ -515,6 +544,10 @@ class _$UpdateUserSettingsRequestCopyWithImpl<$Res,
       pushCheers: freezed == pushCheers
           ? _value.pushCheers
           : pushCheers // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      emailWeeklySummary: freezed == emailWeeklySummary
+          ? _value.emailWeeklySummary
+          : emailWeeklySummary // ignore: cast_nullable_to_non_nullable
               as bool?,
       gender: freezed == gender
           ? _value.gender
@@ -544,6 +577,7 @@ abstract class _$$UpdateUserSettingsRequestImplCopyWith<$Res>
       bool? pushInvitationResponses,
       bool? pushTaskReminders,
       bool? pushCheers,
+      bool? emailWeeklySummary,
       Gender? gender,
       int? birthYear});
 }
@@ -569,6 +603,7 @@ class __$$UpdateUserSettingsRequestImplCopyWithImpl<$Res>
     Object? pushInvitationResponses = freezed,
     Object? pushTaskReminders = freezed,
     Object? pushCheers = freezed,
+    Object? emailWeeklySummary = freezed,
     Object? gender = freezed,
     Object? birthYear = freezed,
   }) {
@@ -597,6 +632,10 @@ class __$$UpdateUserSettingsRequestImplCopyWithImpl<$Res>
           ? _value.pushCheers
           : pushCheers // ignore: cast_nullable_to_non_nullable
               as bool?,
+      emailWeeklySummary: freezed == emailWeeklySummary
+          ? _value.emailWeeklySummary
+          : emailWeeklySummary // ignore: cast_nullable_to_non_nullable
+              as bool?,
       gender: freezed == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
@@ -619,6 +658,7 @@ class _$UpdateUserSettingsRequestImpl implements _UpdateUserSettingsRequest {
       this.pushInvitationResponses,
       this.pushTaskReminders,
       this.pushCheers,
+      this.emailWeeklySummary,
       this.gender,
       this.birthYear});
 
@@ -638,6 +678,9 @@ class _$UpdateUserSettingsRequestImpl implements _UpdateUserSettingsRequest {
   final bool? pushTaskReminders;
   @override
   final bool? pushCheers;
+// Email preferences
+  @override
+  final bool? emailWeeklySummary;
 // Personlige oplysninger
   @override
   final Gender? gender;
@@ -646,7 +689,7 @@ class _$UpdateUserSettingsRequestImpl implements _UpdateUserSettingsRequest {
 
   @override
   String toString() {
-    return 'UpdateUserSettingsRequest(mainThemeColor: $mainThemeColor, darkModeEnabled: $darkModeEnabled, pushInvitations: $pushInvitations, pushInvitationResponses: $pushInvitationResponses, pushTaskReminders: $pushTaskReminders, pushCheers: $pushCheers, gender: $gender, birthYear: $birthYear)';
+    return 'UpdateUserSettingsRequest(mainThemeColor: $mainThemeColor, darkModeEnabled: $darkModeEnabled, pushInvitations: $pushInvitations, pushInvitationResponses: $pushInvitationResponses, pushTaskReminders: $pushTaskReminders, pushCheers: $pushCheers, emailWeeklySummary: $emailWeeklySummary, gender: $gender, birthYear: $birthYear)';
   }
 
   @override
@@ -667,6 +710,8 @@ class _$UpdateUserSettingsRequestImpl implements _UpdateUserSettingsRequest {
                 other.pushTaskReminders == pushTaskReminders) &&
             (identical(other.pushCheers, pushCheers) ||
                 other.pushCheers == pushCheers) &&
+            (identical(other.emailWeeklySummary, emailWeeklySummary) ||
+                other.emailWeeklySummary == emailWeeklySummary) &&
             (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.birthYear, birthYear) ||
                 other.birthYear == birthYear));
@@ -682,6 +727,7 @@ class _$UpdateUserSettingsRequestImpl implements _UpdateUserSettingsRequest {
       pushInvitationResponses,
       pushTaskReminders,
       pushCheers,
+      emailWeeklySummary,
       gender,
       birthYear);
 
@@ -710,6 +756,7 @@ abstract class _UpdateUserSettingsRequest implements UpdateUserSettingsRequest {
       final bool? pushInvitationResponses,
       final bool? pushTaskReminders,
       final bool? pushCheers,
+      final bool? emailWeeklySummary,
       final Gender? gender,
       final int? birthYear}) = _$UpdateUserSettingsRequestImpl;
 
@@ -727,7 +774,9 @@ abstract class _UpdateUserSettingsRequest implements UpdateUserSettingsRequest {
   @override
   bool? get pushTaskReminders;
   @override
-  bool? get pushCheers; // Personlige oplysninger
+  bool? get pushCheers; // Email preferences
+  @override
+  bool? get emailWeeklySummary; // Personlige oplysninger
   @override
   Gender? get gender;
   @override

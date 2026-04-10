@@ -1917,6 +1917,15 @@ class StringsDa extends AppStrings {
   String get pushCheersDescription => 'Besked når andre hepper på dine opgaver';
 
   @override
+  String get emailNotifications => 'E-mail';
+
+  @override
+  String get emailWeeklySummary => 'Ugentligt overblik';
+
+  @override
+  String get emailWeeklySummaryDescription => 'Modtag en opsummering hver søndag af ugens opgaver';
+
+  @override
   String get cannotCheerOwnTask => 'Du kan ikke heppe på dine egne opgaver';
 
   @override

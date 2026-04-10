@@ -18,6 +18,8 @@ class UserSettingsResponse with _$UserSettingsResponse {
     @Default(true) bool pushInvitationResponses,
     @Default(true) bool pushTaskReminders,
     @Default(true) bool pushCheers,
+    // Email preferences
+    @Default(true) bool emailWeeklySummary,
     // Personlige oplysninger
     Gender? gender,
     int? birthYear,
@@ -40,6 +42,8 @@ class UpdateUserSettingsRequest with _$UpdateUserSettingsRequest {
     bool? pushInvitationResponses,
     bool? pushTaskReminders,
     bool? pushCheers,
+    // Email preferences
+    bool? emailWeeklySummary,
     // Personlige oplysninger
     Gender? gender,
     int? birthYear,
@@ -56,6 +60,7 @@ class UpdateUserSettingsRequest with _$UpdateUserSettingsRequest {
         if (pushInvitationResponses != null) 'pushInvitationResponses': pushInvitationResponses,
         if (pushTaskReminders != null) 'pushTaskReminders': pushTaskReminders,
         if (pushCheers != null) 'pushCheers': pushCheers,
+        if (emailWeeklySummary != null) 'emailWeeklySummary': emailWeeklySummary,
         if (gender != null) 'gender': gender!.toJson(),
         if (birthYear != null) 'birthYear': birthYear,
       };

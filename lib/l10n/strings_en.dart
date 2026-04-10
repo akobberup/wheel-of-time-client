@@ -1943,6 +1943,15 @@ class StringsEn extends AppStrings {
   String get pushCheersDescription => 'Notification when others cheer your tasks';
 
   @override
+  String get emailNotifications => 'Email';
+
+  @override
+  String get emailWeeklySummary => 'Weekly summary';
+
+  @override
+  String get emailWeeklySummaryDescription => 'Receive a recap every Sunday of the week\'s tasks';
+
+  @override
   String get cannotCheerOwnTask => "You can't cheer your own tasks";
 
   @override

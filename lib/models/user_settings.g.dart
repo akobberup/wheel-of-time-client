@@ -17,6 +17,7 @@ _$UserSettingsResponseImpl _$$UserSettingsResponseImplFromJson(
       pushInvitationResponses: json['pushInvitationResponses'] as bool? ?? true,
       pushTaskReminders: json['pushTaskReminders'] as bool? ?? true,
       pushCheers: json['pushCheers'] as bool? ?? true,
+      emailWeeklySummary: json['emailWeeklySummary'] as bool? ?? true,
       gender: $enumDecodeNullable(_$GenderEnumMap, json['gender']),
       birthYear: (json['birthYear'] as num?)?.toInt(),
       createdAt: DateTime.parse(json['createdAt'] as String),
@@ -34,6 +35,7 @@ Map<String, dynamic> _$$UserSettingsResponseImplToJson(
       'pushInvitationResponses': instance.pushInvitationResponses,
       'pushTaskReminders': instance.pushTaskReminders,
       'pushCheers': instance.pushCheers,
+      'emailWeeklySummary': instance.emailWeeklySummary,
       'gender': instance.gender,
       'birthYear': instance.birthYear,
       'createdAt': instance.createdAt.toIso8601String(),
@@ -55,6 +57,7 @@ _$UpdateUserSettingsRequestImpl _$$UpdateUserSettingsRequestImplFromJson(
       pushInvitationResponses: json['pushInvitationResponses'] as bool?,
       pushTaskReminders: json['pushTaskReminders'] as bool?,
       pushCheers: json['pushCheers'] as bool?,
+      emailWeeklySummary: json['emailWeeklySummary'] as bool?,
       gender: $enumDecodeNullable(_$GenderEnumMap, json['gender']),
       birthYear: (json['birthYear'] as num?)?.toInt(),
     );
@@ -68,6 +71,7 @@ Map<String, dynamic> _$$UpdateUserSettingsRequestImplToJson(
       'pushInvitationResponses': instance.pushInvitationResponses,
       'pushTaskReminders': instance.pushTaskReminders,
       'pushCheers': instance.pushCheers,
+      'emailWeeklySummary': instance.emailWeeklySummary,
       'gender': instance.gender,
       'birthYear': instance.birthYear,
     };
