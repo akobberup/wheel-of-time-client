@@ -883,6 +883,15 @@ class StringsEn extends AppStrings {
   String get skipTaskInstead => 'Mark as skipped instead';
 
   @override
+  String get updateRequiredTitle => 'Update required';
+
+  @override
+  String get updateRequiredMessage => 'Your version of Årshjulet is too old. Please update to continue.';
+
+  @override
+  String get updateRequiredOpenStore => 'Open store and update';
+
+  @override
   String get onTime => 'On time';
 
   @override

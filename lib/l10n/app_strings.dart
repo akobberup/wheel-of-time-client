@@ -299,6 +299,9 @@ abstract class AppStrings {
   String dueOn(String date);
   String skippedOn(String date);
   String get skipTaskInstead;
+  String get updateRequiredTitle;
+  String get updateRequiredMessage;
+  String get updateRequiredOpenStore;
   String get onTime;
   String get late;
   String get contributedToStreak;

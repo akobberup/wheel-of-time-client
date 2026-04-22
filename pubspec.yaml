@@ -60,6 +60,9 @@ dependencies:
   # URL Launcher (åbn links, emails, telefonnumre)
   url_launcher: ^6.2.5
 
+  # Læs app-version ved runtime
+  package_info_plus: ^8.1.1
+
   # Kontakt-adgang (til invitationer)
   flutter_contacts: ^1.1.7+1
 

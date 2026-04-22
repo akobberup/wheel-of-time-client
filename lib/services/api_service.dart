@@ -19,6 +19,7 @@ import '../models/visual_theme.dart';
 import '../models/enums.dart';
 import '../models/task_responsible.dart';
 import '../models/cheer.dart';
+import '../models/client_support.dart';
 import '../config/api_config.dart';
 import 'remote_logger_service.dart';
 import 'storage_service.dart';
@@ -1169,6 +1170,24 @@ class ApiService {
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  /// Tjek om klient-versionen er understøttet af serveren (uautentificeret endpoint)
+  Future<ClientSupportResponse> checkClientSupport(String currentVersion) async {
+    try {
+      final uri = Uri.parse(
+        '$baseUrl/version/client-support?current=${Uri.encodeQueryComponent(currentVersion)}',
+      );
+      final response = await _loggedGet(uri.toString());
+
+      if (response.statusCode == 200) {
+        return ClientSupportResponse.fromJson(jsonDecode(response.body));
+      } else {
+        throw Exception('Failed to check client support: ${response.statusCode}');
+      }
+    } catch (e, stackTrace) {
       _logAndThrowError(e, stackTrace);
     }
   }

@@ -863,6 +863,15 @@ class StringsDa extends AppStrings {
   String get skipTaskInstead => 'Markér som sprunget over i stedet';
 
   @override
+  String get updateRequiredTitle => 'Opdatering påkrævet';
+
+  @override
+  String get updateRequiredMessage => 'Din version af Årshjulet er for gammel. Opdatér for at fortsætte.';
+
+  @override
+  String get updateRequiredOpenStore => 'Åbn butik og opdatér';
+
+  @override
   String get onTime => 'Til tiden';
 
   @override

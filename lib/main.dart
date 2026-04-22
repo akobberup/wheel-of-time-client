@@ -6,12 +6,15 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:go_router/go_router.dart';
+import 'models/client_support.dart';
+import 'providers/client_support_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/remote_logger_provider.dart';
 import 'providers/cheer_provider.dart';
 import 'providers/fcm_provider.dart';
 import 'router/app_router.dart';
+import 'screens/update_required_screen.dart';
 import 'services/fcm_service.dart';
 
 void main() async {
@@ -114,6 +117,25 @@ class _AarshjuletAppState extends ConsumerState<AarshjuletApp> {
       themeMode: themeState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       // GoRouter til korrekt browser historik-håndtering
       routerConfig: router,
+      // Gate app'en bag et klient-version check - hvis for gammel, bliv på UpdateRequiredScreen
+      builder: (context, child) {
+        if (kIsWeb) {
+          return child ?? const SizedBox.shrink();
+        }
+        return Consumer(
+          builder: (context, ref, _) {
+            final support = ref.watch(clientSupportProvider);
+            final mustUpdate = support.maybeWhen(
+              data: (data) => data?.status == ClientSupportStatus.updateRequired,
+              orElse: () => false,
+            );
+            if (mustUpdate) {
+              return const UpdateRequiredScreen();
+            }
+            return child ?? const SizedBox.shrink();
+          },
+        );
+      },
     );
   }
 
