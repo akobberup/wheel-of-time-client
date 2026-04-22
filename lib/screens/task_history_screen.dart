@@ -191,8 +191,8 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
   List<TaskInstanceResponse> _sortInstancesByDate(List<TaskInstanceResponse> instances) {
     return List<TaskInstanceResponse>.from(instances)
       ..sort((a, b) {
-        final aTime = a.completedDateTime ?? a.dismissedDateTime ?? DateTime(0);
-        final bTime = b.completedDateTime ?? b.dismissedDateTime ?? DateTime(0);
+        final aTime = a.completedDateTime ?? a.dismissedDateTime ?? a.dueDate ?? DateTime(0);
+        final bTime = b.completedDateTime ?? b.dismissedDateTime ?? b.dueDate ?? DateTime(0);
         return bTime.compareTo(aTime);
       });
   }
@@ -533,10 +533,22 @@ class _HistoryCard extends StatelessWidget {
   Widget _buildUserInfo(AppStrings strings) {
     final dateFormat = DateFormat.yMMMd();
     final timeFormat = DateFormat.jm();
-    // Brug completedDateTime, dismissedDateTime eller nu som fallback
-    final eventTime = instance.completedDateTime ?? instance.dismissedDateTime ?? DateTime.now();
-    final eventDate = dateFormat.format(eventTime);
-    final eventTimeStr = timeFormat.format(eventTime);
+    final subtitleStyle = TextStyle(
+      fontSize: 14,
+      color: isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B),
+    );
+
+    // Action-tid: completed eller dismissed (null for EXPIRED/PENDING)
+    final actionTime = instance.completedDateTime ?? instance.dismissedDateTime;
+    String? actionLine;
+    if (actionTime != null) {
+      final actionDate = dateFormat.format(actionTime);
+      final actionTimeStr = timeFormat.format(actionTime);
+      final label = instance.status == TaskInstanceStatus.dismissed
+          ? strings.skippedOn(actionDate)
+          : strings.completedOn(actionDate);
+      actionLine = '$label ${strings.completedAt(actionTimeStr)}';
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -552,13 +564,12 @@ class _HistoryCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          '${strings.completedOn(eventDate)} ${strings.completedAt(eventTimeStr)}',
-          style: TextStyle(
-            fontSize: 14,
-            color: isDark ? const Color(0xFFA0A0A0) : const Color(0xFF6B6B6B),
+        if (instance.dueDate != null)
+          Text(
+            strings.dueOn(dateFormat.format(instance.dueDate!)),
+            style: subtitleStyle,
           ),
-        ),
+        if (actionLine != null) Text(actionLine, style: subtitleStyle),
       ],
     );
   }

@@ -22,6 +22,7 @@ class TaskInstanceResponse with _$TaskInstanceResponse {
     required int id,
     required int taskId,
     int? taskListId,
+    String? taskListName,
     required String taskName,
     // userId og userName kan være null for EXPIRED/DISMISSED instances
     int? userId,

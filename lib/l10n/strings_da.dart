@@ -854,6 +854,15 @@ class StringsDa extends AppStrings {
   String completedAt(String time) => 'kl. $time';
 
   @override
+  String dueOn(String date) => 'Forfaldt den $date';
+
+  @override
+  String skippedOn(String date) => 'Sprunget over den $date';
+
+  @override
+  String get skipTaskInstead => 'Markér som sprunget over i stedet';
+
+  @override
   String get onTime => 'Til tiden';
 
   @override

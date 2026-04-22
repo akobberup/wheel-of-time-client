@@ -23,6 +23,7 @@ mixin _$TaskInstanceResponse {
   int get id => throw _privateConstructorUsedError;
   int get taskId => throw _privateConstructorUsedError;
   int? get taskListId => throw _privateConstructorUsedError;
+  String? get taskListName => throw _privateConstructorUsedError;
   String get taskName =>
       throw _privateConstructorUsedError; // userId og userName kan være null for EXPIRED/DISMISSED instances
   int? get userId => throw _privateConstructorUsedError;
@@ -58,6 +59,7 @@ abstract class $TaskInstanceResponseCopyWith<$Res> {
       {int id,
       int taskId,
       int? taskListId,
+      String? taskListName,
       String taskName,
       int? userId,
       String? userName,
@@ -90,6 +92,7 @@ class _$TaskInstanceResponseCopyWithImpl<$Res,
     Object? id = null,
     Object? taskId = null,
     Object? taskListId = freezed,
+    Object? taskListName = freezed,
     Object? taskName = null,
     Object? userId = freezed,
     Object? userName = freezed,
@@ -115,6 +118,10 @@ class _$TaskInstanceResponseCopyWithImpl<$Res,
           ? _value.taskListId
           : taskListId // ignore: cast_nullable_to_non_nullable
               as int?,
+      taskListName: freezed == taskListName
+          ? _value.taskListName
+          : taskListName // ignore: cast_nullable_to_non_nullable
+              as String?,
       taskName: null == taskName
           ? _value.taskName
           : taskName // ignore: cast_nullable_to_non_nullable
@@ -175,6 +182,7 @@ abstract class _$$TaskInstanceResponseImplCopyWith<$Res>
       {int id,
       int taskId,
       int? taskListId,
+      String? taskListName,
       String taskName,
       int? userId,
       String? userName,
@@ -204,6 +212,7 @@ class __$$TaskInstanceResponseImplCopyWithImpl<$Res>
     Object? id = null,
     Object? taskId = null,
     Object? taskListId = freezed,
+    Object? taskListName = freezed,
     Object? taskName = null,
     Object? userId = freezed,
     Object? userName = freezed,
@@ -229,6 +238,10 @@ class __$$TaskInstanceResponseImplCopyWithImpl<$Res>
           ? _value.taskListId
           : taskListId // ignore: cast_nullable_to_non_nullable
               as int?,
+      taskListName: freezed == taskListName
+          ? _value.taskListName
+          : taskListName // ignore: cast_nullable_to_non_nullable
+              as String?,
       taskName: null == taskName
           ? _value.taskName
           : taskName // ignore: cast_nullable_to_non_nullable
@@ -284,6 +297,7 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
       {required this.id,
       required this.taskId,
       this.taskListId,
+      this.taskListName,
       required this.taskName,
       this.userId,
       this.userName,
@@ -306,6 +320,8 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
   final int taskId;
   @override
   final int? taskListId;
+  @override
+  final String? taskListName;
   @override
   final String taskName;
 // userId og userName kan være null for EXPIRED/DISMISSED instances
@@ -342,7 +358,7 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
 
   @override
   String toString() {
-    return 'TaskInstanceResponse(id: $id, taskId: $taskId, taskListId: $taskListId, taskName: $taskName, userId: $userId, userName: $userName, completedDateTime: $completedDateTime, dismissedDateTime: $dismissedDateTime, optionalImagePath: $optionalImagePath, optionalComment: $optionalComment, contributedToStreak: $contributedToStreak, status: $status, dueDate: $dueDate, cheers: $cheers)';
+    return 'TaskInstanceResponse(id: $id, taskId: $taskId, taskListId: $taskListId, taskListName: $taskListName, taskName: $taskName, userId: $userId, userName: $userName, completedDateTime: $completedDateTime, dismissedDateTime: $dismissedDateTime, optionalImagePath: $optionalImagePath, optionalComment: $optionalComment, contributedToStreak: $contributedToStreak, status: $status, dueDate: $dueDate, cheers: $cheers)';
   }
 
   @override
@@ -354,6 +370,8 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
             (identical(other.taskId, taskId) || other.taskId == taskId) &&
             (identical(other.taskListId, taskListId) ||
                 other.taskListId == taskListId) &&
+            (identical(other.taskListName, taskListName) ||
+                other.taskListName == taskListName) &&
             (identical(other.taskName, taskName) ||
                 other.taskName == taskName) &&
             (identical(other.userId, userId) || other.userId == userId) &&
@@ -381,6 +399,7 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
       id,
       taskId,
       taskListId,
+      taskListName,
       taskName,
       userId,
       userName,
@@ -416,6 +435,7 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
       {required final int id,
       required final int taskId,
       final int? taskListId,
+      final String? taskListName,
       required final String taskName,
       final int? userId,
       final String? userName,
@@ -437,6 +457,8 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
   int get taskId;
   @override
   int? get taskListId;
+  @override
+  String? get taskListName;
   @override
   String
       get taskName; // userId og userName kan være null for EXPIRED/DISMISSED instances

@@ -90,7 +90,7 @@ class _RetroactiveCompleteSheetState
     }
   }
 
-  Future<void> _submit() async {
+  Future<void> _submit({bool asDismiss = false}) async {
     if (_isSending || _selectedUserId == null) return;
     setState(() => _isSending = true);
     HapticFeedback.mediumImpact();
@@ -101,13 +101,13 @@ class _RetroactiveCompleteSheetState
 
     try {
       final apiService = ref.read(apiServiceProvider);
-      final result = await apiService.completeRetroactive(
-        widget.taskInstance.id,
-        RetroactiveCompleteRequest(
-          completedByUserId: _selectedUserId!,
-          optionalComment: note,
-        ),
+      final request = RetroactiveCompleteRequest(
+        completedByUserId: _selectedUserId!,
+        optionalComment: note,
       );
+      final result = asDismiss
+          ? await apiService.dismissRetroactive(widget.taskInstance.id, request)
+          : await apiService.completeRetroactive(widget.taskInstance.id, request);
 
       if (mounted) {
         Navigator.of(context).pop(result);
@@ -433,47 +433,58 @@ class _RetroactiveCompleteSheetState
           ),
         ),
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: _isSending ? null : () => Navigator.of(context).pop(),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(strings.cancel),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: FilledButton(
-              onPressed: canSubmit ? _submit : null,
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF22C55E),
-                disabledBackgroundColor:
-                    const Color(0xFF22C55E).withValues(alpha: 0.3),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: _isSending
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Text(
-                      strings.completeTask,
-                      style: const TextStyle(color: Colors.white),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: _isSending ? null : () => Navigator.of(context).pop(),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-            ),
+                  ),
+                  child: Text(strings.cancel),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton(
+                  onPressed: canSubmit ? () => _submit() : null,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF22C55E),
+                    disabledBackgroundColor:
+                        const Color(0xFF22C55E).withValues(alpha: 0.3),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: _isSending
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          strings.completeTask,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          TextButton.icon(
+            onPressed: canSubmit ? () => _submit(asDismiss: true) : null,
+            icon: const Icon(Icons.skip_next_rounded, size: 18),
+            label: Text(strings.skipTaskInstead),
           ),
         ],
       ),

@@ -296,6 +296,9 @@ abstract class AppStrings {
   String get completedBy;
   String completedOn(String date);
   String completedAt(String time);
+  String dueOn(String date);
+  String skippedOn(String date);
+  String get skipTaskInstead;
   String get onTime;
   String get late;
   String get contributedToStreak;

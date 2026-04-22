@@ -111,6 +111,20 @@ class CompletedTaskCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (taskInstance.taskListName != null &&
+                      taskInstance.taskListName!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 1),
+                      child: Text(
+                        taskInstance.taskListName!,
+                        style: TextStyle(
+                          color: colorScheme.onSurfaceVariant,
+                          fontSize: isDesktop ? 10 : 11,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   const SizedBox(height: 2),
                   // Tidspunkt + bruger
                   Row(

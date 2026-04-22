@@ -1173,6 +1173,29 @@ class ApiService {
     }
   }
 
+  /// Retroaktiv dismiss af en EXPIRED task instance (markerer som sprunget over uden at bryde streaken)
+  Future<TaskInstanceResponse> dismissRetroactive(
+    int taskInstanceId,
+    RetroactiveCompleteRequest request,
+  ) async {
+    try {
+      final response = await _loggedPost(
+        '$baseUrl/api/task-instances/$taskInstanceId/dismiss-retroactive',
+        headers: _getHeaders(includeAuth: true),
+        body: jsonEncode(request.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        return TaskInstanceResponse.fromJson(jsonDecode(response.body));
+      } else {
+        throw ApiException.withKey(ApiErrorKey.failedToCompleteRetroactive, 'Failed to dismiss task retroactively', response.statusCode);
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
   // ============================================================================
   // CHEERS
   // ============================================================================

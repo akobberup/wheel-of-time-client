@@ -874,6 +874,15 @@ class StringsEn extends AppStrings {
   String completedAt(String time) => 'at $time';
 
   @override
+  String dueOn(String date) => 'Due on $date';
+
+  @override
+  String skippedOn(String date) => 'Skipped on $date';
+
+  @override
+  String get skipTaskInstead => 'Mark as skipped instead';
+
+  @override
   String get onTime => 'On time';
 
   @override
