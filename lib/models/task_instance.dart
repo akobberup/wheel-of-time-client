@@ -33,6 +33,8 @@ class TaskInstanceResponse with _$TaskInstanceResponse {
     String? optionalImagePath,
     String? optionalComment,
     @Default(false) bool contributedToStreak,
+    // True hvis den nuværende bruger må redigere (ejer eller CAN_EDIT) - styrer retroaktiv fuldførelse
+    @Default(false) bool canEdit,
     // Timeline view fields
     @Default(TaskInstanceStatus.completed) TaskInstanceStatus status,
     DateTime? dueDate,

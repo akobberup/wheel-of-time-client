@@ -204,10 +204,11 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
               primaryColor: primaryColor,
               secondaryColor: secondaryColor,
               isDark: isDark,
-              // Kun udløbne instanser kan fuldføres retroaktivt
-              onRetroactiveComplete: instance.status == TaskInstanceStatus.expired
-                  ? () => _handleRetroactiveComplete(instance)
-                  : null,
+              // Kun udløbne instanser hvor brugeren har redigeringsret kan fuldføres retroaktivt
+              onRetroactiveComplete:
+                  instance.status == TaskInstanceStatus.expired && instance.canEdit
+                      ? () => _handleRetroactiveComplete(instance)
+                      : null,
             ),
           ),
         ),

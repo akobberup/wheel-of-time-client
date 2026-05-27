@@ -981,8 +981,9 @@ class _CompletedTasksSection extends StatelessWidget {
           (task) {
             final isExpired =
                 task.status == TaskInstanceStatus.expired;
+            // Kun udløbne opgaver hvor brugeren har redigeringsret kan fuldføres retroaktivt
             final canEdit =
-                isExpired && onRetroactiveComplete != null;
+                isExpired && task.canEdit && onRetroactiveComplete != null;
             return Padding(
               padding: EdgeInsets.only(bottom: isDesktop ? 6 : 4),
               child: CompletedTaskCard(

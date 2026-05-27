@@ -25,6 +25,7 @@ _$TaskInstanceResponseImpl _$$TaskInstanceResponseImplFromJson(
       optionalImagePath: json['optionalImagePath'] as String?,
       optionalComment: json['optionalComment'] as String?,
       contributedToStreak: json['contributedToStreak'] as bool? ?? false,
+      canEdit: json['canEdit'] as bool? ?? false,
       status:
           $enumDecodeNullable(_$TaskInstanceStatusEnumMap, json['status']) ??
               TaskInstanceStatus.completed,
@@ -52,6 +53,7 @@ Map<String, dynamic> _$$TaskInstanceResponseImplToJson(
       'optionalImagePath': instance.optionalImagePath,
       'optionalComment': instance.optionalComment,
       'contributedToStreak': instance.contributedToStreak,
+      'canEdit': instance.canEdit,
       'status': _$TaskInstanceStatusEnumMap[instance.status]!,
       'dueDate': instance.dueDate?.toIso8601String(),
       'cheers': instance.cheers,

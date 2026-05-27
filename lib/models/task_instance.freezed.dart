@@ -34,6 +34,8 @@ mixin _$TaskInstanceResponse {
   String? get optionalImagePath => throw _privateConstructorUsedError;
   String? get optionalComment => throw _privateConstructorUsedError;
   bool get contributedToStreak =>
+      throw _privateConstructorUsedError; // True hvis den nuværende bruger må redigere (ejer eller CAN_EDIT) - styrer retroaktiv fuldførelse
+  bool get canEdit =>
       throw _privateConstructorUsedError; // Timeline view fields
   TaskInstanceStatus get status => throw _privateConstructorUsedError;
   DateTime? get dueDate => throw _privateConstructorUsedError;
@@ -68,6 +70,7 @@ abstract class $TaskInstanceResponseCopyWith<$Res> {
       String? optionalImagePath,
       String? optionalComment,
       bool contributedToStreak,
+      bool canEdit,
       TaskInstanceStatus status,
       DateTime? dueDate,
       List<CheerResponse> cheers});
@@ -101,6 +104,7 @@ class _$TaskInstanceResponseCopyWithImpl<$Res,
     Object? optionalImagePath = freezed,
     Object? optionalComment = freezed,
     Object? contributedToStreak = null,
+    Object? canEdit = null,
     Object? status = null,
     Object? dueDate = freezed,
     Object? cheers = null,
@@ -154,6 +158,10 @@ class _$TaskInstanceResponseCopyWithImpl<$Res,
           ? _value.contributedToStreak
           : contributedToStreak // ignore: cast_nullable_to_non_nullable
               as bool,
+      canEdit: null == canEdit
+          ? _value.canEdit
+          : canEdit // ignore: cast_nullable_to_non_nullable
+              as bool,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -191,6 +199,7 @@ abstract class _$$TaskInstanceResponseImplCopyWith<$Res>
       String? optionalImagePath,
       String? optionalComment,
       bool contributedToStreak,
+      bool canEdit,
       TaskInstanceStatus status,
       DateTime? dueDate,
       List<CheerResponse> cheers});
@@ -221,6 +230,7 @@ class __$$TaskInstanceResponseImplCopyWithImpl<$Res>
     Object? optionalImagePath = freezed,
     Object? optionalComment = freezed,
     Object? contributedToStreak = null,
+    Object? canEdit = null,
     Object? status = null,
     Object? dueDate = freezed,
     Object? cheers = null,
@@ -274,6 +284,10 @@ class __$$TaskInstanceResponseImplCopyWithImpl<$Res>
           ? _value.contributedToStreak
           : contributedToStreak // ignore: cast_nullable_to_non_nullable
               as bool,
+      canEdit: null == canEdit
+          ? _value.canEdit
+          : canEdit // ignore: cast_nullable_to_non_nullable
+              as bool,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -306,6 +320,7 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
       this.optionalImagePath,
       this.optionalComment,
       this.contributedToStreak = false,
+      this.canEdit = false,
       this.status = TaskInstanceStatus.completed,
       this.dueDate,
       final List<CheerResponse> cheers = const []})
@@ -341,6 +356,10 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
   @override
   @JsonKey()
   final bool contributedToStreak;
+// True hvis den nuværende bruger må redigere (ejer eller CAN_EDIT) - styrer retroaktiv fuldførelse
+  @override
+  @JsonKey()
+  final bool canEdit;
 // Timeline view fields
   @override
   @JsonKey()
@@ -358,7 +377,7 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
 
   @override
   String toString() {
-    return 'TaskInstanceResponse(id: $id, taskId: $taskId, taskListId: $taskListId, taskListName: $taskListName, taskName: $taskName, userId: $userId, userName: $userName, completedDateTime: $completedDateTime, dismissedDateTime: $dismissedDateTime, optionalImagePath: $optionalImagePath, optionalComment: $optionalComment, contributedToStreak: $contributedToStreak, status: $status, dueDate: $dueDate, cheers: $cheers)';
+    return 'TaskInstanceResponse(id: $id, taskId: $taskId, taskListId: $taskListId, taskListName: $taskListName, taskName: $taskName, userId: $userId, userName: $userName, completedDateTime: $completedDateTime, dismissedDateTime: $dismissedDateTime, optionalImagePath: $optionalImagePath, optionalComment: $optionalComment, contributedToStreak: $contributedToStreak, canEdit: $canEdit, status: $status, dueDate: $dueDate, cheers: $cheers)';
   }
 
   @override
@@ -387,6 +406,7 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
                 other.optionalComment == optionalComment) &&
             (identical(other.contributedToStreak, contributedToStreak) ||
                 other.contributedToStreak == contributedToStreak) &&
+            (identical(other.canEdit, canEdit) || other.canEdit == canEdit) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.dueDate, dueDate) || other.dueDate == dueDate) &&
             const DeepCollectionEquality().equals(other._cheers, _cheers));
@@ -408,6 +428,7 @@ class _$TaskInstanceResponseImpl implements _TaskInstanceResponse {
       optionalImagePath,
       optionalComment,
       contributedToStreak,
+      canEdit,
       status,
       dueDate,
       const DeepCollectionEquality().hash(_cheers));
@@ -444,6 +465,7 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
       final String? optionalImagePath,
       final String? optionalComment,
       final bool contributedToStreak,
+      final bool canEdit,
       final TaskInstanceStatus status,
       final DateTime? dueDate,
       final List<CheerResponse> cheers}) = _$TaskInstanceResponseImpl;
@@ -476,7 +498,10 @@ abstract class _TaskInstanceResponse implements TaskInstanceResponse {
   @override
   String? get optionalComment;
   @override
-  bool get contributedToStreak; // Timeline view fields
+  bool
+      get contributedToStreak; // True hvis den nuværende bruger må redigere (ejer eller CAN_EDIT) - styrer retroaktiv fuldførelse
+  @override
+  bool get canEdit; // Timeline view fields
   @override
   TaskInstanceStatus get status;
   @override
