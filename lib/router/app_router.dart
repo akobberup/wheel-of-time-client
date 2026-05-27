@@ -130,12 +130,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'tasks/:taskId',
             name: 'task-history',
             builder: (context, state) {
+              final listId = int.parse(state.pathParameters['listId']!);
               final taskId = int.parse(state.pathParameters['taskId']!);
               final taskName = state.uri.queryParameters['name'] ?? '';
               final primaryColorHex = state.uri.queryParameters['primaryColor'];
               final secondaryColorHex = state.uri.queryParameters['secondaryColor'];
               return TaskHistoryScreen(
                 taskId: taskId,
+                taskListId: listId,
                 taskName: taskName,
                 primaryColor: primaryColorHex != null ? Color(int.parse(primaryColorHex, radix: 16)) : null,
                 secondaryColor: secondaryColorHex != null ? Color(int.parse(secondaryColorHex, radix: 16)) : null,

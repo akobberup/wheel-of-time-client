@@ -12,6 +12,7 @@ import '../config/api_config.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/status_badge.dart';
 import '../widgets/common/animated_card.dart';
+import '../widgets/retroactive_complete_sheet.dart';
 
 /// Filtrerings-muligheder for opgave historik efter dato
 enum DateFilter { all, thisWeek, thisMonth, last3Months }
@@ -22,6 +23,7 @@ enum DateFilter { all, thisWeek, thisMonth, last3Months }
 /// Inkluderer pull-to-refresh, dato-filtrering og tom tilstand håndtering.
 class TaskHistoryScreen extends ConsumerStatefulWidget {
   final int taskId;
+  final int taskListId;
   final String taskName;
   final Color? primaryColor;
   final Color? secondaryColor;
@@ -29,6 +31,7 @@ class TaskHistoryScreen extends ConsumerStatefulWidget {
   const TaskHistoryScreen({
     super.key,
     required this.taskId,
+    required this.taskListId,
     required this.taskName,
     this.primaryColor,
     this.secondaryColor,
@@ -153,6 +156,27 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
     setState(() => _selectedFilter = filter);
   }
 
+  /// Åbner retroaktiv-completion sheet for en udløbet instance og opdaterer
+  /// historikken hvis brugeren fuldfører den.
+  Future<void> _handleRetroactiveComplete(TaskInstanceResponse instance) async {
+    final result = await RetroactiveCompleteSheet.show(
+      context,
+      taskInstance: instance,
+      taskListId: widget.taskListId,
+    );
+    if (result != null && mounted) {
+      await ref.read(taskHistoryProvider(widget.taskId).notifier).refresh();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppStrings.of(context).taskMarkedAsCompleted),
+            backgroundColor: const Color(0xFF22C55E),
+          ),
+        );
+      }
+    }
+  }
+
   /// Bygger hovedindhold med historik-liste
   Widget _buildHistoryContent(List<TaskInstanceResponse> instances, AppStrings strings, Color primaryColor, Color secondaryColor, bool isDark) {
     final filteredInstances = _applyFilter(instances);
@@ -172,7 +196,7 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
       delegate: SliverChildListDelegate([
         _buildSummaryHeader(sortedInstances.length, strings, primaryColor, secondaryColor, isDark),
         const SizedBox(height: 24),
-        ...sortedInstances.map((instance) => 
+        ...sortedInstances.map((instance) =>
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
             child: _HistoryCard(
@@ -180,6 +204,10 @@ class _TaskHistoryScreenState extends ConsumerState<TaskHistoryScreen> {
               primaryColor: primaryColor,
               secondaryColor: secondaryColor,
               isDark: isDark,
+              // Kun udløbne instanser kan fuldføres retroaktivt
+              onRetroactiveComplete: instance.status == TaskInstanceStatus.expired
+                  ? () => _handleRetroactiveComplete(instance)
+                  : null,
             ),
           ),
         ),
@@ -370,6 +398,10 @@ class _HistoryCard extends StatelessWidget {
   final Color secondaryColor;
   final bool isDark;
 
+  /// Kaldes når brugeren vil fuldføre en udløbet instance retroaktivt.
+  /// Null hvis instansen ikke kan fuldføres retroaktivt (ikke EXPIRED).
+  final VoidCallback? onRetroactiveComplete;
+
   // Status farver (beholdes for tydelig status-indikation)
   static const Color _pendingColor = Color(0xFF3B82F6);   // Blå
   static const Color _completedColor = Color(0xFF22C55E); // Grøn
@@ -381,7 +413,11 @@ class _HistoryCard extends StatelessWidget {
     required this.primaryColor,
     required this.secondaryColor,
     required this.isDark,
+    this.onRetroactiveComplete,
   });
+
+  /// True hvis kortet kan fuldføres retroaktivt (udløbet + callback tilgængelig)
+  bool get _canRetroactivelyComplete => onRetroactiveComplete != null;
 
   /// Returnerer status-farven baseret på instance status
   Color get _statusColor {
@@ -465,6 +501,8 @@ class _HistoryCard extends StatelessWidget {
                       _buildBadges(strings),
                       if (_hasComment) _buildCommentSection(context, strings),
                       if (_hasImage) _buildImageSection(context),
+                      if (_canRetroactivelyComplete)
+                        _buildRetroactiveCompleteButton(context, strings),
                     ],
                   ),
                 ),
@@ -645,6 +683,45 @@ class _HistoryCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  /// Knap til at fuldføre en udløbet instance retroaktivt.
+  /// Vises kun for EXPIRED instanser hvor brugeren har redigeringsrettigheder.
+  Widget _buildRetroactiveCompleteButton(BuildContext context, AppStrings strings) {
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          child: Material(
+            color: _completedColor.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(12),
+            child: InkWell(
+              onTap: onRetroactiveComplete,
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.replay_rounded, size: 18, color: _completedColor),
+                    const SizedBox(width: 8),
+                    Text(
+                      strings.retroactiveCompleteTitle,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: _completedColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
