@@ -944,6 +944,12 @@ class StringsDa extends AppStrings {
   String get inactiveTasksWontShow => 'Inaktive opgaver vises ikke til fuldførelse';
 
   @override
+  String get pauseTask => 'Sæt på pause';
+
+  @override
+  String get pausedTaskDescription => 'Pausede opgaver skjules og får ikke nye forekomster';
+
+  @override
   String get enterTaskListName => 'Indtast opgavelistenavn';
 
   @override

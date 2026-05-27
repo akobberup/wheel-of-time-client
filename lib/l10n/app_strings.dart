@@ -327,6 +327,8 @@ abstract class AppStrings {
   String get completionWindowHint;
   String get hoursAfterAlarm;
   String get inactiveTasksWontShow;
+  String get pauseTask;
+  String get pausedTaskDescription;
   String get enterTaskListName;
   String get failedToCreateTaskList;
 

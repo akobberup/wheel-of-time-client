@@ -190,14 +190,14 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                 const SizedBox(height: 16),
               ],
 
-              // Active status toggle - themed
+              // Pause-toggle - themed. Pauset = inaktiv (skjules + spawner ikke nye instanser)
               SwitchListTile(
-                title: Text(strings.active),
-                subtitle: Text(strings.inactiveTasksWontShow),
-                value: _isActive,
+                title: Text(strings.pauseTask),
+                subtitle: Text(strings.pausedTaskDescription),
+                value: !_isActive,
                 activeColor: primaryColor,
-                onChanged: (value) {
-                  setState(() => _isActive = value);
+                onChanged: (paused) {
+                  setState(() => _isActive = !paused);
                 },
               ),
               const SizedBox(height: 8),

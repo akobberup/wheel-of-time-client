@@ -965,6 +965,13 @@ class StringsEn extends AppStrings {
       'Inactive tasks won\'t show up for completion';
 
   @override
+  String get pauseTask => 'Pause task';
+
+  @override
+  String get pausedTaskDescription =>
+      'Paused tasks are hidden and won\'t get new instances';
+
+  @override
   String get enterTaskListName => 'Enter task list name';
 
   @override
