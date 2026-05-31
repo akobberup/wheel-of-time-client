@@ -1,20 +1,21 @@
-import 'dart:convert';
 import 'dart:developer' as developer;
-import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import '../models/log_entry.dart';
-import '../config/api_config.dart';
 import '../config/version_config.dart';
+import 'log_queue_service.dart';
 
 /// Service til remote logging af errors, events og bruger-tracking
 ///
-/// Sender logs til backend API for central logging og monitoring
+/// WARNING/ERROR lægges i en persistent retry-kø ([LogQueueService.enqueue]) så
+/// de overlever nedetid (fx en deploy) og sendes når backenden er tilbage.
+/// INFO/DEBUG/analytics sendes fire-and-forget ([LogQueueService.sendImmediate])
+/// da tab af dem ved nedetid er ligegyldigt.
 class RemoteLoggerService {
-  final http.Client _client;
+  final LogQueueService _logQueue;
   String? _userId;
 
-  RemoteLoggerService({http.Client? client})
-      : _client = client ?? http.Client();
+  RemoteLoggerService({required LogQueueService logQueue})
+      : _logQueue = logQueue;
 
   /// Opdater bruger ID for logging context
   void setUserId(String? userId) {
@@ -128,44 +129,19 @@ class RemoteLoggerService {
         );
       }
 
-      // Send til backend (fire-and-forget)
-      _sendToBackend(logEntry);
+      // WARNING/ERROR persisteres med retry så de overlever nedetid;
+      // resten sendes fire-and-forget.
+      if (level == LogLevel.warning || level == LogLevel.error) {
+        await _logQueue.enqueue(logEntry);
+      } else {
+        _logQueue.sendImmediate(logEntry);
+      }
     } catch (e) {
       // Fejl i logging må aldrig crashe appen
       developer.log(
         'Failed to log remotely: $e',
         name: 'RemoteLogger',
         error: e,
-      );
-    }
-  }
-
-  /// Send log entry til backend API (async, non-blocking)
-  Future<void> _sendToBackend(LogEntry logEntry) async {
-    try {
-      final url = '${ApiConfig.baseUrl}/api/logs';
-      final response = await _client
-          .post(
-            Uri.parse(url),
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode(logEntry.toJson()),
-          )
-          .timeout(
-            const Duration(seconds: 5),
-            onTimeout: () => http.Response('Timeout', 408),
-          );
-
-      if (response.statusCode >= 400) {
-        developer.log(
-          'Failed to send log to backend: ${response.statusCode}',
-          name: 'RemoteLogger',
-        );
-      }
-    } catch (e) {
-      // Ignorer fejl - logging må ikke crashe appen
-      developer.log(
-        'Error sending log to backend: $e',
-        name: 'RemoteLogger',
       );
     }
   }
@@ -184,8 +160,6 @@ class RemoteLoggerService {
     }
   }
 
-  /// Cleanup
-  void dispose() {
-    _client.close();
-  }
+  /// Cleanup. Selve netværks-klienten ejes og lukkes af [LogQueueService].
+  void dispose() {}
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'providers/client_support_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/remote_logger_provider.dart';
+import 'providers/log_queue_provider.dart';
 import 'providers/cheer_provider.dart';
 import 'providers/fcm_provider.dart';
 import 'router/app_router.dart';
@@ -32,6 +34,10 @@ void main() async {
 
   final container = ProviderContainer();
   final logger = container.read(remoteLoggerProvider);
+
+  // Tøm eventuelle logs der blev gemt i en tidligere session (fx fordi
+  // backenden var nede ved sidste afsendelse).
+  unawaited(container.read(logQueueProvider).flush());
 
   // Opsæt global error handling for framework-fejl
   // Logger til remote service for debugging i production
@@ -75,7 +81,40 @@ class AarshjuletApp extends ConsumerStatefulWidget {
   ConsumerState<AarshjuletApp> createState() => _AarshjuletAppState();
 }
 
-class _AarshjuletAppState extends ConsumerState<AarshjuletApp> {
+class _AarshjuletAppState extends ConsumerState<AarshjuletApp>
+    with WidgetsBindingObserver {
+  Timer? _flushTimer;
+
+  /// Hvor ofte log-køen forsøges tømt mens app'en er i forgrunden.
+  static const Duration _flushInterval = Duration(seconds: 60);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    // Periodisk flush af log-køen mens app'en er aktiv.
+    _flushTimer = Timer.periodic(_flushInterval, (_) {
+      ref.read(logQueueProvider).flush();
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Når app'en kommer i forgrunden igen, så tøm køen - backenden kan være
+    // blevet tilgængelig mens app'en lå i baggrunden.
+    if (state == AppLifecycleState.resumed) {
+      ref.read(logQueueProvider).flush();
+    }
+  }
+
+  @override
+  void dispose() {
+    _flushTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final locale = ref.watch(localeProvider);
