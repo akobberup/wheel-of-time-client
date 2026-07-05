@@ -15,6 +15,7 @@ import '../models/task_list_user.dart';
 import '../models/streak.dart';
 import '../models/image.dart';
 import '../models/user_settings.dart';
+import '../models/vacation_period.dart';
 import '../models/visual_theme.dart';
 import '../models/enums.dart';
 import '../models/task_responsible.dart';
@@ -94,6 +95,12 @@ enum ApiErrorKey {
   // User Settings
   failedToLoadUserSettings,
   failedToUpdateUserSettings,
+
+  // Vacation Periods
+  failedToLoadVacationPeriods,
+  failedToCreateVacationPeriod,
+  failedToUpdateVacationPeriod,
+  failedToDeleteVacationPeriod,
 
   // Visual Themes
   failedToLoadVisualThemes,
@@ -1755,6 +1762,114 @@ class ApiService {
         );
       } else {
         throw ApiException.withKey(ApiErrorKey.failedToUpdateUserSettings, 'Failed to update user settings', response.statusCode);
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  // ============================================================================
+  // VACATION PERIODS (feriekalender)
+  // ============================================================================
+
+  /// Henter den aktuelle brugers ferieperioder, sorteret efter startdato.
+  Future<List<VacationPeriodResponse>> getVacationPeriods() async {
+    try {
+      final response = await _loggedGet(
+        '$baseUrl/api/vacation-periods',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = jsonDecode(response.body);
+        return jsonList
+            .map((json) =>
+                VacationPeriodResponse.fromJson(json as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw ApiException.withKey(
+          ApiErrorKey.failedToLoadVacationPeriods,
+          'Failed to load vacation periods',
+          response.statusCode,
+        );
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  /// Opretter en ny ferieperiode for den aktuelle bruger.
+  Future<VacationPeriodResponse> createVacationPeriod(
+    CreateVacationPeriodRequest request,
+  ) async {
+    try {
+      final response = await _loggedPost(
+        '$baseUrl/api/vacation-periods',
+        headers: _getHeaders(includeAuth: true),
+        body: jsonEncode(request.toJson()),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return VacationPeriodResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException.withKey(
+          ApiErrorKey.failedToCreateVacationPeriod,
+          errorData['message'] ?? 'Failed to create vacation period',
+          response.statusCode,
+        );
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  /// Opdaterer en ferieperiode ejet af den aktuelle bruger.
+  Future<VacationPeriodResponse> updateVacationPeriod(
+    int id,
+    UpdateVacationPeriodRequest request,
+  ) async {
+    try {
+      final response = await _loggedPut(
+        '$baseUrl/api/vacation-periods/$id',
+        headers: _getHeaders(includeAuth: true),
+        body: jsonEncode(request.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        return VacationPeriodResponse.fromJson(jsonDecode(response.body));
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw ApiException.withKey(
+          ApiErrorKey.failedToUpdateVacationPeriod,
+          errorData['message'] ?? 'Failed to update vacation period',
+          response.statusCode,
+        );
+      }
+    } catch (e, stackTrace) {
+      if (e is ApiException) rethrow;
+      _logAndThrowError(e, stackTrace);
+    }
+  }
+
+  /// Sletter en ferieperiode ejet af den aktuelle bruger.
+  Future<void> deleteVacationPeriod(int id) async {
+    try {
+      final response = await _loggedDelete(
+        '$baseUrl/api/vacation-periods/$id',
+        headers: _getHeaders(includeAuth: true),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        final errorData = jsonDecode(response.body);
+        throw ApiException.withKey(
+          ApiErrorKey.failedToDeleteVacationPeriod,
+          errorData['message'] ?? 'Failed to delete vacation period',
+          response.statusCode,
+        );
       }
     } catch (e, stackTrace) {
       if (e is ApiException) rethrow;

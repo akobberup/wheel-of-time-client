@@ -6,8 +6,10 @@ import '../providers/task_provider.dart';
 import '../models/task.dart';
 import '../models/schedule.dart';
 import '../models/local_time.dart';
+import '../models/enums.dart';
 import '../l10n/app_strings.dart';
 import 'common/recurrence_editor.dart';
+import 'common/vacation_mode_selector.dart';
 
 /// Dialog for editing an existing task.
 /// Allows users to update task name, description, repeat settings, alarm time,
@@ -40,6 +42,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
   late TaskSchedule _schedule;
   late bool _isActive;
   late bool _scheduleFromCompletion;
+  late VacationMode _vacationMode;
   LocalTime? _alarmTime;
   int? _completionWindowHours;
   bool _isLoading = false;
@@ -58,6 +61,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
     _schedule = widget.task.schedule;
     _isActive = widget.task.isActive;
     _scheduleFromCompletion = widget.task.scheduleFromCompletion;
+    _vacationMode = widget.task.vacationMode;
     _alarmTime = widget.task.alarmAtTimeOfDay;
     _completionWindowHours = widget.task.completionWindowHours;
 
@@ -98,6 +102,7 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
       alarmAtTimeOfDay: _alarmTime,
       completionWindowHours: _completionWindowHours,
       scheduleFromCompletion: _scheduleFromCompletion,
+      vacationMode: _vacationMode,
     );
 
     final result = await ref.read(tasksProvider(widget.task.taskListId).notifier).updateTask(
@@ -199,6 +204,14 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
                 onChanged: (paused) {
                   setState(() => _isActive = !paused);
                 },
+              ),
+              const SizedBox(height: 16),
+
+              // Ferie-tilstand: styrer om opgaven laves ift. ansvarliges ferie
+              VacationModeSelector(
+                selectedMode: _vacationMode,
+                themeColor: primaryColor,
+                onChanged: (mode) => setState(() => _vacationMode = mode),
               ),
               const SizedBox(height: 8),
 

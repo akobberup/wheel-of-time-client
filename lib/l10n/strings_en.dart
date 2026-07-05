@@ -972,6 +972,98 @@ class StringsEn extends AppStrings {
       'Paused tasks are hidden and won\'t get new instances';
 
   @override
+  String get vacationModeLabel => 'Vacation mode';
+
+  @override
+  String get vacationModeDescription =>
+      'Control whether the task runs when responsible members are on vacation';
+
+  @override
+  String get vacationModeNoChange => 'No change';
+
+  @override
+  String get vacationModeOnlyInVacation => 'Only on vacation';
+
+  @override
+  String get vacationModeNotInVacation => 'Not on vacation';
+
+  @override
+  String get vacationCalendar => 'Vacation calendar';
+
+  @override
+  String get vacationCalendarSubtitle => 'Set up your vacation periods';
+
+  @override
+  String get addVacationPeriod => 'Add vacation period';
+
+  @override
+  String get editVacationPeriod => 'Edit vacation period';
+
+  @override
+  String get vacationPeriodName => 'Name';
+
+  @override
+  String get vacationStartDate => 'Start date';
+
+  @override
+  String get vacationEndDate => 'End date';
+
+  @override
+  String get noVacationPeriods => 'No vacation periods yet';
+
+  @override
+  String get deleteVacationPeriodTitle => 'Delete vacation period';
+
+  @override
+  String get deleteVacationPeriodConfirm =>
+      'Are you sure you want to delete this vacation period?';
+
+  @override
+  String get vacationEndBeforeStartError =>
+      'End date must be on or after the start date';
+
+  @override
+  String get failedToLoadVacationPeriods => 'Could not load vacation periods';
+
+  @override
+  String get failedToCreateVacationPeriod =>
+      'Could not create vacation period';
+
+  @override
+  String get failedToUpdateVacationPeriod =>
+      'Could not update vacation period';
+
+  @override
+  String get failedToDeleteVacationPeriod =>
+      'Could not delete vacation period';
+
+  @override
+  String get vacationHelpTitle => 'How vacation works';
+
+  @override
+  String get vacationHelpIntro =>
+      'In the vacation calendar you set up your vacation periods with a name and a start and end date. The periods apply to you across all your lists. On each task you can choose a vacation mode that controls whether the task runs when the responsible members are on vacation. The responsible members are the ones the task is assigned to - or all members of the list if the task has no fixed assignee.';
+
+  @override
+  String get vacationHelpPeriodsTitle => 'Vacation periods';
+
+  @override
+  String get vacationHelpPeriodsBody =>
+      'Add a period for each vacation. A date counts as vacation if it falls within one of your periods - both the start and end date are included.';
+
+  @override
+  String get vacationHelpNoChangeBody =>
+      'Default. Vacation does not affect the task - it runs as usual, whether or not anyone is on vacation.';
+
+  @override
+  String get vacationHelpNotInVacationBody =>
+      'The task runs only when at least one responsible member is NOT on vacation. If all responsible members are on vacation, the task is skipped until the vacation ends. With rotation, only members who are not on vacation are assigned. Good for e.g. "take out the trash", which should not run while you are away.';
+
+  @override
+  String get vacationHelpOnlyInVacationBody =>
+      'The task runs only when at least one responsible member IS on vacation. Good for e.g. "water the neighbour\'s plants", which is only relevant while you are on vacation.';
+
+  @override
   String get enterTaskListName => 'Enter task list name';
 
   @override

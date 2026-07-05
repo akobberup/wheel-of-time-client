@@ -69,6 +69,18 @@ enum Gender {
   static Gender fromJson(String value) => Gender.values.byName(value);
 }
 
+/// Vacation mode for a task (matches Java VacationMode enum)
+/// Styrer om tasken genererer instanser afhængigt af de ansvarliges ferie.
+enum VacationMode {
+  NO_CHANGE,
+  ONLY_IN_VACATION,
+  NOT_IN_VACATION;
+
+  String toJson() => name;
+  static VacationMode fromJson(String value) =>
+      VacationMode.values.byName(value);
+}
+
 /// Months of the year (matches Java Month)
 /// Used for seasonal scheduling
 enum Month {

@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'local_time.dart';
 import 'streak.dart';
 import 'schedule.dart';
+import 'enums.dart';
 
 part 'task.freezed.dart';
 part 'task.g.dart';
@@ -36,6 +37,7 @@ class TaskResponse with _$TaskResponse {
     @Default(0) int totalCompletions,
     StreakResponse? currentStreak,
     @Default(false) bool scheduleFromCompletion,
+    @Default(VacationMode.NO_CHANGE) VacationMode vacationMode,
   }) = _TaskResponse;
 
   factory TaskResponse.fromJson(Map<String, dynamic> json) =>
@@ -55,6 +57,7 @@ class CreateTaskRequest with _$CreateTaskRequest {
     int? sortOrder,
     int? taskImageId,
     bool? scheduleFromCompletion,
+    VacationMode? vacationMode,
   }) = _CreateTaskRequest;
 
   factory CreateTaskRequest.fromJson(Map<String, dynamic> json) =>
@@ -73,6 +76,7 @@ class UpdateTaskRequest with _$UpdateTaskRequest {
     bool? isActive,
     int? taskImageId,
     bool? scheduleFromCompletion,
+    VacationMode? vacationMode,
   }) = _UpdateTaskRequest;
 
   factory UpdateTaskRequest.fromJson(Map<String, dynamic> json) =>

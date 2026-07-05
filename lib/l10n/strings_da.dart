@@ -950,6 +950,99 @@ class StringsDa extends AppStrings {
   String get pausedTaskDescription => 'Pausede opgaver skjules og får ikke nye forekomster';
 
   @override
+  String get vacationModeLabel => 'Ferie-tilstand';
+
+  @override
+  String get vacationModeDescription =>
+      'Styr om opgaven laves når de ansvarlige har ferie';
+
+  @override
+  String get vacationModeNoChange => 'Ingen ændring';
+
+  @override
+  String get vacationModeOnlyInVacation => 'Kun i ferie';
+
+  @override
+  String get vacationModeNotInVacation => 'Ikke i ferie';
+
+  @override
+  String get vacationCalendar => 'Feriekalender';
+
+  @override
+  String get vacationCalendarSubtitle => 'Angiv dine ferieperioder';
+
+  @override
+  String get addVacationPeriod => 'Tilføj ferieperiode';
+
+  @override
+  String get editVacationPeriod => 'Rediger ferieperiode';
+
+  @override
+  String get vacationPeriodName => 'Navn';
+
+  @override
+  String get vacationStartDate => 'Startdato';
+
+  @override
+  String get vacationEndDate => 'Slutdato';
+
+  @override
+  String get noVacationPeriods => 'Ingen ferieperioder endnu';
+
+  @override
+  String get deleteVacationPeriodTitle => 'Slet ferieperiode';
+
+  @override
+  String get deleteVacationPeriodConfirm =>
+      'Er du sikker på, at du vil slette denne ferieperiode?';
+
+  @override
+  String get vacationEndBeforeStartError =>
+      'Slutdato skal være samme dag som eller efter startdato';
+
+  @override
+  String get failedToLoadVacationPeriods =>
+      'Kunne ikke indlæse ferieperioder';
+
+  @override
+  String get failedToCreateVacationPeriod =>
+      'Kunne ikke oprette ferieperiode';
+
+  @override
+  String get failedToUpdateVacationPeriod =>
+      'Kunne ikke opdatere ferieperiode';
+
+  @override
+  String get failedToDeleteVacationPeriod =>
+      'Kunne ikke slette ferieperiode';
+
+  @override
+  String get vacationHelpTitle => 'Sådan virker ferie';
+
+  @override
+  String get vacationHelpIntro =>
+      'I feriekalenderen angiver du dine ferieperioder med et navn og en start- og slutdato. Perioderne gælder for dig på tværs af alle dine lister. På hver opgave kan du vælge en ferie-tilstand, der styrer, om opgaven laves, når de ansvarlige har ferie. De ansvarlige er dem, opgaven er tildelt - eller alle medlemmer af listen, hvis opgaven ikke har en fast ansvarlig.';
+
+  @override
+  String get vacationHelpPeriodsTitle => 'Ferieperioder';
+
+  @override
+  String get vacationHelpPeriodsBody =>
+      'Tilføj en periode for hver ferie. En dato tæller som ferie, hvis den ligger inden for en af dine perioder - både start- og slutdato er med.';
+
+  @override
+  String get vacationHelpNoChangeBody =>
+      'Standard. Ferie påvirker ikke opgaven - den laves som normalt, uanset om nogen har ferie.';
+
+  @override
+  String get vacationHelpNotInVacationBody =>
+      'Opgaven laves kun, når mindst én ansvarlig IKKE har ferie. Har alle ansvarlige ferie, springes opgaven over, indtil ferien er slut. Ved rotation tildeles kun dem, der ikke har ferie. Godt til fx "tøm skraldespand", der ikke skal laves, mens I er væk.';
+
+  @override
+  String get vacationHelpOnlyInVacationBody =>
+      'Opgaven laves kun, når mindst én ansvarlig HAR ferie. Godt til fx "vand naboens blomster", der kun er relevant, mens I er på ferie.';
+
+  @override
   String get enterTaskListName => 'Indtast opgavelistenavn';
 
   @override

@@ -15,6 +15,7 @@ import '../models/local_time.dart';
 import '../l10n/app_strings.dart';
 import 'ai_suggestions_bottom_sheet.dart';
 import 'common/recurrence_editor.dart';
+import 'common/vacation_mode_selector.dart';
 
 class CreateTaskDialog extends ConsumerStatefulWidget {
   final int taskListId;
@@ -48,6 +49,7 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog>
   LocalTime? _alarmTime;
   int? _completionWindowHours;
   bool _scheduleFromCompletion = true;
+  VacationMode _vacationMode = VacationMode.NO_CHANGE;
   bool _isLoading = false;
 
   // Progressive disclosure: controls whether optional fields are visible
@@ -271,6 +273,8 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog>
       alarmAtTimeOfDay: _alarmTime,
       completionWindowHours: _completionWindowHours,
       scheduleFromCompletion: _scheduleFromCompletion ? true : null,
+      vacationMode:
+          _vacationMode == VacationMode.NO_CHANGE ? null : _vacationMode,
     );
 
     setState(() => _isLoading = true);
@@ -521,6 +525,14 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog>
                   }
                 },
               ),
+            ),
+            const SizedBox(height: 16),
+
+            // Ferie-tilstand: styrer om opgaven laves ift. ansvarliges ferie
+            VacationModeSelector(
+              selectedMode: _vacationMode,
+              themeColor: primaryColor,
+              onChanged: (mode) => setState(() => _vacationMode = mode),
             ),
             const SizedBox(height: 8),
 

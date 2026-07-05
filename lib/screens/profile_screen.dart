@@ -13,6 +13,7 @@ import '../models/enums.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/gender_selector.dart';
 import '../widgets/common/year_picker_sheet.dart';
+import 'vacation_calendar_screen.dart';
 
 /// Profil skærm med varm, organisk æstetik.
 ///
@@ -215,6 +216,27 @@ class ProfileScreen extends ConsumerWidget {
                     icon: Icons.lock_outline_rounded,
                     title: strings.changePassword,
                     subtitle: strings.changePasswordDescription,
+                    seedColor: seedColor,
+                    isDark: isDark,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                _ProfileCard(
+                  isDark: isDark,
+                  seedColor: seedColor,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const VacationCalendarScreen(),
+                      ),
+                    );
+                  },
+                  child: _ActionRow(
+                    icon: Icons.beach_access_outlined,
+                    title: strings.vacationCalendar,
+                    subtitle: strings.vacationCalendarSubtitle,
                     seedColor: seedColor,
                     isDark: isDark,
                   ),

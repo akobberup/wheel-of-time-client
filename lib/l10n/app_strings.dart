@@ -329,6 +329,35 @@ abstract class AppStrings {
   String get inactiveTasksWontShow;
   String get pauseTask;
   String get pausedTaskDescription;
+  // Ferie-mode (task) + feriekalender
+  String get vacationModeLabel;
+  String get vacationModeDescription;
+  String get vacationModeNoChange;
+  String get vacationModeOnlyInVacation;
+  String get vacationModeNotInVacation;
+  String get vacationCalendar;
+  String get vacationCalendarSubtitle;
+  String get addVacationPeriod;
+  String get editVacationPeriod;
+  String get vacationPeriodName;
+  String get vacationStartDate;
+  String get vacationEndDate;
+  String get noVacationPeriods;
+  String get deleteVacationPeriodTitle;
+  String get deleteVacationPeriodConfirm;
+  String get vacationEndBeforeStartError;
+  String get failedToLoadVacationPeriods;
+  String get failedToCreateVacationPeriod;
+  String get failedToUpdateVacationPeriod;
+  String get failedToDeleteVacationPeriod;
+  // Ferie-hjælpeside
+  String get vacationHelpTitle;
+  String get vacationHelpIntro;
+  String get vacationHelpPeriodsTitle;
+  String get vacationHelpPeriodsBody;
+  String get vacationHelpNoChangeBody;
+  String get vacationHelpNotInVacationBody;
+  String get vacationHelpOnlyInVacationBody;
   String get enterTaskListName;
   String get failedToCreateTaskList;
 
@@ -936,6 +965,16 @@ abstract class AppStrings {
         return failedToLoadUserSettings;
       case ApiErrorKey.failedToUpdateUserSettings:
         return failedToUpdateUserSettings;
+
+      // Vacation Periods
+      case ApiErrorKey.failedToLoadVacationPeriods:
+        return failedToLoadVacationPeriods;
+      case ApiErrorKey.failedToCreateVacationPeriod:
+        return failedToCreateVacationPeriod;
+      case ApiErrorKey.failedToUpdateVacationPeriod:
+        return failedToUpdateVacationPeriod;
+      case ApiErrorKey.failedToDeleteVacationPeriod:
+        return failedToDeleteVacationPeriod;
 
       // Visual Themes
       case ApiErrorKey.failedToLoadVisualThemes:

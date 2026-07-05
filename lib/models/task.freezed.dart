@@ -38,6 +38,7 @@ mixin _$TaskResponse {
   int get totalCompletions => throw _privateConstructorUsedError;
   StreakResponse? get currentStreak => throw _privateConstructorUsedError;
   bool get scheduleFromCompletion => throw _privateConstructorUsedError;
+  VacationMode get vacationMode => throw _privateConstructorUsedError;
 
   /// Serializes this TaskResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -71,7 +72,8 @@ abstract class $TaskResponseCopyWith<$Res> {
       String? taskImagePath,
       int totalCompletions,
       StreakResponse? currentStreak,
-      bool scheduleFromCompletion});
+      bool scheduleFromCompletion,
+      VacationMode vacationMode});
 
   $TaskScheduleCopyWith<$Res> get schedule;
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
@@ -109,6 +111,7 @@ class _$TaskResponseCopyWithImpl<$Res, $Val extends TaskResponse>
     Object? totalCompletions = null,
     Object? currentStreak = freezed,
     Object? scheduleFromCompletion = null,
+    Object? vacationMode = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -175,6 +178,10 @@ class _$TaskResponseCopyWithImpl<$Res, $Val extends TaskResponse>
           ? _value.scheduleFromCompletion
           : scheduleFromCompletion // ignore: cast_nullable_to_non_nullable
               as bool,
+      vacationMode: null == vacationMode
+          ? _value.vacationMode
+          : vacationMode // ignore: cast_nullable_to_non_nullable
+              as VacationMode,
     ) as $Val);
   }
 
@@ -241,7 +248,8 @@ abstract class _$$TaskResponseImplCopyWith<$Res>
       String? taskImagePath,
       int totalCompletions,
       StreakResponse? currentStreak,
-      bool scheduleFromCompletion});
+      bool scheduleFromCompletion,
+      VacationMode vacationMode});
 
   @override
   $TaskScheduleCopyWith<$Res> get schedule;
@@ -280,6 +288,7 @@ class __$$TaskResponseImplCopyWithImpl<$Res>
     Object? totalCompletions = null,
     Object? currentStreak = freezed,
     Object? scheduleFromCompletion = null,
+    Object? vacationMode = null,
   }) {
     return _then(_$TaskResponseImpl(
       id: null == id
@@ -346,6 +355,10 @@ class __$$TaskResponseImplCopyWithImpl<$Res>
           ? _value.scheduleFromCompletion
           : scheduleFromCompletion // ignore: cast_nullable_to_non_nullable
               as bool,
+      vacationMode: null == vacationMode
+          ? _value.vacationMode
+          : vacationMode // ignore: cast_nullable_to_non_nullable
+              as VacationMode,
     ));
   }
 }
@@ -369,7 +382,8 @@ class _$TaskResponseImpl implements _TaskResponse {
       this.taskImagePath,
       this.totalCompletions = 0,
       this.currentStreak,
-      this.scheduleFromCompletion = false});
+      this.scheduleFromCompletion = false,
+      this.vacationMode = VacationMode.NO_CHANGE});
 
   factory _$TaskResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$TaskResponseImplFromJson(json);
@@ -412,10 +426,13 @@ class _$TaskResponseImpl implements _TaskResponse {
   @override
   @JsonKey()
   final bool scheduleFromCompletion;
+  @override
+  @JsonKey()
+  final VacationMode vacationMode;
 
   @override
   String toString() {
-    return 'TaskResponse(id: $id, name: $name, description: $description, taskListId: $taskListId, taskListName: $taskListName, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, firstRunDate: $firstRunDate, nextDueDate: $nextDueDate, sortOrder: $sortOrder, isActive: $isActive, taskImagePath: $taskImagePath, totalCompletions: $totalCompletions, currentStreak: $currentStreak, scheduleFromCompletion: $scheduleFromCompletion)';
+    return 'TaskResponse(id: $id, name: $name, description: $description, taskListId: $taskListId, taskListName: $taskListName, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, firstRunDate: $firstRunDate, nextDueDate: $nextDueDate, sortOrder: $sortOrder, isActive: $isActive, taskImagePath: $taskImagePath, totalCompletions: $totalCompletions, currentStreak: $currentStreak, scheduleFromCompletion: $scheduleFromCompletion, vacationMode: $vacationMode)';
   }
 
   @override
@@ -452,7 +469,9 @@ class _$TaskResponseImpl implements _TaskResponse {
             (identical(other.currentStreak, currentStreak) ||
                 other.currentStreak == currentStreak) &&
             (identical(other.scheduleFromCompletion, scheduleFromCompletion) ||
-                other.scheduleFromCompletion == scheduleFromCompletion));
+                other.scheduleFromCompletion == scheduleFromCompletion) &&
+            (identical(other.vacationMode, vacationMode) ||
+                other.vacationMode == vacationMode));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -474,7 +493,8 @@ class _$TaskResponseImpl implements _TaskResponse {
       taskImagePath,
       totalCompletions,
       currentStreak,
-      scheduleFromCompletion);
+      scheduleFromCompletion,
+      vacationMode);
 
   /// Create a copy of TaskResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -509,7 +529,8 @@ abstract class _TaskResponse implements TaskResponse {
       final String? taskImagePath,
       final int totalCompletions,
       final StreakResponse? currentStreak,
-      final bool scheduleFromCompletion}) = _$TaskResponseImpl;
+      final bool scheduleFromCompletion,
+      final VacationMode vacationMode}) = _$TaskResponseImpl;
 
   factory _TaskResponse.fromJson(Map<String, dynamic> json) =
       _$TaskResponseImpl.fromJson;
@@ -548,6 +569,8 @@ abstract class _TaskResponse implements TaskResponse {
   StreakResponse? get currentStreak;
   @override
   bool get scheduleFromCompletion;
+  @override
+  VacationMode get vacationMode;
 
   /// Create a copy of TaskResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -575,6 +598,7 @@ mixin _$CreateTaskRequest {
   int? get sortOrder => throw _privateConstructorUsedError;
   int? get taskImageId => throw _privateConstructorUsedError;
   bool? get scheduleFromCompletion => throw _privateConstructorUsedError;
+  VacationMode? get vacationMode => throw _privateConstructorUsedError;
 
   /// Serializes this CreateTaskRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -602,7 +626,8 @@ abstract class $CreateTaskRequestCopyWith<$Res> {
       DateTime firstRunDate,
       int? sortOrder,
       int? taskImageId,
-      bool? scheduleFromCompletion});
+      bool? scheduleFromCompletion,
+      VacationMode? vacationMode});
 
   $TaskScheduleCopyWith<$Res> get schedule;
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
@@ -633,6 +658,7 @@ class _$CreateTaskRequestCopyWithImpl<$Res, $Val extends CreateTaskRequest>
     Object? sortOrder = freezed,
     Object? taskImageId = freezed,
     Object? scheduleFromCompletion = freezed,
+    Object? vacationMode = freezed,
   }) {
     return _then(_value.copyWith(
       name: null == name
@@ -675,6 +701,10 @@ class _$CreateTaskRequestCopyWithImpl<$Res, $Val extends CreateTaskRequest>
           ? _value.scheduleFromCompletion
           : scheduleFromCompletion // ignore: cast_nullable_to_non_nullable
               as bool?,
+      vacationMode: freezed == vacationMode
+          ? _value.vacationMode
+          : vacationMode // ignore: cast_nullable_to_non_nullable
+              as VacationMode?,
     ) as $Val);
   }
 
@@ -721,7 +751,8 @@ abstract class _$$CreateTaskRequestImplCopyWith<$Res>
       DateTime firstRunDate,
       int? sortOrder,
       int? taskImageId,
-      bool? scheduleFromCompletion});
+      bool? scheduleFromCompletion,
+      VacationMode? vacationMode});
 
   @override
   $TaskScheduleCopyWith<$Res> get schedule;
@@ -752,6 +783,7 @@ class __$$CreateTaskRequestImplCopyWithImpl<$Res>
     Object? sortOrder = freezed,
     Object? taskImageId = freezed,
     Object? scheduleFromCompletion = freezed,
+    Object? vacationMode = freezed,
   }) {
     return _then(_$CreateTaskRequestImpl(
       name: null == name
@@ -794,6 +826,10 @@ class __$$CreateTaskRequestImplCopyWithImpl<$Res>
           ? _value.scheduleFromCompletion
           : scheduleFromCompletion // ignore: cast_nullable_to_non_nullable
               as bool?,
+      vacationMode: freezed == vacationMode
+          ? _value.vacationMode
+          : vacationMode // ignore: cast_nullable_to_non_nullable
+              as VacationMode?,
     ));
   }
 }
@@ -811,7 +847,8 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
       required this.firstRunDate,
       this.sortOrder,
       this.taskImageId,
-      this.scheduleFromCompletion});
+      this.scheduleFromCompletion,
+      this.vacationMode});
 
   factory _$CreateTaskRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreateTaskRequestImplFromJson(json);
@@ -838,10 +875,12 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
   final int? taskImageId;
   @override
   final bool? scheduleFromCompletion;
+  @override
+  final VacationMode? vacationMode;
 
   @override
   String toString() {
-    return 'CreateTaskRequest(name: $name, description: $description, taskListId: $taskListId, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, firstRunDate: $firstRunDate, sortOrder: $sortOrder, taskImageId: $taskImageId, scheduleFromCompletion: $scheduleFromCompletion)';
+    return 'CreateTaskRequest(name: $name, description: $description, taskListId: $taskListId, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, firstRunDate: $firstRunDate, sortOrder: $sortOrder, taskImageId: $taskImageId, scheduleFromCompletion: $scheduleFromCompletion, vacationMode: $vacationMode)';
   }
 
   @override
@@ -867,7 +906,9 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
             (identical(other.taskImageId, taskImageId) ||
                 other.taskImageId == taskImageId) &&
             (identical(other.scheduleFromCompletion, scheduleFromCompletion) ||
-                other.scheduleFromCompletion == scheduleFromCompletion));
+                other.scheduleFromCompletion == scheduleFromCompletion) &&
+            (identical(other.vacationMode, vacationMode) ||
+                other.vacationMode == vacationMode));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -883,7 +924,8 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
       firstRunDate,
       sortOrder,
       taskImageId,
-      scheduleFromCompletion);
+      scheduleFromCompletion,
+      vacationMode);
 
   /// Create a copy of CreateTaskRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -913,7 +955,8 @@ abstract class _CreateTaskRequest implements CreateTaskRequest {
       required final DateTime firstRunDate,
       final int? sortOrder,
       final int? taskImageId,
-      final bool? scheduleFromCompletion}) = _$CreateTaskRequestImpl;
+      final bool? scheduleFromCompletion,
+      final VacationMode? vacationMode}) = _$CreateTaskRequestImpl;
 
   factory _CreateTaskRequest.fromJson(Map<String, dynamic> json) =
       _$CreateTaskRequestImpl.fromJson;
@@ -940,6 +983,8 @@ abstract class _CreateTaskRequest implements CreateTaskRequest {
   int? get taskImageId;
   @override
   bool? get scheduleFromCompletion;
+  @override
+  VacationMode? get vacationMode;
 
   /// Create a copy of CreateTaskRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -966,6 +1011,7 @@ mixin _$UpdateTaskRequest {
   bool? get isActive => throw _privateConstructorUsedError;
   int? get taskImageId => throw _privateConstructorUsedError;
   bool? get scheduleFromCompletion => throw _privateConstructorUsedError;
+  VacationMode? get vacationMode => throw _privateConstructorUsedError;
 
   /// Serializes this UpdateTaskRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -992,7 +1038,8 @@ abstract class $UpdateTaskRequestCopyWith<$Res> {
       int? sortOrder,
       bool? isActive,
       int? taskImageId,
-      bool? scheduleFromCompletion});
+      bool? scheduleFromCompletion,
+      VacationMode? vacationMode});
 
   $TaskScheduleCopyWith<$Res>? get schedule;
   $LocalTimeCopyWith<$Res>? get alarmAtTimeOfDay;
@@ -1022,6 +1069,7 @@ class _$UpdateTaskRequestCopyWithImpl<$Res, $Val extends UpdateTaskRequest>
     Object? isActive = freezed,
     Object? taskImageId = freezed,
     Object? scheduleFromCompletion = freezed,
+    Object? vacationMode = freezed,
   }) {
     return _then(_value.copyWith(
       name: freezed == name
@@ -1060,6 +1108,10 @@ class _$UpdateTaskRequestCopyWithImpl<$Res, $Val extends UpdateTaskRequest>
           ? _value.scheduleFromCompletion
           : scheduleFromCompletion // ignore: cast_nullable_to_non_nullable
               as bool?,
+      vacationMode: freezed == vacationMode
+          ? _value.vacationMode
+          : vacationMode // ignore: cast_nullable_to_non_nullable
+              as VacationMode?,
     ) as $Val);
   }
 
@@ -1109,7 +1161,8 @@ abstract class _$$UpdateTaskRequestImplCopyWith<$Res>
       int? sortOrder,
       bool? isActive,
       int? taskImageId,
-      bool? scheduleFromCompletion});
+      bool? scheduleFromCompletion,
+      VacationMode? vacationMode});
 
   @override
   $TaskScheduleCopyWith<$Res>? get schedule;
@@ -1139,6 +1192,7 @@ class __$$UpdateTaskRequestImplCopyWithImpl<$Res>
     Object? isActive = freezed,
     Object? taskImageId = freezed,
     Object? scheduleFromCompletion = freezed,
+    Object? vacationMode = freezed,
   }) {
     return _then(_$UpdateTaskRequestImpl(
       name: freezed == name
@@ -1177,6 +1231,10 @@ class __$$UpdateTaskRequestImplCopyWithImpl<$Res>
           ? _value.scheduleFromCompletion
           : scheduleFromCompletion // ignore: cast_nullable_to_non_nullable
               as bool?,
+      vacationMode: freezed == vacationMode
+          ? _value.vacationMode
+          : vacationMode // ignore: cast_nullable_to_non_nullable
+              as VacationMode?,
     ));
   }
 }
@@ -1193,7 +1251,8 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
       this.sortOrder,
       this.isActive,
       this.taskImageId,
-      this.scheduleFromCompletion});
+      this.scheduleFromCompletion,
+      this.vacationMode});
 
   factory _$UpdateTaskRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$UpdateTaskRequestImplFromJson(json);
@@ -1218,10 +1277,12 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
   final int? taskImageId;
   @override
   final bool? scheduleFromCompletion;
+  @override
+  final VacationMode? vacationMode;
 
   @override
   String toString() {
-    return 'UpdateTaskRequest(name: $name, description: $description, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, sortOrder: $sortOrder, isActive: $isActive, taskImageId: $taskImageId, scheduleFromCompletion: $scheduleFromCompletion)';
+    return 'UpdateTaskRequest(name: $name, description: $description, schedule: $schedule, alarmAtTimeOfDay: $alarmAtTimeOfDay, completionWindowHours: $completionWindowHours, sortOrder: $sortOrder, isActive: $isActive, taskImageId: $taskImageId, scheduleFromCompletion: $scheduleFromCompletion, vacationMode: $vacationMode)';
   }
 
   @override
@@ -1245,7 +1306,9 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
             (identical(other.taskImageId, taskImageId) ||
                 other.taskImageId == taskImageId) &&
             (identical(other.scheduleFromCompletion, scheduleFromCompletion) ||
-                other.scheduleFromCompletion == scheduleFromCompletion));
+                other.scheduleFromCompletion == scheduleFromCompletion) &&
+            (identical(other.vacationMode, vacationMode) ||
+                other.vacationMode == vacationMode));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1260,7 +1323,8 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
       sortOrder,
       isActive,
       taskImageId,
-      scheduleFromCompletion);
+      scheduleFromCompletion,
+      vacationMode);
 
   /// Create a copy of UpdateTaskRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -1289,7 +1353,8 @@ abstract class _UpdateTaskRequest implements UpdateTaskRequest {
       final int? sortOrder,
       final bool? isActive,
       final int? taskImageId,
-      final bool? scheduleFromCompletion}) = _$UpdateTaskRequestImpl;
+      final bool? scheduleFromCompletion,
+      final VacationMode? vacationMode}) = _$UpdateTaskRequestImpl;
 
   factory _UpdateTaskRequest.fromJson(Map<String, dynamic> json) =
       _$UpdateTaskRequestImpl.fromJson;
@@ -1314,6 +1379,8 @@ abstract class _UpdateTaskRequest implements UpdateTaskRequest {
   int? get taskImageId;
   @override
   bool? get scheduleFromCompletion;
+  @override
+  VacationMode? get vacationMode;
 
   /// Create a copy of UpdateTaskRequest
   /// with the given fields replaced by the non-null parameter values.

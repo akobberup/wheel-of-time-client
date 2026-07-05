@@ -31,6 +31,9 @@ _$TaskResponseImpl _$$TaskResponseImplFromJson(Map<String, dynamic> json) =>
           : StreakResponse.fromJson(
               json['currentStreak'] as Map<String, dynamic>),
       scheduleFromCompletion: json['scheduleFromCompletion'] as bool? ?? false,
+      vacationMode:
+          $enumDecodeNullable(_$VacationModeEnumMap, json['vacationMode']) ??
+              VacationMode.NO_CHANGE,
     );
 
 Map<String, dynamic> _$$TaskResponseImplToJson(_$TaskResponseImpl instance) =>
@@ -52,7 +55,14 @@ Map<String, dynamic> _$$TaskResponseImplToJson(_$TaskResponseImpl instance) =>
       'totalCompletions': instance.totalCompletions,
       'currentStreak': instance.currentStreak,
       'scheduleFromCompletion': instance.scheduleFromCompletion,
+      'vacationMode': instance.vacationMode,
     };
+
+const _$VacationModeEnumMap = {
+  VacationMode.NO_CHANGE: 'NO_CHANGE',
+  VacationMode.ONLY_IN_VACATION: 'ONLY_IN_VACATION',
+  VacationMode.NOT_IN_VACATION: 'NOT_IN_VACATION',
+};
 
 _$CreateTaskRequestImpl _$$CreateTaskRequestImplFromJson(
         Map<String, dynamic> json) =>
@@ -69,6 +79,8 @@ _$CreateTaskRequestImpl _$$CreateTaskRequestImplFromJson(
       sortOrder: (json['sortOrder'] as num?)?.toInt(),
       taskImageId: (json['taskImageId'] as num?)?.toInt(),
       scheduleFromCompletion: json['scheduleFromCompletion'] as bool?,
+      vacationMode:
+          $enumDecodeNullable(_$VacationModeEnumMap, json['vacationMode']),
     );
 
 Map<String, dynamic> _$$CreateTaskRequestImplToJson(
@@ -85,6 +97,7 @@ Map<String, dynamic> _$$CreateTaskRequestImplToJson(
       'sortOrder': instance.sortOrder,
       'taskImageId': instance.taskImageId,
       'scheduleFromCompletion': instance.scheduleFromCompletion,
+      'vacationMode': instance.vacationMode,
     };
 
 _$UpdateTaskRequestImpl _$$UpdateTaskRequestImplFromJson(
@@ -101,6 +114,8 @@ _$UpdateTaskRequestImpl _$$UpdateTaskRequestImplFromJson(
       isActive: json['isActive'] as bool?,
       taskImageId: (json['taskImageId'] as num?)?.toInt(),
       scheduleFromCompletion: json['scheduleFromCompletion'] as bool?,
+      vacationMode:
+          $enumDecodeNullable(_$VacationModeEnumMap, json['vacationMode']),
     );
 
 Map<String, dynamic> _$$UpdateTaskRequestImplToJson(
@@ -117,6 +132,7 @@ Map<String, dynamic> _$$UpdateTaskRequestImplToJson(
       'isActive': instance.isActive,
       'taskImageId': instance.taskImageId,
       'scheduleFromCompletion': instance.scheduleFromCompletion,
+      'vacationMode': instance.vacationMode,
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(
